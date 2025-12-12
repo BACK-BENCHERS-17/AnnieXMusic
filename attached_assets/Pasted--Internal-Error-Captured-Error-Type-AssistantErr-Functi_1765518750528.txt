@@ -1,0 +1,41 @@
+🚨 Internal Error Captured
+📍 Error Type: AssistantErr
+📌 Function: stream
+
+Traceback:
+Traceback (most recent call last):
+  File "/home/runner/workspace/ANNIEMUSIC/core/call.py", line 236, in join_call
+    await assistant.play(chat_id, stream)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/statictypes.py", line 96, in async_wrapper
+    return await func(*args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/mtproto_required.py", line 23, in async_wrapper
+    return await func(*args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/mutex.py", line 12, in async_wrapper
+    return await func(*args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/methods/stream/play.py", line 81, in play
+    await self._connect_call(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/methods/internal/connect_call.py", line 128, in _connect_call
+    await self._wait_connect[chat_id]
+ntgcalls.TelegramServerError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/workspace/ANNIEMUSIC/utils/errors.py", line 133, in wrapper
+    return await func(*args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/ANNIEMUSIC/utils/stream/stream.py", line 187, in stream
+    await JARVIS.join_call(
+  File "/home/runner/workspace/ANNIEMUSIC/utils/errors.py", line 139, in wrapper
+    raise err
+  File "/home/runner/workspace/ANNIEMUSIC/utils/errors.py", line 133, in wrapper
+    return await func(*args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/ANNIEMUSIC/core/call.py", line 240, in join_call
+    raise AssistantErr(_["call_10"])
+ANNIEMUSIC.utils.exceptions.AssistantErr: Tᴇʟᴇɢʀᴀᴍ sᴇʀᴠᴇʀ ᴇʀʀᴏʀ
+
+ᴛᴇʟᴇɢʀᴀᴍ ɪs ʜᴀᴠɪɴɢ sᴏᴍᴇ ɪɴᴛᴇʀɴᴀʟ ᴘʀᴏʙʟᴇᴍs, ᴘʟᴇᴀsᴇ ᴛʀʏ ᴘʟᴀʏɪɴɢ ᴀɢᴀɪɴ ᴏʀ ʀᴇsᴛᴀʀᴛ ᴛʜᴇ ᴠɪᴅᴇᴏᴄʜᴀᴛ ᴏғ ʏᴏᴜʀ ɢʀᴏᴜᴘ.
