@@ -3,7 +3,7 @@ import os
 from datetime import datetime, timedelta
 from typing import Union
 
-from ntgcalls import TelegramServerError
+from ntgcalls import TelegramServerError, ConnectionError as NTgConnectionError
 from pyrogram import Client
 from pyrogram.errors import FloodWait, ChatAdminRequired
 from pyrogram.types import InlineKeyboardMarkup
@@ -243,6 +243,14 @@ class Call:
                     await asyncio.sleep(2)
                     continue
                 raise AssistantErr(_["call_10"])
+            except NTgConnectionError:
+                try:
+                    await assistant.leave_call(chat_id)
+                    await asyncio.sleep(1)
+                    await assistant.play(chat_id, stream)
+                    break
+                except Exception:
+                    pass
             except Exception as e:
                 raise AssistantErr(
                     f"ᴜɴᴀʙʟᴇ ᴛᴏ ᴊᴏɪɴ ᴛʜᴇ ɢʀᴏᴜᴘ ᴄᴀʟʟ.\nRᴇᴀsᴏɴ: {e}"
