@@ -123,11 +123,17 @@ async def help_back_cb(client: Client, CallbackQuery: types.CallbackQuery, _):
     else:
         return await CallbackQuery.answer("Invalid page.", show_alert=True)
 
-    await CallbackQuery.edit_message_text(
-        _["help_1"].format(SUPPORT_CHAT),
-        reply_markup=keyboard,
-        disable_web_page_preview=True
-    )
+    try:
+        await CallbackQuery.edit_message_text(
+            _["help_1"].format(SUPPORT_CHAT),
+            reply_markup=keyboard,
+            disable_web_page_preview=True
+        )
+    except Exception as e:
+        # Ignore "MESSAGE_NOT_MODIFIED" errors when content is identical
+        if "MESSAGE_NOT_MODIFIED" not in str(e):
+            raise
+        await CallbackQuery.answer("Already on this page.")
 
 # ────────────────────────────────────────  sub-topic buttons (Action) ─
 

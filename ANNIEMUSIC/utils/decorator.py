@@ -30,6 +30,10 @@ def admin_required(*privileges: str):
             if not message.from_user:  # anonymous admin?
                 return await message.reply_text("Unhide your account to use this command.")
 
+            # Private chats don't have members, skip admin check
+            if message.chat.type == ChatType.PRIVATE:
+                return await func(client, message, *a, **kw)
+
             member = await message.chat.get_member(message.from_user.id)
             allowed = False
             if member.status == ChatMemberStatus.OWNER:
