@@ -20,7 +20,7 @@ from pyrogram.enums import ChatMemberStatus
 from pyrogram.errors import (
     UserNotParticipant, ChatAdminRequired, FloodWait,
     PeerIdInvalid, ChannelPrivate, MessageNotModified, MessageIdInvalid,
-    UserAlreadyParticipant, UserNotMutualContact
+    UserAlreadyParticipant
 )
 
 from ANNIEMUSIC import app
@@ -103,65 +103,36 @@ async def deleteall_callback(client, callback: CallbackQuery):
     ass_me = await assistant.get_me()
     ass_id = ass_me.id
 
-    # Try to promote directly (assume already in chat)
-    promote_success = False
-    for attempt in range(5):
+    try:
+        member = await client.get_chat_member(chat_id, ass_id)
+        if member.status in (ChatMemberStatus.BANNED, ChatMemberStatus.LEFT):
+            raise UserNotParticipant
+    except (UserNotParticipant, PeerIdInvalid):
         try:
-            await client.promote_chat_member(
-                chat_id, ass_id,
-                privileges=ChatAdministratorRights(can_delete_messages=True)
-            )
-            promote_success = True
-            log.info(f"Assistant promoted on attempt {attempt + 1}")
-            break
-        except UserNotParticipant:
-            # Assistant not in chat, try to invite
-            log.info(f"Assistant not in chat, attempting to invite (attempt {attempt + 1})")
-            if attempt == 0:  # Only invite on first attempt
-                try:
-                    link: ChatInviteLink = await client.create_chat_invite_link(chat_id, member_limit=1)
-                    await assistant.join_chat(link.invite_link)
-                    await asyncio.sleep(2)
-                    continue
-                except ChatAdminRequired:
-                    await _safe_edit(callback, "Failed to invite assistant: missing invite permission.")
-                    return
-                except UserAlreadyParticipant:
-                    await asyncio.sleep(2)
-                    continue
-                except Exception as e:
-                    log.error("Invite assistant error: %s", e)
-                    await _safe_edit(callback, f"Failed to add assistant: {e}")
-                    return
-            elif attempt < 4:
-                await asyncio.sleep(2)
-                continue
-            else:
-                await _safe_edit(callback, "Failed: assistant could not join the chat.")
-                return
-        except UserNotMutualContact:
-            # In channels/large groups, assistant might not be mutual contact
-            # Try to proceed with deletion without admin rights, or with assistant's own client
-            log.warning(f"Assistant not mutual contact, attempting deletion without promotion")
-            promote_success = True  # Continue anyway
-            break
-        except PeerIdInvalid:
-            if attempt < 4:
-                await asyncio.sleep(2)
-                continue
-            log.error("Promote assistant failed: peer not recognized after retries")
-            await _safe_edit(callback, "Failed: peer sync timeout. Try again in a moment.")
-            return
+            link: ChatInviteLink = await client.create_chat_invite_link(chat_id, member_limit=1)
+            await assistant.join_chat(link.invite_link)
+            await asyncio.sleep(1)
         except ChatAdminRequired:
-            await _safe_edit(callback, "Failed to promote assistant: missing promote permission.")
+            await _safe_edit(callback, "Failed to invite assistant: missing invite permission.")
             return
+        except UserAlreadyParticipant:
+            pass
         except Exception as e:
-            log.error("Promote assistant error: %s", e)
-            await _safe_edit(callback, f"Failed to promote assistant: {e}")
+            log.error("Invite assistant error: %s", e)
+            await _safe_edit(callback, f"Failed to add assistant: {e}")
             return
-    
-    if not promote_success:
-        await _safe_edit(callback, "Failed to promote assistant: unknown error.")
+
+    try:
+        await client.promote_chat_member(
+            chat_id, ass_id,
+            privileges=ChatAdministratorRights(can_delete_messages=True)
+        )
+    except ChatAdminRequired:
+        await _safe_edit(callback, "Failed to promote assistant: missing promote permission.")
+        return
+    except Exception as e:
+        log.error("Promote assistant error: %s", e)
+        await _safe_edit(callback, f"Failed to promote assistant: {e}")
         return
 
     try:
