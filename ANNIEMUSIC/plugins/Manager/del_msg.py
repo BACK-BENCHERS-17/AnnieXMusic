@@ -103,40 +103,7 @@ async def deleteall_callback(client, callback: CallbackQuery):
     ass_me = await assistant.get_me()
     ass_id = ass_me.id
 
-    try:
-        member = await client.get_chat_member(chat_id, ass_id)
-        if member.status in (ChatMemberStatus.BANNED, ChatMemberStatus.LEFT):
-            raise UserNotParticipant
-    except (UserNotParticipant, PeerIdInvalid):
-        try:
-            link: ChatInviteLink = await client.create_chat_invite_link(chat_id, member_limit=1)
-            await assistant.join_chat(link.invite_link)
-            await asyncio.sleep(3)  # Increased wait for peer sync
-        except ChatAdminRequired:
-            await _safe_edit(callback, "Failed to invite assistant: missing invite permission.")
-            return
-        except UserAlreadyParticipant:
-            pass
-        except Exception as e:
-            log.error("Invite assistant error: %s", e)
-            await _safe_edit(callback, f"Failed to add assistant: {e}")
-            return
-
-    # Verify assistant is in chat and sync peer
-    for verify_attempt in range(5):
-        try:
-            await client.get_chat_member(chat_id, ass_id)
-            break
-        except PeerIdInvalid:
-            if verify_attempt < 4:
-                await asyncio.sleep(2)
-                continue
-            log.error("Assistant peer not synced in chat")
-            break
-        except Exception:
-            break
-
-    # Retry promoting with delay in case of peer sync issues
+    # Try to promote directly (assume already in chat)
     promote_success = False
     for attempt in range(5):
         try:
@@ -145,13 +112,39 @@ async def deleteall_callback(client, callback: CallbackQuery):
                 privileges=ChatAdministratorRights(can_delete_messages=True)
             )
             promote_success = True
+            log.info(f"Assistant promoted on attempt {attempt + 1}")
             break
+        except UserNotParticipant:
+            # Assistant not in chat, try to invite
+            log.info(f"Assistant not in chat, attempting to invite (attempt {attempt + 1})")
+            if attempt == 0:  # Only invite on first attempt
+                try:
+                    link: ChatInviteLink = await client.create_chat_invite_link(chat_id, member_limit=1)
+                    await assistant.join_chat(link.invite_link)
+                    await asyncio.sleep(2)
+                    continue
+                except ChatAdminRequired:
+                    await _safe_edit(callback, "Failed to invite assistant: missing invite permission.")
+                    return
+                except UserAlreadyParticipant:
+                    await asyncio.sleep(2)
+                    continue
+                except Exception as e:
+                    log.error("Invite assistant error: %s", e)
+                    await _safe_edit(callback, f"Failed to add assistant: {e}")
+                    return
+            elif attempt < 4:
+                await asyncio.sleep(2)
+                continue
+            else:
+                await _safe_edit(callback, "Failed: assistant could not join the chat.")
+                return
         except PeerIdInvalid:
             if attempt < 4:
-                await asyncio.sleep(3)
+                await asyncio.sleep(2)
                 continue
-            log.error("Promote assistant failed: peer not synced after retries")
-            await _safe_edit(callback, "Failed to promote assistant: peer not recognized. Try again in a moment.")
+            log.error("Promote assistant failed: peer not recognized after retries")
+            await _safe_edit(callback, "Failed: peer sync timeout. Try again in a moment.")
             return
         except ChatAdminRequired:
             await _safe_edit(callback, "Failed to promote assistant: missing promote permission.")
