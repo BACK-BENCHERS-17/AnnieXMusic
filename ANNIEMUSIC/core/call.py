@@ -236,8 +236,13 @@ class Call:
             try:
                 await assistant.play(chat_id, stream)
                 break
-            except (NoActiveGroupCall, ChatAdminRequired):
+            except NoActiveGroupCall:
                 raise AssistantErr(_["call_8"])
+            except ChatAdminRequired:
+                raise AssistantErr(
+                    "<b>ᴍᴜsɪᴄ ʙᴏᴛ ɴᴇᴇᴅs ᴀᴅᴍɪɴ ᴘᴇʀᴍɪssɪᴏɴs</b>\n\n"
+                    "Pʟᴇᴀsᴇ ᴘʀᴏᴍᴏᴛᴇ ᴍᴇ ᴀs ᴀɴ ᴀᴅᴍɪɴ ɪɴ ᴛʜᴇ ɢʀᴏᴜᴘ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ."
+                )
             except TelegramServerError:
                 if attempt < 2:
                     await asyncio.sleep(2)

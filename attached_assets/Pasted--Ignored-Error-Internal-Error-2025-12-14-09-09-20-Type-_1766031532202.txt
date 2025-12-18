@@ -1,0 +1,276 @@
+
+--- Ignored Error | Internal Error @ 2025-12-14 09:09:20 ---
+Type: AssistantErr
+Function: join_call
+Traceback:
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/ANNIEMUSIC/core/call.py", line 237, in join_call
+    await assistant.play(chat_id, stream)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/statictypes.py", line 96, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto_required.py", line 23, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mutex.py", line 12, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/methods/stream/play.py", line 74, in play
+    await self._app.create_group_call(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/mtproto_client.py", line 183, in create_group_call
+    await self._bind_client.create_group_call(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/pyrogram_client.py", line 585, in create_group_call
+    result: Updates = await self._invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/pyrogram_client.py", line 829, in _invoke
+    return await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.ChatAdminRequired: Telegram says: [400 CHAT_ADMIN_REQUIRED] - You must be an admin in this chat to do this. (caused by "phone.CreateGroupCall")
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 133, in wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/ANNIEMUSIC/core/call.py", line 240, in join_call
+    raise AssistantErr(_["call_8"])
+ANNIEMUSIC.utils.exceptions.AssistantErr: <b>Nᴏ ᴀᴄᴛɪᴠᴇ ᴠɪᴅᴇᴏᴄʜᴀᴛ ғᴏᴜɴᴅ.</b>
+
+Pʟᴇᴀsᴇ sᴛᴀʀᴛ ᴠɪᴅᴇᴏᴄʜᴀᴛ ɪɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ/ᴄʜᴀɴɴᴇʟ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.
+------------------------------------------
+
+--- Ignored Error | Internal Error @ 2025-12-14 09:09:20 ---
+Type: AssistantErr
+Function: stream
+Traceback:
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/ANNIEMUSIC/core/call.py", line 237, in join_call
+    await assistant.play(chat_id, stream)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/statictypes.py", line 96, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto_required.py", line 23, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mutex.py", line 12, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/methods/stream/play.py", line 74, in play
+    await self._app.create_group_call(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/mtproto_client.py", line 183, in create_group_call
+    await self._bind_client.create_group_call(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/pyrogram_client.py", line 585, in create_group_call
+    result: Updates = await self._invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/pyrogram_client.py", line 829, in _invoke
+    return await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.ChatAdminRequired: Telegram says: [400 CHAT_ADMIN_REQUIRED] - You must be an admin in this chat to do this. (caused by "phone.CreateGroupCall")
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 133, in wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/stream/stream.py", line 187, in stream
+    await JARVIS.join_call(
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 139, in wrapper
+    raise err
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 133, in wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/ANNIEMUSIC/core/call.py", line 240, in join_call
+    raise AssistantErr(_["call_8"])
+ANNIEMUSIC.utils.exceptions.AssistantErr: <b>Nᴏ ᴀᴄᴛɪᴠᴇ ᴠɪᴅᴇᴏᴄʜᴀᴛ ғᴏᴜɴᴅ.</b>
+
+Pʟᴇᴀsᴇ sᴛᴀʀᴛ ᴠɪᴅᴇᴏᴄʜᴀᴛ ɪɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ/ᴄʜᴀɴɴᴇʟ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.
+------------------------------------------
+
+--- Ignored Error | Internal Error @ 2025-12-14 09:09:20 ---
+Type: AssistantErr
+Function: join_call
+Traceback:
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/ANNIEMUSIC/core/call.py", line 237, in join_call
+    await assistant.play(chat_id, stream)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/statictypes.py", line 96, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto_required.py", line 23, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mutex.py", line 12, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/methods/stream/play.py", line 74, in play
+    await self._app.create_group_call(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/mtproto_client.py", line 183, in create_group_call
+    await self._bind_client.create_group_call(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/pyrogram_client.py", line 585, in create_group_call
+    result: Updates = await self._invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/pyrogram_client.py", line 829, in _invoke
+    return await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.ChatAdminRequired: Telegram says: [400 CHAT_ADMIN_REQUIRED] - You must be an admin in this chat to do this. (caused by "phone.CreateGroupCall")
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 133, in wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/ANNIEMUSIC/core/call.py", line 240, in join_call
+    raise AssistantErr(_["call_8"])
+ANNIEMUSIC.utils.exceptions.AssistantErr: <b>Nᴏ ᴀᴄᴛɪᴠᴇ ᴠɪᴅᴇᴏᴄʜᴀᴛ ғᴏᴜɴᴅ.</b>
+
+Pʟᴇᴀsᴇ sᴛᴀʀᴛ ᴠɪᴅᴇᴏᴄʜᴀᴛ ɪɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ/ᴄʜᴀɴɴᴇʟ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.
+------------------------------------------
+
+--- Ignored Error | Internal Error @ 2025-12-14 09:09:21 ---
+Type: AssistantErr
+Function: stream
+Traceback:
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/ANNIEMUSIC/core/call.py", line 237, in join_call
+    await assistant.play(chat_id, stream)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/statictypes.py", line 96, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto_required.py", line 23, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mutex.py", line 12, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/methods/stream/play.py", line 74, in play
+    await self._app.create_group_call(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/mtproto_client.py", line 183, in create_group_call
+    await self._bind_client.create_group_call(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/pyrogram_client.py", line 585, in create_group_call
+    result: Updates = await self._invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/pyrogram_client.py", line 829, in _invoke
+    return await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.ChatAdminRequired: Telegram says: [400 CHAT_ADMIN_REQUIRED] - You must be an admin in this chat to do this. (caused by "phone.CreateGroupCall")
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 133, in wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/stream/stream.py", line 187, in stream
+    await JARVIS.join_call(
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 139, in wrapper
+    raise err
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 133, in wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/ANNIEMUSIC/core/call.py", line 240, in join_call
+    raise AssistantErr(_["call_8"])
+ANNIEMUSIC.utils.exceptions.AssistantErr: <b>Nᴏ ᴀᴄᴛɪᴠᴇ ᴠɪᴅᴇᴏᴄʜᴀᴛ ғᴏᴜɴᴅ.</b>
+
+Pʟᴇᴀsᴇ sᴛᴀʀᴛ ᴠɪᴅᴇᴏᴄʜᴀᴛ ɪɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ/ᴄʜᴀɴɴᴇʟ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.
+------------------------------------------
+
+--- Ignored Error | Internal Error @ 2025-12-14 09:09:21 ---
+Type: AssistantErr
+Function: join_call
+Traceback:
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/ANNIEMUSIC/core/call.py", line 237, in join_call
+    await assistant.play(chat_id, stream)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/statictypes.py", line 96, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto_required.py", line 23, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mutex.py", line 12, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/methods/stream/play.py", line 74, in play
+    await self._app.create_group_call(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/mtproto_client.py", line 183, in create_group_call
+    await self._bind_client.create_group_call(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/pyrogram_client.py", line 585, in create_group_call
+    result: Updates = await self._invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/pyrogram_client.py", line 829, in _invoke
+    return await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.ChatAdminRequired: Telegram says: [400 CHAT_ADMIN_REQUIRED] - You must be an admin in this chat to do this. (caused by "phone.CreateGroupCall")
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 133, in wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/ANNIEMUSIC/core/call.py", line 240, in join_call
+    raise AssistantErr(_["call_8"])
+ANNIEMUSIC.utils.exceptions.AssistantErr: <b>Nᴏ ᴀᴄᴛɪᴠᴇ ᴠɪᴅᴇᴏᴄʜᴀᴛ ғᴏᴜɴᴅ.</b>
+
+Pʟᴇᴀsᴇ sᴛᴀʀᴛ ᴠɪᴅᴇᴏᴄʜᴀᴛ ɪɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ/ᴄʜᴀɴɴᴇʟ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.
+------------------------------------------
+
+--- Ignored Error | Internal Error @ 2025-12-14 09:09:21 ---
+Type: AssistantErr
+Function: stream
+Traceback:
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/ANNIEMUSIC/core/call.py", line 237, in join_call
+    await assistant.play(chat_id, stream)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/statictypes.py", line 96, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto_required.py", line 23, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mutex.py", line 12, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/methods/stream/play.py", line 74, in play
+    await self._app.create_group_call(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/mtproto_client.py", line 183, in create_group_call
+    await self._bind_client.create_group_call(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/pyrogram_client.py", line 585, in create_group_call
+    result: Updates = await self._invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/pyrogram_client.py", line 829, in _invoke
+    return await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.ChatAdminRequired: Telegram says: [400 CHAT_ADMIN_REQUIRED] - You must be an admin in this chat to do this. (caused by "phone.CreateGroupCall")
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 133, in wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/stream/stream.py", line 187, in stream
+    await JARVIS.join_call(
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 139, in wrapper
+    raise err
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 133, in wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/ANNIEMUSIC/core/call.py", line 240, in join_call
+    raise AssistantErr(_["call_8"])
+ANNIEMUSIC.utils.exceptions.AssistantErr: <b>Nᴏ ᴀᴄᴛɪᴠᴇ ᴠɪᴅᴇᴏᴄʜᴀᴛ ғᴏᴜɴᴅ.</b>
+
+Pʟᴇᴀsᴇ sᴛᴀʀᴛ ᴠɪᴅᴇᴏᴄʜᴀᴛ ɪɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ/ᴄʜᴀɴɴᴇʟ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.
+------------------------------------------
