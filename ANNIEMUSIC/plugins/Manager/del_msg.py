@@ -122,17 +122,33 @@ async def deleteall_callback(client, callback: CallbackQuery):
             await _safe_edit(callback, f"Failed to add assistant: {e}")
             return
 
-    try:
-        await client.promote_chat_member(
-            chat_id, ass_id,
-            privileges=ChatAdministratorRights(can_delete_messages=True)
-        )
-    except ChatAdminRequired:
-        await _safe_edit(callback, "Failed to promote assistant: missing promote permission.")
-        return
-    except Exception as e:
-        log.error("Promote assistant error: %s", e)
-        await _safe_edit(callback, f"Failed to promote assistant: {e}")
+    # Retry promoting with delay in case of peer sync issues
+    promote_success = False
+    for attempt in range(3):
+        try:
+            await client.promote_chat_member(
+                chat_id, ass_id,
+                privileges=ChatAdministratorRights(can_delete_messages=True)
+            )
+            promote_success = True
+            break
+        except PeerIdInvalid:
+            if attempt < 2:
+                await asyncio.sleep(2)
+                continue
+            log.error("Promote assistant failed: peer not synced after retries")
+            await _safe_edit(callback, "Failed to promote assistant: peer sync timeout.")
+            return
+        except ChatAdminRequired:
+            await _safe_edit(callback, "Failed to promote assistant: missing promote permission.")
+            return
+        except Exception as e:
+            log.error("Promote assistant error: %s", e)
+            await _safe_edit(callback, f"Failed to promote assistant: {e}")
+            return
+    
+    if not promote_success:
+        await _safe_edit(callback, "Failed to promote assistant: unknown error.")
         return
 
     try:
