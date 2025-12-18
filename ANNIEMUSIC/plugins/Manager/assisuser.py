@@ -74,9 +74,13 @@ async def join_userbot(app, chat_id, chat_username=None):
         try:
             await userbot.join_chat(invite)
             return "**✅ Assistant joined successfully.**"
+        except UserAlreadyParticipant:
+            return "**🤖 Assistant is already a participant.**"
         except Exception as ex:
             return f"**❌ Failed to add assistant after wait:** `{str(ex)}`"
     except Exception as e:
+        if "USER_ALREADY_PARTICIPANT" in str(e):
+            return "**🤖 Assistant is already a participant.**"
         return f"**❌ Failed to add assistant:** `{str(e)}`"
 
 

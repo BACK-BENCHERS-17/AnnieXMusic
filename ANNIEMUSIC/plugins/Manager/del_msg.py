@@ -19,7 +19,8 @@ from pyrogram.types import (
 from pyrogram.enums import ChatMemberStatus
 from pyrogram.errors import (
     UserNotParticipant, ChatAdminRequired, FloodWait,
-    PeerIdInvalid, ChannelPrivate, MessageNotModified, MessageIdInvalid
+    PeerIdInvalid, ChannelPrivate, MessageNotModified, MessageIdInvalid,
+    UserAlreadyParticipant
 )
 
 from ANNIEMUSIC import app
@@ -114,6 +115,8 @@ async def deleteall_callback(client, callback: CallbackQuery):
         except ChatAdminRequired:
             await _safe_edit(callback, "Failed to invite assistant: missing invite permission.")
             return
+        except UserAlreadyParticipant:
+            pass
         except Exception as e:
             log.error("Invite assistant error: %s", e)
             await _safe_edit(callback, f"Failed to add assistant: {e}")
