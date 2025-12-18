@@ -1,0 +1,1372 @@
+[13-Dec-25 16:05:24 - INFO] - ANNIEMUSIC.core.mongo - Connecting to your Mongo Database...
+[13-Dec-25 16:05:24 - INFO] - ANNIEMUSIC.core.mongo - Connected to your Mongo Database.
+[13-Dec-25 16:05:24 - INFO] - ANNIEMUSIC.core.dir - Directories Updated.
+[13-Dec-25 16:05:24 - INFO] - ANNIEMUSIC.core.git - Git Client Found [VPS DEPLOYER]
+[13-Dec-25 16:05:24 - INFO] - ANNIEMUSIC.misc - ᴅᴀᴛᴀʙᴀsᴇ ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ💗
+[13-Dec-25 16:05:24 - INFO] - ANNIEMUSIC.core.bot - Bot client initialized.
+[13-Dec-25 16:05:26 - INFO] - ANNIEMUSIC - ʏᴏᴜᴛᴜʙᴇ ᴄᴏᴏᴋɪᴇs ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ ✅
+[13-Dec-25 16:05:27 - INFO] - ANNIEMUSIC.misc - sᴜᴅᴏ ᴜsᴇʀs ᴅᴏɴᴇ..
+[13-Dec-25 16:05:33 - INFO] - ANNIEMUSIC.core.bot - ✅ Music Bot started as 𝚨 𝚴 𝚴 𝚰 𝚬 · 𝚳 ⋃ 𝛅 𝚰 ∁ (@ANNIEXMUSICxBOT)
+[13-Dec-25 16:07:47 - INFO] - ANNIEMUSIC.core.mongo - Connecting to your Mongo Database...
+[13-Dec-25 16:07:47 - INFO] - ANNIEMUSIC.core.mongo - Connected to your Mongo Database.
+[13-Dec-25 16:07:47 - INFO] - ANNIEMUSIC.core.dir - Directories Updated.
+[13-Dec-25 16:07:47 - INFO] - ANNIEMUSIC.core.git - Git Client Found [VPS DEPLOYER]
+[13-Dec-25 16:07:47 - INFO] - ANNIEMUSIC.misc - ᴅᴀᴛᴀʙᴀsᴇ ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ💗
+[13-Dec-25 16:07:47 - INFO] - ANNIEMUSIC.core.bot - Bot client initialized.
+[13-Dec-25 16:07:48 - INFO] - ANNIEMUSIC - ʏᴏᴜᴛᴜʙᴇ ᴄᴏᴏᴋɪᴇs ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ ✅
+[13-Dec-25 16:07:49 - INFO] - ANNIEMUSIC.misc - sᴜᴅᴏ ᴜsᴇʀs ᴅᴏɴᴇ..
+[13-Dec-25 16:07:55 - INFO] - ANNIEMUSIC.core.bot - ✅ Music Bot started as 𝚨 𝚴 𝚴 𝚰 𝚬 · 𝚳 ⋃ 𝛅 𝚰 ∁ (@ANNIEXMUSICxBOT)
+[13-Dec-25 16:09:31 - INFO] - ANNIEMUSIC.core.mongo - Connecting to your Mongo Database...
+[13-Dec-25 16:09:31 - INFO] - ANNIEMUSIC.core.mongo - Connected to your Mongo Database.
+[13-Dec-25 16:09:31 - INFO] - ANNIEMUSIC.core.dir - Directories Updated.
+[13-Dec-25 16:09:31 - INFO] - ANNIEMUSIC.core.git - Git Client Found [VPS DEPLOYER]
+[13-Dec-25 16:09:31 - INFO] - ANNIEMUSIC.misc - ᴅᴀᴛᴀʙᴀsᴇ ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ💗
+[13-Dec-25 16:09:31 - INFO] - ANNIEMUSIC.core.bot - Bot client initialized.
+[13-Dec-25 16:09:32 - INFO] - ANNIEMUSIC - ʏᴏᴜᴛᴜʙᴇ ᴄᴏᴏᴋɪᴇs ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ ✅
+[13-Dec-25 16:09:33 - INFO] - ANNIEMUSIC.misc - sᴜᴅᴏ ᴜsᴇʀs ᴅᴏɴᴇ..
+[13-Dec-25 16:09:38 - INFO] - ANNIEMUSIC.core.bot - ✅ Music Bot started as 𝚨 𝚴 𝚴 𝚰 𝚬 · 𝚳 ⋃ 𝛅 𝚰 ∁ (@ANNIEXMUSICxBOT)
+[13-Dec-25 16:09:38 - INFO] - ANNIEMUSIC.plugins - ᴀɴɴɪᴇ's ᴍᴏᴅᴜʟᴇs ʟᴏᴀᴅᴇᴅ...
+[13-Dec-25 16:09:38 - INFO] - ANNIEMUSIC.core.userbot - Starting Annie's Assistants...
+[13-Dec-25 16:09:39 - INFO] - ANNIEMUSIC.core.userbot - Assistant 1 Started as ✧ 𝚨𝚴𝚴𝚰𝚬 · 𝚨𝛅𝛅𝚰𝛅𝚻𝚨𝚴𝚻 ✧
+[13-Dec-25 16:09:39 - INFO] - ANNIEMUSIC.core.call - Starting PyTgCalls Clients...
+[13-Dec-25 16:09:39 - INFO] - ANNIEMUSIC - Annie Music Robot Started Successfully...
+[13-Dec-25 16:13:47 - INFO] - ANNIEMUSIC.core.mongo - Connecting to your Mongo Database...
+[13-Dec-25 16:13:47 - INFO] - ANNIEMUSIC.core.mongo - Connected to your Mongo Database.
+[13-Dec-25 16:13:47 - INFO] - ANNIEMUSIC.core.dir - Directories Updated.
+[13-Dec-25 16:13:47 - INFO] - ANNIEMUSIC.core.git - Git Client Found [VPS DEPLOYER]
+[13-Dec-25 16:13:47 - INFO] - ANNIEMUSIC.misc - ᴅᴀᴛᴀʙᴀsᴇ ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ💗
+[13-Dec-25 16:13:47 - INFO] - ANNIEMUSIC.core.bot - Bot client initialized.
+[13-Dec-25 16:13:48 - INFO] - ANNIEMUSIC - ʏᴏᴜᴛᴜʙᴇ ᴄᴏᴏᴋɪᴇs ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ ✅
+[13-Dec-25 16:13:49 - INFO] - ANNIEMUSIC.misc - sᴜᴅᴏ ᴜsᴇʀs ᴅᴏɴᴇ..
+[13-Dec-25 16:13:54 - INFO] - ANNIEMUSIC.core.bot - ✅ Music Bot started as 𝚨 𝚴 𝚴 𝚰 𝚬 · 𝚳 ⋃ 𝛅 𝚰 ∁ (@ANNIEXMUSICxBOT)
+[13-Dec-25 16:13:54 - INFO] - ANNIEMUSIC.plugins - ᴀɴɴɪᴇ's ᴍᴏᴅᴜʟᴇs ʟᴏᴀᴅᴇᴅ...
+[13-Dec-25 16:13:54 - INFO] - ANNIEMUSIC.core.userbot - Starting Annie's Assistants...
+[13-Dec-25 16:13:54 - INFO] - ANNIEMUSIC.core.userbot - Assistant 1 Started as ✧ 𝚨𝚴𝚴𝚰𝚬 · 𝚨𝛅𝛅𝚰𝛅𝚻𝚨𝚴𝚻 ✧
+[13-Dec-25 16:13:54 - INFO] - ANNIEMUSIC.core.call - Starting PyTgCalls Clients...
+[13-Dec-25 16:14:06 - INFO] - ANNIEMUSIC - Annie Music Robot Started Successfully...
+[13-Dec-25 16:26:01 - ERROR] - ANNIEMUSIC.plugins.Manager.del_msg - Invite assistant error: Telegram says: [400 USER_ALREADY_PARTICIPANT] - The user is already a participant of this chat. (caused by "messages.ImportChatInvite")
+[13-Dec-25 16:26:27 - ERROR] - ANNIEMUSIC.plugins.Manager.del_msg - Invite assistant error: Telegram says: [400 USER_ALREADY_PARTICIPANT] - The user is already a participant of this chat. (caused by "messages.ImportChatInvite")
+[13-Dec-25 16:30:08 - INFO] - ANNIEMUSIC.core.mongo - Connecting to your Mongo Database...
+[13-Dec-25 16:30:08 - INFO] - ANNIEMUSIC.core.mongo - Connected to your Mongo Database.
+[13-Dec-25 16:30:08 - INFO] - ANNIEMUSIC.core.dir - Directories Updated.
+[13-Dec-25 16:30:08 - INFO] - ANNIEMUSIC.core.git - Git Client Found [VPS DEPLOYER]
+[13-Dec-25 16:30:08 - INFO] - ANNIEMUSIC.misc - ᴅᴀᴛᴀʙᴀsᴇ ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ💗
+[13-Dec-25 16:30:08 - INFO] - ANNIEMUSIC.core.bot - Bot client initialized.
+[13-Dec-25 16:30:11 - INFO] - ANNIEMUSIC - ʏᴏᴜᴛᴜʙᴇ ᴄᴏᴏᴋɪᴇs ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ ✅
+[13-Dec-25 16:30:12 - INFO] - ANNIEMUSIC.misc - sᴜᴅᴏ ᴜsᴇʀs ᴅᴏɴᴇ..
+[13-Dec-25 16:30:17 - INFO] - ANNIEMUSIC.core.bot - ✅ Music Bot started as 𝚨 𝚴 𝚴 𝚰 𝚬 · 𝚳 ⋃ 𝛅 𝚰 ∁ (@ANNIEXMUSICxBOT)
+[13-Dec-25 16:30:18 - INFO] - ANNIEMUSIC.plugins - ᴀɴɴɪᴇ's ᴍᴏᴅᴜʟᴇs ʟᴏᴀᴅᴇᴅ...
+[13-Dec-25 16:30:18 - INFO] - ANNIEMUSIC.core.userbot - Starting Annie's Assistants...
+[13-Dec-25 16:30:19 - INFO] - ANNIEMUSIC.core.userbot - Assistant 1 Started as ✧ 𝚨𝚴𝚴𝚰𝚬 · 𝚨𝛅𝛅𝚰𝛅𝚻𝚨𝚴𝚻 ✧
+[13-Dec-25 16:30:19 - INFO] - ANNIEMUSIC.core.call - Starting PyTgCalls Clients...
+[13-Dec-25 16:30:28 - INFO] - ANNIEMUSIC - Annie Music Robot Started Successfully...
+[13-Dec-25 16:32:55 - INFO] - ANNIEMUSIC.core.mongo - Connecting to your Mongo Database...
+[13-Dec-25 16:32:55 - INFO] - ANNIEMUSIC.core.mongo - Connected to your Mongo Database.
+[13-Dec-25 16:32:55 - INFO] - ANNIEMUSIC.core.dir - Directories Updated.
+[13-Dec-25 16:32:55 - INFO] - ANNIEMUSIC.core.git - Git Client Found [VPS DEPLOYER]
+[13-Dec-25 16:32:55 - INFO] - ANNIEMUSIC.misc - ᴅᴀᴛᴀʙᴀsᴇ ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ💗
+[13-Dec-25 16:32:55 - INFO] - ANNIEMUSIC.core.bot - Bot client initialized.
+[13-Dec-25 16:32:57 - INFO] - ANNIEMUSIC - ʏᴏᴜᴛᴜʙᴇ ᴄᴏᴏᴋɪᴇs ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ ✅
+[13-Dec-25 16:32:58 - INFO] - ANNIEMUSIC.misc - sᴜᴅᴏ ᴜsᴇʀs ᴅᴏɴᴇ..
+[13-Dec-25 16:33:02 - INFO] - ANNIEMUSIC.core.bot - ✅ Music Bot started as 𝚨 𝚴 𝚴 𝚰 𝚬 · 𝚳 ⋃ 𝛅 𝚰 ∁ (@ANNIEXMUSICxBOT)
+[13-Dec-25 16:33:03 - INFO] - ANNIEMUSIC.plugins - ᴀɴɴɪᴇ's ᴍᴏᴅᴜʟᴇs ʟᴏᴀᴅᴇᴅ...
+[13-Dec-25 16:33:03 - INFO] - ANNIEMUSIC.core.userbot - Starting Annie's Assistants...
+[13-Dec-25 16:33:03 - INFO] - ANNIEMUSIC.core.userbot - Assistant 1 Started as ✧ 𝚨𝚴𝚴𝚰𝚬 · 𝚨𝛅𝛅𝚰𝛅𝚻𝚨𝚴𝚻 ✧
+[13-Dec-25 16:33:03 - INFO] - ANNIEMUSIC.core.call - Starting PyTgCalls Clients...
+[13-Dec-25 16:33:12 - INFO] - ANNIEMUSIC - Annie Music Robot Started Successfully...
+[14-Dec-25 04:45:02 - ERROR] - pyrogram.dispatcher - The chat_id "8127888290" belongs to a user
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 92, in get_chat_member
+    raise ValueError(f'The chat_id "{chat_id}" belongs to a user')
+ValueError: The chat_id "8127888290" belongs to a user
+[14-Dec-25 08:39:04 - ERROR] - pyrogram.dispatcher - Telegram says: [400 MESSAGE_NOT_MODIFIED] - The message was not modified because you tried to edit it using the same content. (caused by "messages.EditMessage")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorators/language.py", line 47, in wrapper
+    return await mystic(_, CallbackQuery, language)
+  File "/root/AnnieXMusic/ANNIEMUSIC/plugins/bot/help.py", line 126, in help_back_cb
+    await CallbackQuery.edit_message_text(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/bots_and_keyboards/callback_query.py", line 237, in edit_message_text
+    return await self._client.edit_message_text(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/messages/edit_message_text.py", line 102, in edit_message_text
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.MessageNotModified: Telegram says: [400 MESSAGE_NOT_MODIFIED] - The message was not modified because you tried to edit it using the same content. (caused by "messages.EditMessage")
+[14-Dec-25 08:39:04 - ERROR] - pyrogram.dispatcher - Telegram says: [400 MESSAGE_NOT_MODIFIED] - The message was not modified because you tried to edit it using the same content. (caused by "messages.EditMessage")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorators/language.py", line 47, in wrapper
+    return await mystic(_, CallbackQuery, language)
+  File "/root/AnnieXMusic/ANNIEMUSIC/plugins/bot/help.py", line 126, in help_back_cb
+    await CallbackQuery.edit_message_text(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/bots_and_keyboards/callback_query.py", line 237, in edit_message_text
+    return await self._client.edit_message_text(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/messages/edit_message_text.py", line 102, in edit_message_text
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.MessageNotModified: Telegram says: [400 MESSAGE_NOT_MODIFIED] - The message was not modified because you tried to edit it using the same content. (caused by "messages.EditMessage")
+[14-Dec-25 08:39:04 - ERROR] - pyrogram.dispatcher - Telegram says: [400 MESSAGE_NOT_MODIFIED] - The message was not modified because you tried to edit it using the same content. (caused by "messages.EditMessage")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorators/language.py", line 47, in wrapper
+    return await mystic(_, CallbackQuery, language)
+  File "/root/AnnieXMusic/ANNIEMUSIC/plugins/bot/help.py", line 126, in help_back_cb
+    await CallbackQuery.edit_message_text(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/bots_and_keyboards/callback_query.py", line 237, in edit_message_text
+    return await self._client.edit_message_text(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/messages/edit_message_text.py", line 102, in edit_message_text
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.MessageNotModified: Telegram says: [400 MESSAGE_NOT_MODIFIED] - The message was not modified because you tried to edit it using the same content. (caused by "messages.EditMessage")
+[14-Dec-25 09:09:20 - ERROR] - pyrogram.dispatcher - Connection with chat id "-1003490343473" not found
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/pyrogram_client.py", line 207, in on_update
+    await self._propagate(p_update)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/handlers/handlers_holder.py", line 30, in _propagate
+    await asyncio.gather(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/methods/internal/handle_mtproto_updates.py", line 160, in _handle_mtproto_updates
+    await self._binding.get_state(chat_id),
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+ntgcalls.ConnectionNotFound: Connection with chat id "-1003490343473" not found
+[14-Dec-25 09:09:21 - ERROR] - pyrogram.dispatcher - Telegram says: [400 MESSAGE_ID_INVALID] - The provided message id is invalid. (caused by "messages.EditMessage")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/ANNIEMUSIC/core/call.py", line 237, in join_call
+    await assistant.play(chat_id, stream)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/statictypes.py", line 96, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto_required.py", line 23, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mutex.py", line 12, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/methods/stream/play.py", line 74, in play
+    await self._app.create_group_call(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/mtproto_client.py", line 183, in create_group_call
+    await self._bind_client.create_group_call(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/pyrogram_client.py", line 585, in create_group_call
+    result: Updates = await self._invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/pyrogram_client.py", line 829, in _invoke
+    return await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.ChatAdminRequired: Telegram says: [400 CHAT_ADMIN_REQUIRED] - You must be an admin in this chat to do this. (caused by "phone.CreateGroupCall")
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/ANNIEMUSIC/plugins/play/play.py", line 440, in play_command
+    await stream(
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 139, in wrapper
+    raise err
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 133, in wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/stream/stream.py", line 187, in stream
+    await JARVIS.join_call(
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 139, in wrapper
+    raise err
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 133, in wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/ANNIEMUSIC/core/call.py", line 240, in join_call
+    raise AssistantErr(_["call_8"])
+ANNIEMUSIC.utils.exceptions.AssistantErr: <b>Nᴏ ᴀᴄᴛɪᴠᴇ ᴠɪᴅᴇᴏᴄʜᴀᴛ ғᴏᴜɴᴅ.</b>
+
+Pʟᴇᴀsᴇ sᴛᴀʀᴛ ᴠɪᴅᴇᴏᴄʜᴀᴛ ɪɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ/ᴄʜᴀɴɴᴇʟ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorators/play.py", line 222, in wrapper
+    return await command(
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 102, in wrapper
+    raise err
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 90, in wrapper
+    return await func(client, message, *args, **kwargs)
+  File "/root/AnnieXMusic/ANNIEMUSIC/plugins/play/play.py", line 459, in play_command
+    return await mystic.edit_text(err)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/messages_and_media/message.py", line 5128, in edit_text
+    return await self._client.edit_message_text(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/messages/edit_message_text.py", line 102, in edit_message_text
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.MessageIdInvalid: Telegram says: [400 MESSAGE_ID_INVALID] - The provided message id is invalid. (caused by "messages.EditMessage")
+[14-Dec-25 09:09:21 - ERROR] - pyrogram.dispatcher - Telegram says: [400 MESSAGE_ID_INVALID] - The provided message id is invalid. (caused by "messages.EditMessage")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/ANNIEMUSIC/core/call.py", line 237, in join_call
+    await assistant.play(chat_id, stream)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/statictypes.py", line 96, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto_required.py", line 23, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mutex.py", line 12, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/methods/stream/play.py", line 74, in play
+    await self._app.create_group_call(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/mtproto_client.py", line 183, in create_group_call
+    await self._bind_client.create_group_call(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/pyrogram_client.py", line 585, in create_group_call
+    result: Updates = await self._invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/pyrogram_client.py", line 829, in _invoke
+    return await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.ChatAdminRequired: Telegram says: [400 CHAT_ADMIN_REQUIRED] - You must be an admin in this chat to do this. (caused by "phone.CreateGroupCall")
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/ANNIEMUSIC/plugins/play/play.py", line 440, in play_command
+    await stream(
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 139, in wrapper
+    raise err
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 133, in wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/stream/stream.py", line 187, in stream
+    await JARVIS.join_call(
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 139, in wrapper
+    raise err
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 133, in wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/ANNIEMUSIC/core/call.py", line 240, in join_call
+    raise AssistantErr(_["call_8"])
+ANNIEMUSIC.utils.exceptions.AssistantErr: <b>Nᴏ ᴀᴄᴛɪᴠᴇ ᴠɪᴅᴇᴏᴄʜᴀᴛ ғᴏᴜɴᴅ.</b>
+
+Pʟᴇᴀsᴇ sᴛᴀʀᴛ ᴠɪᴅᴇᴏᴄʜᴀᴛ ɪɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ/ᴄʜᴀɴɴᴇʟ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorators/play.py", line 222, in wrapper
+    return await command(
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 102, in wrapper
+    raise err
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 90, in wrapper
+    return await func(client, message, *args, **kwargs)
+  File "/root/AnnieXMusic/ANNIEMUSIC/plugins/play/play.py", line 459, in play_command
+    return await mystic.edit_text(err)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/messages_and_media/message.py", line 5128, in edit_text
+    return await self._client.edit_message_text(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/messages/edit_message_text.py", line 102, in edit_message_text
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.MessageIdInvalid: Telegram says: [400 MESSAGE_ID_INVALID] - The provided message id is invalid. (caused by "messages.EditMessage")
+[14-Dec-25 09:09:21 - ERROR] - pyrogram.dispatcher - Telegram says: [400 MESSAGE_ID_INVALID] - The provided message id is invalid. (caused by "messages.EditMessage")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/ANNIEMUSIC/core/call.py", line 237, in join_call
+    await assistant.play(chat_id, stream)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/statictypes.py", line 96, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto_required.py", line 23, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mutex.py", line 12, in async_wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/methods/stream/play.py", line 74, in play
+    await self._app.create_group_call(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/mtproto_client.py", line 183, in create_group_call
+    await self._bind_client.create_group_call(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/pyrogram_client.py", line 585, in create_group_call
+    result: Updates = await self._invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pytgcalls/mtproto/pyrogram_client.py", line 829, in _invoke
+    return await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.ChatAdminRequired: Telegram says: [400 CHAT_ADMIN_REQUIRED] - You must be an admin in this chat to do this. (caused by "phone.CreateGroupCall")
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/ANNIEMUSIC/plugins/play/play.py", line 440, in play_command
+    await stream(
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 139, in wrapper
+    raise err
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 133, in wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/stream/stream.py", line 187, in stream
+    await JARVIS.join_call(
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 139, in wrapper
+    raise err
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 133, in wrapper
+    return await func(*args, **kwargs)
+  File "/root/AnnieXMusic/ANNIEMUSIC/core/call.py", line 240, in join_call
+    raise AssistantErr(_["call_8"])
+ANNIEMUSIC.utils.exceptions.AssistantErr: <b>Nᴏ ᴀᴄᴛɪᴠᴇ ᴠɪᴅᴇᴏᴄʜᴀᴛ ғᴏᴜɴᴅ.</b>
+
+Pʟᴇᴀsᴇ sᴛᴀʀᴛ ᴠɪᴅᴇᴏᴄʜᴀᴛ ɪɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ/ᴄʜᴀɴɴᴇʟ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorators/play.py", line 222, in wrapper
+    return await command(
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 102, in wrapper
+    raise err
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/errors.py", line 90, in wrapper
+    return await func(client, message, *args, **kwargs)
+  File "/root/AnnieXMusic/ANNIEMUSIC/plugins/play/play.py", line 459, in play_command
+    return await mystic.edit_text(err)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/messages_and_media/message.py", line 5128, in edit_text
+    return await self._client.edit_message_text(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/messages/edit_message_text.py", line 102, in edit_message_text
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.MessageIdInvalid: Telegram says: [400 MESSAGE_ID_INVALID] - The provided message id is invalid. (caused by "messages.EditMessage")
+[14-Dec-25 14:30:28 - ERROR] - pyrogram.dispatcher - [Errno 2] No such file or directory: 'json.json'
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/plugins/tools/tiny.py", line 34, in tiny_sticker
+    with open("json.json", "r") as json_file:
+FileNotFoundError: [Errno 2] No such file or directory: 'json.json'
+[15-Dec-25 15:34:32 - ERROR] - asyncio - Task exception was never retrieved
+future: <Task finished name='Task-306' coro=<auto_end() done, defined at /root/AnnieXMusic/ANNIEMUSIC/plugins/misc/autoleave.py:47> exception=ServerSelectionTimeoutError('No replica set members match selector "Primary()", Timeout: 5.0s, Topology Description: <TopologyDescription id: 693d9537edc5f4c683b40378, topology_type: ReplicaSetNoPrimary, servers: [<ServerDescription (\'ac-nhkuxce-shard-00-00.kh1qp8j.mongodb.net\', 27017) server_type: RSSecondary, rtt: 0.07165339033486869>, <ServerDescription (\'ac-nhkuxce-shard-00-01.kh1qp8j.mongodb.net\', 27017) server_type: RSSecondary, rtt: 0.09400757333251283>, <ServerDescription (\'ac-nhkuxce-shard-00-02.kh1qp8j.mongodb.net\', 27017) server_type: Unknown, rtt: None, error=AutoReconnect(\'ac-nhkuxce-shard-00-02.kh1qp8j.mongodb.net:27017: [Errno 111] Connection refused (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)\')>]>')>
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/ANNIEMUSIC/plugins/misc/autoleave.py", line 49, in auto_end
+    ender = await is_autoend()
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/database.py", line 201, in is_autoend
+    user = await autoenddb.find_one({"chat_id": chat_id})
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/collection.py", line 1755, in find_one
+    for result in cursor.limit(-1):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/cursor.py", line 1289, in __next__
+    return self.next()
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/cursor.py", line 1265, in next
+    if len(self._data) or self._refresh():
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/cursor.py", line 1213, in _refresh
+    self._send_message(q)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/cursor.py", line 1108, in _send_message
+    response = client._run_operation(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/mongo_client.py", line 1938, in _run_operation
+    return self._retryable_read(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/mongo_client.py", line 2047, in _retryable_read
+    return self._retry_internal(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/mongo_client.py", line 2014, in _retry_internal
+    ).run()
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/mongo_client.py", line 2765, in run
+    return self._read() if self._is_read else self._write()
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/mongo_client.py", line 2910, in _read
+    self._server = self._get_server()
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/mongo_client.py", line 2858, in _get_server
+    return self._client._select_server(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/mongo_client.py", line 1833, in _select_server
+    server = topology.select_server(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/topology.py", line 409, in select_server
+    server = self._select_server(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/topology.py", line 387, in _select_server
+    servers = self.select_servers(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/topology.py", line 294, in select_servers
+    server_descriptions = self._select_servers_loop(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/topology.py", line 344, in _select_servers_loop
+    raise ServerSelectionTimeoutError(
+pymongo.errors.ServerSelectionTimeoutError: No replica set members match selector "Primary()", Timeout: 5.0s, Topology Description: <TopologyDescription id: 693d9537edc5f4c683b40378, topology_type: ReplicaSetNoPrimary, servers: [<ServerDescription ('ac-nhkuxce-shard-00-00.kh1qp8j.mongodb.net', 27017) server_type: RSSecondary, rtt: 0.07165339033486869>, <ServerDescription ('ac-nhkuxce-shard-00-01.kh1qp8j.mongodb.net', 27017) server_type: RSSecondary, rtt: 0.09400757333251283>, <ServerDescription ('ac-nhkuxce-shard-00-02.kh1qp8j.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('ac-nhkuxce-shard-00-02.kh1qp8j.mongodb.net:27017: [Errno 111] Connection refused (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+[15-Dec-25 16:23:31 - ERROR] - pyrogram.dispatcher - [Errno 2] No such file or directory: 'json.json'
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/plugins/tools/tiny.py", line 34, in tiny_sticker
+    with open("json.json", "r") as json_file:
+FileNotFoundError: [Errno 2] No such file or directory: 'json.json'
+[15-Dec-25 17:24:47 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:24:48 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:24:53 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:24:54 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:24:55 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:24:56 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:24:58 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:00 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:00 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:01 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:02 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:02 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:03 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:07 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:07 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:08 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:09 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:09 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:10 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:10 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:11 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:12 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:14 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:14 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:15 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:16 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:18 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:18 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:19 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:21 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:22 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:22 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:34 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[15-Dec-25 17:25:35 - ERROR] - pyrogram.dispatcher - Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorator.py", line 33, in wrapper
+    member = await message.chat.get_member(message.from_user.id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/user_and_chats/chat.py", line 1753, in get_member
+    return await self._client.get_chat_member(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/chats/get_chat_member.py", line 80, in get_chat_member
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserNotParticipant: Telegram says: [400 USER_NOT_PARTICIPANT] - You're not a member of this chat. (caused by "channels.GetParticipant")
+[17-Dec-25 14:13:50 - ERROR] - pyrogram.dispatcher - 'NoneType' object has no attribute 'id'
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/plugins/Manager/del_msg.py", line 65, in deleteall_command
+    ok, owner = await is_owner_or_sudoer(client, message.chat.id, message.from_user.id)
+AttributeError: 'NoneType' object has no attribute 'id'
+[17-Dec-25 15:01:24 - INFO] - ANNIEMUSIC.core.mongo - Connecting to your Mongo Database...
+[17-Dec-25 15:01:24 - INFO] - ANNIEMUSIC.core.mongo - Connected to your Mongo Database.
+[17-Dec-25 15:01:24 - INFO] - ANNIEMUSIC.core.dir - Directories Updated.
+[17-Dec-25 15:01:24 - INFO] - ANNIEMUSIC.core.git - Git Client Found [VPS DEPLOYER]
+[17-Dec-25 15:01:24 - INFO] - ANNIEMUSIC.misc - ᴅᴀᴛᴀʙᴀsᴇ ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ💗
+[17-Dec-25 15:01:24 - INFO] - ANNIEMUSIC.core.bot - Bot client initialized.
+[17-Dec-25 15:01:28 - INFO] - ANNIEMUSIC - ʏᴏᴜᴛᴜʙᴇ ᴄᴏᴏᴋɪᴇs ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ ✅
+[17-Dec-25 15:01:29 - INFO] - ANNIEMUSIC.misc - sᴜᴅᴏ ᴜsᴇʀs ᴅᴏɴᴇ..
+[17-Dec-25 15:01:34 - INFO] - ANNIEMUSIC.core.bot - ✅ Music Bot started as 𝚨 𝚴 𝚴 𝚰 𝚬 · 𝚳 ⋃ 𝛅 𝚰 ∁ (@ANNIEXMUSICxBOT)
+[17-Dec-25 15:01:35 - INFO] - ANNIEMUSIC.plugins - ᴀɴɴɪᴇ's ᴍᴏᴅᴜʟᴇs ʟᴏᴀᴅᴇᴅ...
+[17-Dec-25 15:01:35 - INFO] - ANNIEMUSIC.core.userbot - Starting Annie's Assistants...
+[17-Dec-25 15:01:35 - INFO] - ANNIEMUSIC.core.userbot - Assistant 1 Started as ✧ 𝚨𝚴𝚴𝚰𝚬 · 𝚨𝛅𝛅𝚰𝛅𝚻𝚨𝚴𝚻 ✧
+[17-Dec-25 15:01:35 - INFO] - ANNIEMUSIC.core.call - Starting PyTgCalls Clients...
+[17-Dec-25 15:01:46 - INFO] - ANNIEMUSIC - Annie Music Robot Started Successfully...
+[17-Dec-25 15:01:46 - ERROR] - ANNIEMUSIC.plugins.Manager.del_msg - Invite assistant error: Telegram says: [400 USER_ALREADY_PARTICIPANT] - The user is already a participant of this chat. (caused by "messages.ImportChatInvite")
+[17-Dec-25 15:01:57 - ERROR] - ANNIEMUSIC.plugins.Manager.del_msg - Invite assistant error: Telegram says: [400 USER_ALREADY_PARTICIPANT] - The user is already a participant of this chat. (caused by "messages.ImportChatInvite")
+[17-Dec-25 15:02:27 - ERROR] - ANNIEMUSIC.plugins.Manager.del_msg - Invite assistant error: Telegram says: [400 USER_ALREADY_PARTICIPANT] - The user is already a participant of this chat. (caused by "messages.ImportChatInvite")
+[17-Dec-25 15:02:39 - ERROR] - ANNIEMUSIC.plugins.Manager.del_msg - Invite assistant error: Telegram says: [400 USER_ALREADY_PARTICIPANT] - The user is already a participant of this chat. (caused by "messages.ImportChatInvite")
+[17-Dec-25 15:03:08 - ERROR] - ANNIEMUSIC.plugins.Manager.del_msg - Invite assistant error: Telegram says: [400 USER_ALREADY_PARTICIPANT] - The user is already a participant of this chat. (caused by "messages.ImportChatInvite")
+[17-Dec-25 15:41:17 - ERROR] - pyrogram.dispatcher - Telegram says: [400 QUERY_ID_INVALID] - The query ID is invalid. (caused by "messages.SetBotCallbackAnswer")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorators/language.py", line 60, in wrapper
+    return await mystic(_, message, language)
+  File "/root/AnnieXMusic/ANNIEMUSIC/plugins/bot/help.py", line 35, in helper_private
+    await update.answer()
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/bots_and_keyboards/callback_query.py", line 189, in answer
+    return await self._client.answer_callback_query(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/bots/answer_callback_query.py", line 73, in answer_callback_query
+    return await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.QueryIdInvalid: Telegram says: [400 QUERY_ID_INVALID] - The query ID is invalid. (caused by "messages.SetBotCallbackAnswer")
+[17-Dec-25 15:41:32 - ERROR] - pyrogram.dispatcher - Telegram says: [400 QUERY_ID_INVALID] - The query ID is invalid. (caused by "messages.SetBotCallbackAnswer")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorators/language.py", line 60, in wrapper
+    return await mystic(_, message, language)
+  File "/root/AnnieXMusic/ANNIEMUSIC/plugins/bot/help.py", line 35, in helper_private
+    await update.answer()
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/bots_and_keyboards/callback_query.py", line 189, in answer
+    return await self._client.answer_callback_query(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/bots/answer_callback_query.py", line 73, in answer_callback_query
+    return await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.QueryIdInvalid: Telegram says: [400 QUERY_ID_INVALID] - The query ID is invalid. (caused by "messages.SetBotCallbackAnswer")
+[17-Dec-25 16:27:49 - ERROR] - asyncio - Task exception was never retrieved
+future: <Task finished name='Task-306' coro=<auto_end() done, defined at /root/AnnieXMusic/ANNIEMUSIC/plugins/misc/autoleave.py:47> exception=ServerSelectionTimeoutError("ac-nhkuxce-shard-00-01.kh1qp8j.mongodb.net:27017: [Errno -3] Temporary failure in name resolution (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms),ac-nhkuxce-shard-00-02.kh1qp8j.mongodb.net:27017: [Errno -3] Temporary failure in name resolution (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms),ac-nhkuxce-shard-00-00.kh1qp8j.mongodb.net:27017: [Errno -3] Temporary failure in name resolution (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 5.0s, Topology Description: <TopologyDescription id: 6942c5c4e822c4b2cd777271, topology_type: ReplicaSetNoPrimary, servers: [<ServerDescription ('ac-nhkuxce-shard-00-00.kh1qp8j.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('ac-nhkuxce-shard-00-00.kh1qp8j.mongodb.net:27017: [Errno -3] Temporary failure in name resolution (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>, <ServerDescription ('ac-nhkuxce-shard-00-01.kh1qp8j.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('ac-nhkuxce-shard-00-01.kh1qp8j.mongodb.net:27017: [Errno -3] Temporary failure in name resolution (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>, <ServerDescription ('ac-nhkuxce-shard-00-02.kh1qp8j.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('ac-nhkuxce-shard-00-02.kh1qp8j.mongodb.net:27017: [Errno -3] Temporary failure in name resolution (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>")>
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/ANNIEMUSIC/plugins/misc/autoleave.py", line 49, in auto_end
+    ender = await is_autoend()
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/database.py", line 201, in is_autoend
+    user = await autoenddb.find_one({"chat_id": chat_id})
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/collection.py", line 1755, in find_one
+    for result in cursor.limit(-1):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/cursor.py", line 1289, in __next__
+    return self.next()
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/cursor.py", line 1265, in next
+    if len(self._data) or self._refresh():
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/cursor.py", line 1213, in _refresh
+    self._send_message(q)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/cursor.py", line 1108, in _send_message
+    response = client._run_operation(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/mongo_client.py", line 1938, in _run_operation
+    return self._retryable_read(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/mongo_client.py", line 2047, in _retryable_read
+    return self._retry_internal(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/mongo_client.py", line 2014, in _retry_internal
+    ).run()
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/mongo_client.py", line 2765, in run
+    return self._read() if self._is_read else self._write()
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/mongo_client.py", line 2910, in _read
+    self._server = self._get_server()
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/mongo_client.py", line 2858, in _get_server
+    return self._client._select_server(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/mongo_client.py", line 1833, in _select_server
+    server = topology.select_server(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/topology.py", line 409, in select_server
+    server = self._select_server(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/topology.py", line 387, in _select_server
+    servers = self.select_servers(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/topology.py", line 294, in select_servers
+    server_descriptions = self._select_servers_loop(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/topology.py", line 344, in _select_servers_loop
+    raise ServerSelectionTimeoutError(
+pymongo.errors.ServerSelectionTimeoutError: ac-nhkuxce-shard-00-01.kh1qp8j.mongodb.net:27017: [Errno -3] Temporary failure in name resolution (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms),ac-nhkuxce-shard-00-02.kh1qp8j.mongodb.net:27017: [Errno -3] Temporary failure in name resolution (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms),ac-nhkuxce-shard-00-00.kh1qp8j.mongodb.net:27017: [Errno -3] Temporary failure in name resolution (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 5.0s, Topology Description: <TopologyDescription id: 6942c5c4e822c4b2cd777271, topology_type: ReplicaSetNoPrimary, servers: [<ServerDescription ('ac-nhkuxce-shard-00-00.kh1qp8j.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('ac-nhkuxce-shard-00-00.kh1qp8j.mongodb.net:27017: [Errno -3] Temporary failure in name resolution (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>, <ServerDescription ('ac-nhkuxce-shard-00-01.kh1qp8j.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('ac-nhkuxce-shard-00-01.kh1qp8j.mongodb.net:27017: [Errno -3] Temporary failure in name resolution (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>, <ServerDescription ('ac-nhkuxce-shard-00-02.kh1qp8j.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('ac-nhkuxce-shard-00-02.kh1qp8j.mongodb.net:27017: [Errno -3] Temporary failure in name resolution (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+[17-Dec-25 16:35:07 - ERROR] - pyrogram.dispatcher - Telegram says: [400 MESSAGE_NOT_MODIFIED] - The message was not modified because you tried to edit it using the same content. (caused by "messages.EditMessage")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorators/language.py", line 47, in wrapper
+    return await mystic(_, CallbackQuery, language)
+  File "/root/AnnieXMusic/ANNIEMUSIC/plugins/bot/help.py", line 83, in helper_cb
+    await CallbackQuery.edit_message_text(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/bots_and_keyboards/callback_query.py", line 237, in edit_message_text
+    return await self._client.edit_message_text(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/messages/edit_message_text.py", line 102, in edit_message_text
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.MessageNotModified: Telegram says: [400 MESSAGE_NOT_MODIFIED] - The message was not modified because you tried to edit it using the same content. (caused by "messages.EditMessage")
+[17-Dec-25 16:35:11 - ERROR] - pyrogram.dispatcher - Telegram says: [400 QUERY_ID_INVALID] - The query ID is invalid. (caused by "messages.SetBotCallbackAnswer")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorators/language.py", line 60, in wrapper
+    return await mystic(_, message, language)
+  File "/root/AnnieXMusic/ANNIEMUSIC/plugins/bot/help.py", line 35, in helper_private
+    await update.answer()
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/bots_and_keyboards/callback_query.py", line 189, in answer
+    return await self._client.answer_callback_query(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/bots/answer_callback_query.py", line 73, in answer_callback_query
+    return await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.QueryIdInvalid: Telegram says: [400 QUERY_ID_INVALID] - The query ID is invalid. (caused by "messages.SetBotCallbackAnswer")
+[17-Dec-25 16:35:56 - ERROR] - pyrogram.dispatcher - Telegram says: [400 MESSAGE_NOT_MODIFIED] - The message was not modified because you tried to edit it using the same content. (caused by "messages.EditMessage")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorators/language.py", line 47, in wrapper
+    return await mystic(_, CallbackQuery, language)
+  File "/root/AnnieXMusic/ANNIEMUSIC/plugins/bot/help.py", line 83, in helper_cb
+    await CallbackQuery.edit_message_text(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/bots_and_keyboards/callback_query.py", line 237, in edit_message_text
+    return await self._client.edit_message_text(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/messages/edit_message_text.py", line 102, in edit_message_text
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.MessageNotModified: Telegram says: [400 MESSAGE_NOT_MODIFIED] - The message was not modified because you tried to edit it using the same content. (caused by "messages.EditMessage")
+[17-Dec-25 16:35:56 - ERROR] - pyrogram.dispatcher - Telegram says: [400 MESSAGE_NOT_MODIFIED] - The message was not modified because you tried to edit it using the same content. (caused by "messages.EditMessage")
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/dispatcher.py", line 373, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/decorators/language.py", line 47, in wrapper
+    return await mystic(_, CallbackQuery, language)
+  File "/root/AnnieXMusic/ANNIEMUSIC/plugins/bot/help.py", line 83, in helper_cb
+    await CallbackQuery.edit_message_text(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/types/bots_and_keyboards/callback_query.py", line 237, in edit_message_text
+    return await self._client.edit_message_text(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/messages/edit_message_text.py", line 102, in edit_message_text
+    r = await self.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 104, in invoke
+    r = await session.invoke(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.MessageNotModified: Telegram says: [400 MESSAGE_NOT_MODIFIED] - The message was not modified because you tried to edit it using the same content. (caused by "messages.EditMessage")
+[17-Dec-25 16:36:48 - INFO] - ANNIEMUSIC.core.mongo - Connecting to your Mongo Database...
+[17-Dec-25 16:36:48 - INFO] - ANNIEMUSIC.core.mongo - Connected to your Mongo Database.
+[17-Dec-25 16:36:48 - INFO] - ANNIEMUSIC.core.dir - Directories Updated.
+[17-Dec-25 16:36:48 - INFO] - ANNIEMUSIC.core.git - Git Client Found [VPS DEPLOYER]
+[17-Dec-25 16:36:48 - INFO] - ANNIEMUSIC.misc - ᴅᴀᴛᴀʙᴀsᴇ ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ💗
+[17-Dec-25 16:36:48 - INFO] - ANNIEMUSIC.core.bot - Bot client initialized.
+[17-Dec-25 16:37:05 - INFO] - ANNIEMUSIC - ʏᴏᴜᴛᴜʙᴇ ᴄᴏᴏᴋɪᴇs ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ ✅
+[17-Dec-25 16:37:07 - INFO] - ANNIEMUSIC.misc - sᴜᴅᴏ ᴜsᴇʀs ᴅᴏɴᴇ..
+[17-Dec-25 16:37:13 - INFO] - ANNIEMUSIC.core.bot - ✅ Music Bot started as 𝚨 𝚴 𝚴 𝚰 𝚬 · 𝚳 ⋃ 𝛅 𝚰 ∁ (@ANNIEXMUSICxBOT)
+[17-Dec-25 16:37:15 - INFO] - ANNIEMUSIC.plugins - ᴀɴɴɪᴇ's ᴍᴏᴅᴜʟᴇs ʟᴏᴀᴅᴇᴅ...
+[17-Dec-25 16:37:15 - INFO] - ANNIEMUSIC.core.userbot - Starting Annie's Assistants...
+[17-Dec-25 16:37:16 - INFO] - ANNIEMUSIC.core.userbot - Assistant 1 Started as ✧ 𝚨𝚴𝚴𝚰𝚬 · 𝚨𝛅𝛅𝚰𝛅𝚻𝚨𝚴𝚻 ✧
+[17-Dec-25 16:37:16 - INFO] - ANNIEMUSIC.core.call - Starting PyTgCalls Clients...
+[17-Dec-25 16:37:54 - ERROR] - ANNIEMUSIC.plugins.Manager.del_msg - Invite assistant error: Telegram says: [400 USER_ALREADY_PARTICIPANT] - The user is already a participant of this chat. (caused by "messages.ImportChatInvite")
+[17-Dec-25 16:44:56 - INFO] - ANNIEMUSIC.core.mongo - Connecting to your Mongo Database...
+[17-Dec-25 16:44:56 - INFO] - ANNIEMUSIC.core.mongo - Connected to your Mongo Database.
+[17-Dec-25 16:44:56 - INFO] - ANNIEMUSIC.core.dir - Directories Updated.
+[17-Dec-25 16:44:56 - INFO] - ANNIEMUSIC.core.git - Git Client Found [VPS DEPLOYER]
+[17-Dec-25 16:44:56 - INFO] - ANNIEMUSIC.misc - ᴅᴀᴛᴀʙᴀsᴇ ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ💗
+[17-Dec-25 16:44:57 - INFO] - ANNIEMUSIC.core.bot - Bot client initialized.
+[17-Dec-25 16:44:59 - INFO] - ANNIEMUSIC - ʏᴏᴜᴛᴜʙᴇ ᴄᴏᴏᴋɪᴇs ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ ✅
+[17-Dec-25 16:45:00 - INFO] - ANNIEMUSIC.misc - sᴜᴅᴏ ᴜsᴇʀs ᴅᴏɴᴇ..
+[17-Dec-25 16:45:05 - INFO] - ANNIEMUSIC.core.bot - ✅ Music Bot started as 𝚨 𝚴 𝚴 𝚰 𝚬 · 𝚳 ⋃ 𝛅 𝚰 ∁ (@ANNIEXMUSICxBOT)
+[17-Dec-25 16:45:06 - INFO] - ANNIEMUSIC.plugins - ᴀɴɴɪᴇ's ᴍᴏᴅᴜʟᴇs ʟᴏᴀᴅᴇᴅ...
+[17-Dec-25 16:45:06 - INFO] - ANNIEMUSIC.core.userbot - Starting Annie's Assistants...
+[17-Dec-25 16:45:07 - INFO] - ANNIEMUSIC.core.userbot - Assistant 1 Started as ✧ 𝚨𝚴𝚴𝚰𝚬 · 𝚨𝛅𝛅𝚰𝛅𝚻𝚨𝚴𝚻 ✧
+[17-Dec-25 16:45:07 - INFO] - ANNIEMUSIC.core.call - Starting PyTgCalls Clients...
+[17-Dec-25 16:48:40 - ERROR] - ANNIEMUSIC.plugins.Manager.del_msg - Invite assistant error: Telegram says: [400 USER_ALREADY_PARTICIPANT] - The user is already a participant of this chat. (caused by "messages.ImportChatInvite")
+[17-Dec-25 17:02:37 - ERROR] - asyncio - Task exception was never retrieved
+future: <Task finished name='Task-306' coro=<auto_end() done, defined at /root/AnnieXMusic/ANNIEMUSIC/plugins/misc/autoleave.py:47> exception=_OperationCancelled('operation cancelled')>
+Traceback (most recent call last):
+  File "/root/AnnieXMusic/ANNIEMUSIC/plugins/misc/autoleave.py", line 49, in auto_end
+    ender = await is_autoend()
+  File "/root/AnnieXMusic/ANNIEMUSIC/utils/database.py", line 201, in is_autoend
+    user = await autoenddb.find_one({"chat_id": chat_id})
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/collection.py", line 1755, in find_one
+    for result in cursor.limit(-1):
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/cursor.py", line 1289, in __next__
+    return self.next()
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/cursor.py", line 1265, in next
+    if len(self._data) or self._refresh():
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/cursor.py", line 1213, in _refresh
+    self._send_message(q)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/cursor.py", line 1108, in _send_message
+    response = client._run_operation(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/mongo_client.py", line 1938, in _run_operation
+    return self._retryable_read(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/mongo_client.py", line 2047, in _retryable_read
+    return self._retry_internal(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/mongo_client.py", line 2014, in _retry_internal
+    ).run()
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/mongo_client.py", line 2770, in run
+    self._check_last_error()
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/mongo_client.py", line 2851, in _check_last_error
+    raise self._last_error
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/mongo_client.py", line 2765, in run
+    return self._read() if self._is_read else self._write()
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/mongo_client.py", line 2926, in _read
+    return self._func(self._session, self._server, conn, read_pref)  # type: ignore
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/mongo_client.py", line 1929, in _cmd
+    return server.run_operation(
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/helpers.py", line 47, in inner
+    return func(*args, **kwargs)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/server.py", line 208, in run_operation
+    reply = conn.receive_message(request_id)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/pool.py", line 469, in receive_message
+    self._raise_connection_failure(error)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/synchronous/pool.py", line 466, in receive_message
+    return receive_message(self, request_id, self.max_message_size)
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/network_layer.py", line 759, in receive_message
+    length, _, response_to, op_code = _UNPACK_HEADER(receive_data(conn, 16, deadline))
+  File "/root/AnnieXMusic/myenv/lib/python3.10/site-packages/pymongo/network_layer.py", line 361, in receive_data
+    raise _OperationCancelled("operation cancelled") from None
+pymongo.errors._OperationCancelled: operation cancelled
