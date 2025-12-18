@@ -111,7 +111,7 @@ async def deleteall_callback(client, callback: CallbackQuery):
         try:
             link: ChatInviteLink = await client.create_chat_invite_link(chat_id, member_limit=1)
             await assistant.join_chat(link.invite_link)
-            await asyncio.sleep(1)
+            await asyncio.sleep(3)  # Increased wait for peer sync
         except ChatAdminRequired:
             await _safe_edit(callback, "Failed to invite assistant: missing invite permission.")
             return
@@ -122,9 +122,23 @@ async def deleteall_callback(client, callback: CallbackQuery):
             await _safe_edit(callback, f"Failed to add assistant: {e}")
             return
 
+    # Verify assistant is in chat and sync peer
+    for verify_attempt in range(5):
+        try:
+            await client.get_chat_member(chat_id, ass_id)
+            break
+        except PeerIdInvalid:
+            if verify_attempt < 4:
+                await asyncio.sleep(2)
+                continue
+            log.error("Assistant peer not synced in chat")
+            break
+        except Exception:
+            break
+
     # Retry promoting with delay in case of peer sync issues
     promote_success = False
-    for attempt in range(3):
+    for attempt in range(5):
         try:
             await client.promote_chat_member(
                 chat_id, ass_id,
@@ -133,11 +147,11 @@ async def deleteall_callback(client, callback: CallbackQuery):
             promote_success = True
             break
         except PeerIdInvalid:
-            if attempt < 2:
-                await asyncio.sleep(2)
+            if attempt < 4:
+                await asyncio.sleep(3)
                 continue
             log.error("Promote assistant failed: peer not synced after retries")
-            await _safe_edit(callback, "Failed to promote assistant: peer sync timeout.")
+            await _safe_edit(callback, "Failed to promote assistant: peer not recognized. Try again in a moment.")
             return
         except ChatAdminRequired:
             await _safe_edit(callback, "Failed to promote assistant: missing promote permission.")
