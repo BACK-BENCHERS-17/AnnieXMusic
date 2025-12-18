@@ -20,7 +20,7 @@ from pyrogram.enums import ChatMemberStatus
 from pyrogram.errors import (
     UserNotParticipant, ChatAdminRequired, FloodWait,
     PeerIdInvalid, ChannelPrivate, MessageNotModified, MessageIdInvalid,
-    UserAlreadyParticipant
+    UserAlreadyParticipant, UserNotMutualContact
 )
 
 from ANNIEMUSIC import app
@@ -139,6 +139,12 @@ async def deleteall_callback(client, callback: CallbackQuery):
             else:
                 await _safe_edit(callback, "Failed: assistant could not join the chat.")
                 return
+        except UserNotMutualContact:
+            # In channels/large groups, assistant might not be mutual contact
+            # Try to proceed with deletion without admin rights, or with assistant's own client
+            log.warning(f"Assistant not mutual contact, attempting deletion without promotion")
+            promote_success = True  # Continue anyway
+            break
         except PeerIdInvalid:
             if attempt < 4:
                 await asyncio.sleep(2)
