@@ -131,15 +131,14 @@ class Call:
             pass
         await remove_active_video_chat(chat_id)
         await remove_active_chat(chat_id)
-        await _clear_(chat_id)
-        if chat_id not in self.active_calls:
-            return
-        try:
-            await assistant.leave_call(chat_id)
-        except Exception:
-            pass
-        finally:
-            self.active_calls.discard(chat_id)
+        # Don't fully leave the call - just pause and clear queue for forceplay to work
+        # This allows seamless track switching without admin requirement issues
+        if chat_id in self.active_calls:
+            try:
+                await assistant.pause(chat_id)
+            except Exception:
+                pass
+        db[chat_id] = []
 
 
     @capture_internal_err
@@ -239,10 +238,13 @@ class Call:
             except NoActiveGroupCall:
                 raise AssistantErr(_["call_8"])
             except ChatAdminRequired:
-                raise AssistantErr(
-                    "<b>ᴍᴜsɪᴄ ʙᴏᴛ ɴᴇᴇᴅs ᴀᴅᴍɪɴ ᴘᴇʀᴍɪssɪᴏɴs</b>\n\n"
-                    "Pʟᴇᴀsᴇ ᴘʀᴏᴍᴏᴛᴇ ᴍᴇ ᴀs ᴀɴ ᴀᴅᴍɪɴ ɪɴ ᴛʜᴇ ɢʀᴏᴜᴘ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ."
-                )
+                # If already in call, just skip - no need to raise error for forceplay
+                if chat_id not in self.active_calls:
+                    raise AssistantErr(
+                        "<b>ᴍᴜsɪᴄ ʙᴏᴛ ɴᴇᴇᴅs ᴀᴅᴍɪɴ ᴘᴇʀᴍɪssɪᴏɴs</b>\n\n"
+                        "Pʟᴇᴀsᴇ ᴘʀᴏᴍᴏᴛᴇ ᴍᴇ ᴀs ᴀɴ ᴀᴅᴍɪɴ ɪɴ ᴛʜᴇ ɢʀᴏᴜᴘ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ."
+                    )
+                break
             except TelegramServerError:
                 if attempt < 2:
                     await asyncio.sleep(2)
