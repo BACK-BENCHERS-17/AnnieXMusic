@@ -1,10 +1,13 @@
 import os
+import asyncio
 from PIL import Image, ImageDraw, ImageFont
 from pyrogram import enums, filters
 from pyrogram.types import Message, ChatMemberUpdated, InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.errors import TopicClosed, PeerIdInvalid, ChannelPrivate, SlowmodeWait
 from ANNIEMUSIC import app
 from ANNIEMUSIC.mongo.welcomedb import is_on, set_state, bump, cool, auto_on
+from ANNIEMUSIC.utils import bot_sys_stats
+from ANNIEMUSIC.utils.database import get_served_chats, get_served_users
 
 BG_PATH = "ANNIEMUSIC/assets/annie/welcome.png"
 FALLBACK_PIC = "ANNIEMUSIC/assets/upic.png"
@@ -13,15 +16,15 @@ BTN_VIEW = "๏ ᴠɪᴇᴡ ɴᴇᴡ ᴍᴇᴍʙᴇʀ ๏"
 BTN_ADD = "๏ ᴋɪᴅɴᴀᴘ ᴍᴇ ๏"
 
 CAPTION_TXT = """
-**❅────✦ ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ✦────❅
+<b>❅────✦ ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ✦────❅
 {chat_title}
 ▰▰▰▰▰▰▰▰▰▰▰▰▰
 ➻ Nᴀᴍᴇ ✧ {mention}
-➻ Iᴅ ✧ `{uid}`
+➻ Iᴅ ✧ <code>{uid}</code>
 ➻ Usᴇʀɴᴀᴍᴇ ✧ @{uname}
 ➻ Tᴏᴛᴀʟ Mᴇᴍʙᴇʀs ✧ {count}
-▰▰▰▰▰▰▰▰▰▰▰▰▰**
-**❅─────✧❅✦❅✧─────❅**
+▰▰▰▰▰▰▰▰▰▰▰▰▰</b>
+<b>❅─────✧❅✦❅✧─────❅</b>
 """
 
 JOIN_THRESHOLD = 20

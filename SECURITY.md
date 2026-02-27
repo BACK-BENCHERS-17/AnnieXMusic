@@ -17,8 +17,8 @@
 
 ## ᴀɴɴɪᴇ x ᴍᴜsɪᴄ ᴏᴡɴᴇʀ
 - [ɢɪᴛʜᴜʙ](https://github.com/CertifiedDevloper)
-- [ᴛᴇʟᴇɢʀᴀᴍ](https://t.me/CertifiedCoder)
-- [ sᴜᴘᴘᴏʀᴛ](https://t.me/CertifiedCoders)
+- [ᴛᴇʟᴇɢʀᴀᴍ](https://t.me/PGL_B4CHI)
+- [ sᴜᴘᴘᴏʀᴛ](https://t.me/AnnieSupportGroup)
 
 ## ɪɴғᴏ 
 ᴛʜɪs ɪs **ᴀɴɴɪᴇ x ᴍᴜsɪᴄ** , ᴏᴩᴇɴ sᴏᴜʀᴄᴇ ᴛᴇʟᴇɢʀᴀᴍ ᴠᴄ ᴍᴜsɪᴄ ᴘʟᴀʏᴇʀ ʙᴏᴛ ᴡɪᴛʜ sᴏᴍᴇ ɢʀᴏᴜᴘ ᴍᴀɴᴀɢᴀᴇᴍᴇɴᴛ ғᴇᴀᴛᴜʀᴇs.

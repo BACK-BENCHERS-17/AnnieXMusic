@@ -22,6 +22,8 @@ class SoundAPI:
                 "no_warnings": True,
                 "noplaylist": True,
                 "skip_download": True,
+                "js_runtimes": {"node": {}},
+                "remote_components": ["ejs:github"],
             }
             with YoutubeDL(opts) as ydl:
                 return ydl.extract_info(url, download=False)

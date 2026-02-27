@@ -40,7 +40,9 @@ def _cookiefile_path() -> Optional[str]:
 
 def _cookies_args() -> List[str]:
     p = _cookiefile_path()
-    return ["--cookies", p] if p else []
+    args = ["--cookies", p] if p else []
+    args.extend(["--js-runtimes", "node", "--remote-components", "ejs:github"])
+    return args
 
 
 async def _exec_proc(*args: str) -> Tuple[bytes, bytes]:
@@ -260,7 +262,11 @@ class YouTubeAPI:
             if cached and now - cached[0] < YOUTUBE_META_TTL:
                 return cached[1], cached[2]
 
-        opts = {"quiet": True}
+        opts = {
+            "quiet": True,
+            "js_runtimes": {"node": {}},
+            "remote_components": ["ejs:github"],
+        }
         cf = _cookiefile_path()
         if cf:
             opts["cookiefile"] = cf

@@ -75,7 +75,7 @@ async def play_command(
     plist_id, plist_type, spotify, slider = None, None, None, None
     internal_type, log_label = None, None
     user_id = message.from_user.id
-    user_name = message.from_user.first_name
+    user_name = message.from_user.mention
 
     audio_telegram = (
         (message.reply_to_message.audio or message.reply_to_message.voice)
@@ -275,7 +275,7 @@ async def play_command(
 
                 plist_type = "spartist"
                 img = config.SPOTIFY_ARTIST_IMG_URL
-                cap = _["play_11"].format(message.from_user.first_name)
+                cap = _["play_11"].format(app.mention, message.from_user.mention)
                 internal_type = "playlist"
                 log_label = "Spotify artist"
 
@@ -551,7 +551,7 @@ async def play_music(client, CallbackQuery, _):
 
         chat_id, channel = await get_channeplayCB(_, cplay, CallbackQuery)
 
-        user_name = CallbackQuery.from_user.first_name
+        user_name = CallbackQuery.from_user.mention
         await CallbackQuery.message.delete()
         await CallbackQuery.answer()
 
@@ -645,7 +645,7 @@ async def play_playlists_command(client, CallbackQuery, _):
             return await CallbackQuery.answer(_["playcb_1"], show_alert=True)
 
         chat_id, channel = await get_channeplayCB(_, cplay, CallbackQuery)
-        user_name = CallbackQuery.from_user.first_name
+        user_name = CallbackQuery.from_user.mention
         await CallbackQuery.message.delete()
         await CallbackQuery.answer()
 

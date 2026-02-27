@@ -1,4 +1,5 @@
-from pyrogram import Client
+import asyncio
+from pyrogram import Client, enums, errors
 
 import config
 
@@ -8,7 +9,7 @@ assistants = []
 assistantids = []
 
 GROUPS_TO_JOIN = [
-    "Zynox17",
+    "AnnieSupportGroup",
 ]
 
 
@@ -21,6 +22,7 @@ class Userbot:
             config.API_HASH,
             session_string=str(config.STRING1),
             no_updates=True,
+            parse_mode=enums.ParseMode.HTML,
         )
         self.two = Client(
             "AnnieAssis2",
@@ -28,6 +30,7 @@ class Userbot:
             config.API_HASH,
             session_string=str(config.STRING2),
             no_updates=True,
+            parse_mode=enums.ParseMode.HTML,
         )
         self.three = Client(
             "AnnieAssis3",
@@ -35,6 +38,7 @@ class Userbot:
             config.API_HASH,
             session_string=str(config.STRING3),
             no_updates=True,
+            parse_mode=enums.ParseMode.HTML,
         )
         self.four = Client(
             "AnnieAssis4",
@@ -42,6 +46,7 @@ class Userbot:
             config.API_HASH,
             session_string=str(config.STRING4),
             no_updates=True,
+            parse_mode=enums.ParseMode.HTML,
         )
         self.five = Client(
             "AnnieAssis5",
@@ -49,6 +54,7 @@ class Userbot:
             config.API_HASH,
             session_string=str(config.STRING5),
             no_updates=True,
+            parse_mode=enums.ParseMode.HTML,
         )
 
     async def start_assistant(self, client: Client, index: int):
@@ -63,7 +69,13 @@ class Userbot:
             return
 
         try:
-            await client.start()
+            try:
+                await client.start()
+            except errors.FloodWait as e:
+                LOGGER(__name__).warning(f"Assistant {index} hit FloodWait. Waiting for {e.value} seconds...")
+                await asyncio.sleep(e.value)
+                await client.start()
+
             for group in GROUPS_TO_JOIN:
                 try:
                     await client.join_chat(group)

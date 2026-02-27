@@ -45,7 +45,7 @@ async def mention_members(client, message, message_pool, stop_cmd):
             try:
                 await client.send_message(
                     chat_id,
-                    f"[{member.user.first_name}](tg://user?id={member.user.id}) {random.choice(message_pool)}",
+                    f"<a href='tg://user?id={member.user.id}'>{member.user.first_name}</a> {random.choice(message_pool)}",
                     disable_web_page_preview=True,
                 )
                 await asyncio.sleep(4)

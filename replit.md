@@ -49,10 +49,10 @@ python -m ANNIEMUSIC
 - libGL, libGLU, mesa (for OpenCV)
 
 ## Customizations (December 2025)
-- **Developer Branding**: Changed developer name to "⎯꯭𖣘᪳⏤ 乙𝚼𝚴𝚶𝚾 ꯭𖤫𐎓⸙¹⁷𖡼𝆭⏤" (Zynox17) everywhere
-- **Developer Link**: Updated all developer/support links to https://t.me/Zynox17
-- **Owner Username**: Changed to Zynox17 in config.py
-- **Support Chat/Channel**: Updated to Zynox17
+- **Developer Branding**: Changed developer name to "⎯꯭̽ 𝚱 𝚮 𝐔 𝛅 𝚮 𝚰⥱" (PGL_B4CHI) everywhere
+- **Developer Link**: Updated all developer/support links to https://t.me/PGL_B4CHI
+- **Owner Username**: Changed to PGL_B4CHI in config.py
+- **Support Chat/Channel**: Updated to AnnieSupportGroup
 - **Spoiler Effects**: Added has_spoiler=True to all media (photos/videos) sent by the bot
 - **Heart Reactions**: Added ❤ reaction to /start command messages
 

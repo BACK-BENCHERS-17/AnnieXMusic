@@ -86,15 +86,17 @@ async def join_watcher(_, message: Message):
             except Exception:
                 pass
 
+            username_text = f"@{chat.username}" if isinstance(chat.username, str) and chat.username else "ᴘʀɪᴠᴀᴛᴇ"
+            
             caption = (
-                "📝 **ᴍᴜsɪᴄ ʙᴏᴛ ᴀᴅᴅᴇᴅ ɪɴ ᴀ ɴᴇᴡ ɢʀᴏᴜᴘ**\n\n"
+                "📝 <b>ᴍᴜsɪᴄ ʙᴏᴛ ᴀᴅᴅᴇᴅ ɪɴ ᴀ ɴᴇᴡ ɢʀᴏᴜᴘ</b>\n\n"
                 "❅─────✧❅✦❅✧─────❅\n\n"
-                f"📌 **ᴄʜᴀᴛ ɴᴀᴍᴇ:** `{chat.title}`\n"
-                f"🍂 **ᴄʜᴀᴛ ɪᴅ:** `{chat.id}`\n"
-                f"🔐 **ᴄʜᴀᴛ ᴜsᴇʀɴᴀᴍᴇ:** @{chat.username if chat.username else 'Private'}\n"
-                f"🛰 **ᴄʜᴀᴛ ʟɪɴᴋ:** [ᴄʟɪᴄᴋ ʜᴇʀᴇ]({invite_link or 'https://t.me/'})\n"
-                f"📈 **ɢʀᴏᴜᴘ ᴍᴇᴍʙᴇʀs:** `{member_count}`\n"
-                f"🤔 **ᴀᴅᴅᴇᴅ ʙʏ:** {message.from_user.mention if message.from_user else 'Unknown'}"
+                f"📌 <b>ᴄʜᴀᴛ ɴᴀᴍᴇ:</b> <code>{chat.title}</code>\n"
+                f"🍂 <b>ᴄʜᴀᴛ ɪᴅ:</b> <code>{chat.id}</code>\n"
+                f"🔐 <b>ᴄʜᴀᴛ ᴜsᴇʀɴᴀᴍᴇ:</b> {username_text}\n"
+                f"🛰 <b>ᴄʜᴀᴛ ʟɪɴᴋ:</b> <a href=\"{invite_link or 'https://t.me/'}\">ᴄʟɪᴄᴋ ʜᴇʀᴇ</a>\n"
+                f"📈 <b>ɢʀᴏᴜᴘ ᴍᴇᴍʙᴇʀs:</b> <code>{member_count}</code>\n"
+                f"🤔 <b>ᴀᴅᴅᴇᴅ ʙʏ:</b> {message.from_user.mention if message.from_user else 'ᴜɴᴋɴᴏᴡɴ'}"
             )
 
             reply_markup = None
@@ -126,11 +128,11 @@ async def on_left_chat_member(_, message: Message):
         chat = message.chat
 
         text = (
-            "✫ **<u>#ʟᴇғᴛ_ɢʀᴏᴜᴘ</u>** ✫\n\n"
-            f"📌 **ᴄʜᴀᴛ ɴᴀᴍᴇ:** `{chat.title}`\n"
-            f"🆔 **ᴄʜᴀᴛ ɪᴅ:** `{chat.id}`\n"
-            f"👤 **ʀᴇᴍᴏᴠᴇᴅ ʙʏ:** {remover}\n"
-            f"🤖 **ʙᴏᴛ:** @{BOT_INFO.username}"
+            "✫ <u><b>#ʟᴇғᴛ_ɢʀᴏᴜᴘ</b></u> ✫\n\n"
+            f"📌 <b>ᴄʜᴀᴛ ɴᴀᴍᴇ:</b> <code>{chat.title}</code>\n"
+            f"🆔 <b>ᴄʜᴀᴛ ɪᴅ:</b> <code>{chat.id}</code>\n"
+            f"👤 <b>ʀᴇᴍᴏᴠᴇᴅ ʙʏ:</b> {remover}\n"
+            f"🤖 <b>ʙᴏᴛ:</b> @{BOT_INFO.username if BOT_INFO else 'ʙᴏᴛ'}"
         )
 
         max_retries = 3

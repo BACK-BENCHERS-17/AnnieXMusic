@@ -15,6 +15,7 @@ import config
 from strings import get_string
 from ANNIEMUSIC import LOGGER, YouTube, app
 from ANNIEMUSIC.misc import db
+from ANNIEMUSIC.utils.cookie_handler import COOKIE_PATH
 from ANNIEMUSIC.utils.database import (
     add_active_chat,
     add_active_video_chat,
@@ -38,6 +39,10 @@ autoend = {}
 counter = {}
 
 def dynamic_media_stream(path: str, video: bool = False, ffmpeg_params: str = None) -> MediaStream:
+    ytdlp_args = "--js-runtimes node --remote-components ejs:github"
+    if COOKIE_PATH.exists():
+        ytdlp_args += f" --cookies {COOKIE_PATH}"
+    
     return MediaStream(
         audio_path=path,
         media_path=path,
@@ -45,6 +50,7 @@ def dynamic_media_stream(path: str, video: bool = False, ffmpeg_params: str = No
         video_parameters=VideoQuality.HD_720p if video else VideoQuality.SD_360p,
         video_flags=(MediaStream.Flags.AUTO_DETECT if video else MediaStream.Flags.IGNORE),
         ffmpeg_parameters=ffmpeg_params,
+        ytdlp_parameters=ytdlp_args,
     )
 
 async def _clear_(chat_id: int) -> None:
@@ -485,16 +491,24 @@ class Call:
 
     async def start(self) -> None:
         LOGGER(__name__).info("Starting PyTgCalls Clients...")
+        async def start_client(client):
+            try:
+                await client.start()
+            except FloodWait as e:
+                LOGGER(__name__).warning(f"FloodWait detected in Call. Waiting for {e.value} seconds...")
+                await asyncio.sleep(e.value)
+                await client.start()
+
         if config.STRING1:
-            await self.one.start()
+            await start_client(self.one)
         if config.STRING2:
-            await self.two.start()
+            await start_client(self.two)
         if config.STRING3:
-            await self.three.start()
+            await start_client(self.three)
         if config.STRING4:
-            await self.four.start()
+            await start_client(self.four)
         if config.STRING5:
-            await self.five.start()
+            await start_client(self.five)
 
     @capture_internal_err
     async def ping(self) -> str:

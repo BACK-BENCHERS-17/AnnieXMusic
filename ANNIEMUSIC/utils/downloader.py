@@ -2,7 +2,7 @@ import asyncio
 import contextlib
 import os
 import re
-from typing import Dict, Optional, Union
+from typing import Dict, List, Optional, Union
 
 import aiofiles
 import aiohttp
@@ -54,8 +54,8 @@ def _safe_filename(name: str) -> str:
     return re.sub(r'[\\/*?:"<>|]+', "_", (name or "").strip())[:200]
 
 
-def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool]]:
-    opts: Dict[str, Union[str, int, bool]] = {
+def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
+    opts: Dict[str, Union[str, int, bool, Dict, List]] = {
         "outtmpl": f"{_DOWNLOAD_DIR}/%(id)s.%(ext)s",
         "quiet": True,
         "no_warnings": True,
@@ -69,6 +69,8 @@ def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool]]:
         "retries": 3,
         "fragment_retries": 3,
         "cachedir": str(CACHE_DIR),
+        "js_runtimes": {"node": {}},
+        "remote_components": ["ejs:github"],
     }
     cookiefile = _cookiefile_path()
     if cookiefile:

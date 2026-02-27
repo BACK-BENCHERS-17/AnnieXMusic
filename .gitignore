@@ -14,3 +14,8 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+myenv/
+venv/
+__pycache__/
+*.pyc
+

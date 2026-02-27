@@ -30,7 +30,7 @@ async def play_live_stream(client, CallbackQuery, _):
 
     is_video = (mode == "v")
     forceplay = (fplay == "f")
-    user_name = CallbackQuery.from_user.first_name
+    user_name = CallbackQuery.from_user.mention
 
     try:
         await CallbackQuery.message.delete()

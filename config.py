@@ -12,7 +12,7 @@ API_HASH = getenv("API_HASH", "26100c77cee02e5e34b2bbee58440f86")
 BOT_TOKEN = getenv("BOT_TOKEN")
 
 OWNER_ID = int(getenv("OWNER_ID", 7044783841))
-OWNER_USERNAME = getenv("OWNER_USERNAME", "Zynox17")
+OWNER_USERNAME = getenv("OWNER_USERNAME", "PGL_B4CHI")
 BOT_USERNAME = getenv("BOT_USERNAME", "AnnieXRobot")
 BOT_NAME = getenv("BOT_NAME", "˹𝐀ɴɴɪᴇ ✘ 𝙼ᴜsɪᴄ˼ ♪")
 ASSUSERNAME = getenv("ASSUSERNAME", "musicxannie")
@@ -40,13 +40,13 @@ HEROKU_APP_NAME = getenv("HEROKU_APP_NAME")
 HEROKU_API_KEY = getenv("HEROKU_API_KEY")
 
 # ── Git / updates ──────────────────────────────────────────────────────────────
-UPSTREAM_REPO = getenv("UPSTREAM_REPO", "https://github.com/Zynox17/AnnieXMusic")
+UPSTREAM_REPO = getenv("UPSTREAM_REPO", "https://github.com/PGL_B4CHI/AnnieXMusic")
 UPSTREAM_BRANCH = getenv("UPSTREAM_BRANCH", "Master")
 GIT_TOKEN = getenv("GIT_TOKEN")  # needed if repo is private
 
 # ── Support links ──────────────────────────────────────────────────────────────
-SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "https://t.me/Zynox17")
-SUPPORT_CHAT = getenv("SUPPORT_CHAT", "https://t.me/Zynox17")
+SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "https://t.me/AnnieSupportGroup")
+SUPPORT_CHAT = getenv("SUPPORT_CHAT", "https://t.me/AnnieSupportGroup")
 
 # ── Assistant auto-leave ───────────────────────────────────────────────────────
 AUTO_LEAVING_ASSISTANT = False
@@ -94,10 +94,10 @@ def time_to_seconds(time: str) -> int:
 DURATION_LIMIT = time_to_seconds(f"{DURATION_LIMIT_MIN}:00")
 
 # ───── Bot Introduction Messages ───── #
-AYU = ["💞", "🦋", "🔍", "🧪", "⚡️", "🔥", "🎩", "🌈", "🍷", "🥂", "🥃", "🕊️", "🪄", "💌", "🧨"]
+AYU = ["<tg-emoji emoji-id=\"5296587316201005019\">💕</tg-emoji>", "<tg-emoji emoji-id=\"4958719848390591540\">🦋</tg-emoji>", "<tg-emoji emoji-id=\"4958587679361991667\">🔍</tg-emoji>", "<tg-emoji emoji-id=\"4956561910792192697\">🧪</tg-emoji>", "<tg-emoji emoji-id=\"6095843123252957701\">⚡️</tg-emoji>", "<tg-emoji emoji-id=\"4956222745814762495\">❤️‍🔥</tg-emoji>", "<tg-emoji emoji-id=\"6195222374355311655\">👑</tg-emoji>", "<tg-emoji emoji-id=\"5298709502491637271\">🌈</tg-emoji>", "<tg-emoji emoji-id=\"5361964771509808811\">🍷</tg-emoji>", "<tg-emoji emoji-id=\"6339298873365763591\">🥂</tg-emoji>", "<tg-emoji emoji-id=\"6192635880625150393\">🥃</tg-emoji>", "<tg-emoji emoji-id=\"5902433418699870159\">❤️</tg-emoji>", "<tg-emoji emoji-id=\"6021792097454002931\">🪄</tg-emoji>", "<tg-emoji emoji-id=\"4956475826762679249\">💬</tg-emoji>", "<tg-emoji emoji-id=\"6222054022895899468\">🧨</tg-emoji>"]
 AYUV = [
-    "ʜᴇʟʟᴏ {0}, 🥀\n\n ɪᴛ'ꜱ ᴍᴇ {1} !\n\n┏━━━━━━━━━━━━━━━━━⧫\n┠ ◆ ꜱᴜᴘᴘᴏʀᴛɪɴɢ ᴘʟᴀᴛꜰᴏʀᴍꜱ : ʏᴏᴜᴛᴜʙᴇ, ꜱᴘᴏᴛɪꜰʏ,\n┠ ◆ ʀᴇꜱꜱᴏ, ᴀᴘᴘʟᴇᴍᴜꜱɪᴄ , ꜱᴏᴜɴᴅᴄʟᴏᴜᴅ ᴇᴛᴄ.\n┗━━━━━━━━━━━━━━━━━⧫\n┏━━━━━━━━━━━━━━━━━⧫\n┠ ➥ Uᴘᴛɪᴍᴇ : {2}\n┠ ➥ SᴇʀᴠᴇʀSᴛᴏʀᴀɢᴇ : {3}\n┠ ➥ CPU Lᴏᴀᴅ : {4}\n┠ ➥ RAM Cᴏɴsᴜᴘᴛɪᴏɴ : {5}\n┠ ➥ ᴜꜱᴇʀꜱ : {6}\n┠ ➥ ᴄʜᴀᴛꜱ : {7}\n┗━━━━━━━━━━━━━━━━━⧫\n\n🫧 ᴅᴇᴠᴇʟᴏᴩᴇʀ 🪽 ➪ [⎯꯭𖣘᪳⏤ 乙𝚼𝚴𝚶𝚾 ꯭𖤫𐎓⸙¹⁷𖡼𝆭⏤](https://t.me/Zynox17)",
-    "ʜɪɪ, {0} ~\n\n◆ ɪ'ᴍ ᴀ {1} ᴛᴇʟᴇɢʀᴀᴍ ꜱᴛʀᴇᴀᴍɪɴɢ ʙᴏᴛ ᴡɪᴛʜ ꜱᴏᴍᴇ ᴜꜱᴇꜰᴜʟ\n◆ ᴜʟᴛʀᴀ ғᴀsᴛ ᴠᴄ ᴘʟᴀʏᴇʀ ꜰᴇᴀᴛᴜʀᴇꜱ.\n\n✨ ꜰᴇᴀᴛᴜʀᴇꜱ ⚡️\n◆ ʙᴏᴛ ғᴏʀ ᴛᴇʟᴇɢʀᴀᴍ ɢʀᴏᴜᴘs.\n◆ Sᴜᴘᴇʀғᴀsᴛ ʟᴀɢ Fʀᴇᴇ ᴘʟᴀʏᴇʀ.\n◆ ʏᴏᴜ ᴄᴀɴ ᴘʟᴀʏ ᴍᴜꜱɪᴄ + ᴠɪᴅᴇᴏ.\n◆ ʟɪᴠᴇ ꜱᴛʀᴇᴀᴍɪɴɢ.\n◆ ɴᴏ ᴘʀᴏᴍᴏ.\n◆ ʙᴇꜱᴛ ꜱᴏᴜɴᴅ Qᴜᴀʟɪᴛʏ.\n◆ 24×7 ʏᴏᴜ ᴄᴀɴ ᴘʟᴀʏ ᴍᴜꜱɪᴄ.\n◆ ᴀᴅᴅ ᴛʜɪꜱ ʙᴏᴛ ɪɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴍᴀᴋᴇ ɪᴛ ᴀᴅᴍɪɴ ᴀɴᴅ ᴇɴᴊᴏʏ ᴍᴜꜱɪᴄ 🎵.\n\n┏━━━━━━━━━━━━━━━━━⧫\n┠ ◆ ꜱᴜᴘᴘᴏʀᴛɪɴɢ ᴘʟᴀᴛꜰᴏʀᴍꜱ : ʏᴏᴜᴛᴜʙᴇ, ꜱᴘᴏᴛɪꜰʏ,\n┠ ◆ ʀᴇꜱꜱᴏ, ᴀᴘᴘʟᴇᴍᴜꜱɪᴄ , ꜱᴏᴜɴᴅᴄʟᴏᴜᴅ ᴇᴛᴄ.\n┗━━━━━━━━━━━━━━━━━⧫\n┏━━━━━━━━━━━━━━━━━⧫\n┠ ➥ Uᴘᴛɪᴍᴇ : {2}\n┠ ➥ SᴇʀᴠᴇʀSᴛᴏʀᴀɢᴇ : {3}\n┠ ➥ CPU Lᴏᴀᴅ : {4}\n┠ ➥ RAM Cᴏɴsᴜᴘᴛɪᴏɴ : {5}\n┠ ➥ ᴜꜱᴇʀꜱ : {6}\n┠ ➥ ᴄʜᴀᴛꜱ : {7}\n┗━━━━━━━━━━━━━━━━━⧫\n\n🫧 ᴅᴇᴠᴇʟᴏᴩᴇʀ 🪽 ➪ [⎯꯭𖣘᪳⏤ 乙𝚼𝚴𝚶𝚾 ꯭𖤫𐎓⸙¹⁷𖡼𝆭⏤](https://t.me/Zynox17)",
+    "<b>❅────✦ ʜᴇʟʟᴏ {0} ✦────❅</b>\n\n<b>◆ ᴜʟᴛʀᴀ ғᴀsᴛ ᴠᴄ ᴘʟᴀʏᴇʀ ғᴇᴀᴛᴜʀᴇs.</b>\n\n<b>✨ ғᴇᴀᴛᴜʀᴇs ⚡️</b>\n<b>◆ ʙᴏᴛ ғᴏʀ ᴛᴇʟᴇɢʀᴀᴍ ɢʀᴏᴜᴘs.</b>\n<b>◆ sᴜᴘᴇʀғᴀsᴛ ʟᴀɢ ғʀᴇᴇ ᴘʟᴀʏᴇʀ.</b>\n<b>◆ ʏᴏᴜ ᴄᴀɴ ᴘʟᴀʏ ᴍᴜsɪᴄ + ᴠɪᴅᴇᴏ.</b>\n<b>◆ ʟɪᴠᴇ sᴛʀᴇᴀᴍɪɴɢ.</b>\n<b>◆ ɴᴏ ᴘʀᴏᴍᴏ.</b>\n<b>◆ ʙᴇsᴛ sᴏᴜɴᴅ ǫᴜᴀʟɪᴛʏ.</b>\n<b>◆ 24×7 ʏᴏᴜ ᴄᴀɴ ᴘʟᴀʏ ᴍᴜsɪᴄ.</b>\n<b>◆ ᴀᴅᴅ ᴛʜɪs ʙᴏᴛ ɪɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴍᴀᴋᴇ ɪᴛ ᴀᴅᴍɪɴ ᴀɴᴅ ᴇɴᴊᴏʏ ᴍᴜsɪᴄ 🎵.</b>\n\n<b>▰▰▰▰▰▰▰▰▰▰▰▰▰</b>\n<b>➻ sᴜᴘᴘᴏʀᴛɪɴɢ ᴘʟᴀᴛғᴏʀᴍs ✧ ʏᴏᴜᴛᴜʙᴇ, sᴘᴏᴛɪғʏ, ʀᴇssᴏ, ᴀᴘᴘʟᴇᴍᴜsɪᴄ, sᴏᴜɴᴅᴄʟᴏᴜᴅ ᴇᴛᴄ.</b>\n<b>▰▰▰▰▰▰▰▰▰▰▰▰▰</b>\n<b>➻ ᴜᴘᴛɪᴍᴇ ✧ {2}</b>\n<b>➻ sᴇʀᴠᴇʀ sᴛᴏʀᴀɢᴇ ✧ {3}</b>\n<b>➻ ᴄᴘᴜ ʟᴏᴀᴅ ✧ {4}</b>\n<b>➻ ʀᴀᴍ ᴄᴏɴsᴜᴘᴛɪᴏɴ ✧ {5}</b>\n<b>➻ ᴜsᴇʀs ✧ {6}</b>\n<b>➻ ᴄʜᴀᴛs ✧ {7}</b>\n<b>▰▰▰▰▰▰▰▰▰▰▰▰▰</b>\n<b>❅─────✧❅✦❅✧─────❅</b>",
+    "<b>❅────✦ ʜɪɪ {0} ✦────❅</b>\n\nɪ'ᴍ <b>{1}</b>, ᴀ ᴘᴏᴡᴇʀғᴜʟ ᴍᴜsɪᴄ ʙᴏᴛ.\n\n<b>◆ ᴜʟᴛʀᴀ ғᴀsᴛ ᴠᴄ ᴘʟᴀʏᴇʀ ғᴇᴀᴛᴜʀᴇs.</b>\n\n<b>✨ ғᴇᴀᴛᴜʀᴇs ⚡️</b>\n<b>◆ ʙᴏᴛ ғᴏʀ ᴛᴇʟᴇɢʀᴀᴍ ɢʀᴏᴜᴘs.</b>\n<b>◆ sᴜᴘᴇʀғᴀsᴛ ʟᴀɢ ғʀᴇᴇ ᴘʟᴀʏᴇʀ.</b>\n<b>◆ ʏᴏᴜ ᴄᴀɴ ᴘʟᴀʏ ᴍᴜsɪᴄ + ᴠɪᴅᴇᴏ.</b>\n<b>◆ ʟɪᴠᴇ sᴛʀᴇᴀᴍɪɴɢ.</b>\n<b>◆ ɴᴏ ᴘʀᴏᴍᴏ.</b>\n<b>◆ ʙᴇsᴛ sᴏᴜɴᴅ ǫᴜᴀʟɪᴛʏ.</b>\n<b>◆ 24×7 ʏᴏᴜ ᴄᴀɴ ᴘʟᴀʏ ᴍᴜsɪᴄ.</b>\n<b>◆ ᴀᴅᴅ ᴛʜɪs ʙᴏᴛ ɪɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴍᴀᴋᴇ ɪᴛ ᴀᴅᴍɪɴ ᴀɴᴅ ᴇɴᴊᴏʏ ᴍᴜsɪᴄ 🎵.</b>\n\n<b>▰▰▰▰▰▰▰▰▰▰▰▰▰</b>\n<b>➻ sᴜᴘᴘᴏʀᴛɪɴɢ ᴘʟᴀᴛғᴏʀᴍs ✧ ʏᴏᴜᴛᴜʙᴇ, sᴘᴏᴛɪғʏ, ʀᴇssᴏ, ᴀᴘᴘʟᴇᴍᴜsɪᴄ, sᴏᴜɴᴅᴄʟᴏᴜᴅ ᴇᴛᴄ.</b>\n<b>▰▰▰▰▰▰▰▰▰▰▰▰▰</b>\n<b>➻ ᴜᴘᴛɪᴍᴇ ✧ {2}</b>\n<b>➻ sᴇʀᴠᴇʀ sᴛᴏʀᴀɢᴇ ✧ {3}</b>\n<b>➻ ᴄᴘᴜ ʟᴏᴀᴅ ✧ {4}</b>\n<b>➻ ʀᴀᴍ ᴄᴏɴsᴜᴘᴛɪᴏɴ ✧ {5}</b>\n<b>➻ ᴜsᴇʀs ✧ {6}</b>\n<b>➻ ᴄʜᴀᴛs ✧ {7}</b>\n<b>▰▰▰▰▰▰▰▰▰▰▰▰▰</b>\n<b>❅─────✧❅✦❅✧─────❅</b>",
 ]
 
 # ── Runtime structures ─────────────────────────────────────────────────────────

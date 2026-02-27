@@ -1,5 +1,6 @@
 import sys
-from pyrogram import Client, errors
+import asyncio
+from pyrogram import Client, errors, enums
 from pyrogram.enums import ChatMemberStatus
 
 import config
@@ -14,13 +15,20 @@ class JARVIS(Client):
             api_hash=config.API_HASH,
             bot_token=config.BOT_TOKEN,
             in_memory=True,
+            parse_mode=enums.ParseMode.HTML,
             workers=48,
             max_concurrent_transmissions=7,
         )
         LOGGER(__name__).info("Bot client initialized.")
 
     async def start(self):
-        await super().start()
+        try:
+            await super().start()
+        except errors.FloodWait as e:
+            LOGGER(__name__).warning(f"FloodWait detected. Waiting for {e.value} seconds...")
+            await asyncio.sleep(e.value)
+            await super().start()
+
         me = await self.get_me()
         self.username, self.id = me.username, me.id
         self.name = f"{me.first_name} {me.last_name or ''}".strip()

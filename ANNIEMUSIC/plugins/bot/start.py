@@ -26,6 +26,7 @@ from ANNIEMUSIC.utils.formatters import get_readable_time
 from ANNIEMUSIC.utils.inline.start import private_panel, start_panel
 from ANNIEMUSIC.utils.inline.help import first_page
 from ANNIEMUSIC.utils.reactions import react_to_command
+from ANNIEMUSIC.utils.font_styles import Fonts
 from config import BANNED_USERS, AYUV, HELP_IMG_URL, START_VIDS, STICKERS
 from strings import get_string
 
@@ -56,7 +57,6 @@ async def start_pm(client, message: Message, _):
                 photo=HELP_IMG_URL,
                 caption=_["help_1"].format(config.SUPPORT_CHAT),
                 reply_markup=keyboard,
-                has_spoiler=True,
             )
 
         if name.startswith("sud"):
@@ -85,14 +85,14 @@ async def start_pm(client, message: Message, _):
                     await m.edit_text("No results found.")
                     return
 
-                title = result.get("title") or "Unknown"
-                duration = result.get("duration") or "Unknown"
-                views = (result.get("viewCount") or {}).get("short") or "Unknown"
+                title = result.get("title") or "ᴜɴᴋɴᴏᴡɴ"
+                duration = result.get("duration") or "ᴜɴᴋɴᴏᴡɴ"
+                views = (result.get("viewCount") or {}).get("short") or "ᴜɴᴋɴᴏᴡɴ"
                 thumbnail = ((result.get("thumbnails") or [{}])[0].get("url") or "").split("?")[0]
                 channellink = (result.get("channel") or {}).get("link") or "https://youtube.com"
-                channel = (result.get("channel") or {}).get("name") or "Unknown"
+                channel = (result.get("channel") or {}).get("name") or "ᴜɴᴋɴᴏᴡɴ"
                 link = result.get("link") or query
-                published = result.get("publishedTime") or "Unknown"
+                published = result.get("publishedTime") or "ᴜɴᴋɴᴏᴡɴ"
 
                 searched_text = _["start_6"].format(title, duration, views, published, channellink, channel, app.mention)
                 key = InlineKeyboardMarkup(
@@ -107,7 +107,6 @@ async def start_pm(client, message: Message, _):
                     photo=thumbnail or HELP_IMG_URL,
                     caption=searched_text,
                     reply_markup=key,
-                    has_spoiler=True,
                 )
 
                 if await is_on_off(2):
@@ -135,14 +134,27 @@ async def start_pm(client, message: Message, _):
         served_chats_coro, served_users_coro, stats_coro
     )
 
-    await message.reply_video(
-        random.choice(START_VIDS),
-        caption=random.choice(AYUV).format(
-            message.from_user.mention, app.mention, UP, DISK, CPU, RAM, len(served_users), len(served_chats)
-        ),
-        reply_markup=InlineKeyboardMarkup(out),
-        has_spoiler=True,
-    )
+    try:
+        await message.reply_video(
+            random.choice(START_VIDS),
+            caption=random.choice(AYUV).format(
+                message.from_user.mention,
+                f"<a href='https://t.me/{app.username}'>{app.name}</a>",
+                UP, DISK, CPU, RAM, len(served_users), len(served_chats)
+            ),
+            reply_markup=InlineKeyboardMarkup(out),
+            has_spoiler=True,
+        )
+    except Exception:
+        await message.reply_video(
+            random.choice(START_VIDS),
+            caption=random.choice(AYUV).format(
+                message.from_user.mention,
+                f"<a href='https://t.me/{app.username}'>{app.name}</a>",
+                UP, DISK, CPU, RAM, len(served_users), len(served_chats)
+            ),
+            reply_markup=InlineKeyboardMarkup(out),
+        )
 
     if await is_on_off(2):
         username = f"@{message.from_user.username}" if message.from_user.username else "(none)"
@@ -165,7 +177,7 @@ async def start_gp(client, message: Message, _):
     try:
         await message.reply_video(
             random.choice(START_VIDS),
-            caption=_["start_1"].format(app.mention, get_readable_time(uptime)),
+            caption=_["start_1"].format(f"<a href='https://t.me/{app.username}'>{Fonts.bold_cool(app.name)}</a>", get_readable_time(uptime)),
             reply_markup=InlineKeyboardMarkup(out),
             has_spoiler=True,
         )
@@ -204,17 +216,29 @@ async def welcome(client, message: Message):
                     return await app.leave_chat(message.chat.id)
 
                 out = start_panel(_)
-                await message.reply_video(
-                    random.choice(START_VIDS),
-                    caption=_["start_3"].format(
-                        message.from_user.mention,
-                        app.mention,
-                        message.chat.title,
-                        app.mention,
-                    ),
-                    reply_markup=InlineKeyboardMarkup(out),
-                    has_spoiler=True,
-                )
+                try:
+                    await message.reply_video(
+                        random.choice(START_VIDS),
+                        caption=_["start_3"].format(
+                            f"<a href='tg://user?id={message.from_user.id}'>{Fonts.bold_cool(message.from_user.first_name)}</a>",
+                            f"<a href='https://t.me/{app.username}'>{Fonts.bold_cool(app.name)}</a>",
+                            message.chat.title,
+                            f"<a href='https://t.me/{app.username}'>{Fonts.bold_cool(app.name)}</a>",
+                        ),
+                        reply_markup=InlineKeyboardMarkup(out),
+                        has_spoiler=True,
+                    )
+                except Exception:
+                    await message.reply_video(
+                        random.choice(START_VIDS),
+                        caption=_["start_3"].format(
+                            f"<a href='tg://user?id={message.from_user.id}'>{Fonts.bold_cool(message.from_user.first_name)}</a>",
+                            f"<a href='https://t.me/{app.username}'>{Fonts.bold_cool(app.name)}</a>",
+                            message.chat.title,
+                            f"<a href='https://t.me/{app.username}'>{Fonts.bold_cool(app.name)}</a>",
+                        ),
+                        reply_markup=InlineKeyboardMarkup(out),
+                    )
                 await add_served_chat(message.chat.id)
                 await message.stop_propagation()
 

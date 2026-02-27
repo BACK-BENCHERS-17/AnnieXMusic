@@ -30,7 +30,7 @@
 </h1>
 
 <p align="center">
-  <a href="https://t.me/CertifiedCoders">
+  <a href="https://t.me/AnnieSupportGroup">
     <img src="https://files.catbox.moe/eh780q.jpg" width="600">
   </a>
 </p>
@@ -276,13 +276,13 @@ docker rmi anniexmusic      # Remove image
 ## 💬 Community & Support
 
 <p align="center">
-  <a href="https://t.me/CertifiedCoders">
+  <a href="https://t.me/AnnieSupportGroup">
     <img src="https://img.shields.io/badge/Support_Group-Telegram-0088cc?style=for-the-badge&logo=telegram&logoColor=white" />
   </a>
   <a href="https://t.me/CertifiedCodes">
     <img src="https://img.shields.io/badge/Updates_Channel-Telegram-6A5ACD?style=for-the-badge&logo=telegram&logoColor=white" />
   </a>
-  <a href="https://t.me/CertifiedCoder">
+  <a href="https://t.me/PGL_B4CHI">
     <img src="https://img.shields.io/badge/Contact_Owner-Telegram-4CAF50?style=for-the-badge&logo=telegram&logoColor=white" />
   </a>
   <a href="https://instagram.com/rajnishthegreat">
