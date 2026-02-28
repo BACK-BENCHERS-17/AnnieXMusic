@@ -43,8 +43,17 @@ async def wish(_, m):
 
 @app.on_message(filters.command("cute"))
 async def cute(_, message):
-    user = message.reply_to_message.from_user if message.reply_to_message else message.from_user
-    mention = f"[{user.first_name}](tg://user?id={user.id})"
+    if message.reply_to_message:
+        user = message.reply_to_message.from_user
+    elif len(message.command) > 1:
+        try:
+            user = await app.get_users(message.command[1])
+        except Exception:
+            user = message.from_user
+    else:
+        user = message.from_user
+
+    mention = f"<a href=\"tg://user?id={user.id}\">{user.first_name}</a>"
     percent = random.randint(1, 100)
 
     caption = f"🍑 {mention} ɪꜱ {percent}% ᴄᴜᴛᴇ ʙᴀʙʏ 🥀"

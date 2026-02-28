@@ -42,6 +42,12 @@ commands = {
     "lurk": {"emoji": "👤", "text": "is lurking"}
 }
 
+SOLO_COMMANDS = {
+    "dance", "happy", "bored", "nom", "yawn", "facepalm", "think",
+    "blush", "smug", "wink", "smile", "wave", "shrug", "sleep", "lurk",
+    "nod", "nope"
+}
+
 
 def md_escape(text: str) -> str:
     return text.replace('[', '\\[').replace(']', '\\]')
@@ -68,18 +74,32 @@ async def animation_command(client: Client, message: Message):
         return await message.reply_text("❌ Couldn't fetch the animation. Please try again later.")
 
     sender_name = md_escape(message.from_user.first_name)
-    sender = f"[{sender_name}](tg://user?id={message.from_user.id})"
+    sender = f"<a href=\"tg://user?id={message.from_user.id}\">{sender_name}</a>"
+
+    target = None
+    target_user = None
 
     if message.reply_to_message:
-        target_name = md_escape(message.reply_to_message.from_user.first_name)
-        target = f"[{target_name}](tg://user?id={message.reply_to_message.from_user.id})"
-    else:
-        target = sender
+        target_user = message.reply_to_message.from_user
+    elif len(message.command) > 1:
+        user_identifier = message.command[1]
+        try:
+            target_user = await client.get_users(user_identifier)
+        except Exception:
+            pass
 
     action_text = commands[command]['text']
     emoji = commands[command]['emoji']
 
-    caption = f"**{sender} {action_text} {target}!** {emoji}"
+    if command in SOLO_COMMANDS:
+        caption = f"<b>{sender} {action_text}!</b> {emoji}"
+    else:
+        if not target_user:
+            return await message.reply_text("⚠️ Please reply to a user or mention someone to use this command!")
+        
+        target_name = md_escape(target_user.first_name)
+        target = f"<a href=\"tg://user?id={target_user.id}\">{target_name}</a>"
+        caption = f"<b>{sender} {action_text} {target}!</b> {emoji}"
 
     await message.reply_animation(
         animation=gif_url,

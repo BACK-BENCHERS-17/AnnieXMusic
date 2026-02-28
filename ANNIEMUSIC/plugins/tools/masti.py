@@ -30,21 +30,32 @@ TEMPLATES = {
 }
 
 
-def get_user_mention(message: Message) -> str:
-    user = message.reply_to_message.from_user if message.reply_to_message else message.from_user
-    return f"[{user.first_name}](tg://user?id={user.id})"
-
-
 def get_reply_id(message: Message) -> int | None:
     return message.reply_to_message.message_id if message.reply_to_message else None
 
 
-async def handle_percentage_command(_, message: Message):
+async def get_user_mention(client, message: Message) -> str:
+    user = None
+    if message.reply_to_message:
+        user = message.reply_to_message.from_user
+    elif len(message.command) > 1:
+        try:
+            user = await client.get_users(message.command[1])
+        except Exception:
+            pass
+    
+    if not user:
+        user = message.from_user
+
+    return f"<a href=\"tg://user?id={user.id}\">{user.first_name}</a>"
+
+
+async def handle_percentage_command(client, message: Message):
     command = message.command[0].lower()
     if command not in MEDIA or command not in TEMPLATES:
         return
 
-    mention = get_user_mention(message)
+    mention = await get_user_mention(client, message)
     percent = random.randint(1, 100)
     text = TEMPLATES[command].format(mention=mention, percent=percent)
     media_url = MEDIA[command]
