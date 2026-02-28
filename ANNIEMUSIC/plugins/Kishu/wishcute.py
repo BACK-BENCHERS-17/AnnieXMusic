@@ -49,9 +49,9 @@ async def cute(_, message):
         try:
             user = await app.get_users(message.command[1])
         except Exception:
-            user = message.from_user
+            return await message.reply_text("⚠️ ᴄᴏᴜʟᴅɴ'ᴛ ꜰɪɴᴅ ᴛʜᴀᴛ ᴜsᴇʀ!")
     else:
-        user = message.from_user
+        return await message.reply_text("⚠️ ᴘʟᴇᴀsᴇ ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴜsᴇʀ ᴏʀ ᴍᴇɴᴛɪᴏɴ sᴏᴍᴇᴏɴᴇ ᴛᴏ ᴄʜᴇᴄᴋ ᴛʜᴇɪʀ ᴄᴜᴛᴇɴᴇss!")
 
     mention = f"<a href=\"tg://user?id={user.id}\">{user.first_name}</a>"
     percent = random.randint(1, 100)
@@ -62,7 +62,7 @@ async def cute(_, message):
         chat_id=message.chat.id,
         document=CUTE_VIDEO,
         caption=caption,
-        parse_mode=enums.ParseMode.MARKDOWN,
+        parse_mode=enums.ParseMode.HTML,
         reply_markup=SUPPORT_BTN,
         reply_to_message_id=message.reply_to_message.message_id if message.reply_to_message else None,
     )

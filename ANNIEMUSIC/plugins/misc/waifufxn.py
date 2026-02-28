@@ -104,5 +104,5 @@ async def animation_command(client: Client, message: Message):
     await message.reply_animation(
         animation=gif_url,
         caption=caption,
-        parse_mode=ParseMode.MARKDOWN
+        parse_mode=ParseMode.HTML
     )
