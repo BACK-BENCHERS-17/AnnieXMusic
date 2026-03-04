@@ -31,6 +31,13 @@ async def tiny_sticker(client, message):
                 pass
             return
         os.system("lottie_convert.py wel2.tgs json.json")
+        if not os.path.exists("json.json"):
+            await kontol.edit_text("❌ Lottie conversion failed.")
+            try:
+                os.remove("wel2.tgs")
+            except:
+                pass
+            return
         with open("json.json", "r") as json_file:
             jsn = json_file.read()
             jsn = jsn.replace("512", "2000")

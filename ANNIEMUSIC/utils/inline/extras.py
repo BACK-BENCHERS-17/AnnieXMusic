@@ -27,6 +27,24 @@ def close_markup(_):
     return upl
 
 
+def add_to_channel_markup(_, bot_username):
+    upl = InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton(
+                    text="✚ ᴀᴅᴅ ᴍᴇ ʙᴀʙʏ ✚",
+                    url=f"https://t.me/{bot_username}?startgroup=true",
+                ),
+                InlineKeyboardButton(
+                    text=_["CLOSE_BUTTON"],
+                    callback_data="close",
+                ),
+            ]
+        ]
+    )
+    return upl
+
+
 def supp_markup(_):
     upl = InlineKeyboardMarkup(
         [

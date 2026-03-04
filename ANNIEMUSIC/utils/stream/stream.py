@@ -121,8 +121,9 @@ async def stream(
                     reply_markup=InlineKeyboardMarkup(button),
                     has_spoiler=True,
                 )
-                db[chat_id][0]["mystic"] = run
-                db[chat_id][0]["markup"] = "stream"
+                if db.get(chat_id):
+                    db[chat_id][0]["mystic"] = run
+                    db[chat_id][0]["markup"] = "stream"
 
         if count == 0:
             return
@@ -217,8 +218,9 @@ async def stream(
                 reply_markup=InlineKeyboardMarkup(button),
                 has_spoiler=True,
             )
-            db[chat_id][0]["mystic"] = run
-            db[chat_id][0]["markup"] = "stream"
+            if db.get(chat_id):
+                db[chat_id][0]["mystic"] = run
+                db[chat_id][0]["markup"] = "stream"
 
     elif streamtype == "soundcloud":
         file_path = result["filepath"]
@@ -272,8 +274,9 @@ async def stream(
                 reply_markup=InlineKeyboardMarkup(button),
                 has_spoiler=True,
             )
-            db[chat_id][0]["mystic"] = run
-            db[chat_id][0]["markup"] = "tg"
+            if db.get(chat_id):
+                db[chat_id][0]["mystic"] = run
+                db[chat_id][0]["markup"] = "tg"
 
     elif streamtype == "telegram":
         file_path = result["path"]
@@ -328,8 +331,9 @@ async def stream(
                 reply_markup=InlineKeyboardMarkup(button),
                 has_spoiler=True,
             )
-            db[chat_id][0]["mystic"] = run
-            db[chat_id][0]["markup"] = "tg"
+            if db.get(chat_id):
+                db[chat_id][0]["mystic"] = run
+                db[chat_id][0]["markup"] = "tg"
 
     elif streamtype == "live":
         link = result["link"]
@@ -399,8 +403,9 @@ async def stream(
                 reply_markup=InlineKeyboardMarkup(button),
                 has_spoiler=True,
             )
-            db[chat_id][0]["mystic"] = run
-            db[chat_id][0]["markup"] = "tg"
+            if db.get(chat_id):
+                db[chat_id][0]["mystic"] = run
+                db[chat_id][0]["markup"] = "tg"
 
     elif streamtype == "index":
         link = result
@@ -452,6 +457,7 @@ async def stream(
                 reply_markup=InlineKeyboardMarkup(button),
                 has_spoiler=True,
             )
-            db[chat_id][0]["mystic"] = run
-            db[chat_id][0]["markup"] = "tg"
+            if db.get(chat_id):
+                db[chat_id][0]["mystic"] = run
+                db[chat_id][0]["markup"] = "tg"
             await mystic.delete()

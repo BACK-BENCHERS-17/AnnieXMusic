@@ -49,9 +49,9 @@ async def cute(_, message):
         try:
             user = await app.get_users(message.command[1])
         except Exception:
-            return await message.reply_text("⚠️ ᴄᴏᴜʟᴅɴ'ᴛ ꜰɪɴᴅ ᴛʜᴀᴛ ᴜsᴇʀ!")
+            user = message.from_user
     else:
-        return await message.reply_text("⚠️ ᴘʟᴇᴀsᴇ ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴜsᴇʀ ᴏʀ ᴍᴇɴᴛɪᴏɴ sᴏᴍᴇᴏɴᴇ ᴛᴏ ᴄʜᴇᴄᴋ ᴛʜᴇɪʀ ᴄᴜᴛᴇɴᴇss!")
+        user = message.from_user
 
     mention = f"<a href=\"tg://user?id={user.id}\">{user.first_name}</a>"
     percent = random.randint(1, 100)

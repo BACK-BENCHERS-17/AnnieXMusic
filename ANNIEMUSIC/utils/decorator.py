@@ -15,6 +15,8 @@ Handler = Callable[..., Awaitable[Any]]
 # ────────────────────────────────────────────────────────────
 # generic admin_required(priv1, priv2, …)
 # ────────────────────────────────────────────────────────────
+from pyrogram.errors import UserNotParticipant
+
 def admin_required(*privileges: str):
     """
     Usage:
@@ -34,7 +36,11 @@ def admin_required(*privileges: str):
             if message.chat.type == ChatType.PRIVATE:
                 return await func(client, message, *a, **kw)
 
-            member = await message.chat.get_member(message.from_user.id)
+            try:
+                member = await message.chat.get_member(message.from_user.id)
+            except UserNotParticipant:
+                return await message.reply_text("You must be a member of this chat to use this command.")
+
             allowed = False
             if member.status == ChatMemberStatus.OWNER:
                 allowed = True
@@ -64,7 +70,7 @@ def _require_bot_priv(flag: str, friendly: str):
             me = await client.get_chat_member(message.chat.id, BOT_USERNAME)
             if not (me.status == ChatMemberStatus.ADMINISTRATOR and getattr(me.privileges, flag)):
                 return await message.reply_text(
-                    f"I don’t have the right **{friendly}** in **{message.chat.title}**."
+                    f"I don’t have the right <b>{friendly}</b> in <b>{message.chat.title}</b>."
                 )
             return await func(client, message, *a, **kw)
 

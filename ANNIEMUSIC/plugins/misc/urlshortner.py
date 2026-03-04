@@ -15,8 +15,8 @@ async def short_urls(bot: Client, message: Message):
 
     if len(message.command) < 2:
         return await message.reply_text(
-            "❌ Please provide a link to shorten.\n\n**Example:** `/short https://example.com`",
-            parse_mode=ParseMode.MARKDOWN
+            "❌ Please provide a link to shorten.\n\n<b>Example:</b> `/short https://example.com`",
+            parse_mode=ParseMode.HTML
         )
 
     link = message.command[1]
@@ -44,8 +44,8 @@ async def unshort_url(bot: Client, message: Message):
 
     if len(message.command) < 2:
         return await message.reply_text(
-            "❌ Please provide a shortened link.\n\n**Example:** `/unshort https://bit.ly/example`",
-            parse_mode=ParseMode.MARKDOWN
+            "❌ Please provide a shortened link.\n\n<b>Example:</b> `/unshort https://bit.ly/example`",
+            parse_mode=ParseMode.HTML
         )
 
     short_link = message.command[1]
@@ -56,7 +56,7 @@ async def unshort_url(bot: Client, message: Message):
             final_url = str(response.url)
 
         markup = ikm([[ikb("🔗 View Final URL", url=final_url)]])
-        await message.reply_text(f"✅ **Unshortened URL:**\n`{final_url}`", reply_markup=markup, parse_mode=ParseMode.MARKDOWN)
+        await message.reply_text(f"✅ <b>Unshortened URL:</b>\n`{final_url}`", reply_markup=markup, parse_mode=ParseMode.HTML)
 
     except Exception as e:
         print(f"Unshortener error: {e}")

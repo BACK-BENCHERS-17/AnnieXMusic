@@ -50,14 +50,14 @@ def format_info(info):
     location = f"{location_data['country']}, {location_data['city']}" if location_data else "Unavailable"
 
     return (
-        f"**ᴅᴏᴍᴀɪɴ ɴᴀᴍᴇ**: {domain}\n"
-        f"**ʀᴇɢɪsᴛʀᴀʀ**: {registrar}\n"
-        f"**ᴄʀᴇᴀᴛɪᴏɴ ᴅᴀᴛᴇ**: {creation.strftime('%Y-%m-%d') if creation else 'N/A'}\n"
-        f"**ᴇxᴘɪʀᴀᴛɪᴏɴ ᴅᴀᴛᴇ**: {expiry.strftime('%Y-%m-%d') if expiry else 'N/A'}\n"
-        f"**ᴅᴏᴍᴀɪɴ ᴀɢᴇ**: {age} years\n"
-        f"**ɪᴘ ᴀᴅᴅʀᴇss**: `{ip}`\n"
-        f"**ʟᴏᴄᴀᴛɪᴏɴ**: {location}\n"
-        f"**ɴᴀᴍᴇsᴇʀᴠᴇʀs**: {nameservers}\n"
+        f"<b>ᴅᴏᴍᴀɪɴ ɴᴀᴍᴇ</b>: {domain}\n"
+        f"<b>ʀᴇɢɪsᴛʀᴀʀ</b>: {registrar}\n"
+        f"<b>ᴄʀᴇᴀᴛɪᴏɴ ᴅᴀᴛᴇ</b>: {creation.strftime('%Y-%m-%d') if creation else 'N/A'}\n"
+        f"<b>ᴇxᴘɪʀᴀᴛɪᴏɴ ᴅᴀᴛᴇ</b>: {expiry.strftime('%Y-%m-%d') if expiry else 'N/A'}\n"
+        f"<b>ᴅᴏᴍᴀɪɴ ᴀɢᴇ</b>: {age} years\n"
+        f"<b>ɪᴘ ᴀᴅᴅʀᴇss</b>: `{ip}`\n"
+        f"<b>ʟᴏᴄᴀᴛɪᴏɴ</b>: {location}\n"
+        f"<b>ɴᴀᴍᴇsᴇʀᴠᴇʀs</b>: {nameservers}\n"
     )
 
 @app.on_message(filters.command("domain"))

@@ -1,4 +1,5 @@
 import asyncio
+from pyrogram.errors import MessageNotModified, QueryIdInvalid
 from ANNIEMUSIC import app
 from config import SUPPORT_CHAT
 from ANNIEMUSIC.misc import SUDOERS
@@ -30,7 +31,6 @@ def language(mystic):
 
     return wrapper
 
-
 def languageCB(mystic):
     async def wrapper(_, CallbackQuery, **kwargs):
         if await is_maintenance() is False:
@@ -44,7 +44,10 @@ def languageCB(mystic):
             language = get_string(language)
         except:
             language = get_string("en")
-        return await mystic(_, CallbackQuery, language)
+        try:
+            return await mystic(_, CallbackQuery, language)
+        except (MessageNotModified, QueryIdInvalid):
+            pass
 
     return wrapper
 
@@ -57,6 +60,9 @@ def LanguageStart(mystic):
             language = get_string(language)
         except:
             language = get_string("en")
-        return await mystic(_, message, language)
+        try:
+            return await mystic(_, message, language)
+        except (MessageNotModified, QueryIdInvalid):
+            pass
 
     return wrapper

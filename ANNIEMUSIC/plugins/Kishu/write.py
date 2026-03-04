@@ -33,7 +33,7 @@ async def handwrite(_, message: Message):
 
     caption = (
         f"📝 𝒮𝓊𝒸𝒸𝑒𝓈𝓈!\n\n"
-        f"✨ 𝒲𝓇𝒾𝓉𝓉𝑒𝓃 𝒷𝓎: [𝐀𝐍𝐍𝐈𝐄](https://t.me/{BOT_USERNAME})\n"
+        f"✨ 𝒲𝓇𝒾𝓉𝓉𝑒𝓃 𝒷𝓎: <a href=\"https://t.me/{BOT_USERNAME}\">𝐀𝐍𝐍𝐈𝐄</a>\n"
         f"🥀 𝑅𝑒𝓆𝓊𝑒𝓈𝓉𝑒𝒹 𝒷𝓎: {message.from_user.mention}"
     )
 
@@ -55,7 +55,7 @@ async def date_to_day_command(client: Client, message: Message):
         day_of_week = date_object.strftime("%A")
 
         await message.reply_text(
-            f"📆 The day of the week for `{input_date}` is **{day_of_week}**.",
+            f"📆 The day of the week for `{input_date}` is <b>{day_of_week}</b>.",
             parse_mode=enums.ParseMode.MARKDOWN
         )
     except ValueError:

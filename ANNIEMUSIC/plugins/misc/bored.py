@@ -22,7 +22,7 @@ async def bored_command(client: Client, message: Message):
 
         if activity:
             await message.reply_text(
-                f"😐 **Feeling bored?**\n\n🎯 **Try this:** `{activity}`",
+                f"😐 <b>Feeling bored?</b>\n\n🎯 <b>Try this:</b> `{activity}`",
                 parse_mode=ParseMode.MARKDOWN
             )
         else:

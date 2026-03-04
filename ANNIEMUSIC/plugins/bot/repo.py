@@ -3,7 +3,7 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from ANNIEMUSIC import app
 from config import BOT_USERNAME
 
-repo_caption = f"""**
+repo_caption = f"""<b>
 <tg-emoji emoji-id=\"6197443727145835757\">✈️</tg-emoji> ᴄʟᴏɴᴇ ᴀɴᴅ ᴅᴇᴘʟᴏʏ – ᴘɢʟ_ʙ4ᴄʜɪ ʀᴇᴘᴏ <tg-emoji emoji-id=\"6197443727145835757\">✈️</tg-emoji>
 
 ➤ ᴅᴇᴘʟᴏʏ ᴇᴀsɪʟʏ ᴏɴ ʜᴇʀᴏᴋᴜ ᴡɪᴛʜᴏᴜᴛ ᴇʀʀᴏʀꜱ  
@@ -13,7 +13,7 @@ repo_caption = f"""**
 ➤ ʀᴜɴ 24/7 ʟᴀɢ ꜰʀᴇᴇ
 
 ɪꜰ ʏᴏᴜ ꜰᴀᴄᴇ ᴀɴʏ ᴘʀᴏʙʟᴇᴍ, ꜱᴇɴᴅ ꜱꜱ ɪɴ ꜱᴜᴘᴘᴏʀᴛ
-**"""
+</b>"""
 
 @app.on_message(filters.command("repo"))
 async def show_repo(_, msg):
@@ -26,12 +26,12 @@ async def show_repo(_, msg):
                 "👑 ᴏᴡɴᴇʀ", url="https://t.me/PGL_B4CHI"
             ),
             InlineKeyboardButton(
-                "💬 ꜱᴜᴘᴘᴏʀᴛ", url="https://t.me/AnnieSupportGroup"
+                "ꜱᴜᴘᴘᴏʀᴛ", url="https://t.me/AnnieSupportGroup"
             )
         ],
         [
             InlineKeyboardButton(
-                "🛠️ ꜱᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ", url="https://t.me/AnnieSupportGroup"
+                "ꜱᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ", url="https://t.me/AnnieSupportGroup"
             ),
             InlineKeyboardButton(
                 "🎵 ɢɪᴛʜᴜʙ", url="https://github.com/PGL_B4CHI"

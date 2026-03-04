@@ -37,7 +37,7 @@ from ANNIEMUSIC.utils.database import (
 )
 from ANNIEMUSIC.utils.decorators import ActualAdminCB, languageCB
 from ANNIEMUSIC.utils.formatters import seconds_to_min
-from ANNIEMUSIC.utils.inline import close_markup, stream_markup, stream_markup_timer
+from ANNIEMUSIC.utils.inline import close_markup, stream_markup, stream_markup_timer, add_to_channel_markup
 from ANNIEMUSIC.utils.stream.autoclear import auto_clean
 from ANNIEMUSIC.utils.thumbnails import get_thumb
 
@@ -228,7 +228,7 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
                 await callback.edit_message_text(text_msg)
                 await callback.message.reply_text(
                     _["admin_6"].format(user_mention, callback.message.chat.title),
-                    reply_markup=close_markup(_)
+                    reply_markup=add_to_channel_markup(_, app.username)
                 )
                 return await JARVIS.stop_stream(chat_id)
         except Exception:
@@ -236,7 +236,7 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
                 await callback.edit_message_text(text_msg)
                 await callback.message.reply_text(
                     _["admin_6"].format(user_mention, callback.message.chat.title),
-                    reply_markup=close_markup(_)
+                    reply_markup=add_to_channel_markup(_, app.username)
                 )
                 return await JARVIS.stop_stream(chat_id)
             except Exception:
@@ -287,8 +287,9 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
             caption=_["stream_1"].format(f"https://t.me/{app.username}?start=info_{videoid}", title[:23], duration, user),
             reply_markup=InlineKeyboardMarkup(buttons)
         )
-        db[chat_id][0]["mystic"] = run
-        db[chat_id][0]["markup"] = "tg"
+        if db.get(chat_id):
+            db[chat_id][0]["mystic"] = run
+            db[chat_id][0]["markup"] = "tg"
         await callback.edit_message_text(text_msg, reply_markup=close_markup(_))
 
     elif "vid_" in queued:
@@ -328,8 +329,9 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
             caption=_["stream_2"].format(user),
             reply_markup=InlineKeyboardMarkup(buttons)
         )
-        db[chat_id][0]["mystic"] = run
-        db[chat_id][0]["markup"] = "tg"
+        if db.get(chat_id):
+            db[chat_id][0]["mystic"] = run
+            db[chat_id][0]["markup"] = "tg"
         await callback.edit_message_text(text_msg, reply_markup=close_markup(_))
 
     else:
@@ -393,7 +395,7 @@ async def handle_seek(callback: CallbackQuery, _, chat_id: int, command: str, us
             bet = seconds_to_min(duration_played)
             return await callback.answer(
                 f"» ʙᴏᴛ ɪs ᴜɴᴀʙʟᴇ ᴛᴏ sᴇᴇᴋ ʙᴇᴄᴀᴜsᴇ ᴛʜᴇ ᴅᴜʀᴀᴛɪᴏɴ ᴇxᴄᴇᴇᴅs.\n\n"
-                f"ᴄᴜʀʀᴇɴᴛʟʏ ᴩʟᴀʏᴇᴅ :** {bet}** ᴍɪɴᴜᴛᴇs ᴏᴜᴛ ᴏғ **{duration}** ᴍɪɴᴜᴛᴇs.",
+                f"ᴄᴜʀʀᴇɴᴛʟʏ ᴩʟᴀʏᴇᴅ :<b> {bet}</b> ᴍɪɴᴜᴛᴇs ᴏᴜᴛ ᴏғ <b>{duration}</b> ᴍɪɴᴜᴛᴇs.",
                 show_alert=True
             )
         to_seek = duration_played - duration_to_skip + 1
@@ -402,7 +404,7 @@ async def handle_seek(callback: CallbackQuery, _, chat_id: int, command: str, us
             bet = seconds_to_min(duration_played)
             return await callback.answer(
                 f"» ʙᴏᴛ ɪs ᴜɴᴀʙʟᴇ ᴛᴏ sᴇᴇᴋ ʙᴇᴄᴀᴜsᴇ ᴛʜᴇ ᴅᴜʀᴀᴛɪᴏɴ ᴇxᴄᴇᴇᴅs.\n\n"
-                f"ᴄᴜʀʀᴇɴᴛʟʏ ᴩʟᴀʏᴇᴅ :** {bet}** ᴍɪɴᴜᴛᴇs ᴏᴜᴛ ᴏғ **{duration}** ᴍɪɴᴜᴛᴇs.",
+                f"ᴄᴜʀʀᴇɴᴛʟʏ ᴩʟᴀʏᴇᴅ :<b> {bet}</b> ᴍɪɴᴜᴛᴇs ᴏᴜᴛ ᴏғ <b>{duration}</b> ᴍɪɴᴜᴛᴇs.",
                 show_alert=True
             )
         to_seek = duration_played + duration_to_skip + 1

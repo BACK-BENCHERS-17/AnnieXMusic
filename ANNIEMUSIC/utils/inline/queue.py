@@ -26,7 +26,7 @@ def queue_markup(
         [
             InlineKeyboardButton(
                 text=_["QU_B_2"].format(played, dur),
-                callback_data="GetTimer",
+                url="https://t.me/ANNIEXMUSICxBOT?startgroup=true",
             )
         ],
         [

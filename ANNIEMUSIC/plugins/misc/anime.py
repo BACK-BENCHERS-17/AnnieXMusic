@@ -72,16 +72,16 @@ async def anime_info(client: Client, message: Message):
     desc = clean_description(result.get('description'))
     image = result['coverImage']['large']
 
-    english_line = f"**🇺🇸 Title (English):** {english}\n" if english else ""
+    english_line = f"<b>🇺🇸 Title (English):</b> {english}\n" if english else ""
 
     caption = (
-        f"**🎌 Title (Romaji):** {title}\n"
+        f"<b>🎌 Title (Romaji):</b> {title}\n"
         f"{english_line}"
-        f"**🈶 Title (Native):** {native}\n"
-        f"**📺 Episodes:** {episodes}\n"
-        f"**📊 Score:** {score}/100\n"
-        f"**📌 Status:** {status}\n\n"
-        f"**📝 Description:**\n{desc}"
+        f"<b>🈶 Title (Native):</b> {native}\n"
+        f"<b>📺 Episodes:</b> {episodes}\n"
+        f"<b>📊 Score:</b> {score}/100\n"
+        f"<b>📌 Status:</b> {status}\n\n"
+        f"<b>📝 Description:</b>\n{desc}"
     )
 
     await message.reply_photo(

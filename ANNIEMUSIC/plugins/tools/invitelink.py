@@ -11,7 +11,7 @@ async def give_link_command(client: Client, message: Message):
     try:
         link = await app.export_chat_invite_link(message.chat.id)
         await message.reply_text(
-            f"🔗 **ɪɴᴠɪᴛᴇ ʟɪɴᴋ ғᴏʀ** `{message.chat.title}`:\n{link}"
+            f"🔗 <b>ɪɴᴠɪᴛᴇ ʟɪɴᴋ ғᴏʀ</b> `{message.chat.title}`:\n{link}"
         )
     except Exception as e:
         await message.reply_text(f"❌ ᴇʀʀᴏʀ ɢᴇɴᴇʀᴀᴛɪɴɢ ʟɪɴᴋ:\n`{e}`")
@@ -20,7 +20,7 @@ async def give_link_command(client: Client, message: Message):
 @app.on_message(filters.command(["link", "invitelink"], prefixes=["/", "!", ".", "#", "?"]) & SUDOERS)
 async def link_command_handler(client: Client, message: Message):
     if len(message.command) != 2:
-        return await message.reply("**ᴜsᴀɢᴇ:** `/link <group_id>`")
+        return await message.reply("<b>ᴜsᴀɢᴇ:</b> `/link <group_id>`")
 
     group_id = message.command[1]
     file_name = f"group_info_{group_id}.txt"
@@ -28,12 +28,12 @@ async def link_command_handler(client: Client, message: Message):
     try:
         chat = await client.get_chat(int(group_id))
         if not chat:
-            return await message.reply("⚠️ **ᴄᴏᴜʟᴅ ɴᴏᴛ ғᴇᴛᴄʜ ɢʀᴏᴜᴘ ɪɴғᴏ.**")
+            return await message.reply("⚠️ <b>ᴄᴏᴜʟᴅ ɴᴏᴛ ғᴇᴛᴄʜ ɢʀᴏᴜᴘ ɪɴғᴏ.</b>")
 
         try:
             invite_link = await client.export_chat_invite_link(chat.id)
         except (ChannelInvalid, ChannelPrivate):
-            return await message.reply("🚫 **ɪ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴀᴄᴄᴇss ᴛᴏ ᴛʜɪs ɢʀᴏᴜᴘ/ᴄʜᴀɴɴᴇʟ.**")
+            return await message.reply("🚫 <b>ɪ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴀᴄᴄᴇss ᴛᴏ ᴛʜɪs ɢʀᴏᴜᴘ/ᴄʜᴀɴɴᴇʟ.</b>")
         except FloodWait as e:
             return await message.reply(f"⏳ ʀᴀᴛᴇ ʟɪᴍɪᴛ: ᴡᴀɪᴛ `{e.value}` seconds.")
 
@@ -61,13 +61,13 @@ async def link_command_handler(client: Client, message: Message):
             chat_id=message.chat.id,
             document=file_name,
             caption=(
-                f"📂 **ɢʀᴏᴜᴘ ɪɴғᴏ ꜰᴏʀ** `{chat.title}`\n"
-                f"📌 **sᴄʀᴀᴘᴇᴅ ʙʏ:** @{app.username}"
+                f"📂 <b>ɢʀᴏᴜᴘ ɪɴғᴏ ꜰᴏʀ</b> `{chat.title}`\n"
+                f"📌 <b>sᴄʀᴀᴘᴇᴅ ʙʏ:</b> @{app.username}"
             ),
         )
 
     except (ValueError):
-        await message.reply("❌ **ɪɴᴠᴀʟɪᴅ ɢʀᴏᴜᴘ ɪᴅ. ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴠᴀʟɪᴅ ɢʀᴏᴜᴘ ɪᴅ.**")
+        await message.reply("❌ <b>ɪɴᴠᴀʟɪᴅ ɢʀᴏᴜᴘ ɪᴅ. ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴠᴀʟɪᴅ ɢʀᴏᴜᴘ ɪᴅ.</b>")
     except Exception as e:
         await message.reply_text(f"❌ ᴇʀʀᴏʀ:\n`{str(e)}`")
 

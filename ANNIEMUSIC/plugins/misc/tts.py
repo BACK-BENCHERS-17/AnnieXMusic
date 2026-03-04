@@ -143,7 +143,7 @@ async def cmd_voices(client: Client, message: Message):
 
     kb = _build_keyboard(_languages, step="lang", extra={}, page=1)
     await message.reply_text(
-        "🌐 **Step 1:** Select a language",
+        "🌐 <b>Step 1:</b> Select a language",
         reply_markup=kb,
         parse_mode=ParseMode.MARKDOWN,
     )
@@ -211,7 +211,7 @@ async def cb_tts(client: Client, callback: CallbackQuery):
         if "v" not in parts:  # show languages
             kb = _build_keyboard(_languages, "lang", {}, page)
             return await callback.message.edit_text(
-                "🌐 **Step 1:** Select a language",
+                "🌐 <b>Step 1:</b> Select a language",
                 reply_markup=kb,
                 parse_mode=ParseMode.MARKDOWN,
             )
@@ -226,7 +226,7 @@ async def cb_tts(client: Client, callback: CallbackQuery):
         )
         kb = _build_keyboard(regions, "region", {"l": lang}, 1)
         return await callback.message.edit_text(
-            "🌍 **Step 2:** Select a region",
+            "🌍 <b>Step 2:</b> Select a region",
             reply_markup=kb,
             parse_mode=ParseMode.MARKDOWN,
         )
@@ -245,7 +245,7 @@ async def cb_tts(client: Client, callback: CallbackQuery):
             )
             kb = _build_keyboard(regions, "region", {"l": lang}, page)
             return await callback.message.edit_text(
-                "🌍 **Step 2:** Select a region",
+                "🌍 <b>Step 2:</b> Select a region",
                 reply_markup=kb,
                 parse_mode=ParseMode.MARKDOWN,
             )
@@ -256,7 +256,7 @@ async def cb_tts(client: Client, callback: CallbackQuery):
         models = sorted([v["short_name"] for v in _voices if v["locale"] == locale])
         kb = _build_keyboard(models, "model", {"l": lang, "r": region}, 1)
         return await callback.message.edit_text(
-            "🔊 **Step 3:** Choose a voice model",
+            "🔊 <b>Step 3:</b> Choose a voice model",
             reply_markup=kb,
             parse_mode=ParseMode.MARKDOWN,
         )
@@ -271,7 +271,7 @@ async def cb_tts(client: Client, callback: CallbackQuery):
             models = sorted([v["short_name"] for v in _voices if v["locale"] == locale])
             kb = _build_keyboard(models, "model", {"l": lang, "r": region}, page)
             return await callback.message.edit_text(
-                "🔊 **Step 3:** Choose a voice model",
+                "🔊 <b>Step 3:</b> Choose a voice model",
                 reply_markup=kb,
                 parse_mode=ParseMode.MARKDOWN,
             )

@@ -14,7 +14,7 @@ from ANNIEMUSIC.logging import LOGGER
 # tiny util
 # ────────────────────────────────────────────────────────────
 def mention(user_id: int, name: str) -> str:
-    return f"[{name}](tg://user?id={user_id})"
+    return f"<a href=\"tg://user?id={user_id}\">{name}</a>"
 
 
 # ────────────────────────────────────────────────────────────
@@ -145,6 +145,6 @@ async def user_has_permission(
 
     if not has_perm:
         who = "I" if is_bot else "You"
-        txt = f"{who} don’t have the right **{permission}** in **{chat_title}**."
+        txt = f"{who} don’t have the right <b>{permission}</b> in <b>{chat_title}</b>."
         return False, txt
     return True, None

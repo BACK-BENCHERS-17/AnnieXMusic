@@ -44,11 +44,11 @@ async def get_all_repository_info(username: str) -> str:
         return None
 
     info_lines = [
-        f"🖇 **[{repo['name']}]({repo['html_url']})**\n"
+        f"🖇 <b>[{repo['name']}]({repo['html_url']})</b>\n"
         f"⭐ Stars: `{repo['stargazers_count']}` | 🍴 Forks: `{repo['forks_count']}`\n"
         f"📄 {repo['description'] or 'No description'}"
         for repo in data
     ]
 
-    profile_link = f"👤 [View GitHub Profile](https://github.com/{username})"
+    profile_link = f"👤 <a href=\"https://github.com/{username}\">View GitHub Profile</a>"
     return f"{profile_link}\n\n" + "\n\n".join(info_lines)

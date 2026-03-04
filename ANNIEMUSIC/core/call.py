@@ -6,7 +6,7 @@ from typing import Union
 from ntgcalls import TelegramServerError, ConnectionError as NTgConnectionError
 from pyrogram import Client
 from pyrogram.errors import FloodWait, ChatAdminRequired
-from pyrogram.types import InlineKeyboardMarkup
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pytgcalls import PyTgCalls
 from pytgcalls.exceptions import NoActiveGroupCall
 from pytgcalls.types import AudioQuality, ChatUpdate, MediaStream, StreamEnded, Update, VideoQuality
@@ -30,7 +30,7 @@ from ANNIEMUSIC.utils.database import (
 )
 from ANNIEMUSIC.utils.exceptions import AssistantErr
 from ANNIEMUSIC.utils.formatters import check_duration, seconds_to_min, speed_converter
-from ANNIEMUSIC.utils.inline.play import stream_markup
+from ANNIEMUSIC.utils.inline import stream_markup, add_to_channel_markup
 from ANNIEMUSIC.utils.stream.autoclear import auto_clean
 from ANNIEMUSIC.utils.thumbnails import get_thumb
 from ANNIEMUSIC.utils.errors import capture_internal_err, send_large_error
@@ -294,17 +294,32 @@ class Call:
                 await set_loop(chat_id, loop)
             await auto_clean(popped)
             if not check:
-                    await _clear_(chat_id)
-                    if chat_id in self.active_calls:
-                        try:
-                            await client.leave_call(chat_id)
-                        except NoActiveGroupCall:
-                            pass
-                        except Exception:
-                            pass
-                        finally:
-                            self.active_calls.discard(chat_id)
-                    return
+                await _clear_(chat_id)
+                if chat_id in self.active_calls:
+                    try:
+                        await client.leave_call(chat_id)
+                    except NoActiveGroupCall:
+                        pass
+                    except Exception:
+                        pass
+                    finally:
+                        self.active_calls.discard(chat_id)
+
+                try:
+                    language = await get_lang(chat_id)
+                    _ = get_string(language)
+                except:
+                    _ = get_string("en")
+                
+                try:
+                    await app.send_message(
+                        chat_id,
+                        text=f"<b>ᴀʟʟ sᴏɴɢ ғɪɴɪsʜᴇᴅ ʙᴏᴛ ʟᴇғᴛ ᴠᴏɪᴄᴇ ᴄʜᴀᴛ ⚡️~!</b>\n\n<b>ᴘʟᴀʏ ᴀɢᴀɪɴ ᴀɴᴅ ᴇɴᴊᴏʏ sᴏɴɢs.⚡️~!</b>",
+                        reply_markup=add_to_channel_markup(_, app.username),
+                    )
+                except:
+                    pass
+                return
         except:
             try:
                 await _clear_(chat_id)

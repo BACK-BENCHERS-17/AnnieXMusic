@@ -55,7 +55,7 @@ async def sudoers_list(client, message: Message):
 
     await message.reply_video(
         video="https://files.catbox.moe/x7v3k6.mp4",
-        caption="**» ᴄʜᴇᴄᴋ sᴜᴅᴏ ʟɪsᴛ ʙʏ ɢɪᴠᴇɴ ʙᴇʟᴏᴡ ʙᴜᴛᴛᴏɴ.**\n\n**» ɴᴏᴛᴇ:**  ᴏɴʟʏ sᴜᴅᴏ ᴜsᴇʀs ᴄᴀɴ ᴠɪᴇᴡ.",
+        caption="<b>» ᴄʜᴇᴄᴋ sᴜᴅᴏ ʟɪsᴛ ʙʏ ɢɪᴠᴇɴ ʙᴇʟᴏᴡ ʙᴜᴛᴛᴏɴ.</b>\n\n<b>» ɴᴏᴛᴇ:</b>  ᴏɴʟʏ sᴜᴅᴏ ᴜsᴇʀs ᴄᴀɴ ᴠɪᴇᴡ.",
         reply_markup=reply_markup
     )
 
@@ -67,7 +67,7 @@ async def view_sudo_list_callback(client, callback_query: CallbackQuery):
         return await callback_query.answer("ᴏɴʟʏ sᴜᴅᴏᴇʀs ᴀɴᴅ ᴏᴡɴᴇʀ ᴄᴀɴ ᴀᴄᴄᴇss ᴛʜɪs", show_alert=True)
 
     owner = await app.get_users(OWNER_ID)
-    caption = f"**˹ʟɪsᴛ ᴏғ ʙᴏᴛ ᴍᴏᴅᴇʀᴀᴛᴏʀs˼**\n\n**🌹Oᴡɴᴇʀ** ➥ {owner.mention}\n\n"
+    caption = f"<b>˹ʟɪsᴛ ᴏғ ʙᴏᴛ ᴍᴏᴅᴇʀᴀᴛᴏʀs˼</b>\n\n<b>🌹Oᴡɴᴇʀ</b> ➥ {owner.mention}\n\n"
     keyboard = [[InlineKeyboardButton("๏ ᴠɪᴇᴡ ᴏᴡɴᴇʀ ๏", url=f"tg://openmessage?user_id={OWNER_ID}")]]
 
     count = 0
@@ -77,7 +77,7 @@ async def view_sudo_list_callback(client, callback_query: CallbackQuery):
         try:
             user = await app.get_users(user_id)
             count += 1
-            caption += f"**🎁 Sᴜᴅᴏ {count} »** {user.mention}\n"
+            caption += f"<b>🎁 Sᴜᴅᴏ {count} »</b> {user.mention}\n"
             keyboard.append([
                 InlineKeyboardButton(f"๏ ᴠɪᴇᴡ sᴜᴅᴏ {count} ๏", url=f"tg://openmessage?user_id={user_id}")
             ])
@@ -97,7 +97,7 @@ async def back_to_sudo_list_menu(client, callback_query: CallbackQuery):
     keyboard = [[InlineKeyboardButton("๏ ᴠɪᴇᴡ sᴜᴅᴏʟɪsᴛ ๏", callback_data="sudo_list_view")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await callback_query.message.edit_caption(
-        caption="**» ᴄʜᴇᴄᴋ sᴜᴅᴏ ʟɪsᴛ ʙʏ ɢɪᴠᴇɴ ʙᴇʟᴏᴡ ʙᴜᴛᴛᴏɴ.**\n\n**» ɴᴏᴛᴇ:**  ᴏɴʟʏ sᴜᴅᴏ ᴜsᴇʀs ᴄᴀɴ ᴠɪᴇᴡ.",
+        caption="<b>» ᴄʜᴇᴄᴋ sᴜᴅᴏ ʟɪsᴛ ʙʏ ɢɪᴠᴇɴ ʙᴇʟᴏᴡ ʙᴜᴛᴛᴏɴ.</b>\n\n<b>» ɴᴏᴛᴇ:</b>  ᴏɴʟʏ sᴜᴅᴏ ᴜsᴇʀs ᴄᴀɴ ᴠɪᴇᴡ.",
         reply_markup=reply_markup
     )
 

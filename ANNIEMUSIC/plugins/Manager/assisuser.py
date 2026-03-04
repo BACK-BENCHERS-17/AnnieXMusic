@@ -46,13 +46,13 @@ async def join_userbot(app, chat_id, chat_username=None):
             try:
                 await app.unban_chat_member(chat_id, userbot.id)
             except ChatAdminRequired:
-                return "**❌ I need unban permission to add the assistant.**"
+                return "<b>❌ I need unban permission to add the assistant.</b>"
         if member.status in ACTIVE_STATUSES:
-            return "**🤖 Assistant is already in the chat.**"
+            return "<b>🤖 Assistant is already in the chat.</b>"
     except UserNotParticipant:
         pass
     except PeerIdInvalid:
-        return "**❌ Invalid chat ID.**"
+        return "<b>❌ Invalid chat ID.</b>"
 
     invite = None
     if chat_username:
@@ -62,26 +62,26 @@ async def join_userbot(app, chat_id, chat_username=None):
             link = await app.create_chat_invite_link(chat_id)
             invite = link.invite_link
         except ChatAdminRequired:
-            return "**❌ I need permission to create invite links or a public @username to add the assistant.**"
+            return "<b>❌ I need permission to create invite links or a public @username to add the assistant.</b>"
 
     try:
         await userbot.join_chat(invite)
-        return "**✅ Assistant joined successfully.**"
+        return "<b>✅ Assistant joined successfully.</b>"
     except UserAlreadyParticipant:
-        return "**🤖 Assistant is already a participant.**"
+        return "<b>🤖 Assistant is already a participant.</b>"
     except FloodWait as e:
         await asyncio.sleep(e.value)
         try:
             await userbot.join_chat(invite)
-            return "**✅ Assistant joined successfully.**"
+            return "<b>✅ Assistant joined successfully.</b>"
         except UserAlreadyParticipant:
-            return "**🤖 Assistant is already a participant.**"
+            return "<b>🤖 Assistant is already a participant.</b>"
         except Exception as ex:
-            return f"**❌ Failed to add assistant after wait:** `{str(ex)}`"
+            return f"<b>❌ Failed to add assistant after wait:</b> `{str(ex)}`"
     except Exception as e:
         if "USER_ALREADY_PARTICIPANT" in str(e):
-            return "**🤖 Assistant is already a participant.**"
-        return f"**❌ Failed to add assistant:** `{str(e)}`"
+            return "<b>🤖 Assistant is already a participant.</b>"
+        return f"<b>❌ Failed to add assistant:</b> `{str(e)}`"
 
 
 @app.on_chat_join_request()
@@ -105,7 +105,7 @@ async def approve_join_request(client, chat_join_request: ChatJoinRequest):
             except UserAlreadyParticipant:
                 return
         try:
-            await client.send_message(chat_id, "**✅ Assistant has been approved and joined the chat.**")
+            await client.send_message(chat_id, "<b>✅ Assistant has been approved and joined the chat.</b>")
         except ChatWriteForbidden:
             pass
     except ChatAdminRequired:
@@ -124,19 +124,19 @@ async def approve_join_request(client, chat_join_request: ChatJoinRequest):
 )
 async def join_group(app, message):
     chat_id = message.chat.id
-    status_message = await message.reply("**⏳ Please wait, inviting assistant...**")
+    status_message = await message.reply("<b>⏳ Please wait, inviting assistant...</b>")
 
     try:
         me = await app.get_me()
         chat_member = await app.get_chat_member(chat_id, me.id)
         if chat_member.status != ChatMemberStatus.ADMINISTRATOR:
-            await status_message.edit_text("**❌ I need to be admin to invite the assistant.**")
+            await status_message.edit_text("<b>❌ I need to be admin to invite the assistant.</b>")
             return
     except ChatAdminRequired:
-        await status_message.edit_text("**❌ I don't have permission to check admin status in this chat.**")
+        await status_message.edit_text("<b>❌ I don't have permission to check admin status in this chat.</b>")
         return
     except Exception as e:
-        await status_message.edit_text(f"**❌ Failed to verify permissions:** `{str(e)}`")
+        await status_message.edit_text(f"<b>❌ Failed to verify permissions:</b> `{str(e)}`")
         return
 
     chat_username = message.chat.username or None
@@ -160,34 +160,34 @@ async def leave_one(app, message):
         try:
             member = await userbot.get_chat_member(chat_id, userbot.id)
         except UserNotParticipant:
-            await message.reply("**🤖 Assistant is not currently in this chat.**")
+            await message.reply("<b>🤖 Assistant is not currently in this chat.</b>")
             return
 
         if member.status in [ChatMemberStatus.LEFT, ChatMemberStatus.BANNED]:
-            await message.reply("**🤖 Assistant is not currently in this chat.**")
+            await message.reply("<b>🤖 Assistant is not currently in this chat.</b>")
             return
 
         await userbot.leave_chat(chat_id)
         try:
-            await app.send_message(chat_id, "**✅ Assistant has left this chat.**")
+            await app.send_message(chat_id, "<b>✅ Assistant has left this chat.</b>")
         except ChatWriteForbidden:
             pass
     except ChannelPrivate:
-        await message.reply("**❌ Error: This chat is not accessible or has been deleted.**")
+        await message.reply("<b>❌ Error: This chat is not accessible or has been deleted.</b>")
     except UserNotParticipant:
-        await message.reply("**🤖 Assistant is not in this chat.**")
+        await message.reply("<b>🤖 Assistant is not in this chat.</b>")
     except FloodWait as e:
         await asyncio.sleep(e.value)
-        await message.reply("**✅ Retried after flood wait; try the command again if needed.**")
+        await message.reply("<b>✅ Retried after flood wait; try the command again if needed.</b>")
     except Exception as e:
-        await message.reply(f"**❌ Failed to remove assistant:** `{str(e)}`")
+        await message.reply(f"<b>❌ Failed to remove assistant:</b> `{str(e)}`")
 
 
 @app.on_message(filters.command("leaveall", prefixes=["."]) & dev_filter)
 async def leave_all(app, message):
     left = 0
     failed = 0
-    status_message = await message.reply("🔄 **Assistant is leaving all chats...**")
+    status_message = await message.reply("🔄 <b>Assistant is leaving all chats...</b>")
 
     try:
         userbot = await get_assistant(message.chat.id)
@@ -209,7 +209,7 @@ async def leave_all(app, message):
 
             try:
                 await status_message.edit_text(
-                    f"**Leaving chats...**\n✅ Left: `{left}`\n❌ Failed: `{failed}`"
+                    f"<b>Leaving chats...</b>\n✅ Left: `{left}`\n❌ Failed: `{failed}`"
                 )
             except ChatWriteForbidden:
                 pass
@@ -220,7 +220,7 @@ async def leave_all(app, message):
         try:
             await app.send_message(
                 message.chat.id,
-                f"**✅ Left from:** `{left}` chats.\n**❌ Failed in:** `{failed}` chats.",
+                f"<b>✅ Left from:</b> `{left}` chats.\n<b>❌ Failed in:</b> `{failed}` chats.",
             )
         except ChatWriteForbidden:
             pass

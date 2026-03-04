@@ -61,12 +61,12 @@ async def get_movie_info(query: str) -> str:
         revenue_str = f"${revenue:,}" if revenue else "Not Available"
 
         info = (
-            f"🎬 **Title:** {title}\n"
-            f"📅 **Release Date:** {release}\n"
-            f"⭐ **Rating:** {rating}/10\n"
-            f"🎭 **Top Cast:** {actors}\n"
-            f"💰 **Box Office:** {revenue_str}\n\n"
-            f"📝 **Overview:**\n{overview}"
+            f"🎬 <b>Title:</b> {title}\n"
+            f"📅 <b>Release Date:</b> {release}\n"
+            f"⭐ <b>Rating:</b> {rating}/10\n"
+            f"🎭 <b>Top Cast:</b> {actors}\n"
+            f"💰 <b>Box Office:</b> {revenue_str}\n\n"
+            f"📝 <b>Overview:</b>\n{overview}"
         )
 
         return info

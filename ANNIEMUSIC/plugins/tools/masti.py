@@ -45,7 +45,7 @@ async def get_user_mention(client, message: Message) -> str:
             pass
     
     if not user:
-        return None
+        user = message.from_user
 
     return f"<a href=\"tg://user?id={user.id}\">{user.first_name}</a>"
 
@@ -56,9 +56,6 @@ async def handle_percentage_command(client, message: Message):
         return
 
     mention = await get_user_mention(client, message)
-    if not mention:
-         return await message.reply_text(f"⚠️ ᴘʟᴇᴀsᴇ ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴜsᴇʀ ᴏʀ ᴍᴇɴᴛɪᴏɴ sᴏᴍᴇᴏɴᴇ ᴛᴏ ᴄʜᴇᴄᴋ {command} ᴘᴇʀᴄᴇɴᴛᴀɢᴇ!")
-
     percent = random.randint(1, 100)
     text = TEMPLATES[command].format(mention=mention, percent=percent)
     media_url = MEDIA[command]

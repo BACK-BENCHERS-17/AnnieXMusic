@@ -7,7 +7,7 @@ from ANNIEMUSIC.core.call import JARVIS
 from ANNIEMUSIC.misc import db
 from ANNIEMUSIC.utils.database import get_loop
 from ANNIEMUSIC.utils.decorators import AdminRightsCheck
-from ANNIEMUSIC.utils.inline import close_markup, stream_markup
+from ANNIEMUSIC.utils.inline import close_markup, stream_markup, add_to_channel_markup
 from ANNIEMUSIC.utils.stream.autoclear import auto_clean
 from ANNIEMUSIC.utils.thumbnails import get_thumb
 from config import BANNED_USERS
@@ -46,7 +46,7 @@ async def skip(cli, message: Message, _, chat_id):
                                             message.from_user.mention,
                                             message.chat.title,
                                         ),
-                                        reply_markup=close_markup(_),
+                                        reply_markup=add_to_channel_markup(_, app.username),
                                     )
                                     await JARVIS.stop_stream(chat_id)
                                 except:
@@ -72,7 +72,7 @@ async def skip(cli, message: Message, _, chat_id):
                     text=_["admin_6"].format(
                         message.from_user.mention, message.chat.title
                     ),
-                    reply_markup=close_markup(_),
+                    reply_markup=add_to_channel_markup(_, app.username),
                 )
                 try:
                     return await JARVIS.stop_stream(chat_id)
@@ -84,7 +84,7 @@ async def skip(cli, message: Message, _, chat_id):
                     text=_["admin_6"].format(
                         message.from_user.mention, message.chat.title
                     ),
-                    reply_markup=close_markup(_),
+                    reply_markup=add_to_channel_markup(_, app.username),
                 )
                 return await JARVIS.stop_stream(chat_id)
             except:
@@ -95,13 +95,14 @@ async def skip(cli, message: Message, _, chat_id):
     streamtype = check[0]["streamtype"]
     videoid = check[0]["vidid"]
     status = True if str(streamtype) == "video" else None
-    db[chat_id][0]["played"] = 0
-    exis = (check[0]).get("old_dur")
-    if exis:
-        db[chat_id][0]["dur"] = exis
-        db[chat_id][0]["seconds"] = check[0]["old_second"]
-        db[chat_id][0]["speed_path"] = None
-        db[chat_id][0]["speed"] = 1.0
+    if db.get(chat_id):
+        db[chat_id][0]["played"] = 0
+        exis = (check[0]).get("old_dur")
+        if exis:
+            db[chat_id][0]["dur"] = exis
+            db[chat_id][0]["seconds"] = check[0]["old_second"]
+            db[chat_id][0]["speed_path"] = None
+            db[chat_id][0]["speed"] = 1.0
     if "live_" in queued:
         n, link = await YouTube.video(videoid, True)
         if n == 0:
@@ -126,8 +127,9 @@ async def skip(cli, message: Message, _, chat_id):
             ),
             reply_markup=InlineKeyboardMarkup(button),
         )
-        db[chat_id][0]["mystic"] = run
-        db[chat_id][0]["markup"] = "tg"
+        if db.get(chat_id):
+            db[chat_id][0]["mystic"] = run
+            db[chat_id][0]["markup"] = "tg"
     elif "vid_" in queued:
         mystic = await message.reply_text(_["call_7"], disable_web_page_preview=True)
         try:
@@ -159,8 +161,10 @@ async def skip(cli, message: Message, _, chat_id):
             ),
             reply_markup=InlineKeyboardMarkup(button),
         )
-        db[chat_id][0]["mystic"] = run
-        db[chat_id][0]["markup"] = "stream"
+        if db.get(chat_id):
+            if db.get(chat_id):
+                db[chat_id][0]["mystic"] = run
+                db[chat_id][0]["markup"] = "stream"
         await mystic.delete()
     elif "index_" in queued:
         try:
@@ -173,8 +177,9 @@ async def skip(cli, message: Message, _, chat_id):
             caption=_["stream_2"].format(user),
             reply_markup=InlineKeyboardMarkup(button),
         )
-        db[chat_id][0]["mystic"] = run
-        db[chat_id][0]["markup"] = "tg"
+        if db.get(chat_id):
+            db[chat_id][0]["mystic"] = run
+            db[chat_id][0]["markup"] = "tg"
     else:
         if videoid == "telegram":
             image = None
@@ -200,8 +205,9 @@ async def skip(cli, message: Message, _, chat_id):
                 ),
                 reply_markup=InlineKeyboardMarkup(button),
             )
-            db[chat_id][0]["mystic"] = run
-            db[chat_id][0]["markup"] = "tg"
+            if db.get(chat_id):
+                db[chat_id][0]["mystic"] = run
+                db[chat_id][0]["markup"] = "tg"
         elif videoid == "soundcloud":
             button = stream_markup(_, chat_id)
             run = await message.reply_photo(
@@ -213,8 +219,9 @@ async def skip(cli, message: Message, _, chat_id):
                 ),
                 reply_markup=InlineKeyboardMarkup(button),
             )
-            db[chat_id][0]["mystic"] = run
-            db[chat_id][0]["markup"] = "tg"
+            if db.get(chat_id):
+                db[chat_id][0]["mystic"] = run
+                db[chat_id][0]["markup"] = "tg"
         else:
             button = stream_markup(_, chat_id)
             img = await get_thumb(videoid)
@@ -228,5 +235,6 @@ async def skip(cli, message: Message, _, chat_id):
                 ),
                 reply_markup=InlineKeyboardMarkup(button),
             )
-            db[chat_id][0]["mystic"] = run
-            db[chat_id][0]["markup"] = "stream"
+            if db.get(chat_id):
+                db[chat_id][0]["mystic"] = run
+                db[chat_id][0]["markup"] = "stream"

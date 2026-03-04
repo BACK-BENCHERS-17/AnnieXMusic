@@ -11,7 +11,7 @@ async def mmf(_, message: Message):
     reply_message = message.reply_to_message
 
     if len(message.text.split()) < 2:
-        await message.reply_text("**Give me text after /mmf to memify.**")
+        await message.reply_text("<b>Give me text after /mmf to memify.</b>")
         return
 
     msg = await message.reply_text("❄️")

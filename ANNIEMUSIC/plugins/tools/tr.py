@@ -29,8 +29,8 @@ async def translate(_, message: Message):
     try:
         result = await translator(content, sourcelang=source_lang, targetlang=target_lang)
         await message.reply_text(
-            f"🌐 **ᴛʀᴀɴsʟᴀᴛᴇᴅ:** `{source_lang}` ➜ `{target_lang}`\n\n"
+            f"🌐 <b>ᴛʀᴀɴsʟᴀᴛᴇᴅ:</b> `{source_lang}` ➜ `{target_lang}`\n\n"
             f"`{result.text}`"
         )
     except Exception as e:
-        await message.reply_text(f"❌ **ᴛʀᴀɴsʟᴀᴛɪᴏɴ ꜰᴀɪʟᴇᴅ:** `{str(e)}`")
+        await message.reply_text(f"❌ <b>ᴛʀᴀɴsʟᴀᴛɪᴏɴ ꜰᴀɪʟᴇᴅ:</b> `{str(e)}`")

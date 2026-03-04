@@ -16,7 +16,7 @@ async def get_truth(client: Client, message: Message):
         if res.status_code == 200:
             question = res.json().get("question", "No question found.")
             await message.reply_text(
-                f"🔎 **Truth:**\n\n{question}",
+                f"🔎 <b>Truth:</b>\n\n{question}",
                 parse_mode=ParseMode.MARKDOWN
             )
         else:
@@ -34,7 +34,7 @@ async def get_dare(client: Client, message: Message):
         if res.status_code == 200:
             question = res.json().get("question", "No question found.")
             await message.reply_text(
-                f"🎯 **Dare:**\n\n{question}",
+                f"🎯 <b>Dare:</b>\n\n{question}",
                 parse_mode=ParseMode.MARKDOWN
             )
         else:

@@ -124,7 +124,7 @@ async def on_left_chat_member(_, message: Message):
         if message.left_chat_member.id != BOT_ID:
             return
 
-        remover = message.from_user.mention if message.from_user else "**ᴜɴᴋɴᴏᴡɴ ᴜsᴇʀ**"
+        remover = message.from_user.mention if message.from_user else "<b>ᴜɴᴋɴᴏᴡɴ ᴜsᴇʀ</b>"
         chat = message.chat
 
         text = (

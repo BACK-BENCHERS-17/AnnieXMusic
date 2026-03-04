@@ -63,6 +63,9 @@ async def _safe_edit(cb: CallbackQuery, text: str):
 
 @app.on_message(filters.command("deleteall") & filters.group)
 async def deleteall_command(client, message: Message):
+    if not message.from_user:
+        return await message.reply_text("This command can only be used by users.")
+        
     ok, owner = await is_owner_or_sudoer(client, message.chat.id, message.from_user.id)
     if not ok:
         owner_mention = mention(owner.id, owner.first_name) if owner else "the owner"
@@ -118,9 +121,12 @@ async def deleteall_callback(client, callback: CallbackQuery):
         except UserAlreadyParticipant:
             pass
         except Exception as e:
-            log.error("Invite assistant error: %s", e)
-            await _safe_edit(callback, f"Failed to add assistant: {e}")
-            return
+            if "USER_ALREADY_PARTICIPANT" in str(e):
+                pass
+            else:
+                log.error("Invite assistant error: %s", e)
+                await _safe_edit(callback, f"Failed to add assistant: {e}")
+                return
 
     try:
         await client.promote_chat_member(

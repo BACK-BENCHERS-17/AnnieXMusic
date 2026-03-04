@@ -19,12 +19,12 @@ async def _safe_reply_text(message: Message, *args, **kwargs):
 
 @app.on_message(filters.video_chat_started & filters.group)
 async def on_voice_chat_started(_, message: Message):
-    await _safe_reply_text(message, "🎙 **ᴠᴏɪᴄᴇ ᴄʜᴀᴛ ʜᴀs sᴛᴀʀᴛᴇᴅ!**")
+    await _safe_reply_text(message, "🎙 <b>ᴠᴏɪᴄᴇ ᴄʜᴀᴛ ʜᴀs sᴛᴀʀᴛᴇᴅ!</b>")
 
 
 @app.on_message(filters.video_chat_ended & filters.group)
 async def on_voice_chat_ended(_, message: Message):
-    await _safe_reply_text(message, "🔕 **ᴠᴏɪᴄᴇ ᴄʜᴀᴛ ᴇɴᴅᴇᴅ.**")
+    await _safe_reply_text(message, "🔕 <b>ᴠᴏɪᴄᴇ ᴄʜᴀᴛ ᴇɴᴅᴇᴅ.</b>")
 
 
 @app.on_message(filters.video_chat_members_invited & filters.group)
@@ -42,7 +42,7 @@ async def on_voice_chat_members_invited(_, message: Message):
     for user in users:
         try:
             name = user.first_name or "User"
-            invited.append(f"[{name}](tg://user?id={user.id})")
+            invited.append(f"<a href=\"tg://user?id={user.id}\">{name}</a>")
         except Exception:
             continue
 
@@ -55,7 +55,7 @@ async def on_voice_chat_members_invited(_, message: Message):
 
 @app.on_message(filters.command("leavegroup") & filters.user(OWNER_ID) & filters.group)
 async def leave_group(_, message: Message):
-    await _safe_reply_text(message, "👋 **ʟᴇᴀᴠɪɴɢ ᴛʜɪs ɢʀᴏᴜᴘ...**")
+    await _safe_reply_text(message, "👋 <b>ʟᴇᴀᴠɪɴɢ ᴛʜɪs ɢʀᴏᴜᴘ...</b>")
     try:
         await app.leave_chat(chat_id=message.chat.id, delete=True)
     except (ChatWriteForbidden, Forbidden, ChannelPrivate):

@@ -66,22 +66,22 @@ def build_pic(av, fn, uid, un):
 
 @app.on_message(filters.command("welcome") & filters.group)
 async def toggle(client, m: Message):
-    usage = "**Usage:**\n⦿/welcome [on|off]\n➤ Annie Special Welcome....."
+    usage = "<b>Usage:</b>\n⦿/welcome [on|off]\n➤ Annie Special Welcome....."
     if len(m.command) != 2:
         return await m.reply_text(usage)
     u = await client.get_chat_member(m.chat.id, m.from_user.id)
     if u.status not in (enums.ChatMemberStatus.ADMINISTRATOR, enums.ChatMemberStatus.OWNER):
-        return await m.reply_text("**sᴏʀʀʏ ᴏɴʟʏ ᴀᴅᴍɪɴs ᴄᴀɴ ᴄʜᴀɴɢᴇ ᴡᴇʟᴄᴏᴍᴇ ɴᴏᴛɪғɪᴄᴀᴛɪᴏɴ sᴛᴀᴛᴜs!**")
+        return await m.reply_text("<b>sᴏʀʀʏ ᴏɴʟʏ ᴀᴅᴍɪɴs ᴄᴀɴ ᴄʜᴀɴɢᴇ ᴡᴇʟᴄᴏᴍᴇ ɴᴏᴛɪғɪᴄᴀᴛɪᴏɴ sᴛᴀᴛᴜs!</b>")
     flag = m.command[1].lower()
     if flag not in ("on", "off"):
         return await m.reply_text(usage)
     cur = await is_on(m.chat.id)
     if flag == "off" and not cur:
-        return await m.reply_text("**ᴡᴇʟᴄᴏᴍᴇ ɴᴏᴛɪғɪᴄᴀᴛɪᴏɴ ᴀʟʀᴇᴀᴅʏ ᴅɪsᴀʙʟᴇᴅ!**")
+        return await m.reply_text("<b>ᴡᴇʟᴄᴏᴍᴇ ɴᴏᴛɪғɪᴄᴀᴛɪᴏɴ ᴀʟʀᴇᴀᴅʏ ᴅɪsᴀʙʟᴇᴅ!</b>")
     if flag == "on" and cur:
-        return await m.reply_text("**ᴡᴇʟᴄᴏᴍᴇ ɴᴏᴛɪғɪᴄᴀᴛɪᴏɴ ᴀʟʀᴇᴀᴅʏ ᴇɴᴀʙʟᴇᴅ!**")
+        return await m.reply_text("<b>ᴡᴇʟᴄᴏᴍᴇ ɴᴏᴛɪғɪᴄᴀᴛɪᴏɴ ᴀʟʀᴇᴀᴅʏ ᴇɴᴀʙʟᴇᴅ!</b>")
     await set_state(m.chat.id, flag)
-    await m.reply_text(f"**{'ᴇɴᴀʙʟᴇᴅ' if flag == 'on' else 'ᴅɪsᴀʙʟᴇᴅ'} ᴡᴇʟᴄᴏᴍᴇ ɪɴ {m.chat.title}**")
+    await m.reply_text(f"<b>{'ᴇɴᴀʙʟᴇᴅ' if flag == 'on' else 'ᴅɪsᴀʙʟᴇᴅ'} ᴡᴇʟᴄᴏᴍᴇ ɪɴ {m.chat.title}</b>")
 
 
 @app.on_chat_member_updated(filters.group, group=-3)
@@ -108,7 +108,7 @@ async def welcome(client, update: ChatMemberUpdated):
     if not await is_on(cid):
         if await auto_on(cid):
             try:
-                await client.send_message(cid, "**ᴡᴇʟᴄᴏᴍᴇ ᴍᴇssᴀɢᴇs ʀᴇ-ᴇɴᴀʙʟᴇᴅ.**")
+                await client.send_message(cid, "<b>ᴡᴇʟᴄᴏᴍᴇ ᴍᴇssᴀɢᴇs ʀᴇ-ᴇɴᴀʙʟᴇᴅ.</b>")
             except TopicClosed:
                 return
             except (ChannelPrivate, PeerIdInvalid, SlowmodeWait):
@@ -125,7 +125,7 @@ async def welcome(client, update: ChatMemberUpdated):
         try:
             return await client.send_message(
                 cid,
-                f"**ᴍᴀssɪᴠᴇ ᴊᴏɪɴ ᴅᴇᴛᴇᴄᴛᴇᴅ (x{burst}). ᴡᴇʟᴄᴏᴍᴇ ᴍᴇssᴀɢᴇs ᴅɪsᴀʙʟᴇᴅ ғᴏʀ {minutes} ᴍɪɴᴜᴛᴇs.**"
+                f"<b>ᴍᴀssɪᴠᴇ ᴊᴏɪɴ ᴅᴇᴛᴇᴄᴛᴇᴅ (x{burst}). ᴡᴇʟᴄᴏᴍᴇ ᴍᴇssᴀɢᴇs ᴅɪsᴀʙʟᴇᴅ ғᴏʀ {minutes} ᴍɪɴᴜᴛᴇs.</b>"
             )
         except TopicClosed:
             return
