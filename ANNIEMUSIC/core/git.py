@@ -46,41 +46,54 @@ def git():
     except (GitCommandError, InvalidGitRepositoryError):
         try:
             repo = Repo.init()
-            if "origin" in repo.remotes:
-                origin = repo.remote("origin")
-            else:
-                origin = repo.create_remote("origin", UPSTREAM_REPO)
-
-            # Use a safer fetch/pull strategy for non-interactive environments
-            os.environ['GIT_TERMINAL_PROMPT'] = '0'
-            try:
-                origin.fetch(config.UPSTREAM_BRANCH)
-            except Exception as e:
-                LOGGER(__name__).warning(f"Git Fetch Failed (skipping update): {e}")
-                return
-
-            repo.create_head(
-                config.UPSTREAM_BRANCH,
-                origin.refs[config.UPSTREAM_BRANCH],
-            )
-            repo.heads[config.UPSTREAM_BRANCH].set_tracking_branch(
-                origin.refs[config.UPSTREAM_BRANCH]
-            )
-            repo.heads[config.UPSTREAM_BRANCH].checkout(True)
-
-            try:
-                nrs = repo.remote("origin")
-                nrs.fetch(config.UPSTREAM_BRANCH)
-                nrs.pull(config.UPSTREAM_BRANCH)
-            except GitCommandError:
-                repo.git.reset("--hard", "FETCH_HEAD")
-            except Exception as e:
-                LOGGER(__name__).warning(f"Git Pull Failed (skipping update): {e}")
-                return
-
-            install_req("pip3 install --no-cache-dir -r requirements.txt")
-            LOGGER(__name__).info(f"Successfully updated from upstream repository.")
+            LOGGER(__name__).info(f"Initialized new Git repository.")
         except Exception as e:
-            LOGGER(__name__).error(f"Git Initialization Error (skipping): {e}")
+            LOGGER(__name__).error(f"Failed to initialize Git: {e}")
+            return
+
+    try:
+        # Force update the origin URL to the one we want to use (with token if provided)
+        if "origin" in repo.remotes:
+            origin = repo.remote("origin")
+            origin.set_url(UPSTREAM_REPO)
+        else:
+            origin = repo.create_remote("origin", UPSTREAM_REPO)
+
+        # Set git config to be strictly non-interactive
+        with repo.config_writer() as cw:
+            cw.set_value("core", "askpass", "true")
+            cw.set_value("credential", "helper", "")
+        
+        os.environ['GIT_TERMINAL_PROMPT'] = '0'
+
+        try:
+            LOGGER(__name__).info(f"Fetching updates from {REPO_LINK}...")
+            origin.fetch(config.UPSTREAM_BRANCH)
+        except Exception as e:
+            LOGGER(__name__).warning(f"Git Fetch Failed (skipping update): {e}")
+            return
+
+        # Ensure the head is correct
+        try:
+            if config.UPSTREAM_BRANCH not in repo.heads:
+                repo.create_head(
+                    config.UPSTREAM_BRANCH,
+                    origin.refs[config.UPSTREAM_BRANCH],
+                )
+            
+            head = repo.heads[config.UPSTREAM_BRANCH]
+            head.set_tracking_branch(origin.refs[config.UPSTREAM_BRANCH])
+            head.checkout(True)
+            
+            # Pull updates
+            origin.pull(config.UPSTREAM_BRANCH)
+        except GitCommandError:
+            repo.git.reset("--hard", "FETCH_HEAD")
+        except Exception as e:
+            LOGGER(__name__).warning(f"Git Pull Failed (skipping update): {e}")
+            return
+
+        install_req("pip3 install --no-cache-dir -r requirements.txt")
+        LOGGER(__name__).info(f"Successfully updated from upstream repository.")
     except Exception as e:
         LOGGER(__name__).error(f"Unexpected Git Error: {e}")
