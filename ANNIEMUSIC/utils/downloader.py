@@ -71,11 +71,18 @@ def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
         "cachedir": str(CACHE_DIR),
         "js_runtimes": {"node": {}},
         "nocheckcertificate": True,
-        "source_address": "0.0.0.0", # Force IPv4
+        "source_address": "0.0.0.0",
         "geo_bypass": True,
+        "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1",
+        "http_headers": {
+            "Accept": "*/*",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Referer": "https://www.youtube.com/",
+        },
         "extractor_args": {
             "youtube": {
-                "player_client": ["android", "ios", "mweb", "web_creator", "tv"],
+                "player_client": ["ios", "android", "mweb"],
+                "player_skip": ["webpage", "configs"],
             }
         },
     }
