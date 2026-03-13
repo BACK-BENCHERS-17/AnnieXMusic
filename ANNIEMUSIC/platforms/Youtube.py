@@ -41,7 +41,10 @@ def _cookiefile_path() -> Optional[str]:
 def _cookies_args() -> List[str]:
     p = _cookiefile_path()
     args = ["--cookies", p] if p else []
-    args.extend(["--js-runtimes", "node", "--remote-components", "ejs:github"])
+    args.extend([
+        "--js-runtimes", "node",
+        "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    ])
     return args
 
 
@@ -265,7 +268,11 @@ class YouTubeAPI:
         opts = {
             "quiet": True,
             "js_runtimes": {"node": {}},
-            "remote_components": ["ejs:github"],
+            "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "http_headers": {
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+                "Accept-Language": "en-US,en;q=0.9",
+            },
         }
         cf = _cookiefile_path()
         if cf:
