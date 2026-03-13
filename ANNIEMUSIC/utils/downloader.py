@@ -129,26 +129,53 @@ async def api_download_song(link: str) -> Optional[str]:
 
 
 def _download_ytdlp(link: str, opts: Dict) -> Optional[str]:
-    with YoutubeDL(opts) as ydl:
-        try:
+    # Try Stage 1: Optimized Client
+    try:
+        with YoutubeDL(opts) as ydl:
             info = ydl.extract_info(link, download=False)
-        except DownloadError as e:
-            if "Requested format is not available" in str(e):
-                opts["format"] = "best"
+            if info:
+                return _finish_download(ydl, info, link)
+    except Exception as e:
+        # If specific format error, Stage 2: TV Client & Best Format
+        if "Requested format is not available" in str(e) or "ios" in str(opts.get("extractor_args", {})):
+            try:
+                opts["extractor_args"]["youtube"]["player_client"] = ["tv", "android"]
+                opts["format"] = "bestaudio/best"
+                with YoutubeDL(opts) as ydl:
+                    info = ydl.extract_info(link, download=False)
+                    if info:
+                        return _finish_download(ydl, info, link)
+            except Exception:
+                pass
+        
+        # Stage 3: Nuclear Fallback (No complex args, format best)
+        try:
+            fallback_opts = {
+                "outtmpl": f"{_DOWNLOAD_DIR}/%(id)s.%(ext)s",
+                "quiet": True,
+                "format": "best",
+                "nocheckcertificate": True,
+                "source_address": "0.0.0.0",
+            }
+            cookiefile = _cookiefile_path()
+            if cookiefile:
+                fallback_opts["cookiefile"] = cookiefile
+            with YoutubeDL(fallback_opts) as ydl:
                 info = ydl.extract_info(link, download=False)
-            else:
-                raise e
-        
-        if not info:
+                if info:
+                    return _finish_download(ydl, info, link)
+        except Exception:
             return None
-        
-        ext = info.get("ext") or "webm"
-        vid = info.get("id")
-        path = f"{_DOWNLOAD_DIR}/{vid}.{ext}"
-        if os.path.exists(path):
-            return path
-        ydl.download([link])
+    return None
+
+def _finish_download(ydl, info, link) -> Optional[str]:
+    ext = info.get("ext") or "webm"
+    vid = info.get("id")
+    path = f"{_DOWNLOAD_DIR}/{vid}.{ext}"
+    if os.path.exists(path):
         return path
+    ydl.download([link])
+    return path
 
 
 async def _with_sem(coro):
@@ -270,7 +297,6 @@ async def download_audio_concurrent(link: str) -> Optional[str]:
         yt_task = asyncio.create_task(yt_dlp_download(link, type="audio"))
         api_task = asyncio.create_task(api_download_song(link))
         
-        # Run both, but we need at least one success
         done, pending = await asyncio.wait(
             {yt_task, api_task}, return_when=asyncio.FIRST_COMPLETED
         )
@@ -292,7 +318,6 @@ async def download_audio_concurrent(link: str) -> Optional[str]:
                 p.cancel()
             return first_res
             
-        # If first failed, wait for the other one
         if pending:
             for p in pending:
                 try:
