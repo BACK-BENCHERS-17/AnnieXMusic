@@ -506,24 +506,26 @@ class Call:
 
     async def start(self) -> None:
         LOGGER(__name__).info("Starting PyTgCalls Clients...")
-        async def start_client(client):
+        async def start_client(client, index):
             try:
                 await client.start()
             except FloodWait as e:
-                LOGGER(__name__).warning(f"FloodWait detected in Call. Waiting for {e.value} seconds...")
+                LOGGER(__name__).warning(f"FloodWait in Call {index}. Waiting {e.value}s...")
                 await asyncio.sleep(e.value)
                 await client.start()
+            except Exception as e:
+                LOGGER(__name__).error(f"Failed to start Client {index} in Call: {e}")
 
         if config.STRING1:
-            await start_client(self.one)
+            await start_client(self.one, 1)
         if config.STRING2:
-            await start_client(self.two)
+            await start_client(self.two, 2)
         if config.STRING3:
-            await start_client(self.three)
+            await start_client(self.three, 3)
         if config.STRING4:
-            await start_client(self.four)
+            await start_client(self.four, 4)
         if config.STRING5:
-            await start_client(self.five)
+            await start_client(self.five, 5)
 
     @capture_internal_err
     async def ping(self) -> str:
