@@ -1,1 +1,2 @@
+yt-dlp --rm-cache-dir
 python3 -m ANNIEMUSIC
