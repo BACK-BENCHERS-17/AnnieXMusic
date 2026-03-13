@@ -134,21 +134,39 @@ def _download_ytdlp(link: str, opts: Dict) -> Optional[str]:
             try:
                 info = ydl.extract_info(link, download=False)
             except Exception as e:
-                if "Requested format is not available" in str(e):
-                    opts["format"] = "best"
-                    info = ydl.extract_info(link, download=False)
-                else:
-                    raise e
-            
+                LOGGER(__name__).warning(f"Stage 1 failed for {link}: {e}")
+                # Stage 2: Try TV client with extremely broad format
+                opts["extractor_args"] = {"youtube": {"player_client": ["tv"]}}
+                opts["format"] = "bestaudio[ext=m4a]/ba/b"
+                with YoutubeDL(opts) as ydl_stage2:
+                    try:
+                        info = ydl_stage2.extract_info(link, download=False)
+                    except Exception as e2:
+                        LOGGER(__name__).error(f"Stage 2 failed for {link}: {e2}")
+                        # Final Stage: Nuclear fallback
+                        fallback_opts = {
+                            "quiet": True,
+                            "format": "best",
+                            "nocheckcertificate": True,
+                            "source_address": "0.0.0.0",
+                        }
+                        with YoutubeDL(fallback_opts) as ydl_final:
+                            info = ydl_final.extract_info(link, download=False)
+
             if not info:
                 return None
-            
+
             ext = info.get("ext") or "webm"
             vid = info.get("id")
             path = f"{_DOWNLOAD_DIR}/{vid}.{ext}"
             if os.path.exists(path):
                 return path
             ydl.download([link])
+            return path
+    except Exception as e:
+        LOGGER(__name__).error(f"All download stages failed for {link}: {e}")
+        return None
+
             return path
     except Exception:
         return None
