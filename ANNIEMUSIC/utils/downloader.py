@@ -68,9 +68,10 @@ def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
         "js_runtimes": {"node": {}},
         "nocheckcertificate": True,
         "source_address": "0.0.0.0",
+        "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Mobile/15E148 Safari/604.1",
         "extractor_args": {
             "youtube": {
-                "player_client": ["android", "ios", "web", "tv"],
+                "player_client": ["ios", "android", "web", "mweb"],
             }
         },
     }
@@ -128,30 +129,26 @@ async def api_download_song(link: str) -> Optional[str]:
 
 
 def _download_ytdlp(link: str, opts: Dict) -> Optional[str]:
-    try:
-        with YoutubeDL(opts) as ydl:
-            try:
+    with YoutubeDL(opts) as ydl:
+        try:
+            info = ydl.extract_info(link, download=False)
+        except DownloadError as e:
+            if "Requested format is not available" in str(e):
+                opts["format"] = "best"
                 info = ydl.extract_info(link, download=False)
-            except DownloadError as e:
-                # If specifically "format not available", try with "best" fallback
-                if "Requested format is not available" in str(e):
-                    opts["format"] = "best"
-                    info = ydl.extract_info(link, download=False)
-                else:
-                    raise e
-            
-            if not info:
-                return None
-            
-            ext = info.get("ext") or "webm"
-            vid = info.get("id")
-            path = f"{_DOWNLOAD_DIR}/{vid}.{ext}"
-            if os.path.exists(path):
-                return path
-            ydl.download([link])
+            else:
+                raise e
+        
+        if not info:
+            return None
+        
+        ext = info.get("ext") or "webm"
+        vid = info.get("id")
+        path = f"{_DOWNLOAD_DIR}/{vid}.{ext}"
+        if os.path.exists(path):
             return path
-    except Exception:
-        return None
+        ydl.download([link])
+        return path
 
 
 async def _with_sem(coro):
@@ -272,23 +269,43 @@ async def download_audio_concurrent(link: str) -> Optional[str]:
     async def run():
         yt_task = asyncio.create_task(yt_dlp_download(link, type="audio"))
         api_task = asyncio.create_task(api_download_song(link))
+        
+        # Run both, but we need at least one success
         done, pending = await asyncio.wait(
             {yt_task, api_task}, return_when=asyncio.FIRST_COMPLETED
         )
+        
+        first_res = None
+        first_err = None
+        
         for t in done:
-            with contextlib.suppress(Exception):
+            try:
                 res = t.result()
                 if res:
-                    for p in pending:
-                        p.cancel()
-                        with contextlib.suppress(Exception, asyncio.CancelledError):
-                            await p
-                    return res
-        for t in pending:
-            with contextlib.suppress(Exception, asyncio.CancelledError):
-                res = await t
-                if res:
-                    return res
+                    first_res = res
+                    break
+            except Exception as e:
+                first_err = e
+        
+        if first_res:
+            for p in pending:
+                p.cancel()
+            return first_res
+            
+        # If first failed, wait for the other one
+        if pending:
+            for p in pending:
+                try:
+                    res = await p
+                    if res:
+                        return res
+                except Exception as e:
+                    if not first_err:
+                        first_err = e
+        
+        if first_err:
+            raise first_err
+            
         return None
 
     return await _dedup(key, lambda: _with_sem(run()))

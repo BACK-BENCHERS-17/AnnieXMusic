@@ -45,9 +45,11 @@ def _cookies_args() -> List[str]:
         "--js-runtimes", "node",
         "--no-check-certificate",
         "--force-ipv4",
-        "--extractor-args", "youtube:player-client=android,ios,web,tv"
+        "--user-agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Mobile/15E148 Safari/604.1",
+        "--extractor-args", "youtube:player-client=ios,android,web,mweb"
     ])
     return args
+
 
 
 async def _exec_proc(*args: str) -> Tuple[bytes, bytes]:
@@ -272,12 +274,14 @@ class YouTubeAPI:
             "js_runtimes": {"node": {}},
             "nocheckcertificate": True,
             "source_address": "0.0.0.0",
+            "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Mobile/15E148 Safari/604.1",
             "extractor_args": {
                 "youtube": {
-                    "player_client": ["android", "ios", "web", "tv"],
+                    "player_client": ["ios", "android", "web", "mweb"],
                 }
             },
         }
+
         cf = _cookiefile_path()
         if cf:
             opts["cookiefile"] = cf
