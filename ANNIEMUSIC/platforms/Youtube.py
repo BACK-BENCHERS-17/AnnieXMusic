@@ -45,7 +45,7 @@ def _cookies_args() -> List[str]:
         "--js-runtimes", "node",
         "--no-check-certificate",
         "--force-ipv4",
-        "--extractor-args", "youtube:player-client=tv,web_creator"
+        "--extractor-args", "youtube:player-client=android,ios,web,tv"
     ])
     return args
 
@@ -198,7 +198,7 @@ class YouTubeAPI:
             *(_cookies_args()),
             "-g",
             "-f",
-            "best[height<=?720][width<=?1280]/bv+ba/b",
+            "best[height<=?720][width<=?1280]/best",
             link,
         )
         return (1, stdout.decode().split("\n")[0]) if stdout else (0, stderr.decode())
@@ -274,7 +274,7 @@ class YouTubeAPI:
             "source_address": "0.0.0.0",
             "extractor_args": {
                 "youtube": {
-                    "player_client": ["tv", "web_creator"],
+                    "player_client": ["android", "ios", "web", "tv"],
                 }
             },
         }

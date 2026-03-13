@@ -8,6 +8,7 @@ import aiofiles
 import aiohttp
 from aiohttp import TCPConnector
 from yt_dlp import YoutubeDL
+from yt_dlp.utils import DownloadError
 
 from ANNIEMUSIC.core.dir import DOWNLOAD_DIR as _DOWNLOAD_DIR, CACHE_DIR
 from ANNIEMUSIC.utils.cookie_handler import COOKIE_PATH
@@ -69,7 +70,7 @@ def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
         "source_address": "0.0.0.0",
         "extractor_args": {
             "youtube": {
-                "player_client": ["tv", "web_creator"],
+                "player_client": ["android", "ios", "web", "tv"],
             }
         },
     }
@@ -127,17 +128,30 @@ async def api_download_song(link: str) -> Optional[str]:
 
 
 def _download_ytdlp(link: str, opts: Dict) -> Optional[str]:
-    with YoutubeDL(opts) as ydl:
-        info = ydl.extract_info(link, download=False)
-        if not info:
-            return None
-        ext = info.get("ext") or "webm"
-        vid = info.get("id")
-        path = f"{_DOWNLOAD_DIR}/{vid}.{ext}"
-        if os.path.exists(path):
+    try:
+        with YoutubeDL(opts) as ydl:
+            try:
+                info = ydl.extract_info(link, download=False)
+            except DownloadError as e:
+                # If specifically "format not available", try with "best" fallback
+                if "Requested format is not available" in str(e):
+                    opts["format"] = "best"
+                    info = ydl.extract_info(link, download=False)
+                else:
+                    raise e
+            
+            if not info:
+                return None
+            
+            ext = info.get("ext") or "webm"
+            vid = info.get("id")
+            path = f"{_DOWNLOAD_DIR}/{vid}.{ext}"
+            if os.path.exists(path):
+                return path
+            ydl.download([link])
             return path
-        ydl.download([link])
-        return path
+    except Exception:
+        return None
 
 
 async def _with_sem(coro):
@@ -174,7 +188,7 @@ async def yt_dlp_download(
 
         async def run():
             opts = _ytdlp_base_opts()
-            opts.update({"format": "ba/b"})
+            opts.update({"format": "bestaudio/best"})
             return await _with_sem(
                 loop.run_in_executor(None, _download_ytdlp, link, opts)
             )
@@ -186,7 +200,7 @@ async def yt_dlp_download(
 
         async def run():
             opts = _ytdlp_base_opts()
-            opts.update({"format": "bv+ba/b"})
+            opts.update({"format": "best[height<=?720][width<=?1280]/best"})
             return await _with_sem(
                 loop.run_in_executor(None, _download_ytdlp, link, opts)
             )
@@ -201,7 +215,7 @@ async def yt_dlp_download(
             opts = _ytdlp_base_opts()
             opts.update(
                 {
-                    "format": f"{format_id}+bestvideo/best",
+                    "format": f"{format_id}/bestvideo+bestaudio/best",
                     "outtmpl": f"{_DOWNLOAD_DIR}/{safe_title}.mp4",
                     "prefer_ffmpeg": True,
                     "merge_output_format": "mp4",
@@ -222,7 +236,7 @@ async def yt_dlp_download(
             opts = _ytdlp_base_opts()
             opts.update(
                 {
-                    "format": f"{format_id}/ba/b",
+                    "format": f"{format_id}/bestaudio/best",
                     "outtmpl": f"{_DOWNLOAD_DIR}/{safe_title}.%(ext)s",
                     "prefer_ffmpeg": True,
                     "postprocessors": [
