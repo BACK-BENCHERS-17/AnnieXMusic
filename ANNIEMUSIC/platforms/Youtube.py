@@ -46,9 +46,8 @@ def _cookies_args() -> List[str]:
         "--no-check-certificate",
         "--force-ipv4",
         "--geo-bypass",
-        "--user-agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1",
-        "--add-header", "Referer:https://www.youtube.com/",
-        "--extractor-args", "youtube:player-client=ios,android,mweb;player-skip=webpage_metadata"
+        "--allow-unplayable-formats",
+        "--extractor-args", "youtube:player-client=android,web"
     ])
     return args
 
@@ -201,7 +200,7 @@ class YouTubeAPI:
             *(_cookies_args()),
             "-g",
             "-f",
-            "best[height<=?720][width<=?1280]/bestvideo+bestaudio/best",
+            "best[height<=?720][width<=?1280]/bv*+ba/b",
             link,
         )
         return (1, stdout.decode().split("\n")[0]) if stdout else (0, stderr.decode())
@@ -276,16 +275,10 @@ class YouTubeAPI:
             "nocheckcertificate": True,
             "source_address": "0.0.0.0",
             "geo_bypass": True,
-            "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1",
-            "http_headers": {
-                "Accept": "*/*",
-                "Accept-Language": "en-US,en;q=0.9",
-                "Referer": "https://www.youtube.com/",
-            },
+            "allow_unplayable_formats": True,
             "extractor_args": {
                 "youtube": {
-                    "player_client": ["ios", "android", "mweb"],
-                    "player_skip": ["webpage_metadata"],
+                    "player_client": ["android", "web"],
                 }
             },
         }
