@@ -71,7 +71,7 @@ def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
         "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Mobile/15E148 Safari/604.1",
         "extractor_args": {
             "youtube": {
-                "player_client": ["ios", "android", "web", "mweb"],
+                "player_client": ["tv", "ios", "android", "mweb"],
             }
         },
     }
@@ -129,53 +129,29 @@ async def api_download_song(link: str) -> Optional[str]:
 
 
 def _download_ytdlp(link: str, opts: Dict) -> Optional[str]:
-    # Try Stage 1: Optimized Client
     try:
         with YoutubeDL(opts) as ydl:
-            info = ydl.extract_info(link, download=False)
-            if info:
-                return _finish_download(ydl, info, link)
-    except Exception as e:
-        # If specific format error, Stage 2: TV Client & Best Format
-        if "Requested format is not available" in str(e) or "ios" in str(opts.get("extractor_args", {})):
             try:
-                opts["extractor_args"]["youtube"]["player_client"] = ["tv", "android"]
-                opts["format"] = "bestaudio/best"
-                with YoutubeDL(opts) as ydl:
-                    info = ydl.extract_info(link, download=False)
-                    if info:
-                        return _finish_download(ydl, info, link)
-            except Exception:
-                pass
-        
-        # Stage 3: Nuclear Fallback (No complex args, format best)
-        try:
-            fallback_opts = {
-                "outtmpl": f"{_DOWNLOAD_DIR}/%(id)s.%(ext)s",
-                "quiet": True,
-                "format": "best",
-                "nocheckcertificate": True,
-                "source_address": "0.0.0.0",
-            }
-            cookiefile = _cookiefile_path()
-            if cookiefile:
-                fallback_opts["cookiefile"] = cookiefile
-            with YoutubeDL(fallback_opts) as ydl:
                 info = ydl.extract_info(link, download=False)
-                if info:
-                    return _finish_download(ydl, info, link)
-        except Exception:
-            return None
-    return None
-
-def _finish_download(ydl, info, link) -> Optional[str]:
-    ext = info.get("ext") or "webm"
-    vid = info.get("id")
-    path = f"{_DOWNLOAD_DIR}/{vid}.{ext}"
-    if os.path.exists(path):
-        return path
-    ydl.download([link])
-    return path
+            except Exception as e:
+                if "Requested format is not available" in str(e):
+                    opts["format"] = "best"
+                    info = ydl.extract_info(link, download=False)
+                else:
+                    raise e
+            
+            if not info:
+                return None
+            
+            ext = info.get("ext") or "webm"
+            vid = info.get("id")
+            path = f"{_DOWNLOAD_DIR}/{vid}.{ext}"
+            if os.path.exists(path):
+                return path
+            ydl.download([link])
+            return path
+    except Exception:
+        return None
 
 
 async def _with_sem(coro):

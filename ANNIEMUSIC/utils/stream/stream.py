@@ -158,7 +158,7 @@ async def stream(
             vidid, mystic, video=is_video, videoid=vidid
         )
         if not file_path:
-            raise AssistantErr(_["play_14"])
+            return await mystic.edit_text(_["play_14"])
 
         if await is_active_chat(chat_id):
             await put_queue(
