@@ -44,7 +44,7 @@ def _cookies_args() -> List[str]:
     args.extend([
         "--js-runtimes", "node",
         "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "--extractor-args", "youtube:player-client=android,web;player-skip=webpage,configs"
+        "--extractor-args", "youtube:player-client=android,ios,web;player-skip=webpage,configs"
     ])
     return args
 
@@ -272,7 +272,7 @@ class YouTubeAPI:
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
             "extractor_args": {
                 "youtube": {
-                    "player_client": ["android", "web"],
+                    "player_client": ["android", "ios", "web"],
                     "player_skip": ["webpage", "configs"],
                 }
             },

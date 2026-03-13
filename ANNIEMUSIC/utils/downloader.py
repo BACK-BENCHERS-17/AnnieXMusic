@@ -73,7 +73,7 @@ def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
         "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "extractor_args": {
             "youtube": {
-                "player_client": ["android", "web"],
+                "player_client": ["android", "ios", "web"],
                 "player_skip": ["webpage", "configs"],
             }
         },
@@ -139,18 +139,15 @@ async def api_download_song(link: str) -> Optional[str]:
 
 
 def _download_ytdlp(link: str, opts: Dict) -> Optional[str]:
-    try:
-        with YoutubeDL(opts) as ydl:
-            info = ydl.extract_info(link, download=False)
-            ext = info.get("ext") or "webm"
-            vid = info.get("id")
-            path = f"{_DOWNLOAD_DIR}/{vid}.{ext}"
-            if os.path.exists(path):
-                return path
-            ydl.download([link])
+    with YoutubeDL(opts) as ydl:
+        info = ydl.extract_info(link, download=False)
+        ext = info.get("ext") or "webm"
+        vid = info.get("id")
+        path = f"{_DOWNLOAD_DIR}/{vid}.{ext}"
+        if os.path.exists(path):
             return path
-    except Exception:
-        return None
+        ydl.download([link])
+        return path
 
 
 async def _with_sem(coro):
@@ -169,9 +166,9 @@ async def _dedup(key: str, runner):
         res = await runner()
         fut.set_result(res)
         return res
-    except Exception:
-        fut.set_result(None)
-        return None
+    except Exception as e:
+        fut.set_exception(e)
+        raise e
     finally:
         async with _inflight_lock:
             _inflight.pop(key, None)
