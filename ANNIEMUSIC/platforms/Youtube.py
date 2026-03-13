@@ -45,9 +45,7 @@ def _cookies_args() -> List[str]:
         "--js-runtimes", "node",
         "--no-check-certificate",
         "--force-ipv4",
-        "--geo-bypass",
-        "--allow-unplayable-formats",
-        "--extractor-args", "youtube:player-client=android,ios;player-skip=webpage_metadata"
+        "--extractor-args", "youtube:player-client=tv,android"
     ])
     return args
 
@@ -200,7 +198,7 @@ class YouTubeAPI:
             *(_cookies_args()),
             "-g",
             "-f",
-            "best[height<=?720][width<=?1280]/ba+bv/b",
+            "best[height<=?720][width<=?1280]/best",
             link,
         )
         return (1, stdout.decode().split("\n")[0]) if stdout else (0, stderr.decode())
@@ -274,12 +272,9 @@ class YouTubeAPI:
             "js_runtimes": {"node": {}},
             "nocheckcertificate": True,
             "source_address": "0.0.0.0",
-            "geo_bypass": True,
-            "allow_unplayable_formats": True,
             "extractor_args": {
                 "youtube": {
-                    "player_client": ["android", "ios"],
-                    "player_skip": ["webpage_metadata"],
+                    "player_client": ["tv", "android"],
                 }
             },
         }
