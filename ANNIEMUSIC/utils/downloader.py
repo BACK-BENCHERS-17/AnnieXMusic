@@ -74,7 +74,7 @@ def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
         "extractor_args": {
             "youtube": {
                 "player_client": ["android", "ios", "mweb", "tvhtml5"],
-                "player_skip": ["webpage", "configs"],
+                "player_skip": ["configs"],
             }
         },
         "http_headers": {
@@ -196,7 +196,7 @@ async def yt_dlp_download(
 
         async def run():
             opts = _ytdlp_base_opts()
-            opts.update({"format": "best[height<=?720][width<=?1280]"})
+            opts.update({"format": "best[height<=?720][width<=?1280]/best"})
             return await _with_sem(
                 loop.run_in_executor(None, _download_ytdlp, link, opts)
             )
