@@ -66,14 +66,13 @@ def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
         "continuedl": True,
         "noprogress": True,
         "cachedir": str(CACHE_DIR),
-        "js_runtimes": {"node": {}},
+        "js_runtimes": ["node"],
         "nocheckcertificate": True,
-
         "source_address": "0.0.0.0",
         "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Mobile/15E148 Safari/604.1",
         "extractor_args": {
             "youtube": {
-                "player_client": ["ios", "android", "mweb"],
+                "player_client": ["tv", "android"],
             }
         },
     }
@@ -131,61 +130,29 @@ async def api_download_song(link: str) -> Optional[str]:
 
 
 def _download_ytdlp(link: str, opts: Dict) -> Optional[str]:
-    # Stage 1: Optimized iOS/Android
     try:
         with YoutubeDL(opts) as ydl:
-            info = ydl.extract_info(link, download=False)
-            if info:
-                return _finish_download(ydl, info, link)
-    except Exception as e:
-        LOGGER(__name__).warning(f"Stage 1 failed for {link}: {e}")
-        
-        # Stage 2: TV Client Fallback (Strongest Bypass)
-        try:
-            stage2_opts = opts.copy()
-            stage2_opts["extractor_args"] = {"youtube": {"player_client": ["tv"]}}
-            # Use broad format selection for TV client
-            stage2_opts["format"] = "140/251/bestaudio/best"
-            with YoutubeDL(stage2_opts) as ydl_stage2:
-                info = ydl_stage2.extract_info(link, download=False)
-                if info:
-                    return _finish_download(ydl_stage2, info, link)
-        except Exception as e2:
-            LOGGER(__name__).error(f"Stage 2 failed for {link}: {e2}")
-            
-            # Stage 3: Nuclear Fallback (Direct Extraction)
             try:
-                fallback_opts = {
-                    "outtmpl": f"{_DOWNLOAD_DIR}/%(id)s.%(ext)s",
-                    "quiet": True,
-                    "format": "best",
-                    "nocheckcertificate": True,
-                    "source_address": "0.0.0.0",
-                    "js_runtimes": ["node"],
-                }
-                cf = _cookiefile_path()
-                if cf:
-                    fallback_opts["cookiefile"] = cf
-                
-                with YoutubeDL(fallback_opts) as ydl_final:
-                    info = ydl_final.extract_info(link, download=False)
-                    if info:
-                        return _finish_download(ydl_final, info, link)
-            except Exception as e3:
-                LOGGER(__name__).error(f"All download stages failed for {link}: {e3}")
+                info = ydl.extract_info(link, download=False)
+            except DownloadError as e:
+                if "Requested format is not available" in str(e):
+                    opts["format"] = "best"
+                    info = ydl.extract_info(link, download=False)
+                else:
+                    raise e
+            
+            if not info:
                 return None
-    return None
-
-def _finish_download(ydl, info, link) -> Optional[str]:
-    try:
-        ext = info.get("ext") or "webm"
-        vid = info.get("id")
-        path = f"{_DOWNLOAD_DIR}/{vid}.{ext}"
-        if os.path.exists(path):
+            
+            ext = info.get("ext") or "webm"
+            vid = info.get("id")
+            path = f"{_DOWNLOAD_DIR}/{vid}.{ext}"
+            if os.path.exists(path):
+                return path
+            ydl.download([link])
             return path
-        ydl.download([link])
-        return path
-    except Exception:
+    except Exception as e:
+        LOGGER(__name__).error(f"Download failed for {link}: {e}")
         return None
 
 
@@ -223,8 +190,7 @@ async def yt_dlp_download(
 
         async def run():
             opts = _ytdlp_base_opts()
-            # Explicitly target verified format IDs 140 and 251
-            opts.update({"format": "140/251/bestaudio/best"})
+            opts.update({"format": "bestaudio/best"})
             return await _with_sem(
                 loop.run_in_executor(None, _download_ytdlp, link, opts)
             )
@@ -272,7 +238,7 @@ async def yt_dlp_download(
             opts = _ytdlp_base_opts()
             opts.update(
                 {
-                    "format": f"{format_id}/140/251/bestaudio/best",
+                    "format": f"{format_id}/bestaudio/best",
                     "outtmpl": f"{_DOWNLOAD_DIR}/{safe_title}.%(ext)s",
                     "prefer_ffmpeg": True,
                     "postprocessors": [
