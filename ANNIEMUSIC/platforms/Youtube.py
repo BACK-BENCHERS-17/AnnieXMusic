@@ -45,8 +45,7 @@ def _cookies_args() -> List[str]:
         "--js-runtimes", "node",
         "--no-check-certificate",
         "--force-ipv4",
-        "--user-agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Mobile/15E148 Safari/604.1",
-        "--extractor-args", "youtube:player-client=android,ios,web"
+        "--extractor-args", "youtube:player-client=tv,web_creator"
     ])
     return args
 
@@ -199,7 +198,7 @@ class YouTubeAPI:
             *(_cookies_args()),
             "-g",
             "-f",
-            "best[height<=?720][width<=?1280]/best",
+            "best[height<=?720][width<=?1280]/bv+ba/b",
             link,
         )
         return (1, stdout.decode().split("\n")[0]) if stdout else (0, stderr.decode())
@@ -273,10 +272,9 @@ class YouTubeAPI:
             "js_runtimes": {"node": {}},
             "nocheckcertificate": True,
             "source_address": "0.0.0.0",
-            "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Mobile/15E148 Safari/604.1",
             "extractor_args": {
                 "youtube": {
-                    "player_client": ["android", "ios", "web"],
+                    "player_client": ["tv", "web_creator"],
                 }
             },
         }

@@ -63,19 +63,13 @@ def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
         "overwrites": True,
         "continuedl": True,
         "noprogress": True,
-        "concurrent_fragment_downloads": 16,
-        "http_chunk_size": 1 << 20,
-        "socket_timeout": 30,
-        "retries": 10,
-        "fragment_retries": 10,
         "cachedir": str(CACHE_DIR),
         "js_runtimes": {"node": {}},
         "nocheckcertificate": True,
         "source_address": "0.0.0.0",
-        "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Mobile/15E148 Safari/604.1",
         "extractor_args": {
             "youtube": {
-                "player_client": ["android", "ios", "web"],
+                "player_client": ["tv", "web_creator"],
             }
         },
     }
@@ -180,7 +174,7 @@ async def yt_dlp_download(
 
         async def run():
             opts = _ytdlp_base_opts()
-            opts.update({"format": "bestaudio[ext=m4a]/bestaudio/best"})
+            opts.update({"format": "ba/b"})
             return await _with_sem(
                 loop.run_in_executor(None, _download_ytdlp, link, opts)
             )
@@ -192,7 +186,7 @@ async def yt_dlp_download(
 
         async def run():
             opts = _ytdlp_base_opts()
-            opts.update({"format": "best[height<=?720][width<=?1280]/best"})
+            opts.update({"format": "bv+ba/b"})
             return await _with_sem(
                 loop.run_in_executor(None, _download_ytdlp, link, opts)
             )
@@ -228,7 +222,7 @@ async def yt_dlp_download(
             opts = _ytdlp_base_opts()
             opts.update(
                 {
-                    "format": f"{format_id}/bestaudio/best",
+                    "format": f"{format_id}/ba/b",
                     "outtmpl": f"{_DOWNLOAD_DIR}/{safe_title}.%(ext)s",
                     "prefer_ffmpeg": True,
                     "postprocessors": [
