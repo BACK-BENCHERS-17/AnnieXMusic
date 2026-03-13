@@ -44,7 +44,9 @@ def _cookies_args() -> List[str]:
     args.extend([
         "--js-runtimes", "node",
         "--no-check-certificate",
-        "--extractor-args", "youtube:player-client=android_vr,android_embedded,android,ios;player-skip=configs"
+        "--force-ipv4",
+        "--geo-bypass",
+        "--extractor-args", "youtube:player-client=android,ios,mweb,web_creator,tv"
     ])
     return args
 
@@ -270,10 +272,11 @@ class YouTubeAPI:
             "quiet": True,
             "js_runtimes": {"node": {}},
             "nocheckcertificate": True,
+            "source_address": "0.0.0.0",
+            "geo_bypass": True,
             "extractor_args": {
                 "youtube": {
-                    "player_client": ["android_vr", "android_embedded", "android", "ios"],
-                    "player_skip": ["configs"],
+                    "player_client": ["android", "ios", "mweb", "web_creator", "tv"],
                 }
             },
         }

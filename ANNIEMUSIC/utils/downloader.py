@@ -66,15 +66,16 @@ def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
         "concurrent_fragment_downloads": 16,
         "http_chunk_size": 1 << 20,
         "socket_timeout": 30,
-        "retries": 5,
-        "fragment_retries": 5,
+        "retries": 10,
+        "fragment_retries": 10,
         "cachedir": str(CACHE_DIR),
         "js_runtimes": {"node": {}},
         "nocheckcertificate": True,
+        "source_address": "0.0.0.0", # Force IPv4
+        "geo_bypass": True,
         "extractor_args": {
             "youtube": {
-                "player_client": ["android_vr", "android_embedded", "android", "ios"],
-                "player_skip": ["configs"],
+                "player_client": ["android", "ios", "mweb", "web_creator", "tv"],
             }
         },
     }
