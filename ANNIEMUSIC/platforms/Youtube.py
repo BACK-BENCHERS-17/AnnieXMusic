@@ -48,7 +48,7 @@ def _cookies_args() -> List[str]:
         "--geo-bypass",
         "--user-agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1",
         "--add-header", "Referer:https://www.youtube.com/",
-        "--extractor-args", "youtube:player-client=ios,android,mweb;player-skip=webpage,configs"
+        "--extractor-args", "youtube:player-client=ios,android,mweb;player-skip=webpage_metadata"
     ])
     return args
 
@@ -285,7 +285,7 @@ class YouTubeAPI:
             "extractor_args": {
                 "youtube": {
                     "player_client": ["ios", "android", "mweb"],
-                    "player_skip": ["webpage", "configs"],
+                    "player_skip": ["webpage_metadata"],
                 }
             },
         }

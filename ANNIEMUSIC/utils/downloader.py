@@ -82,7 +82,7 @@ def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
         "extractor_args": {
             "youtube": {
                 "player_client": ["ios", "android", "mweb"],
-                "player_skip": ["webpage", "configs"],
+                "player_skip": ["webpage_metadata"],
             }
         },
     }
