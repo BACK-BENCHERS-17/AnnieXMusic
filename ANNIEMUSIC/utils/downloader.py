@@ -167,10 +167,6 @@ def _download_ytdlp(link: str, opts: Dict) -> Optional[str]:
         LOGGER(__name__).error(f"All download stages failed for {link}: {e}")
         return None
 
-            return path
-    except Exception:
-        return None
-
 
 async def _with_sem(coro):
     async with SEM:
