@@ -73,10 +73,10 @@ def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
         "nocheckcertificate": True,
         "source_address": "0.0.0.0",
         "geo_bypass": True,
-        "allow_unplayable_formats": True,
         "extractor_args": {
             "youtube": {
-                "player_client": ["android", "web"],
+                "player_client": ["ios", "mweb", "tv"],
+                "player_skip": ["webpage_metadata"],
             }
         },
     }
@@ -179,7 +179,7 @@ async def yt_dlp_download(
 
         async def run():
             opts = _ytdlp_base_opts()
-            opts.update({"format": "ba*/b*"})
+            opts.update({"format": "bestaudio/best"})
             return await _with_sem(
                 loop.run_in_executor(None, _download_ytdlp, link, opts)
             )
@@ -191,7 +191,7 @@ async def yt_dlp_download(
 
         async def run():
             opts = _ytdlp_base_opts()
-            opts.update({"format": "bv*+ba/b"})
+            opts.update({"format": "best[height<=?720][width<=?1280]/best"})
             return await _with_sem(
                 loop.run_in_executor(None, _download_ytdlp, link, opts)
             )
