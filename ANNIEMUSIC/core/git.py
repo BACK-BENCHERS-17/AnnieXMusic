@@ -39,6 +39,7 @@ def git():
         UPSTREAM_REPO = f"https://{GIT_USERNAME}:{config.GIT_TOKEN}@{TEMP_REPO}"
     else:
         UPSTREAM_REPO = config.UPSTREAM_REPO
+
     try:
         repo = Repo()
         LOGGER(__name__).info(f"Git Client Found [VPS DEPLOYER]")
@@ -49,7 +50,15 @@ def git():
                 origin = repo.remote("origin")
             else:
                 origin = repo.create_remote("origin", UPSTREAM_REPO)
-            origin.fetch()
+
+            # Use a safer fetch/pull strategy for non-interactive environments
+            os.environ['GIT_TERMINAL_PROMPT'] = '0'
+            try:
+                origin.fetch(config.UPSTREAM_BRANCH)
+            except Exception as e:
+                LOGGER(__name__).warning(f"Git Fetch Failed (skipping update): {e}")
+                return
+
             repo.create_head(
                 config.UPSTREAM_BRANCH,
                 origin.refs[config.UPSTREAM_BRANCH],
@@ -58,19 +67,20 @@ def git():
                 origin.refs[config.UPSTREAM_BRANCH]
             )
             repo.heads[config.UPSTREAM_BRANCH].checkout(True)
+
             try:
-                repo.create_remote("origin", config.UPSTREAM_REPO)
-            except BaseException:
-                pass
-            nrs = repo.remote("origin")
-            nrs.fetch(config.UPSTREAM_BRANCH)
-            try:
+                nrs = repo.remote("origin")
+                nrs.fetch(config.UPSTREAM_BRANCH)
                 nrs.pull(config.UPSTREAM_BRANCH)
             except GitCommandError:
                 repo.git.reset("--hard", "FETCH_HEAD")
+            except Exception as e:
+                LOGGER(__name__).warning(f"Git Pull Failed (skipping update): {e}")
+                return
+
             install_req("pip3 install --no-cache-dir -r requirements.txt")
-            LOGGER(__name__).info(f"Fetching updates from upstream repository...")
+            LOGGER(__name__).info(f"Successfully updated from upstream repository.")
         except Exception as e:
-            LOGGER(__name__).error(f"Git Error: {e}")
+            LOGGER(__name__).error(f"Git Initialization Error (skipping): {e}")
     except Exception as e:
-        LOGGER(__name__).error(f"Failed to initialize Git: {e}")
+        LOGGER(__name__).error(f"Unexpected Git Error: {e}")
