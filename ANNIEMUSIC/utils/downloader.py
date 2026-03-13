@@ -66,7 +66,7 @@ def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
         "continuedl": True,
         "noprogress": True,
         "cachedir": str(CACHE_DIR),
-        "js_runtimes": ["node"],
+        "js_runtimes": {"node": {}},
         "nocheckcertificate": True,
 
         "source_address": "0.0.0.0",
