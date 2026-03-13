@@ -63,6 +63,7 @@ def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
         "overwrites": True,
         "continuedl": True,
         "noprogress": True,
+        "ignoreerrors": True,
         "concurrent_fragment_downloads": 16,
         "http_chunk_size": 1 << 20,
         "socket_timeout": 30,
@@ -177,7 +178,7 @@ async def yt_dlp_download(
 
         async def run():
             opts = _ytdlp_base_opts()
-            opts.update({"format": "bestaudio/best"})
+            opts.update({"format": "bestaudio[ext=m4a]/bestaudio/best"})
             return await _with_sem(
                 loop.run_in_executor(None, _download_ytdlp, link, opts)
             )
@@ -189,7 +190,7 @@ async def yt_dlp_download(
 
         async def run():
             opts = _ytdlp_base_opts()
-            opts.update({"format": "bestvideo+bestaudio/best"})
+            opts.update({"format": "best[height<=?720][width<=?1280]/best"})
             return await _with_sem(
                 loop.run_in_executor(None, _download_ytdlp, link, opts)
             )
