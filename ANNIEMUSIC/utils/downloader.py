@@ -63,7 +63,6 @@ def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
         "overwrites": True,
         "continuedl": True,
         "noprogress": True,
-        "ignoreerrors": True,
         "concurrent_fragment_downloads": 16,
         "http_chunk_size": 1 << 20,
         "socket_timeout": 30,
@@ -73,9 +72,10 @@ def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
         "js_runtimes": {"node": {}},
         "nocheckcertificate": True,
         "source_address": "0.0.0.0",
+        "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Mobile/15E148 Safari/604.1",
         "extractor_args": {
             "youtube": {
-                "player_client": ["tv", "android"],
+                "player_client": ["android", "ios", "web"],
             }
         },
     }
