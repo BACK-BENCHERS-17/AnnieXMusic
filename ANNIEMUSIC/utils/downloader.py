@@ -135,6 +135,8 @@ async def api_download_song(link: str) -> Optional[str]:
 def _download_ytdlp(link: str, opts: Dict) -> Optional[str]:
     with YoutubeDL(opts) as ydl:
         info = ydl.extract_info(link, download=False)
+        if not info:
+            return None
         ext = info.get("ext") or "webm"
         vid = info.get("id")
         path = f"{_DOWNLOAD_DIR}/{vid}.{ext}"
