@@ -13,6 +13,7 @@ from yt_dlp.utils import DownloadError
 from ANNIEMUSIC.core.dir import DOWNLOAD_DIR as _DOWNLOAD_DIR, CACHE_DIR
 from ANNIEMUSIC.utils.cookie_handler import COOKIE_PATH
 from ANNIEMUSIC.utils.tuning import CHUNK_SIZE, SEM
+from ANNIEMUSIC.logging import LOGGER
 from config import API_KEY, API_URL
 
 USE_API: bool = bool(API_URL and API_KEY)
