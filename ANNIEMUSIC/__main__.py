@@ -14,7 +14,12 @@ from ANNIEMUSIC.utils.cookie_handler import fetch_and_store_cookies
 from config import BANNED_USERS
 
 
+from ANNIEMUSIC.utils.health_check import start_health_server
+
 async def init():
+    # Start health check server for Railway
+    start_health_server()
+    
     if (
         not config.STRING1
         and not config.STRING2

@@ -67,8 +67,9 @@ def git():
         os.environ['GIT_TERMINAL_PROMPT'] = '0'
 
         try:
-            LOGGER(__name__).info(f"Fetching updates from {REPO_LINK}...")
-            origin.fetch(config.UPSTREAM_BRANCH)
+            # LOGGER(__name__).info(f"Fetching updates from {REPO_LINK}...")
+            # origin.fetch(config.UPSTREAM_BRANCH)
+            pass
         except Exception as e:
             LOGGER(__name__).warning(f"Git Fetch Failed (skipping update): {e}")
             return
@@ -76,24 +77,27 @@ def git():
         # Ensure the head is correct
         try:
             if config.UPSTREAM_BRANCH not in repo.heads:
-                repo.create_head(
-                    config.UPSTREAM_BRANCH,
-                    origin.refs[config.UPSTREAM_BRANCH],
-                )
+                # repo.create_head(
+                #    config.UPSTREAM_BRANCH,
+                #    origin.refs[config.UPSTREAM_BRANCH],
+                # )
+                pass
             
-            head = repo.heads[config.UPSTREAM_BRANCH]
-            head.set_tracking_branch(origin.refs[config.UPSTREAM_BRANCH])
-            head.checkout(True)
+            # head = repo.heads[config.UPSTREAM_BRANCH]
+            # head.set_tracking_branch(origin.refs[config.UPSTREAM_BRANCH])
+            # head.checkout(True)
             
             # Pull updates
-            origin.pull(config.UPSTREAM_BRANCH)
+            # origin.pull(config.UPSTREAM_BRANCH)
+            pass
         except GitCommandError:
-            repo.git.reset("--hard", "FETCH_HEAD")
+            # repo.git.reset("--hard", "FETCH_HEAD")
+            pass
         except Exception as e:
             LOGGER(__name__).warning(f"Git Pull Failed (skipping update): {e}")
             return
 
-        install_req("pip3 install --no-cache-dir -r requirements.txt")
+        # install_req("pip3 install --no-cache-dir -r requirements.txt")
         LOGGER(__name__).info(f"Successfully updated from upstream repository.")
     except Exception as e:
         LOGGER(__name__).error(f"Unexpected Git Error: {e}")

@@ -184,15 +184,52 @@ async def yt_dlp_download(
 ) -> Optional[str]:
     loop = asyncio.get_running_loop()
 
+    def download_with_fallback(link, opts):
+        try:
+            with YoutubeDL(opts) as ydl:
+                ydl.download([link])
+                return True
+        except DownloadError as e:
+            if "Requested format is not available" in str(e):
+                LOGGER(__name__).warning(f"Requested format {format_id} not available, falling back to best.")
+                # Fallback to best
+                if "format" in opts:
+                    if type == "song_video":
+                        opts["format"] = "bestvideo+bestaudio/best"
+                    elif type == "song_audio":
+                        opts["format"] = "bestaudio/best"
+                    else:
+                        opts["format"] = "best"
+                
+                try:
+                    with YoutubeDL(opts) as ydl:
+                        ydl.download([link])
+                        return True
+                except Exception as e2:
+                    LOGGER(__name__).error(f"Fallback download failed: {e2}")
+                    return False
+            else:
+                LOGGER(__name__).error(f"Download failed: {e}")
+                return False
+        except Exception as e:
+            LOGGER(__name__).error(f"Unexpected download error: {e}")
+            return False
+
     if type == "audio":
         key = f"a:{link}"
 
         async def run():
             opts = _ytdlp_base_opts()
             opts.update({"format": "bestaudio/best"})
-            return await _with_sem(
-                loop.run_in_executor(None, _download_ytdlp, link, opts)
+            res = await _with_sem(
+                loop.run_in_executor(None, download_with_fallback, link, opts)
             )
+            if res:
+                # We need to find the file. _download_ytdlp did this differently.
+                # Since we used default outtmpl in _ytdlp_base_opts, id is the filename.
+                vid = extract_video_id(link)
+                return file_exists(vid)
+            return None
 
         return await _dedup(key, run)
 
@@ -202,9 +239,13 @@ async def yt_dlp_download(
         async def run():
             opts = _ytdlp_base_opts()
             opts.update({"format": "best[height<=?720][width<=?1280]/best"})
-            return await _with_sem(
-                loop.run_in_executor(None, _download_ytdlp, link, opts)
+            res = await _with_sem(
+                loop.run_in_executor(None, download_with_fallback, link, opts)
             )
+            if res:
+                vid = extract_video_id(link)
+                return file_exists(vid)
+            return None
 
         return await _dedup(key, run)
 
@@ -222,10 +263,12 @@ async def yt_dlp_download(
                     "merge_output_format": "mp4",
                 }
             )
-            await _with_sem(
-                loop.run_in_executor(None, lambda: YoutubeDL(opts).download([link]))
+            res = await _with_sem(
+                loop.run_in_executor(None, download_with_fallback, link, opts)
             )
-            return f"{_DOWNLOAD_DIR}/{safe_title}.mp4"
+            if res:
+                return f"{_DOWNLOAD_DIR}/{safe_title}.mp4"
+            return None
 
         return await _dedup(key, run)
 
@@ -249,10 +292,12 @@ async def yt_dlp_download(
                     ],
                 }
             )
-            await _with_sem(
-                loop.run_in_executor(None, lambda: YoutubeDL(opts).download([link]))
+            res = await _with_sem(
+                loop.run_in_executor(None, download_with_fallback, link, opts)
             )
-            return f"{_DOWNLOAD_DIR}/{safe_title}.mp3"
+            if res:
+                return f"{_DOWNLOAD_DIR}/{safe_title}.mp3"
+            return None
 
         return await _dedup(key, run)
 
