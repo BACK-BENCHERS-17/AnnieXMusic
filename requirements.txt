@@ -6,6 +6,7 @@ bing_image_downloader
 deepai
 edge-tts
 ffmpeg-python
+flask
 future
 gitpython
 google-api-python-client
