@@ -14,7 +14,8 @@ def generate_help_buttons(_, start: int, end: int, current_page: int):
         buttons[-1].append(
             InlineKeyboardButton(
                 text=_[f"H_B_{i}"],
-                callback_data=f"help_callback hb{i}_p{current_page}"
+                callback_data=f"help_callback hb{i}_p{current_page}",
+                style="primary"
             )
         )
     return buttons
@@ -24,8 +25,8 @@ def first_page(_):
     buttons = generate_help_buttons(_, 1, 15, current_page=1)
     buttons.append(
         [
-            InlineKeyboardButton(text="๏ ᴍᴇɴᴜ ๏", callback_data="back_to_main"),
-            InlineKeyboardButton(text="๏ ɴᴇxᴛ ๏", callback_data="help_next_2")
+            InlineKeyboardButton(text="๏ ᴍᴇɴᴜ ๏", callback_data="back_to_main", style="success"),
+            InlineKeyboardButton(text="๏ ɴᴇxᴛ ๏", callback_data="help_next_2", style="success")
         ]
     )
     return InlineKeyboardMarkup(buttons)
@@ -35,8 +36,8 @@ def second_page(_):
     buttons = generate_help_buttons(_, 16, TOTAL_SECTIONS, current_page=2)
     buttons.append(
         [
-            InlineKeyboardButton(text="๏ ʙᴀᴄᴋ ๏", callback_data="help_prev_1"),
-            InlineKeyboardButton(text="๏ ᴍᴇɴᴜ ๏", callback_data="back_to_main")
+            InlineKeyboardButton(text="๏ ʙᴀᴄᴋ ๏", callback_data="help_prev_1", style="success"),
+            InlineKeyboardButton(text="๏ ᴍᴇɴᴜ ๏", callback_data="back_to_main", style="success")
         ]
     )
     return InlineKeyboardMarkup(buttons)
@@ -48,17 +49,20 @@ def action_sub_menu(_, current_page: int):
             [
                 InlineKeyboardButton(
                     text=_[ "H_B_S_1" ],
-                    callback_data="action_prom_1"
+                    callback_data="action_prom_1",
+                    style="success"
                 ),
                 InlineKeyboardButton(
                     text=_[ "H_B_S_2" ],
-                    callback_data="action_pun_1"
+                    callback_data="action_pun_1",
+                    style="danger"
                 )
             ],
             [
                 InlineKeyboardButton(
                     text=_["BACK_BUTTON"],
-                    callback_data=f"help_back_{current_page}"
+                    callback_data=f"help_back_{current_page}",
+                    style="primary"
                 )
             ]
         ]
@@ -71,11 +75,13 @@ def help_back_markup(_, current_page: int):
             [
                 InlineKeyboardButton(
                     text=_["BACK_BUTTON"],
-                    callback_data=f"help_back_{current_page}"
+                    callback_data=f"help_back_{current_page}",
+                    style="primary"
                 ),
                 InlineKeyboardButton(
                     text=_["CLOSE_BUTTON"],
-                    callback_data="close"
+                    callback_data="close",
+                    style="danger"
                 ),
             ]
         ]
@@ -87,7 +93,8 @@ def private_help_panel(_):
         [
             InlineKeyboardButton(
                 text=_["S_B_3"],
-                url=f"https://t.me/{app.username}?start=help"
+                url=f"https://t.me/{app.username}?start=help",
+                style="success"
             ),
         ],
     ]
