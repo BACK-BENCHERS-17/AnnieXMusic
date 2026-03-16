@@ -15,7 +15,7 @@ Handler = Callable[..., Awaitable[Any]]
 # ────────────────────────────────────────────────────────────
 # generic admin_required(priv1, priv2, …)
 # ────────────────────────────────────────────────────────────
-from pyrogram.errors import UserNotParticipant
+from pyrogram.errors import UserNotParticipant, ChatAdminRequired
 
 def admin_required(*privileges: str):
     """
@@ -40,6 +40,8 @@ def admin_required(*privileges: str):
                 member = await message.chat.get_member(message.from_user.id)
             except UserNotParticipant:
                 return await message.reply_text("You must be a member of this chat to use this command.")
+            except ChatAdminRequired:
+                return await message.reply_text("I need to be an admin to check your permissions.")
 
             allowed = False
             if member.status == ChatMemberStatus.OWNER:
@@ -67,7 +69,10 @@ def _require_bot_priv(flag: str, friendly: str):
     def deco(func: Handler) -> Handler:
         @wraps(func)
         async def inner(client: Client, message: Message, *a, **kw):
-            me = await client.get_chat_member(message.chat.id, BOT_USERNAME)
+            try:
+                me = await client.get_chat_member(message.chat.id, BOT_USERNAME)
+            except ChatAdminRequired:
+                return await message.reply_text("I need to be an admin to check my own permissions.")
             if not (me.status == ChatMemberStatus.ADMINISTRATOR and getattr(me.privileges, flag)):
                 return await message.reply_text(
                     f"I don’t have the right <b>{friendly}</b> in <b>{message.chat.title}</b>."
@@ -106,7 +111,10 @@ def user_admin(func: Handler) -> Handler:
             return await message.reply_text("You are not an admin.")
 
         user_id = message.from_user.id
-        member = await client.get_chat_member(message.chat.id, user_id)
+        try:
+            member = await client.get_chat_member(message.chat.id, user_id)
+        except ChatAdminRequired:
+            return await message.reply_text("I need to be an admin to check your status.")
 
         if (member.status not in COMMANDERS) and user_id not in SUDOERS.user_ids:
             return await message.reply_text("You are not an admin.")
@@ -119,7 +127,10 @@ def _user_priv_required(flag: str, friendly: str):
     def deco(func: Handler) -> Handler:
         @wraps(func)
         async def inner(client: Client, message: Message, *a, **kw):
-            user = await client.get_chat_member(message.chat.id, message.from_user.id)
+            try:
+                user = await client.get_chat_member(message.chat.id, message.from_user.id)
+            except ChatAdminRequired:
+                return await message.reply_text("I need to be an admin to check your status.")
             if (
                 (user.status in COMMANDERS and not getattr(user.privileges, flag, False))
                 and message.from_user.id not in SUDOERS.user_ids

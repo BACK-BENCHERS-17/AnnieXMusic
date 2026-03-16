@@ -27,7 +27,8 @@ from ANNIEMUSIC.utils.inline.start import private_panel, start_panel
 from ANNIEMUSIC.utils.inline.help import first_page
 from ANNIEMUSIC.utils.reactions import react_to_command
 from ANNIEMUSIC.utils.font_styles import Fonts
-from config import BANNED_USERS, AYUV, HELP_IMG_URL, START_VIDS, STICKERS
+from pyrogram.errors import ChatSendVideosForbidden
+from config import BANNED_USERS, AYUV, HELP_IMG_URL, START_VIDS, STICKERS, PING_IMG_URL
 from strings import get_string
 
 
@@ -145,6 +146,16 @@ async def start_pm(client, message: Message, _):
             reply_markup=InlineKeyboardMarkup(out),
             has_spoiler=True,
         )
+    except ChatSendVideosForbidden:
+        await message.reply_photo(
+            photo=PING_IMG_URL,
+            caption=random.choice(AYUV).format(
+                message.from_user.mention,
+                f"<a href='https://t.me/{app.username}'>{app.name}</a>",
+                UP, DISK, CPU, RAM, len(served_users), len(served_chats)
+            ),
+            reply_markup=InlineKeyboardMarkup(out),
+        )
     except Exception:
         await message.reply_video(
             random.choice(START_VIDS),
@@ -180,6 +191,12 @@ async def start_gp(client, message: Message, _):
             caption=_["start_1"].format(f"<a href='https://t.me/{app.username}'>{Fonts.bold_cool(app.name)}</a>", get_readable_time(uptime)),
             reply_markup=InlineKeyboardMarkup(out),
             has_spoiler=True,
+        )
+    except ChatSendVideosForbidden:
+        await message.reply_photo(
+            photo=PING_IMG_URL,
+            caption=_["start_1"].format(f"<a href='https://t.me/{app.username}'>{Fonts.bold_cool(app.name)}</a>", get_readable_time(uptime)),
+            reply_markup=InlineKeyboardMarkup(out),
         )
     except:
         pass
@@ -227,6 +244,17 @@ async def welcome(client, message: Message):
                         ),
                         reply_markup=InlineKeyboardMarkup(out),
                         has_spoiler=True,
+                    )
+                except ChatSendVideosForbidden:
+                    await message.reply_photo(
+                        photo=PING_IMG_URL,
+                        caption=_["start_3"].format(
+                            f"<a href='tg://user?id={message.from_user.id}'>{Fonts.bold_cool(message.from_user.first_name)}</a>",
+                            f"<a href='https://t.me/{app.username}'>{Fonts.bold_cool(app.name)}</a>",
+                            message.chat.title,
+                            f"<a href='https://t.me/{app.username}'>{Fonts.bold_cool(app.name)}</a>",
+                        ),
+                        reply_markup=InlineKeyboardMarkup(out),
                     )
                 except Exception:
                     await message.reply_video(
