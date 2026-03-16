@@ -6,15 +6,28 @@ def InlineKeyboardButton(*args, **kwargs):
     sig = inspect.signature(OriginalIKB.__init__)
     valid_params = sig.parameters.keys()
 
-    # Separate valid parameters and extra attributes
+    # Check for style and icon support
+    style = kwargs.pop("style", None)
+    icon = kwargs.pop("icon_custom_emoji_id", None)
+
+    # Prepare arguments for the original constructor
     actual_kwargs = {k: v for k, v in kwargs.items() if k in valid_params}
-    extra_attrs = {k: v for k, v in kwargs.items() if k not in valid_params}
+
+    # If style/icon are in valid_params, add them back to actual_kwargs
+    if "style" in valid_params and style:
+        actual_kwargs["style"] = style
+    if "icon_custom_emoji_id" in valid_params and icon:
+        actual_kwargs["icon_custom_emoji_id"] = icon
 
     btn = OriginalIKB(*args, **actual_kwargs)
-    for k, v in extra_attrs.items():
-        setattr(btn, k, v)
-    return btn
 
+    # If they weren't natively supported, try setting them as attributes anyway
+    if "style" not in valid_params and style:
+        setattr(btn, "style", style)
+    if "icon_custom_emoji_id" not in valid_params and icon:
+        setattr(btn, "icon_custom_emoji_id", icon)
+
+    return btn
 from .extras import *
 from .help import *
 from .play import *

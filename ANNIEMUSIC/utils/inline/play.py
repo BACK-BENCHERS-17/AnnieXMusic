@@ -51,11 +51,36 @@ def generate_progress_bar(played_sec, duration_sec):
 
 def control_buttons(_, chat_id):
     return [[
-        InlineKeyboardButton(text="▷", callback_data=f"ADMIN Resume|{chat_id}", style="success"),
-        InlineKeyboardButton(text="II", callback_data=f"ADMIN Pause|{chat_id}", style="primary"),
-        InlineKeyboardButton(text="↻", callback_data=f"ADMIN Replay|{chat_id}", style="primary"),
-        InlineKeyboardButton(text="‣‣I", callback_data=f"ADMIN Skip|{chat_id}", style="primary"),
-        InlineKeyboardButton(text="▢", callback_data=f"ADMIN Stop|{chat_id}", style="danger"),
+        InlineKeyboardButton(
+            text="▷", 
+            callback_data=f"ADMIN Resume|{chat_id}", 
+            style="success",
+            icon_custom_emoji_id="5211103131349231446"
+        ),
+        InlineKeyboardButton(
+            text="II", 
+            callback_data=f"ADMIN Pause|{chat_id}", 
+            style="primary",
+            icon_custom_emoji_id="5211103131349231446"
+        ),
+        InlineKeyboardButton(
+            text="↻", 
+            callback_data=f"ADMIN Replay|{chat_id}", 
+            style="primary",
+            icon_custom_emoji_id="5211103131349231446"
+        ),
+        InlineKeyboardButton(
+            text="‣‣I", 
+            callback_data=f"ADMIN Skip|{chat_id}", 
+            style="primary",
+            icon_custom_emoji_id="5211103131349231446"
+        ),
+        InlineKeyboardButton(
+            text="▢", 
+            callback_data=f"ADMIN Stop|{chat_id}", 
+            style="danger",
+            icon_custom_emoji_id="5211103131349231446"
+        ),
     ]]
 
 
