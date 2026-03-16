@@ -1,4 +1,5 @@
 pip3 uninstall -y yt-dlp
 python3 -m pip install -U --pre "yt-dlp[default]"
+python3 -m pip install -U -r requirements.txt
 yt-dlp --rm-cache-dir
 python3 -m ANNIEMUSIC
