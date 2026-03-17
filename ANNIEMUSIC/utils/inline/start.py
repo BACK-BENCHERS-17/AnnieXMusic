@@ -1,4 +1,4 @@
-from pyrogram.types import InlineKeyboardButton
+from . import InlineKeyboardButton
 
 import config
 from ANNIEMUSIC import app
@@ -9,11 +9,13 @@ def start_panel(_):
         [
             InlineKeyboardButton(
                 text=_["S_B_1"], url=f"https://t.me/{app.username}?startgroup=true", 
-                style="primary"
+                style="primary",
+                icon_custom_emoji_id=5296587316201005019
             ),
             InlineKeyboardButton(
                 text=_["S_B_2"], url=config.SUPPORT_CHANNEL, 
-                style="success"
+                style="success",
+                icon_custom_emoji_id=5296587316201005019
             ),
         ],
     ]

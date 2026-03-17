@@ -1,4 +1,4 @@
-from pyrogram.types import InlineKeyboardButton
+from . import InlineKeyboardButton
 
 
 def song_markup(_, vidid):

@@ -1,5 +1,5 @@
 import time
-from pyrogram.types import InlineKeyboardButton
+from . import InlineKeyboardButton
 from ANNIEMUSIC.utils.formatters import time_to_seconds
 
 LAST_UPDATE_TIME = {}
@@ -54,27 +54,32 @@ def control_buttons(_, chat_id):
         InlineKeyboardButton(
             text="▷", 
             callback_data=f"ADMIN Resume|{chat_id}", 
-            style="success"
+            style="success",
+            icon_custom_emoji_id=5211103131349231446
         ),
         InlineKeyboardButton(
             text="II", 
             callback_data=f"ADMIN Pause|{chat_id}", 
-            style="primary"
+            style="primary",
+            icon_custom_emoji_id=5211103131349231446
         ),
         InlineKeyboardButton(
             text="↻", 
             callback_data=f"ADMIN Replay|{chat_id}", 
-            style="primary"
+            style="primary",
+            icon_custom_emoji_id=5211103131349231446
         ),
         InlineKeyboardButton(
             text="‣‣I", 
             callback_data=f"ADMIN Skip|{chat_id}", 
-            style="primary"
+            style="primary",
+            icon_custom_emoji_id=5211103131349231446
         ),
         InlineKeyboardButton(
             text="▢", 
             callback_data=f"ADMIN Stop|{chat_id}", 
-            style="danger"
+            style="danger",
+            icon_custom_emoji_id=5211103131349231446
         ),
     ]]
 

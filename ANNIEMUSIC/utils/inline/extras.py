@@ -1,4 +1,4 @@
-from pyrogram.types import InlineKeyboardButton
+from . import InlineKeyboardButton
 from pyrogram.types import InlineKeyboardMarkup
 
 from config import SUPPORT_CHAT
