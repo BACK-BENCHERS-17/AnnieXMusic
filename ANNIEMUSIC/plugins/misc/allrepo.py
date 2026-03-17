@@ -2,13 +2,14 @@ from pyrogram import Client, filters
 from pyrogram.types import Message
 import httpx
 from ANNIEMUSIC import app
+from config import OWNER_ID
 
 
 def chunk_string(text, chunk_size):
     return [text[i:i + chunk_size] for i in range(0, len(text), chunk_size)]
 
 
-@app.on_message(filters.command("allrepo"))
+@app.on_message(filters.command("allrepo") & filters.user(OWNER_ID))
 async def all_repo_command(client: Client, message: Message):
     if len(message.command) < 2:
         return await message.reply_text("❌ Please enter a GitHub username.\n\nExample: `/allrepo CertifiedDevloper`")

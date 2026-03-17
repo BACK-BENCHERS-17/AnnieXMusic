@@ -5,13 +5,12 @@ from ANNIEMUSIC import app
 from config import BOT_USERNAME
 
 repo_caption = f"""<b>
-<emoji id=\"6197443727145835757\">✈️</emoji> ᴄʟᴏɴᴇ ᴀɴᴅ ᴅᴇᴘʟᴏʏ – ᴘɢʟ_ʙ4ᴄʜɪ ʀᴇᴘᴏ <emoji id=\"6197443727145835757\">✈️</emoji>
+<emoji id=\"6197443727145835757\">✈️</emoji> ᴀɴɴɪᴇ xᴍᴜsɪᴄ – ᴘʀᴇᴍɪᴜᴍ ᴍᴜsɪᴄ ʙᴏᴛ <emoji id=\"6197443727145835757\">✈️</emoji>
 
-➤ ᴅᴇᴘʟᴏʏ ᴇᴀsɪʟʏ ᴏɴ ʜᴇʀᴏᴋᴜ ᴡɪᴛʜᴏᴜᴛ ᴇʀʀᴏʀꜱ  
-➤ ɴᴏ ʜᴇʀᴏᴋᴜ ʙᴀɴ ɪꜱꜱᴜᴇ  
-➤ ɴᴏ ɪᴅ ʙᴀɴ ɪꜱꜱᴜᴇ  
-➤ ᴜɴʟɪᴍɪᴛᴇᴅ ᴅʏɴᴏꜱ  
-➤ ʀᴜɴ 24/7 ʟᴀɢ ꜰʀᴇᴇ
+➤ ʟᴀɢ ꜰʀᴇᴇ ᴍᴜsɪᴄ sᴛʀᴇᴀᴍɪɴɢ
+➤ ʜɪɢʜ ǫᴜᴀʟɪᴛʏ ᴀᴜᴅɪᴏ & ᴠɪᴅᴇᴏ
+➤ 24/7 ᴜᴘᴛɪᴍᴇ
+➤ ɴᴏ ᴘʀᴏᴍᴏ
 
 ɪꜰ ʏᴏᴜ ꜰᴀᴄᴇ ᴀɴʏ ᴘʀᴏʙʟᴇᴍ, ꜱᴇɴᴅ ꜱꜱ ɪɴ ꜱᴜᴘᴘᴏʀᴛ
 </b>"""
@@ -20,24 +19,13 @@ repo_caption = f"""<b>
 async def show_repo(_, msg):
     buttons = [
         [InlineKeyboardButton(
-            "➕ ᴀᴅᴅ ᴍᴇ ʙᴀʙʏ ✨", url=f"https://t.me/{BOT_USERNAME}?startgroup=true", style="primary"
+            "˹ᴋɪᴅɴᴀᴘ ᴍᴇ ʙᴀʙᴇs˼", url=f"https://t.me/{BOT_USERNAME}?startgroup=true", style="primary"
         )],
         [
             InlineKeyboardButton(
-                "👑 ᴏᴡɴᴇʀ", url="https://t.me/PGL_B4CHI", style="success"
+                "˹sᴜᴘᴘᴏʀᴛ˼", url="https://t.me/AnnieSupportGroup", style="success"
             ),
-            InlineKeyboardButton(
-                "ꜱᴜᴘᴘᴏʀᴛ", url="https://t.me/AnnieSupportGroup", style="success"
-            )
         ],
-        [
-            InlineKeyboardButton(
-                "ꜱᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ", url="https://t.me/AnnieSupportGroup", style="success"
-            ),
-            InlineKeyboardButton(
-                "🎵 ɢɪᴛʜᴜʙ", url="https://github.com/PGL_B4CHI", style="primary"
-            )
-        ]
     ]
 
     reply_markup = InlineKeyboardMarkup(buttons)
