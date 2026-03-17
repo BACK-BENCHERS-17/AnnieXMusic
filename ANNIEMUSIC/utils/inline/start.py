@@ -33,8 +33,7 @@ def private_panel(_):
         ],
         [
             InlineKeyboardButton(
-                text=_["S_B_7"],
-                url=f"tg://user?id={config.OWNER_ID}",
+                text=_["S_B_7"], user_id=config.OWNER_ID,
                 style="success"
             ),
             InlineKeyboardButton(
