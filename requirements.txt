@@ -14,7 +14,7 @@ gpytranslate
 gtts
 heroku3
 httpx[http2]==0.28.1
-kurigram @ https://github.com/KurimuzonAkuma/kurigram/archive/dev.tar.gz
+pyrogram @ https://github.com/KurimuzonAkuma/kurigram/archive/dev.tar.gz
 lexica-api
 motor
 nekosbest
