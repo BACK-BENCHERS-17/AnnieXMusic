@@ -138,10 +138,10 @@ async def start_pm(client, message: Message, _):
     try:
         await message.reply_video(
             random.choice(START_VIDS),
-            caption=random.choice(AYUV).format(
+            caption=_["start_1"].format(
                 message.from_user.mention,
                 f"<a href='https://t.me/{app.username}'>{app.name}</a>",
-                UP, DISK, CPU, RAM, len(served_users), len(served_chats)
+                UP, DISK, CPU, RAM
             ),
             reply_markup=InlineKeyboardMarkup(out),
             has_spoiler=True,
@@ -149,20 +149,20 @@ async def start_pm(client, message: Message, _):
     except ChatSendVideosForbidden:
         await message.reply_photo(
             photo=PING_IMG_URL,
-            caption=random.choice(AYUV).format(
+            caption=_["start_1"].format(
                 message.from_user.mention,
                 f"<a href='https://t.me/{app.username}'>{app.name}</a>",
-                UP, DISK, CPU, RAM, len(served_users), len(served_chats)
+                UP, DISK, CPU, RAM
             ),
             reply_markup=InlineKeyboardMarkup(out),
         )
     except Exception:
         await message.reply_video(
             random.choice(START_VIDS),
-            caption=random.choice(AYUV).format(
+            caption=_["start_1"].format(
                 message.from_user.mention,
                 f"<a href='https://t.me/{app.username}'>{app.name}</a>",
-                UP, DISK, CPU, RAM, len(served_users), len(served_chats)
+                UP, DISK, CPU, RAM
             ),
             reply_markup=InlineKeyboardMarkup(out),
         )
@@ -184,18 +184,26 @@ async def start_pm(client, message: Message, _):
 async def start_gp(client, message: Message, _):
     asyncio.create_task(react_to_command(message))
     out = start_panel(_)
-    uptime = int(time.time() - _boot_)
+    UP, CPU, RAM, DISK = await bot_sys_stats()
     try:
         await message.reply_video(
             random.choice(START_VIDS),
-            caption=_["start_1"].format(f"<a href='https://t.me/{app.username}'>{Fonts.bold_cool(app.name)}</a>", get_readable_time(uptime)),
+            caption=_["start_1"].format(
+                message.from_user.mention,
+                f"<a href='https://t.me/{app.username}'>{app.name}</a>",
+                UP, DISK, CPU, RAM
+            ),
             reply_markup=InlineKeyboardMarkup(out),
             has_spoiler=True,
         )
     except ChatSendVideosForbidden:
         await message.reply_photo(
             photo=PING_IMG_URL,
-            caption=_["start_1"].format(f"<a href='https://t.me/{app.username}'>{Fonts.bold_cool(app.name)}</a>", get_readable_time(uptime)),
+            caption=_["start_1"].format(
+                message.from_user.mention,
+                f"<a href='https://t.me/{app.username}'>{app.name}</a>",
+                UP, DISK, CPU, RAM
+            ),
             reply_markup=InlineKeyboardMarkup(out),
         )
     except:
@@ -233,14 +241,14 @@ async def welcome(client, message: Message):
                     return await app.leave_chat(message.chat.id)
 
                 out = start_panel(_)
+                UP, CPU, RAM, DISK = await bot_sys_stats()
                 try:
                     await message.reply_video(
                         random.choice(START_VIDS),
-                        caption=_["start_3"].format(
-                            f"<a href='tg://user?id={message.from_user.id}'>{Fonts.bold_cool(message.from_user.first_name)}</a>",
-                            f"<a href='https://t.me/{app.username}'>{Fonts.bold_cool(app.name)}</a>",
-                            message.chat.title,
-                            f"<a href='https://t.me/{app.username}'>{Fonts.bold_cool(app.name)}</a>",
+                        caption=_["start_1"].format(
+                            f"<a href='tg://user?id={message.from_user.id}'>{message.from_user.first_name}</a>",
+                            f"<a href='https://t.me/{app.username}'>{app.name}</a>",
+                            UP, DISK, CPU, RAM
                         ),
                         reply_markup=InlineKeyboardMarkup(out),
                         has_spoiler=True,
@@ -248,22 +256,20 @@ async def welcome(client, message: Message):
                 except ChatSendVideosForbidden:
                     await message.reply_photo(
                         photo=PING_IMG_URL,
-                        caption=_["start_3"].format(
-                            f"<a href='tg://user?id={message.from_user.id}'>{Fonts.bold_cool(message.from_user.first_name)}</a>",
-                            f"<a href='https://t.me/{app.username}'>{Fonts.bold_cool(app.name)}</a>",
-                            message.chat.title,
-                            f"<a href='https://t.me/{app.username}'>{Fonts.bold_cool(app.name)}</a>",
+                        caption=_["start_1"].format(
+                            f"<a href='tg://user?id={message.from_user.id}'>{message.from_user.first_name}</a>",
+                            f"<a href='https://t.me/{app.username}'>{app.name}</a>",
+                            UP, DISK, CPU, RAM
                         ),
                         reply_markup=InlineKeyboardMarkup(out),
                     )
                 except Exception:
                     await message.reply_video(
                         random.choice(START_VIDS),
-                        caption=_["start_3"].format(
-                            f"<a href='tg://user?id={message.from_user.id}'>{Fonts.bold_cool(message.from_user.first_name)}</a>",
-                            f"<a href='https://t.me/{app.username}'>{Fonts.bold_cool(app.name)}</a>",
-                            message.chat.title,
-                            f"<a href='https://t.me/{app.username}'>{Fonts.bold_cool(app.name)}</a>",
+                        caption=_["start_1"].format(
+                            f"<a href='tg://user?id={message.from_user.id}'>{message.from_user.first_name}</a>",
+                            f"<a href='https://t.me/{app.username}'>{app.name}</a>",
+                            UP, DISK, CPU, RAM
                         ),
                         reply_markup=InlineKeyboardMarkup(out),
                     )
