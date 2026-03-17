@@ -95,7 +95,7 @@ async def start_pm(client, message: Message, _):
                 link = result.get("link") or query
                 published = result.get("publishedTime") or "ᴜɴᴋɴᴏᴡɴ"
 
-                searched_text = _["start_6"].format(title, duration, views, published, channellink, channel, app.mention)
+                searched_text = _["start_6"].format(title, duration, views, published, channellink, channel, config.OWNER_USERNAME)
                 key = InlineKeyboardMarkup(
                     [[InlineKeyboardButton(text=_["S_B_6"], url=link),
                       InlineKeyboardButton(text=_["S_B_4"], url=config.SUPPORT_CHAT)]]
@@ -141,7 +141,8 @@ async def start_pm(client, message: Message, _):
             caption=_["start_1"].format(
                 message.from_user.mention,
                 f"<a href='https://t.me/{app.username}'>{app.name}</a>",
-                UP, DISK, CPU, RAM
+                UP, DISK, CPU, RAM,
+                config.OWNER_USERNAME
             ),
             reply_markup=InlineKeyboardMarkup(out),
             has_spoiler=True,
@@ -152,7 +153,8 @@ async def start_pm(client, message: Message, _):
             caption=_["start_1"].format(
                 message.from_user.mention,
                 f"<a href='https://t.me/{app.username}'>{app.name}</a>",
-                UP, DISK, CPU, RAM
+                UP, DISK, CPU, RAM,
+                config.OWNER_USERNAME
             ),
             reply_markup=InlineKeyboardMarkup(out),
         )
@@ -162,7 +164,8 @@ async def start_pm(client, message: Message, _):
             caption=_["start_1"].format(
                 message.from_user.mention,
                 f"<a href='https://t.me/{app.username}'>{app.name}</a>",
-                UP, DISK, CPU, RAM
+                UP, DISK, CPU, RAM,
+                config.OWNER_USERNAME
             ),
             reply_markup=InlineKeyboardMarkup(out),
         )
@@ -191,7 +194,8 @@ async def start_gp(client, message: Message, _):
             caption=_["start_1"].format(
                 message.from_user.mention,
                 f"<a href='https://t.me/{app.username}'>{app.name}</a>",
-                UP, DISK, CPU, RAM
+                UP, DISK, CPU, RAM,
+                config.OWNER_USERNAME
             ),
             reply_markup=InlineKeyboardMarkup(out),
             has_spoiler=True,
@@ -202,7 +206,8 @@ async def start_gp(client, message: Message, _):
             caption=_["start_1"].format(
                 message.from_user.mention,
                 f"<a href='https://t.me/{app.username}'>{app.name}</a>",
-                UP, DISK, CPU, RAM
+                UP, DISK, CPU, RAM,
+                config.OWNER_USERNAME
             ),
             reply_markup=InlineKeyboardMarkup(out),
         )
@@ -248,7 +253,8 @@ async def welcome(client, message: Message):
                         caption=_["start_1"].format(
                             f"<a href='tg://user?id={message.from_user.id}'>{message.from_user.first_name}</a>",
                             f"<a href='https://t.me/{app.username}'>{app.name}</a>",
-                            UP, DISK, CPU, RAM
+                            UP, DISK, CPU, RAM,
+                            config.OWNER_USERNAME
                         ),
                         reply_markup=InlineKeyboardMarkup(out),
                         has_spoiler=True,
@@ -259,7 +265,8 @@ async def welcome(client, message: Message):
                         caption=_["start_1"].format(
                             f"<a href='tg://user?id={message.from_user.id}'>{message.from_user.first_name}</a>",
                             f"<a href='https://t.me/{app.username}'>{app.name}</a>",
-                            UP, DISK, CPU, RAM
+                            UP, DISK, CPU, RAM,
+                            config.OWNER_USERNAME
                         ),
                         reply_markup=InlineKeyboardMarkup(out),
                     )
@@ -269,7 +276,8 @@ async def welcome(client, message: Message):
                         caption=_["start_1"].format(
                             f"<a href='tg://user?id={message.from_user.id}'>{message.from_user.first_name}</a>",
                             f"<a href='https://t.me/{app.username}'>{app.name}</a>",
-                            UP, DISK, CPU, RAM
+                            UP, DISK, CPU, RAM,
+                            config.OWNER_USERNAME
                         ),
                         reply_markup=InlineKeyboardMarkup(out),
                     )
