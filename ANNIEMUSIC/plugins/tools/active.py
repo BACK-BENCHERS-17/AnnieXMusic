@@ -1,5 +1,6 @@
 from pyrogram import filters, Client
-from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.types import Message, InlineKeyboardMarkup
+from ANNIEMUSIC.utils.inline import InlineKeyboardButton
 from unidecode import unidecode
 
 from ANNIEMUSIC import app

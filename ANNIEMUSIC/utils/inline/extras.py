@@ -7,8 +7,8 @@ from config import SUPPORT_CHAT
 def botplaylist_markup(_):
     buttons = [
         [
-            InlineKeyboardButton(text=_["S_B_4"], url=SUPPORT_CHAT),
-            InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close"),
+            InlineKeyboardButton(text=_["S_B_4"], url=SUPPORT_CHAT, style="success"),
+            InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close", style="danger"),
         ],
     ]
     return buttons
@@ -21,6 +21,7 @@ def close_markup(_):
                 InlineKeyboardButton(
                     text=_["CLOSE_BUTTON"],
                     callback_data="close",
+                    style="danger",
                 ),
             ]
         ]
@@ -35,10 +36,12 @@ def add_to_channel_markup(_, bot_username):
                 InlineKeyboardButton(
                     text="✚ ᴀᴅᴅ ᴍᴇ ʙᴀʙʏ ✚",
                     url=f"https://t.me/{bot_username}?startgroup=true",
+                    style="primary",
                 ),
                 InlineKeyboardButton(
                     text=_["CLOSE_BUTTON"],
                     callback_data="close",
+                    style="danger",
                 ),
             ]
         ]
@@ -53,6 +56,7 @@ def supp_markup(_):
                 InlineKeyboardButton(
                     text=_["S_B_4"],
                     url=SUPPORT_CHAT,
+                    style="success",
                 ),
             ]
         ]

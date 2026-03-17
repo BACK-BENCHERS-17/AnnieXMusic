@@ -6,7 +6,8 @@ from typing import Dict, List, Tuple
 import edge_tts
 from pyrogram import Client, filters
 from pyrogram.enums import ChatAction, ParseMode
-from pyrogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
+from pyrogram.types import CallbackQuery, InlineKeyboardMarkup, Message
+from ANNIEMUSIC.utils.inline import InlineKeyboardButton
 
 from ANNIEMUSIC import app
 

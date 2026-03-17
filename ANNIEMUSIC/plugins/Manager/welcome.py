@@ -2,7 +2,8 @@ import os
 import asyncio
 from PIL import Image, ImageDraw, ImageFont
 from pyrogram import enums, filters
-from pyrogram.types import Message, ChatMemberUpdated, InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.types import Message, ChatMemberUpdated, InlineKeyboardMarkup
+from ANNIEMUSIC.utils.inline import InlineKeyboardButton
 from pyrogram.errors import TopicClosed, PeerIdInvalid, ChannelPrivate, SlowmodeWait
 from ANNIEMUSIC import app
 from ANNIEMUSIC.mongo.welcomedb import is_on, set_state, bump, cool, auto_on
@@ -170,8 +171,8 @@ async def welcome(client, update: ChatMemberUpdated):
                 img,
                 caption=caption,
                 reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton(BTN_VIEW, url=f"tg://openmessage?user_id={user.id}")],
-                    [InlineKeyboardButton(BTN_ADD, url=f"https://t.me/{client.username}?startgroup=true")],
+                    [InlineKeyboardButton(BTN_VIEW, url=f"tg://openmessage?user_id={user.id}", style="primary")],
+                    [InlineKeyboardButton(BTN_ADD, url=f"https://t.me/{client.username}?startgroup=true", style="success")],
                 ])
             )
         except TopicClosed:

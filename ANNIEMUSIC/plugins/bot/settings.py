@@ -1,7 +1,8 @@
 from pyrogram import filters
 from pyrogram.enums import ChatType
 from pyrogram.errors import MessageNotModified
-from pyrogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
+from pyrogram.types import CallbackQuery, InlineKeyboardMarkup, Message
+from ANNIEMUSIC.utils.inline import InlineKeyboardButton
 
 from ANNIEMUSIC import app
 from ANNIEMUSIC.utils.database import (
@@ -280,8 +281,8 @@ async def authusers_mar(client, callback: CallbackQuery, _):
                 msg += f"   {_['auth_8']} {admin_name}[<code>{admin_id}</code>]\n\n"
             upl = InlineKeyboardMarkup(
                 [[
-                    InlineKeyboardButton(text=_["BACK_BUTTON"], callback_data="AUTH_SETTINGS"),
-                    InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close")
+                    InlineKeyboardButton(text=_["BACK_BUTTON"], callback_data="AUTH_SETTINGS", style="primary"),
+                    InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close", style="danger")
                 ]]
             )
             try:

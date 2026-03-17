@@ -1,7 +1,8 @@
 import asyncio
 from pyrogram import filters, enums, types
 from pyrogram.errors import PeerIdInvalid, RPCError, FloodWait
-from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.types import Message, InlineKeyboardMarkup
+from ANNIEMUSIC.utils.inline import InlineKeyboardButton
 
 from ANNIEMUSIC import app
 
@@ -70,8 +71,8 @@ async def whois_handler(_, message: Message):
 
         profile_url = f"https://t.me/{user.username}" if user.username else f"tg://user?id={user.id}"
         buttons = InlineKeyboardMarkup([[
-            InlineKeyboardButton("👤 ᴠɪᴇᴡ ᴘʀᴏғɪʟᴇ", url=profile_url),
-            InlineKeyboardButton("📞 ᴘʜᴏɴᴇ", url="tg://settings")
+            InlineKeyboardButton("👤 ᴠɪᴇᴡ ᴘʀᴏғɪʟᴇ", url=profile_url, style="primary"),
+            InlineKeyboardButton("📞 ᴘʜᴏɴᴇ", url="tg://settings", style="success")
         ]])
 
         await app.edit_message_text(

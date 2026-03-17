@@ -2,7 +2,8 @@ import asyncio
 import random
 import urllib.parse
 from pyrogram import filters, errors, types
-from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram.types import Message, InlineKeyboardMarkup
+from ANNIEMUSIC.utils.inline import InlineKeyboardButton
 from typing import Optional
 
 from config import LOGGER_ID

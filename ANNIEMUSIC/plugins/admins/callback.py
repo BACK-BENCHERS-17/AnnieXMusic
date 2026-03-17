@@ -2,7 +2,8 @@ import asyncio
 import random
 
 from pyrogram import filters
-from pyrogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram.types import CallbackQuery, InlineKeyboardMarkup
+from ANNIEMUSIC.utils.inline import InlineKeyboardButton
 
 from config import (
     BANNED_USERS,
@@ -94,7 +95,8 @@ async def handle_upvote(callback: CallbackQuery, chat_id: int, counter, _):
         markup = InlineKeyboardMarkup([
             [InlineKeyboardButton(
                 text=f"👍 {current_upvotes}",
-                callback_data=f"ADMIN  UpVote|{chat_id}_{counter if counter is not None else chat_id}"
+                callback_data=f"ADMIN  UpVote|{chat_id}_{counter if counter is not None else chat_id}",
+                style="success"
             )]
         ])
         await callback.answer(_["admin_40"], show_alert=True)

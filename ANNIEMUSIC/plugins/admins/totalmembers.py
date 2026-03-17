@@ -1,7 +1,8 @@
 import csv
 from io import StringIO, BytesIO
 from pyrogram import filters
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram.types import InlineKeyboardMarkup
+from ANNIEMUSIC.utils.inline import InlineKeyboardButton
 from ANNIEMUSIC import app
 from ANNIEMUSIC.utils.admin_filters import admin_filter
 
@@ -25,8 +26,8 @@ async def collect_members(chat_id, processing_msg):
 async def user_command(_, message):
     keyboard = InlineKeyboardMarkup(
         [[
-            InlineKeyboardButton("CSV", callback_data="members_csv"),
-            InlineKeyboardButton("TXT", callback_data="members_txt")
+            InlineKeyboardButton("CSV", callback_data="members_csv", style="primary"),
+            InlineKeyboardButton("TXT", callback_data="members_txt", style="success")
         ]]
     )
     await message.reply_text(

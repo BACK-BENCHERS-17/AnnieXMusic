@@ -2,7 +2,8 @@ import os
 import aiohttp
 
 from pyrogram import filters
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
+from pyrogram.types import InlineKeyboardMarkup, Message
+from ANNIEMUSIC.utils.inline import InlineKeyboardButton
 
 from ANNIEMUSIC import app
 

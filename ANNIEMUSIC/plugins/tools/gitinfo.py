@@ -2,7 +2,8 @@ import aiohttp
 import html
 from datetime import datetime
 from pyrogram import filters
-from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram.types import Message, InlineKeyboardMarkup
+from ANNIEMUSIC.utils.inline import InlineKeyboardButton
 from pyrogram.enums import ParseMode
 
 from ANNIEMUSIC import app

@@ -6,7 +6,8 @@ from uuid import uuid4
 from PIL import Image
 from pyrogram import raw, filters
 from pyrogram.errors import StickersetInvalid
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram.types import InlineKeyboardMarkup
+from ANNIEMUSIC.utils.inline import InlineKeyboardButton
 
 from ANNIEMUSIC import app
 from config import BOT_USERNAME

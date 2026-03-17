@@ -1,10 +1,11 @@
 from pyrogram import filters
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram.types import InlineKeyboardMarkup
+from ANNIEMUSIC.utils.inline import InlineKeyboardButton
 from ANNIEMUSIC import app
 from config import BOT_USERNAME
 
 repo_caption = f"""<b>
-✈️ ᴄʟᴏɴᴇ ᴀɴᴅ ᴅᴇᴘʟᴏʏ – ᴘɢʟ_ʙ4ᴄʜɪ ʀᴇᴘᴏ ✈️
+<tg-emoji emoji-id=\"6197443727145835757\">✈️</tg-emoji> ᴄʟᴏɴᴇ ᴀɴᴅ ᴅᴇᴘʟᴏʏ – ᴘɢʟ_ʙ4ᴄʜɪ ʀᴇᴘᴏ <tg-emoji emoji-id=\"6197443727145835757\">✈️</tg-emoji>
 
 ➤ ᴅᴇᴘʟᴏʏ ᴇᴀsɪʟʏ ᴏɴ ʜᴇʀᴏᴋᴜ ᴡɪᴛʜᴏᴜᴛ ᴇʀʀᴏʀꜱ  
 ➤ ɴᴏ ʜᴇʀᴏᴋᴜ ʙᴀɴ ɪꜱꜱᴜᴇ  
@@ -19,22 +20,22 @@ repo_caption = f"""<b>
 async def show_repo(_, msg):
     buttons = [
         [InlineKeyboardButton(
-            "➕ ᴀᴅᴅ ᴍᴇ ʙᴀʙʏ ✨", url=f"https://t.me/{BOT_USERNAME}?startgroup=true"
+            "➕ ᴀᴅᴅ ᴍᴇ ʙᴀʙʏ ✨", url=f"https://t.me/{BOT_USERNAME}?startgroup=true", style="primary"
         )],
         [
             InlineKeyboardButton(
-                "👑 ᴏᴡɴᴇʀ", url="https://t.me/PGL_B4CHI"
+                "👑 ᴏᴡɴᴇʀ", url="https://t.me/PGL_B4CHI", style="success"
             ),
             InlineKeyboardButton(
-                "ꜱᴜᴘᴘᴏʀᴛ", url="https://t.me/AnnieSupportGroup"
+                "ꜱᴜᴘᴘᴏʀᴛ", url="https://t.me/AnnieSupportGroup", style="success"
             )
         ],
         [
             InlineKeyboardButton(
-                "ꜱᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ", url="https://t.me/AnnieSupportGroup"
+                "ꜱᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ", url="https://t.me/AnnieSupportGroup", style="success"
             ),
             InlineKeyboardButton(
-                "🎵 ɢɪᴛʜᴜʙ", url="https://github.com/PGL_B4CHI"
+                "🎵 ɢɪᴛʜᴜʙ", url="https://github.com/PGL_B4CHI", style="primary"
             )
         ]
     ]

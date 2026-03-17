@@ -3,7 +3,8 @@ import random
 import time
 from pyrogram import filters
 from pyrogram.enums import ChatType
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
+from pyrogram.types import InlineKeyboardMarkup, Message
+from ANNIEMUSIC.utils.inline import InlineKeyboardButton
 from youtubesearchpython.__future__ import VideosSearch
 
 import config
@@ -97,8 +98,8 @@ async def start_pm(client, message: Message, _):
 
                 searched_text = _["start_6"].format(title, duration, views, published, channellink, channel, config.OWNER_USERNAME)
                 key = InlineKeyboardMarkup(
-                    [[InlineKeyboardButton(text=_["S_B_6"], url=link),
-                      InlineKeyboardButton(text=_["S_B_4"], url=config.SUPPORT_CHAT)]]
+                    [[InlineKeyboardButton(text=_["S_B_6"], url=link, style="primary"),
+                      InlineKeyboardButton(text=_["S_B_4"], url=config.SUPPORT_CHAT, style="success")]]
                 )
 
                 await m.delete()

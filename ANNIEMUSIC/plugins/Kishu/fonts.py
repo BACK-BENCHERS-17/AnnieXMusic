@@ -1,5 +1,6 @@
 from pyrogram import filters
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram.types import InlineKeyboardMarkup
+from ANNIEMUSIC.utils.inline import InlineKeyboardButton
 from ANNIEMUSIC.utils.font_styles import Fonts
 from ANNIEMUSIC import app
 

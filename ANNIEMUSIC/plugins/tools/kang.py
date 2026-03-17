@@ -16,7 +16,8 @@ from pyrogram.errors import (
     FileReferenceExpired,
     RPCError,
 )
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.types import InlineKeyboardMarkup
+from ANNIEMUSIC.utils.inline import InlineKeyboardButton
 
 from ANNIEMUSIC import app
 from ANNIEMUSIC.utils.files import resize_file_to_sticker_size

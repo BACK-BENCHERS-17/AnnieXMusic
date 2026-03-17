@@ -7,7 +7,8 @@ from io import StringIO
 from time import time
 
 from pyrogram import filters, Client
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
+from pyrogram.types import InlineKeyboardMarkup, Message
+from ANNIEMUSIC.utils.inline import InlineKeyboardButton
 
 from config import OWNER_ID
 from ANNIEMUSIC import app

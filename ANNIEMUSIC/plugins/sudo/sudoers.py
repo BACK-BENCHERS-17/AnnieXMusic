@@ -1,5 +1,6 @@
 from pyrogram import filters
-from pyrogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
+from pyrogram.types import CallbackQuery, InlineKeyboardMarkup, Message
+from ANNIEMUSIC.utils.inline import InlineKeyboardButton
 
 from config import BANNED_USERS, OWNER_ID
 from ANNIEMUSIC import app
@@ -50,7 +51,7 @@ async def remove_sudo_user(client, message: Message, _):
 
 @app.on_message(filters.command(["sudolist", "listsudo", "sudoers"], prefixes=["/", "!", "."]) & ~BANNED_USERS)
 async def sudoers_list(client, message: Message):
-    keyboard = [[InlineKeyboardButton("๏ ᴠɪᴇᴡ sᴜᴅᴏʟɪsᴛ ๏", callback_data="sudo_list_view")]]
+    keyboard = [[InlineKeyboardButton("๏ ᴠɪᴇᴡ sᴜᴅᴏʟɪsᴛ ๏", callback_data="sudo_list_view", style="primary")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     await message.reply_video(
@@ -68,7 +69,7 @@ async def view_sudo_list_callback(client, callback_query: CallbackQuery):
 
     owner = await app.get_users(OWNER_ID)
     caption = f"<b>˹ʟɪsᴛ ᴏғ ʙᴏᴛ ᴍᴏᴅᴇʀᴀᴛᴏʀs˼</b>\n\n<b>🌹Oᴡɴᴇʀ</b> ➥ {owner.mention}\n\n"
-    keyboard = [[InlineKeyboardButton("๏ ᴠɪᴇᴡ ᴏᴡɴᴇʀ ๏", url=f"tg://openmessage?user_id={OWNER_ID}")]]
+    keyboard = [[InlineKeyboardButton("๏ ᴠɪᴇᴡ ᴏᴡɴᴇʀ ๏", url=f"tg://openmessage?user_id={OWNER_ID}", style="success")]]
 
     count = 0
     for user_id in SUDOERS:
@@ -79,7 +80,7 @@ async def view_sudo_list_callback(client, callback_query: CallbackQuery):
             count += 1
             caption += f"<b>🎁 Sᴜᴅᴏ {count} »</b> {user.mention}\n"
             keyboard.append([
-                InlineKeyboardButton(f"๏ ᴠɪᴇᴡ sᴜᴅᴏ {count} ๏", url=f"tg://openmessage?user_id={user_id}")
+                InlineKeyboardButton(f"๏ ᴠɪᴇᴡ sᴜᴅᴏ {count} ๏", url=f"tg://openmessage?user_id={user_id}", style="primary")
             ])
         except Exception:
             continue
@@ -87,14 +88,14 @@ async def view_sudo_list_callback(client, callback_query: CallbackQuery):
     if count == 0:
         caption += "_No additional sudoers yet._"
 
-    keyboard.append([InlineKeyboardButton("๏ ʙᴀᴄᴋ ๏", callback_data="sudo_list_back")])
+    keyboard.append([InlineKeyboardButton("๏ ʙᴀᴄᴋ ๏", callback_data="sudo_list_back", style="danger")])
     await callback_query.message.edit_caption(caption=caption, reply_markup=InlineKeyboardMarkup(keyboard))
 
 # ─── Callback: Back to List Menu ────────────────────────────
 
 @app.on_callback_query(filters.regex("^sudo_list_back$"))
 async def back_to_sudo_list_menu(client, callback_query: CallbackQuery):
-    keyboard = [[InlineKeyboardButton("๏ ᴠɪᴇᴡ sᴜᴅᴏʟɪsᴛ ๏", callback_data="sudo_list_view")]]
+    keyboard = [[InlineKeyboardButton("๏ ᴠɪᴇᴡ sᴜᴅᴏʟɪsᴛ ๏", callback_data="sudo_list_view", style="primary")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await callback_query.message.edit_caption(
         caption="<b>» ᴄʜᴇᴄᴋ sᴜᴅᴏ ʟɪsᴛ ʙʏ ɢɪᴠᴇɴ ʙᴇʟᴏᴡ ʙᴜᴛᴛᴏɴ.</b>\n\n<b>» ɴᴏᴛᴇ:</b>  ᴏɴʟʏ sᴜᴅᴏ ᴜsᴇʀs ᴄᴀɴ ᴠɪᴇᴡ.",
