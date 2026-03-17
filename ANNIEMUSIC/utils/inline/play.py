@@ -1,5 +1,5 @@
 import time
-from . import InlineKeyboardButton
+from pyrogram.types import InlineKeyboardButton
 from ANNIEMUSIC.utils.formatters import time_to_seconds
 
 LAST_UPDATE_TIME = {}

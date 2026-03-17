@@ -1,4 +1,4 @@
-from . import InlineKeyboardButton
+from pyrogram.types import InlineKeyboardButton
 
 import config
 from ANNIEMUSIC import app

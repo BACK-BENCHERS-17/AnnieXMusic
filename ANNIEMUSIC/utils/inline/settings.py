@@ -1,5 +1,5 @@
 from typing import Union
-from . import InlineKeyboardButton
+from pyrogram.types import InlineKeyboardButton
 
 
 def setting_markup(_):
