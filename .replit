@@ -28,3 +28,13 @@ args = "python -m ANNIEMUSIC"
 
 [workflows.workflow.metadata]
 outputType = "console"
+
+[userenv]
+
+[userenv.shared]
+API_HASH = "317cec181636ecdbb76c6d43a2d5935d"
+API_ID = "33679425"
+BOT_TOKEN = "8181377432:AAGCMxdbGAo5zX1nxcG00pQO9Qcep5ywt4c"
+COOKIE_URL = "https://batbin.me/ribbonfish"
+LOGGER_ID = "-1003455370306"
+MONGO_DB_URI = "mongodb+srv://bb:bb@cluster0.by6uncl.mongodb.net/?appName=Cluster0"
