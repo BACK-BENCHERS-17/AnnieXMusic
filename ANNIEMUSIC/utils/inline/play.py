@@ -94,7 +94,7 @@ def stream_markup_timer(_, chat_id, played, dur):
     bar = generate_progress_bar(played_sec, duration_sec)
 
     return (
-        [[InlineKeyboardButton(text=f"{played} {bar} {dur}", url=f"tg://user?id={config.OWNER_ID}", style="primary")]] +
+        [[InlineKeyboardButton(text=f"{played} {bar} {dur}", url="https://t.me/ANNIEXMUSICxBOT?startgroup=true", style="primary")]] +
         control_buttons(_, chat_id) +
         [[InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close", style="danger")]]
     )
