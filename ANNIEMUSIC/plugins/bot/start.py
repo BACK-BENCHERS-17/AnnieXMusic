@@ -143,7 +143,7 @@ async def start_pm(client, message: Message, _):
                 message.from_user.mention,
                 f"<a href='https://t.me/{app.username}'>{app.name}</a>",
                 UP, DISK, CPU, RAM,
-                config.OWNER_USERNAME
+                f"<a href='tg://user?id={config.OWNER_ID}'>ㅤ⎯꯭̽ 𝚱 𝚮 𝐔 𝛅 𝚮 𝚰⥱</a>"
             ),
             reply_markup=InlineKeyboardMarkup(out),
             has_spoiler=True,
@@ -155,7 +155,7 @@ async def start_pm(client, message: Message, _):
                 message.from_user.mention,
                 f"<a href='https://t.me/{app.username}'>{app.name}</a>",
                 UP, DISK, CPU, RAM,
-                config.OWNER_USERNAME
+                f"<a href='tg://user?id={config.OWNER_ID}'>ㅤ⎯꯭̽ 𝚱 𝚮 𝐔 𝛅 𝚮 𝚰⥱</a>"
             ),
             reply_markup=InlineKeyboardMarkup(out),
         )
@@ -166,7 +166,7 @@ async def start_pm(client, message: Message, _):
                 message.from_user.mention,
                 f"<a href='https://t.me/{app.username}'>{app.name}</a>",
                 UP, DISK, CPU, RAM,
-                config.OWNER_USERNAME
+                f"<a href='tg://user?id={config.OWNER_ID}'>ㅤ⎯꯭̽ 𝚱 𝚮 𝐔 𝛅 𝚮 𝚰⥱</a>"
             ),
             reply_markup=InlineKeyboardMarkup(out),
         )
@@ -196,7 +196,7 @@ async def start_gp(client, message: Message, _):
                 message.from_user.mention,
                 f"<a href='https://t.me/{app.username}'>{app.name}</a>",
                 UP, DISK, CPU, RAM,
-                config.OWNER_USERNAME
+                f"<a href='tg://user?id={config.OWNER_ID}'>ㅤ⎯꯭̽ 𝚱 𝚮 𝐔 𝛅 𝚮 𝚰⥱</a>"
             ),
             reply_markup=InlineKeyboardMarkup(out),
             has_spoiler=True,
@@ -208,7 +208,7 @@ async def start_gp(client, message: Message, _):
                 message.from_user.mention,
                 f"<a href='https://t.me/{app.username}'>{app.name}</a>",
                 UP, DISK, CPU, RAM,
-                config.OWNER_USERNAME
+                f"<a href='tg://user?id={config.OWNER_ID}'>ㅤ⎯꯭̽ 𝚱 𝚮 𝐔 𝛅 𝚮 𝚰⥱</a>"
             ),
             reply_markup=InlineKeyboardMarkup(out),
         )
@@ -255,7 +255,7 @@ async def welcome(client, message: Message):
                             f"<a href='tg://user?id={message.from_user.id}'>{message.from_user.first_name}</a>",
                             f"<a href='https://t.me/{app.username}'>{app.name}</a>",
                             UP, DISK, CPU, RAM,
-                            config.OWNER_USERNAME
+                            f"<a href='tg://user?id={config.OWNER_ID}'>ㅤ⎯꯭̽ 𝚱 𝚮 𝐔 𝛅 𝚮 𝚰⥱</a>"
                         ),
                         reply_markup=InlineKeyboardMarkup(out),
                         has_spoiler=True,
@@ -267,7 +267,7 @@ async def welcome(client, message: Message):
                             f"<a href='tg://user?id={message.from_user.id}'>{message.from_user.first_name}</a>",
                             f"<a href='https://t.me/{app.username}'>{app.name}</a>",
                             UP, DISK, CPU, RAM,
-                            config.OWNER_USERNAME
+                            f"<a href='tg://user?id={config.OWNER_ID}'>ㅤ⎯꯭̽ 𝚱 𝚮 𝐔 𝛅 𝚮 𝚰⥱</a>"
                         ),
                         reply_markup=InlineKeyboardMarkup(out),
                     )
@@ -278,7 +278,7 @@ async def welcome(client, message: Message):
                             f"<a href='tg://user?id={message.from_user.id}'>{message.from_user.first_name}</a>",
                             f"<a href='https://t.me/{app.username}'>{app.name}</a>",
                             UP, DISK, CPU, RAM,
-                            config.OWNER_USERNAME
+                            f"<a href='tg://user?id={config.OWNER_ID}'>ㅤ⎯꯭̽ 𝚱 𝚮 𝐔 𝛅 𝚮 𝚰⥱</a>"
                         ),
                         reply_markup=InlineKeyboardMarkup(out),
                     )
