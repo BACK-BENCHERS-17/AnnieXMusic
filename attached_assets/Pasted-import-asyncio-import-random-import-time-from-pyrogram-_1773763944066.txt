@@ -40,9 +40,6 @@ async def delete_sticker_after_delay(message: Message, delay: int) -> None:
         pass
 
 
-_OWNER_LINK = f"<a href='tg://user?id={config.OWNER_ID}'>ㅤ⎯꯭̽ 𝚱 𝚮 𝐔 𝛅 𝚮 𝚰⥱</a>"
-
-
 @app.on_message(filters.command(["start"]) & filters.private & ~BANNED_USERS)
 @LanguageStart
 async def start_pm(client, message: Message, _):
@@ -145,7 +142,7 @@ async def start_pm(client, message: Message, _):
                 message.from_user.mention,
                 f"<a href='https://t.me/{app.username}'>{app.name}</a>",
                 UP, DISK, CPU, RAM,
-                _OWNER_LINK
+                config.OWNER_USERNAME
             ),
             reply_markup=InlineKeyboardMarkup(out),
             has_spoiler=True,
@@ -157,7 +154,7 @@ async def start_pm(client, message: Message, _):
                 message.from_user.mention,
                 f"<a href='https://t.me/{app.username}'>{app.name}</a>",
                 UP, DISK, CPU, RAM,
-                _OWNER_LINK
+                config.OWNER_USERNAME
             ),
             reply_markup=InlineKeyboardMarkup(out),
         )
@@ -168,7 +165,7 @@ async def start_pm(client, message: Message, _):
                 message.from_user.mention,
                 f"<a href='https://t.me/{app.username}'>{app.name}</a>",
                 UP, DISK, CPU, RAM,
-                _OWNER_LINK
+                config.OWNER_USERNAME
             ),
             reply_markup=InlineKeyboardMarkup(out),
         )
@@ -198,7 +195,7 @@ async def start_gp(client, message: Message, _):
                 message.from_user.mention,
                 f"<a href='https://t.me/{app.username}'>{app.name}</a>",
                 UP, DISK, CPU, RAM,
-                _OWNER_LINK
+                config.OWNER_USERNAME
             ),
             reply_markup=InlineKeyboardMarkup(out),
             has_spoiler=True,
@@ -210,7 +207,7 @@ async def start_gp(client, message: Message, _):
                 message.from_user.mention,
                 f"<a href='https://t.me/{app.username}'>{app.name}</a>",
                 UP, DISK, CPU, RAM,
-                _OWNER_LINK
+                config.OWNER_USERNAME
             ),
             reply_markup=InlineKeyboardMarkup(out),
         )
@@ -257,7 +254,7 @@ async def welcome(client, message: Message):
                             f"<a href='tg://user?id={message.from_user.id}'>{message.from_user.first_name}</a>",
                             f"<a href='https://t.me/{app.username}'>{app.name}</a>",
                             UP, DISK, CPU, RAM,
-                            _OWNER_LINK
+                            config.OWNER_USERNAME
                         ),
                         reply_markup=InlineKeyboardMarkup(out),
                         has_spoiler=True,
@@ -269,7 +266,7 @@ async def welcome(client, message: Message):
                             f"<a href='tg://user?id={message.from_user.id}'>{message.from_user.first_name}</a>",
                             f"<a href='https://t.me/{app.username}'>{app.name}</a>",
                             UP, DISK, CPU, RAM,
-                            _OWNER_LINK
+                            config.OWNER_USERNAME
                         ),
                         reply_markup=InlineKeyboardMarkup(out),
                     )
@@ -280,7 +277,7 @@ async def welcome(client, message: Message):
                             f"<a href='tg://user?id={message.from_user.id}'>{message.from_user.first_name}</a>",
                             f"<a href='https://t.me/{app.username}'>{app.name}</a>",
                             UP, DISK, CPU, RAM,
-                            _OWNER_LINK
+                            config.OWNER_USERNAME
                         ),
                         reply_markup=InlineKeyboardMarkup(out),
                     )
