@@ -56,7 +56,7 @@ async def sudoers_list(client, message: Message):
 
     await message.reply_photo(
         photo="https://files.catbox.moe/11mmhp.jpg",
-        caption="<b>» ᴄʜᴇᴄᴋ sᴜᴅᴏ ʟɪsᴛ ʙʏ ɢɪᴠᴇɴ ʙᴇʟᴏᴡ ʙᴜᴛᴛᴏɴ.</b>\n\n<b>» ɴᴏᴛᴇ:</b>  ᴏɴʟʏ sᴜᴅᴏ ᴜsᴇʀs ᴄᴀɴ ᴠɪᴇᴡ.",
+        caption="<b><tg-emoji emoji-id=\"5409029744693897259\">🎁</tg-emoji> ᴄʜᴇᴄᴋ sᴜᴅᴏ ʟɪsᴛ ʙʏ ɢɪᴠᴇɴ ʙᴇʟᴏᴡ ʙᴜᴛᴛᴏɴ.</b>\n\n<b><tg-emoji emoji-id=\"5972072533833289156\">🔹</tg-emoji> ɴᴏᴛᴇ:</b>  ᴏɴʟʏ sᴜᴅᴏ ᴜsᴇʀs ᴄᴀɴ ᴠɪᴇᴡ.",
         reply_markup=reply_markup
     )
 
@@ -76,7 +76,7 @@ async def view_sudo_list_callback(client, callback_query: CallbackQuery):
     keyboard = [[InlineKeyboardButton("๏ ᴠɪᴇᴡ ᴏᴡɴᴇʀ ๏", url="https://t.me/PGL_B4CHI", style="success")]]
 
     count = 0
-    for user_id in SUDOERS:
+    for user_id in SUDOERS.user_ids:
         if int(user_id) == int(OWNER_ID):
             continue
         try:
@@ -102,7 +102,7 @@ async def back_to_sudo_list_menu(client, callback_query: CallbackQuery):
     keyboard = [[InlineKeyboardButton("๏ ᴠɪᴇᴡ sᴜᴅᴏʟɪsᴛ ๏", callback_data="sudo_list_view", style="primary")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await callback_query.message.edit_caption(
-        caption="<b>» ᴄʜᴇᴄᴋ sᴜᴅᴏ ʟɪsᴛ ʙʏ ɢɪᴠᴇɴ ʙᴇʟᴏᴡ ʙᴜᴛᴛᴏɴ.</b>\n\n<b>» ɴᴏᴛᴇ:</b>  ᴏɴʟʏ sᴜᴅᴏ ᴜsᴇʀs ᴄᴀɴ ᴠɪᴇᴡ.",
+        caption="<b><tg-emoji emoji-id=\"5409029744693897259\">🎁</tg-emoji> ᴄʜᴇᴄᴋ sᴜᴅᴏ ʟɪsᴛ ʙʏ ɢɪᴠᴇɴ ʙᴇʟᴏᴡ ʙᴜᴛᴛᴏɴ.</b>\n\n<b><tg-emoji emoji-id=\"5972072533833289156\">🔹</tg-emoji> ɴᴏᴛᴇ:</b>  ᴏɴʟʏ sᴜᴅᴏ ᴜsᴇʀs ᴄᴀɴ ᴠɪᴇᴡ.",
         reply_markup=reply_markup
     )
 
