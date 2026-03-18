@@ -77,7 +77,7 @@ async def view_sudo_list_callback(client, callback_query: CallbackQuery):
 
     count = 0
     for user_id in SUDOERS:
-        if user_id == OWNER_ID:
+        if int(user_id) == int(OWNER_ID):
             continue
         try:
             user = await app.get_users(user_id)
