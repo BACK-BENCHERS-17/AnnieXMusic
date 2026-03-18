@@ -144,28 +144,48 @@ async def start_pm(client, message: Message, _):
         UP, DISK, CPU, RAM,
         _OWNER_LINK
     )
+    _markup = InlineKeyboardMarkup(out)
+    _vid = random.choice(START_VIDS)
+    sent = False
     try:
         await message.reply_video(
-            random.choice(START_VIDS),
+            _vid,
             caption=_start_caption,
-            reply_markup=InlineKeyboardMarkup(out),
+            reply_markup=_markup,
             has_spoiler=True,
             message_effect_id=5400083151722659509,
         )
+        sent = True
     except ChatSendVideosForbidden:
-        await message.reply_photo(
-            photo=PING_IMG_URL,
-            caption=_start_caption,
-            reply_markup=InlineKeyboardMarkup(out),
-            message_effect_id=5400083151722659509,
-        )
+        try:
+            await message.reply_photo(
+                photo=PING_IMG_URL,
+                caption=_start_caption,
+                reply_markup=_markup,
+                message_effect_id=5400083151722659509,
+            )
+            sent = True
+        except Exception:
+            pass
     except Exception:
-        await message.reply_video(
-            random.choice(START_VIDS),
-            caption=_start_caption,
-            reply_markup=InlineKeyboardMarkup(out),
-            message_effect_id=5400083151722659509,
-        )
+        pass
+
+    if not sent:
+        try:
+            await message.reply_video(
+                _vid,
+                caption=_start_caption,
+                reply_markup=_markup,
+                has_spoiler=True,
+            )
+        except ChatSendVideosForbidden:
+            await message.reply_photo(
+                photo=PING_IMG_URL,
+                caption=_start_caption,
+                reply_markup=_markup,
+            )
+        except Exception:
+            pass
 
     if await is_on_off(2):
         username = f"@{message.from_user.username}" if message.from_user.username else "(none)"
