@@ -50,8 +50,8 @@ async def remove_sudo_user(client, message: Message, _):
 # ─── Sudo List Entry ───────────────────────────────────────
 
 _SUDOLIST_CAPTION = (
-    "<b><tg-emoji emoji-id=\"5409029744693897259\">🎁</tg-emoji> ᴄʜᴇᴄᴋ sᴜᴅᴏ ʟɪsᴛ ʙʏ ɢɪᴠᴇɴ ʙᴇʟᴏᴡ ʙᴜᴛᴛᴏɴ.</b>\n\n"
-    "<b><tg-emoji emoji-id=\"5972072533833289156\">🔹</tg-emoji> ɴᴏᴛᴇ:</b>  ᴏɴʟʏ sᴜᴅᴏ ᴜsᴇʀs ᴄᴀɴ ᴠɪᴇᴡ."
+    '<b><emoji id="5409029744693897259">🎁</emoji> ᴄʜᴇᴄᴋ sᴜᴅᴏ ʟɪsᴛ ʙʏ ɢɪᴠᴇɴ ʙᴇʟᴏᴡ ʙᴜᴛᴛᴏɴ.</b>\n\n'
+    '<b><emoji id="5972072533833289156">🔹</emoji> ɴᴏᴛᴇ:</b>  ᴏɴʟʏ sᴜᴅᴏ ᴜsᴇʀs ᴄᴀɴ ᴠɪᴇᴡ.'
 )
 
 @app.on_message(filters.command(["sudolist", "listsudo", "sudoers"], prefixes=["/", "!", "."]) & ~BANNED_USERS)
@@ -80,8 +80,8 @@ async def view_sudo_list_callback(client, callback_query: CallbackQuery):
         owner_mention = f'<a href="https://t.me/PGL_B4CHI">⎯꯭̽ 𝚱 𝚮 𝐔 𝛅 𝚮 𝚰⥱</a>'
 
     caption = (
-        f"<b>˹ʟɪsᴛ ᴏғ ʙᴏᴛ ᴍᴏᴅᴇʀᴀᴛᴏʀs˼</b>\n\n"
-        f"<b><tg-emoji emoji-id=\"6122692084806716730\">🌹</tg-emoji> Oᴡɴᴇʀ</b> ➥ {owner_mention}\n\n"
+        f'<b>˹ʟɪsᴛ ᴏғ ʙᴏᴛ ᴍᴏᴅᴇʀᴀᴛᴏʀs˼</b>\n\n'
+        f'<b><emoji id="6122692084806716730">🌹</emoji> Oᴡɴᴇʀ</b> ➥ {owner_mention}\n\n'
     )
     keyboard = [[InlineKeyboardButton("๏ ᴠɪᴇᴡ ᴏᴡɴᴇʀ ๏", url="https://t.me/PGL_B4CHI", style="success")]]
 
@@ -92,7 +92,7 @@ async def view_sudo_list_callback(client, callback_query: CallbackQuery):
         try:
             user = await app.get_users(user_id)
             count += 1
-            caption += f"<b><tg-emoji emoji-id=\"5409029744693897259\">🎁</tg-emoji> Sᴜᴅᴏ {count} »</b> {user.mention}\n"
+            caption += f'<b><emoji id="5409029744693897259">🎁</emoji> Sᴜᴅᴏ {count} »</b> {user.mention}\n'
             keyboard.append([
                 InlineKeyboardButton(f"๏ ᴠɪᴇᴡ sᴜᴅᴏ {count} ๏", url=f"tg://openmessage?user_id={user_id}", style="primary")
             ])
