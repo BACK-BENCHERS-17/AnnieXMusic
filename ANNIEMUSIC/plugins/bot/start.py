@@ -27,8 +27,7 @@ from ANNIEMUSIC.utils.inline.start import private_panel, start_panel
 from ANNIEMUSIC.utils.inline.help import first_page
 from ANNIEMUSIC.utils.reactions import react_to_command
 from ANNIEMUSIC.utils.font_styles import Fonts
-from pyrogram.errors import ChatSendVideosForbidden
-from config import BANNED_USERS, AYUV, HELP_IMG_URL, START_VIDS, STICKERS, PING_IMG_URL
+from config import BANNED_USERS, AYUV, HELP_IMG_URL, START_IMGS, STICKERS, PING_IMG_URL
 from strings import get_string
 
 
@@ -145,42 +144,23 @@ async def start_pm(client, message: Message, _):
         _OWNER_LINK
     )
     _markup = InlineKeyboardMarkup(out)
-    _vid = random.choice(START_VIDS)
+    _img = random.choice(START_IMGS)
     sent = False
     try:
-        await message.reply_video(
-            _vid,
+        await message.reply_photo(
+            photo=_img,
             caption=_start_caption,
             reply_markup=_markup,
-            has_spoiler=True,
             message_effect_id=5400083151722659509,
         )
         sent = True
-    except ChatSendVideosForbidden:
-        try:
-            await message.reply_photo(
-                photo=PING_IMG_URL,
-                caption=_start_caption,
-                reply_markup=_markup,
-                message_effect_id=5400083151722659509,
-            )
-            sent = True
-        except Exception:
-            pass
     except Exception:
         pass
 
     if not sent:
         try:
-            await message.reply_video(
-                _vid,
-                caption=_start_caption,
-                reply_markup=_markup,
-                has_spoiler=True,
-            )
-        except ChatSendVideosForbidden:
             await message.reply_photo(
-                photo=PING_IMG_URL,
+                photo=_img,
                 caption=_start_caption,
                 reply_markup=_markup,
             )
@@ -206,20 +186,8 @@ async def start_gp(client, message: Message, _):
     out = start_panel(_)
     UP, CPU, RAM, DISK = await bot_sys_stats()
     try:
-        await message.reply_video(
-            random.choice(START_VIDS),
-            caption=_["start_1"].format(
-                message.from_user.mention,
-                f"<a href='https://t.me/{app.username}'>{app.name}</a>",
-                UP, DISK, CPU, RAM,
-                _OWNER_LINK
-            ),
-            reply_markup=InlineKeyboardMarkup(out),
-            has_spoiler=True,
-        )
-    except ChatSendVideosForbidden:
         await message.reply_photo(
-            photo=PING_IMG_URL,
+            photo=random.choice(START_IMGS),
             caption=_["start_1"].format(
                 message.from_user.mention,
                 f"<a href='https://t.me/{app.username}'>{app.name}</a>",
@@ -265,20 +233,8 @@ async def welcome(client, message: Message):
                 out = start_panel(_)
                 UP, CPU, RAM, DISK = await bot_sys_stats()
                 try:
-                    await message.reply_video(
-                        random.choice(START_VIDS),
-                        caption=_["start_1"].format(
-                            f"<a href='tg://user?id={message.from_user.id}'>{message.from_user.first_name}</a>",
-                            f"<a href='https://t.me/{app.username}'>{app.name}</a>",
-                            UP, DISK, CPU, RAM,
-                            _OWNER_LINK
-                        ),
-                        reply_markup=InlineKeyboardMarkup(out),
-                        has_spoiler=True,
-                    )
-                except ChatSendVideosForbidden:
                     await message.reply_photo(
-                        photo=PING_IMG_URL,
+                        photo=random.choice(START_IMGS),
                         caption=_["start_1"].format(
                             f"<a href='tg://user?id={message.from_user.id}'>{message.from_user.first_name}</a>",
                             f"<a href='https://t.me/{app.username}'>{app.name}</a>",
@@ -288,16 +244,7 @@ async def welcome(client, message: Message):
                         reply_markup=InlineKeyboardMarkup(out),
                     )
                 except Exception:
-                    await message.reply_video(
-                        random.choice(START_VIDS),
-                        caption=_["start_1"].format(
-                            f"<a href='tg://user?id={message.from_user.id}'>{message.from_user.first_name}</a>",
-                            f"<a href='https://t.me/{app.username}'>{app.name}</a>",
-                            UP, DISK, CPU, RAM,
-                            _OWNER_LINK
-                        ),
-                        reply_markup=InlineKeyboardMarkup(out),
-                    )
+                    pass
                 await add_served_chat(message.chat.id)
                 await message.stop_propagation()
 
