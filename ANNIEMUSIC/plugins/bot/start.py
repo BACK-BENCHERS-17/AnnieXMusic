@@ -1,9 +1,11 @@
 import asyncio
 import random
 import time
-from pyrogram import filters
+from pyrogram import filters, enums
 from pyrogram.enums import ChatType
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
+from pyrogram.raw import functions as raw_func, types as raw_types
+from pyrogram.parser import Parser
 from youtubesearchpython.__future__ import VideosSearch
 
 import config
@@ -29,6 +31,49 @@ from ANNIEMUSIC.utils.reactions import react_to_command
 from ANNIEMUSIC.utils.font_styles import Fonts
 from config import BANNED_USERS, AYUV, HELP_IMG_URL, START_IMGS, STICKERS, PING_IMG_URL
 from strings import get_string
+
+# ── Effect ID (confirmed valid Telegram Premium effect) ────────────────────────
+MESSAGE_EFFECT_ID = 5400083151722659509
+
+
+async def send_photo_with_effect(client, message: Message, photo_url: str,
+                                  caption: str, markup: InlineKeyboardMarkup,
+                                  effect_id: int = MESSAGE_EFFECT_ID) -> bool:
+    """Send a photo with message_effect_id using Pyrogram's raw API."""
+    try:
+        peer = await client.resolve_peer(message.chat.id)
+
+        # Parse HTML caption → plain text + raw entities
+        parser = Parser(client)
+        parsed = await parser.parse(caption, mode=enums.ParseMode.HTML)
+        text     = parsed.get("message", "")
+        entities = parsed.get("entities") or []
+
+        # Convert high-level InlineKeyboardMarkup → raw ReplyMarkup
+        raw_markup = await markup.write(client) if markup else None
+
+        # Photo media with spoiler
+        media = raw_types.InputMediaPhotoExternal(url=photo_url, spoiler=True)
+
+        # Reply-to the triggering message
+        reply_to = raw_types.InputReplyToMessage(reply_to_msg_id=message.id)
+
+        await client.invoke(
+            raw_func.messages.SendMedia(
+                peer=peer,
+                media=media,
+                message=text,
+                random_id=random.randint(-(2**63), 2**63 - 1),
+                reply_to=reply_to,
+                reply_markup=raw_markup,
+                entities=entities,
+                effect=effect_id,
+            )
+        )
+        return True
+    except Exception as e:
+        print(f"[EFFECT SEND] Raw API failed: {e}")
+        return False
 
 
 async def delete_sticker_after_delay(message: Message, delay: int) -> None:
@@ -145,27 +190,13 @@ async def start_pm(client, message: Message, _):
     )
     _markup = InlineKeyboardMarkup(out)
     _img = random.choice(START_IMGS)
-    EFFECT_IDS = [
-        5046589136895476101,
-        5109662551006736236,
-        5046509860389126442,
-        5104841245755180586,
-    ]
-    sent = False
-    for effect_id in EFFECT_IDS:
-        try:
-            await message.reply_photo(
-                photo=_img,
-                caption=_start_caption,
-                reply_markup=_markup,
-                has_spoiler=True,
-                message_effect_id=effect_id,
-            )
-            sent = True
-            break
-        except Exception:
-            continue
 
+    # Try raw API with message effect (spoiler + effect both supported)
+    sent = await send_photo_with_effect(
+        client, message, _img, _start_caption, _markup
+    )
+
+    # Fallback: normal reply without effect if raw API fails
     if not sent:
         try:
             await message.reply_photo(
