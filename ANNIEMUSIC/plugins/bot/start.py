@@ -32,8 +32,8 @@ from ANNIEMUSIC.utils.font_styles import Fonts
 from config import BANNED_USERS, AYUV, HELP_IMG_URL, START_IMGS, STICKERS, PING_IMG_URL
 from strings import get_string
 
-# ── Effect ID (confirmed valid Telegram Premium effect) ────────────────────────
-MESSAGE_EFFECT_ID = 5400083151722659509
+# ── Effect ID ─────────────────────────────────────────────────────────────────
+MESSAGE_EFFECT_ID = 5159385139981059251
 
 
 async def send_photo_with_effect(client, message: Message, photo_url: str,
