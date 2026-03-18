@@ -35,17 +35,25 @@ def download_website(url):
 async def web_download(client: Client, message: Message):
     if len(message.command) < 2:
         return await message.reply_text(
-            "❌ Please enter a valid URL.\n\nExample: `/webdl https://example.com`",
-            parse_mode=enums.ParseMode.MARKDOWN
+            "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Web Downloader</b></blockquote>\n"
+            "<blockquote><emoji id=\"5039598514980520994\">❤️‍🔥</emoji> Please enter a valid URL.\n"
+            "<b>Example:</b> <code>/webdl https://example.com</code></blockquote>",
+            parse_mode=enums.ParseMode.HTML
         )
 
     url = message.command[1]
-    status_msg = await message.reply_text("⏳ Downloading website source...")
+    status_msg = await message.reply_text(
+        "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> Downloading website source...</blockquote>",
+        parse_mode=enums.ParseMode.HTML
+    )
 
     source_code = download_website(url)
 
     if source_code.startswith("❌"):
-        return await status_msg.edit_text(source_code, parse_mode=enums.ParseMode.MARKDOWN)
+        return await status_msg.edit_text(
+            f"<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> {source_code}</blockquote>",
+            parse_mode=enums.ParseMode.HTML
+        )
 
     file_path = "website_source.txt"
     try:
@@ -54,13 +62,13 @@ async def web_download(client: Client, message: Message):
 
         await message.reply_document(
             document=file_path,
-            caption=f"📄 Source code of: `{url}`",
-            parse_mode=enums.ParseMode.MARKDOWN
+            caption=f"<blockquote><emoji id=\"5041975203853239332\">🎁</emoji> <b>Source code of:</b> <code>{url}</code></blockquote>",
+            parse_mode=enums.ParseMode.HTML
         )
     except Exception as e:
         await message.reply_text(
-            f"❌ Failed to send the file: `{e}`",
-            parse_mode=enums.ParseMode.MARKDOWN
+            f"<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Failed to send the file:</b> <code>{e}</code></blockquote>",
+            parse_mode=enums.ParseMode.HTML
         )
     finally:
         if os.path.exists(file_path):

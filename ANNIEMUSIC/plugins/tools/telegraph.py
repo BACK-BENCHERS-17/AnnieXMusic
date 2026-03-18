@@ -2,6 +2,7 @@ import os
 import aiohttp
 
 from pyrogram import filters
+from pyrogram.enums import ParseMode
 from pyrogram.types import InlineKeyboardMarkup, Message
 from ANNIEMUSIC.utils.inline import InlineKeyboardButton
 
@@ -33,33 +34,54 @@ async def telegraph_handler(_, message: Message):
         or message.reply_to_message.video
         or message.reply_to_message.document
     ):
-        return await message.reply_text("📎 <b>Please reply to an image/video/document to upload.</b>")
+        return await message.reply_text(
+            "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Media Uploader</b></blockquote>\n"
+            "<blockquote><emoji id=\"5039598514980520994\">❤️‍🔥</emoji> Please reply to an image/video/document to upload.</blockquote>",
+            parse_mode=ParseMode.HTML
+        )
 
     media = message.reply_to_message
     file = media.photo or media.video or media.document
 
     if file.file_size > 200 * 1024 * 1024:
-        return await message.reply_text("⚠️ <b>File too large. Max size is 200MB.</b>")
+        return await message.reply_text(
+            "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>File too large.</b> Max size is 200MB.</blockquote>",
+            parse_mode=ParseMode.HTML
+        )
 
-    status = await message.reply("🔄 <b>Downloading your media...</b>")
+    status = await message.reply(
+        "<blockquote><emoji id=\"5039598514980520994\">❤️‍🔥</emoji> <b>Downloading your media...</b></blockquote>",
+        parse_mode=ParseMode.HTML
+    )
 
     try:
         local_path = await media.download()
-        await status.edit("⬆️ <b>Uploading to Telegraph...</b>")
+        await status.edit(
+            "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Uploading to Catbox...</b></blockquote>",
+            parse_mode=ParseMode.HTML
+        )
         success, result = await upload_file(local_path)
 
         if success:
             await status.edit(
-                f"✅ <b>Uploaded successfully!</b>\n🔗 [Click to View]({result})",
+                "<blockquote><emoji id=\"5041975203853239332\">🎁</emoji> <b>Uploaded successfully!</b></blockquote>\n"
+                f"<blockquote><emoji id=\"5039598514980520994\">❤️‍🔥</emoji> <b>Link:</b> <code>{result}</code></blockquote>",
                 reply_markup=InlineKeyboardMarkup(
-                    [[InlineKeyboardButton("📎 Open Telegraph", url=result)]]
+                    [[InlineKeyboardButton("📎 Open File", url=result)]]
                 ),
+                parse_mode=ParseMode.HTML
             )
         else:
-            await status.edit(f"❌ <b>Upload failed:</b>\n`{result}`")
+            await status.edit(
+                f"<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Upload failed:</b> <code>{result}</code></blockquote>",
+                parse_mode=ParseMode.HTML
+            )
 
     except Exception as e:
-        await status.edit(f"❌ <b>Failed to process media:</b>\n`{e}`")
+        await status.edit(
+            f"<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Failed to process media:</b> <code>{e}</code></blockquote>",
+            parse_mode=ParseMode.HTML
+        )
 
     finally:
         if os.path.exists(local_path):

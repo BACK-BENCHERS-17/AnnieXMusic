@@ -37,14 +37,25 @@ async def post_data(url: str, data: dict, headers: dict):
 
 @app.on_message(filters.command("upscale"))
 async def upscale_image(_, message: Message):
+    from pyrogram.enums import ParseMode
     if not DEEP_API:
-        return await message.reply_text("🚫 Missing DeepAI API key.")
+        return await message.reply_text(
+            "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Missing DeepAI API key.</b></blockquote>",
+            parse_mode=ParseMode.HTML
+        )
 
     reply = message.reply_to_message
     if not reply or not reply.photo:
-        return await message.reply_text("📎 Please reply to an image.")
+        return await message.reply_text(
+            "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Image Upscaler</b></blockquote>\n"
+            "<blockquote><emoji id=\"5039598514980520994\">❤️‍🔥</emoji> Please reply to an image.</blockquote>",
+            parse_mode=ParseMode.HTML
+        )
 
-    status = await message.reply_text("🔄 Upscaling image...")
+    status = await message.reply_text(
+        "<blockquote><emoji id=\"5039598514980520994\">❤️‍🔥</emoji> <b>Upscaling image...</b></blockquote>",
+        parse_mode=ParseMode.HTML
+    )
 
     try:
         local_path = await reply.download()
@@ -56,23 +67,36 @@ async def upscale_image(_, message: Message):
 
         image_url = resp.get("output_url")
         if not image_url:
-            return await status.edit("❌ Upscale request failed.")
+            return await status.edit(
+                "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Upscale request failed.</b></blockquote>",
+                parse_mode=ParseMode.HTML
+            )
 
         final_path = await download_from_url(local_path, image_url)
         if not final_path:
-            return await status.edit("❌ Could not download result.")
+            return await status.edit(
+                "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Could not download result.</b></blockquote>",
+                parse_mode=ParseMode.HTML
+            )
 
         await status.delete()
         await message.reply_document(final_path)
 
     except Exception as e:
-        await status.edit(f"⚠️ Error: `{str(e)}`")
+        await status.edit(
+            f"<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Error:</b> <code>{str(e)}</code></blockquote>",
+            parse_mode=ParseMode.HTML
+        )
 
 
 @app.on_message(filters.command("getdraw"))
 async def draw_image(_, message: Message):
+    from pyrogram.enums import ParseMode
     if not DEEP_API:
-        return await message.reply_text("🚫 DeepAI API key is missing.")
+        return await message.reply_text(
+            "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>DeepAI API key is missing.</b></blockquote>",
+            parse_mode=ParseMode.HTML
+        )
 
     reply = message.reply_to_message
     query = None
@@ -83,9 +107,15 @@ async def draw_image(_, message: Message):
         query = message.text.split(None, 1)[1]
 
     if not query:
-        return await message.reply_text("💬 Please reply or provide text.")
+        return await message.reply_text(
+            "<blockquote><emoji id=\"5039598514980520994\">❤️‍🔥</emoji> Please reply to a message or provide text.</blockquote>",
+            parse_mode=ParseMode.HTML
+        )
 
-    status = await message.reply_text("🎨 Generating image...")
+    status = await message.reply_text(
+        "<blockquote><emoji id=\"5041975203853239332\">🎁</emoji> <b>Generating image...</b></blockquote>",
+        parse_mode=ParseMode.HTML
+    )
 
     user_id = message.from_user.id
     chat_id = message.chat.id
@@ -100,14 +130,27 @@ async def draw_image(_, message: Message):
 
         image_url = resp.get("output_url")
         if not image_url:
-            return await status.edit("❌ Failed to generate image.")
+            return await status.edit(
+                "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Failed to generate image.</b></blockquote>",
+                parse_mode=ParseMode.HTML
+            )
 
         final_path = await download_from_url(temp_path, image_url)
         if not final_path:
-            return await status.edit("❌ Error downloading image.")
+            return await status.edit(
+                "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Error downloading image.</b></blockquote>",
+                parse_mode=ParseMode.HTML
+            )
 
         await status.delete()
-        await message.reply_photo(final_path, caption=f"`{query}`")
+        await message.reply_photo(
+            final_path,
+            caption=f"<blockquote><emoji id=\"5041975203853239332\">🎁</emoji> <code>{query}</code></blockquote>",
+            parse_mode=ParseMode.HTML
+        )
 
     except Exception as e:
-        await status.edit(f"⚠️ Error: `{str(e)}`")
+        await status.edit(
+            f"<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Error:</b> <code>{str(e)}</code></blockquote>",
+            parse_mode=ParseMode.HTML
+        )
