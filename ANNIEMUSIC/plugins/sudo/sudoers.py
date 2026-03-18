@@ -1,4 +1,4 @@
-from pyrogram import filters
+from pyrogram import filters, enums
 from pyrogram.types import CallbackQuery, InlineKeyboardMarkup, Message
 from ANNIEMUSIC.utils.inline import InlineKeyboardButton
 
@@ -49,6 +49,11 @@ async def remove_sudo_user(client, message: Message, _):
 
 # ─── Sudo List Entry ───────────────────────────────────────
 
+_SUDOLIST_CAPTION = (
+    "<b><tg-emoji emoji-id=\"5409029744693897259\">🎁</tg-emoji> ᴄʜᴇᴄᴋ sᴜᴅᴏ ʟɪsᴛ ʙʏ ɢɪᴠᴇɴ ʙᴇʟᴏᴡ ʙᴜᴛᴛᴏɴ.</b>\n\n"
+    "<b><tg-emoji emoji-id=\"5972072533833289156\">🔹</tg-emoji> ɴᴏᴛᴇ:</b>  ᴏɴʟʏ sᴜᴅᴏ ᴜsᴇʀs ᴄᴀɴ ᴠɪᴇᴡ."
+)
+
 @app.on_message(filters.command(["sudolist", "listsudo", "sudoers"], prefixes=["/", "!", "."]) & ~BANNED_USERS)
 async def sudoers_list(client, message: Message):
     keyboard = [[InlineKeyboardButton("๏ ᴠɪᴇᴡ sᴜᴅᴏʟɪsᴛ ๏", callback_data="sudo_list_view", style="primary")]]
@@ -56,7 +61,8 @@ async def sudoers_list(client, message: Message):
 
     await message.reply_photo(
         photo="https://files.catbox.moe/11mmhp.jpg",
-        caption="<b><tg-emoji emoji-id=\"5409029744693897259\">🎁</tg-emoji> ᴄʜᴇᴄᴋ sᴜᴅᴏ ʟɪsᴛ ʙʏ ɢɪᴠᴇɴ ʙᴇʟᴏᴡ ʙᴜᴛᴛᴏɴ.</b>\n\n<b><tg-emoji emoji-id=\"5972072533833289156\">🔹</tg-emoji> ɴᴏᴛᴇ:</b>  ᴏɴʟʏ sᴜᴅᴏ ᴜsᴇʀs ᴄᴀɴ ᴠɪᴇᴡ.",
+        caption=_SUDOLIST_CAPTION,
+        parse_mode=enums.ParseMode.HTML,
         reply_markup=reply_markup
     )
 
@@ -72,11 +78,15 @@ async def view_sudo_list_callback(client, callback_query: CallbackQuery):
         owner_mention = owner.mention
     except Exception:
         owner_mention = f'<a href="https://t.me/PGL_B4CHI">⎯꯭̽ 𝚱 𝚮 𝐔 𝛅 𝚮 𝚰⥱</a>'
-    caption = f"<b>˹ʟɪsᴛ ᴏғ ʙᴏᴛ ᴍᴏᴅᴇʀᴀᴛᴏʀs˼</b>\n\n<b><tg-emoji emoji-id=\"6122692084806716730\">🌹</tg-emoji>Oᴡɴᴇʀ</b> ➥ {owner_mention}\n\n"
+
+    caption = (
+        f"<b>˹ʟɪsᴛ ᴏғ ʙᴏᴛ ᴍᴏᴅᴇʀᴀᴛᴏʀs˼</b>\n\n"
+        f"<b><tg-emoji emoji-id=\"6122692084806716730\">🌹</tg-emoji> Oᴡɴᴇʀ</b> ➥ {owner_mention}\n\n"
+    )
     keyboard = [[InlineKeyboardButton("๏ ᴠɪᴇᴡ ᴏᴡɴᴇʀ ๏", url="https://t.me/PGL_B4CHI", style="success")]]
 
     count = 0
-    for user_id in SUDOERS.user_ids:
+    for user_id in SUDOERS:
         if int(user_id) == int(OWNER_ID):
             continue
         try:
@@ -90,10 +100,14 @@ async def view_sudo_list_callback(client, callback_query: CallbackQuery):
             continue
 
     if count == 0:
-        caption += "_No additional sudoers yet._"
+        caption += "<i>ɴᴏ ᴀᴅᴅɪᴛɪᴏɴᴀʟ sᴜᴅᴏᴇʀs ʏᴇᴛ.</i>"
 
     keyboard.append([InlineKeyboardButton("๏ ʙᴀᴄᴋ ๏", callback_data="sudo_list_back", style="danger")])
-    await callback_query.message.edit_caption(caption=caption, reply_markup=InlineKeyboardMarkup(keyboard))
+    await callback_query.message.edit_caption(
+        caption=caption,
+        parse_mode=enums.ParseMode.HTML,
+        reply_markup=InlineKeyboardMarkup(keyboard)
+    )
 
 # ─── Callback: Back to List Menu ────────────────────────────
 
@@ -102,7 +116,8 @@ async def back_to_sudo_list_menu(client, callback_query: CallbackQuery):
     keyboard = [[InlineKeyboardButton("๏ ᴠɪᴇᴡ sᴜᴅᴏʟɪsᴛ ๏", callback_data="sudo_list_view", style="primary")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await callback_query.message.edit_caption(
-        caption="<b><tg-emoji emoji-id=\"5409029744693897259\">🎁</tg-emoji> ᴄʜᴇᴄᴋ sᴜᴅᴏ ʟɪsᴛ ʙʏ ɢɪᴠᴇɴ ʙᴇʟᴏᴡ ʙᴜᴛᴛᴏɴ.</b>\n\n<b><tg-emoji emoji-id=\"5972072533833289156\">🔹</tg-emoji> ɴᴏᴛᴇ:</b>  ᴏɴʟʏ sᴜᴅᴏ ᴜsᴇʀs ᴄᴀɴ ᴠɪᴇᴡ.",
+        caption=_SUDOLIST_CAPTION,
+        parse_mode=enums.ParseMode.HTML,
         reply_markup=reply_markup
     )
 
@@ -113,7 +128,7 @@ async def back_to_sudo_list_menu(client, callback_query: CallbackQuery):
 async def remove_all_sudo_users(client, message: Message, _):
     removed_count = 0
     for user_id in list(SUDOERS):
-        if user_id != OWNER_ID:
+        if int(user_id) != int(OWNER_ID):
             if await remove_sudo(user_id):
                 if user_id in SUDOERS:
                     SUDOERS.remove(user_id)
