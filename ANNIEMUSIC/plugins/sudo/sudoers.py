@@ -67,9 +67,13 @@ async def view_sudo_list_callback(client, callback_query: CallbackQuery):
     if callback_query.from_user.id not in SUDOERS:
         return await callback_query.answer("ᴏɴʟʏ sᴜᴅᴏᴇʀs ᴀɴᴅ ᴏᴡɴᴇʀ ᴄᴀɴ ᴀᴄᴄᴇss ᴛʜɪs", show_alert=True)
 
-    owner = await app.get_users(OWNER_ID)
-    caption = f"<b>˹ʟɪsᴛ ᴏғ ʙᴏᴛ ᴍᴏᴅᴇʀᴀᴛᴏʀs˼</b>\n\n<b><tg-emoji emoji-id=\"6122692084806716730\">🌹</tg-emoji>Oᴡɴᴇʀ</b> ➥ {owner.mention}\n\n"
-    keyboard = [[InlineKeyboardButton("๏ ᴠɪᴇᴡ ᴏᴡɴᴇʀ ๏", url=f"tg://openmessage?user_id={OWNER_ID}", style="success")]]
+    try:
+        owner = await app.get_users(OWNER_ID)
+        owner_mention = owner.mention
+    except Exception:
+        owner_mention = f'<a href="https://t.me/PGL_B4CHI">⎯꯭̽ 𝚱 𝚮 𝐔 𝛅 𝚮 𝚰⥱</a>'
+    caption = f"<b>˹ʟɪsᴛ ᴏғ ʙᴏᴛ ᴍᴏᴅᴇʀᴀᴛᴏʀs˼</b>\n\n<b><tg-emoji emoji-id=\"6122692084806716730\">🌹</tg-emoji>Oᴡɴᴇʀ</b> ➥ {owner_mention}\n\n"
+    keyboard = [[InlineKeyboardButton("๏ ᴠɪᴇᴡ ᴏᴡɴᴇʀ ๏", url="https://t.me/PGL_B4CHI", style="success")]]
 
     count = 0
     for user_id in SUDOERS:
