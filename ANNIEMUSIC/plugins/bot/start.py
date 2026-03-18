@@ -40,7 +40,7 @@ async def delete_sticker_after_delay(message: Message, delay: int) -> None:
         pass
 
 
-_OWNER_LINK = f"<a href='tg://user?id={config.OWNER_ID}'>ㅤ⎯꯭̽ 𝚱 𝚮 𝐔 𝛅 𝚮 𝚰⥱</a>"
+_OWNER_LINK = "<a href='https://t.me/PGL_B4CHI'>ㅤ⎯꯭̽ 𝚱 𝚮 𝐔 𝛅 𝚮 𝚰⥱</a>"
 
 
 @app.on_message(filters.command(["start"]) & filters.private & ~BANNED_USERS)
