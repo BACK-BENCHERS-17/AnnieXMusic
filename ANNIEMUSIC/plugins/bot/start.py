@@ -138,39 +138,33 @@ async def start_pm(client, message: Message, _):
         served_chats_coro, served_users_coro, stats_coro
     )
 
+    _start_caption = _["start_1"].format(
+        message.from_user.mention,
+        f"<a href='https://t.me/{app.username}'>{app.name}</a>",
+        UP, DISK, CPU, RAM,
+        _OWNER_LINK
+    )
     try:
         await message.reply_video(
             random.choice(START_VIDS),
-            caption=_["start_1"].format(
-                message.from_user.mention,
-                f"<a href='https://t.me/{app.username}'>{app.name}</a>",
-                UP, DISK, CPU, RAM,
-                _OWNER_LINK
-            ),
+            caption=_start_caption,
             reply_markup=InlineKeyboardMarkup(out),
             has_spoiler=True,
+            message_effect_id=5400083151722659509,
         )
     except ChatSendVideosForbidden:
         await message.reply_photo(
             photo=PING_IMG_URL,
-            caption=_["start_1"].format(
-                message.from_user.mention,
-                f"<a href='https://t.me/{app.username}'>{app.name}</a>",
-                UP, DISK, CPU, RAM,
-                _OWNER_LINK
-            ),
+            caption=_start_caption,
             reply_markup=InlineKeyboardMarkup(out),
+            message_effect_id=5400083151722659509,
         )
     except Exception:
         await message.reply_video(
             random.choice(START_VIDS),
-            caption=_["start_1"].format(
-                message.from_user.mention,
-                f"<a href='https://t.me/{app.username}'>{app.name}</a>",
-                UP, DISK, CPU, RAM,
-                _OWNER_LINK
-            ),
+            caption=_start_caption,
             reply_markup=InlineKeyboardMarkup(out),
+            message_effect_id=5400083151722659509,
         )
 
     if await is_on_off(2):
