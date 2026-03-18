@@ -151,6 +151,7 @@ async def start_pm(client, message: Message, _):
             photo=_img,
             caption=_start_caption,
             reply_markup=_markup,
+            has_spoiler=True,
             message_effect_id=5400083151722659509,
         )
         sent = True
@@ -163,6 +164,7 @@ async def start_pm(client, message: Message, _):
                 photo=_img,
                 caption=_start_caption,
                 reply_markup=_markup,
+                has_spoiler=True,
             )
         except Exception:
             pass
@@ -195,6 +197,7 @@ async def start_gp(client, message: Message, _):
                 _OWNER_LINK
             ),
             reply_markup=InlineKeyboardMarkup(out),
+            has_spoiler=True,
         )
     except:
         pass
@@ -242,6 +245,7 @@ async def welcome(client, message: Message):
                             _OWNER_LINK
                         ),
                         reply_markup=InlineKeyboardMarkup(out),
+                        has_spoiler=True,
                     )
                 except Exception:
                     pass
