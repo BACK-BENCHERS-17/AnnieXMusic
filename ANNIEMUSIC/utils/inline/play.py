@@ -55,32 +55,27 @@ def control_buttons(_, chat_id):
         InlineKeyboardButton(
             text="▷", 
             callback_data=f"ADMIN Resume|{chat_id}", 
-            style="success",
-            icon_custom_emoji_id=5463107823946717464
+            style="success"
         ),
         InlineKeyboardButton(
             text="II", 
             callback_data=f"ADMIN Pause|{chat_id}", 
-            style="primary",
-            icon_custom_emoji_id=4979027931234830344
+            style="primary"
         ),
         InlineKeyboardButton(
             text="↻", 
             callback_data=f"ADMIN Replay|{chat_id}", 
-            style="primary",
-            icon_custom_emoji_id=5042334757040423886
+            style="primary"
         ),
         InlineKeyboardButton(
             text="‣‣I", 
             callback_data=f"ADMIN Skip|{chat_id}", 
-            style="primary",
-            icon_custom_emoji_id=5972025211883622153
+            style="primary"
         ),
         InlineKeyboardButton(
             text="▢", 
             callback_data=f"ADMIN Stop|{chat_id}", 
-            style="danger",
-            icon_custom_emoji_id=6221761518443172829
+            style="danger"
         ),
     ]]
 
