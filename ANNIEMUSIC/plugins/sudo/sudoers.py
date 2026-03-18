@@ -68,7 +68,7 @@ async def view_sudo_list_callback(client, callback_query: CallbackQuery):
         return await callback_query.answer("ᴏɴʟʏ sᴜᴅᴏᴇʀs ᴀɴᴅ ᴏᴡɴᴇʀ ᴄᴀɴ ᴀᴄᴄᴇss ᴛʜɪs", show_alert=True)
 
     owner = await app.get_users(OWNER_ID)
-    caption = f"<b>˹ʟɪsᴛ ᴏғ ʙᴏᴛ ᴍᴏᴅᴇʀᴀᴛᴏʀs˼</b>\n\n<b>🌹Oᴡɴᴇʀ</b> ➥ {owner.mention}\n\n"
+    caption = f"<b>˹ʟɪsᴛ ᴏғ ʙᴏᴛ ᴍᴏᴅᴇʀᴀᴛᴏʀs˼</b>\n\n<b><tg-emoji emoji-id=\"6122692084806716730\">🌹</tg-emoji>Oᴡɴᴇʀ</b> ➥ {owner.mention}\n\n"
     keyboard = [[InlineKeyboardButton("๏ ᴠɪᴇᴡ ᴏᴡɴᴇʀ ๏", url=f"tg://openmessage?user_id={OWNER_ID}", style="success")]]
 
     count = 0
@@ -78,7 +78,7 @@ async def view_sudo_list_callback(client, callback_query: CallbackQuery):
         try:
             user = await app.get_users(user_id)
             count += 1
-            caption += f"<b>🎁 Sᴜᴅᴏ {count} »</b> {user.mention}\n"
+            caption += f"<b><tg-emoji emoji-id=\"5409029744693897259\">🎁</tg-emoji> Sᴜᴅᴏ {count} »</b> {user.mention}\n"
             keyboard.append([
                 InlineKeyboardButton(f"๏ ᴠɪᴇᴡ sᴜᴅᴏ {count} ๏", url=f"tg://openmessage?user_id={user_id}", style="primary")
             ])
