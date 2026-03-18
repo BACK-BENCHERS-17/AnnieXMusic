@@ -21,6 +21,8 @@ from ANNIEMUSIC.utils.database import (
 from ANNIEMUSIC.utils.decorators.language import language
 from ANNIEMUSIC.utils.pastebin import ANNIEBIN
 
+OWNER_FILTER = filters.user(config.OWNER_ID)
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 async def is_heroku():
@@ -142,9 +144,45 @@ async def update_(client, message, _):
         os.execv(sys.executable, [sys.executable, "-m", "ANNIEMUSIC"])
 
 
-@app.on_message(filters.command(["restart"]) & SUDOERS)
+@app.on_message(filters.command(["restart"]) & ~OWNER_FILTER & filters.private)
+async def restart_deny_private(_, message):
+    await message.reply_text(
+        "╔══════════════════════╗\n"
+        "║  🚫 ᴀᴄᴄᴇss ᴅᴇɴɪᴇᴅ 🚫  ║\n"
+        "╚══════════════════════╝\n\n"
+        f"⚡️ ʜᴇʏ {message.from_user.mention}!\n\n"
+        "🔐 <b>ᴛʜɪs ᴄᴏᴍᴍᴀɴᴅ ɪs sᴛʀɪᴄᴛʟʏ ʀᴇsᴇʀᴠᴇᴅ</b>\n"
+        "   ᴏɴʟʏ ғᴏʀ ᴛʜᴇ ʙᴏᴛ ᴏᴡɴᴇʀ.\n\n"
+        "👑 <b>ᴏᴡɴᴇʀ :</b> <a href='https://t.me/PGL_B4CHI'>ᴋʜᴜᴅᴀɪ</a>\n\n"
+        "💀 ᴛᴜ ᴋɪs ᴋʜᴇᴛ ᴋɪ ᴍᴜʟɪ ʜᴀɪ ʙʜᴀɪ? 😂\n"
+        "   ʏᴇ ʙᴜᴛᴛᴏɴ ᴛᴇʀᴇ ʟɪʏᴇ ɴᴀʜɪ ʜᴀɪ 🫵\n\n"
+        "━━━━━━━━━━━━━━━━━━━━━━\n"
+        "🎭 <i>ᴀᴜᴋᴀᴛ ᴍᴇɪɴ ʀᴀʜᴏ, ᴋᴀᴍ ᴅᴏ.</i> 😎",
+    )
+
+
+@app.on_message(filters.command(["restart"]) & ~OWNER_FILTER & filters.group)
+async def restart_deny_group(_, message):
+    await message.reply_text(
+        "╔══════════════════════╗\n"
+        "║  🚫 ᴀᴄᴄᴇss ᴅᴇɴɪᴇᴅ 🚫  ║\n"
+        "╚══════════════════════╝\n\n"
+        f"⚡️ ᴀʀᴇ {message.from_user.mention}!\n\n"
+        "🔐 <b>/restart</b> ᴛᴏ sɪʀғ <b>ᴏᴡɴᴇʀ</b> ᴋᴀ ʜᴀᴋ ʜᴀɪ.\n\n"
+        "💀 ᴛᴜ ᴋᴀᴜɴ ʜᴏᴛᴀ ʜᴀɪ ʙᴏᴛ ʀᴇsᴛᴀʀᴛ ᴋᴀʀɴᴇ ᴡᴀʟᴀ? 😂\n"
+        "   ᴊʜᴀᴛ ʙʜᴀʀ ᴋᴀ ᴀᴀᴅᴍɪ ᴀᴜʀ ɪᴛɴᴀ ʙᴀᴅᴀ sᴏᴄʜ? 🫡\n\n"
+        "👑 <b>ʀᴇᴀʟ ᴏᴡɴᴇʀ :</b> <a href='https://t.me/PGL_B4CHI'>ᴋʜᴜᴅᴀɪ</a>\n\n"
+        "━━━━━━━━━━━━━━━━━━━━━━\n"
+        "🎭 <i>ᴀᴜᴋᴀᴛ ᴍᴇɪɴ ʀᴀʜᴏ ʙʜᴀɪ, ᴡᴀʀɴᴀ ʀᴏɢᴀ. 😎</i>",
+    )
+
+
+@app.on_message(filters.command(["restart"]) & OWNER_FILTER)
 async def restart_(_, message):
-    response = await message.reply_text("ʀᴇsᴛᴀʀᴛɪɴɢ...")
+    response = await message.reply_text(
+        "♻️ ʀᴇsᴛᴀʀᴛɪɴɢ ʙᴏᴛ...\n"
+        "⏳ ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ ᴀ ᴍᴏᴍᴇɴᴛ."
+    )
     ac_chats = await get_active_chats()
     for x in ac_chats:
         try:
@@ -160,7 +198,8 @@ async def restart_(_, message):
     cleanup_storage()
 
     await response.edit_text(
-        "» ʀᴇsᴛᴀʀᴛ ᴘʀᴏᴄᴇss sᴛᴀʀᴛᴇᴅ, ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ ғᴏʀ ғᴇᴡ sᴇᴄᴏɴᴅs ᴜɴᴛɪʟ ᴛʜᴇ ʙᴏᴛ sᴛᴀʀᴛs..."
+        "✅ » ʀᴇsᴛᴀʀᴛ ᴘʀᴏᴄᴇss sᴛᴀʀᴛᴇᴅ!\n"
+        "⚡️ ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ 15-20 sᴇᴄᴏɴᴅs ᴜɴᴛɪʟ ᴛʜᴇ ʙᴏᴛ ɪs ʙᴀᴄᴋ..."
     )
 
     os.execv(sys.executable, [sys.executable, "-m", "ANNIEMUSIC"])

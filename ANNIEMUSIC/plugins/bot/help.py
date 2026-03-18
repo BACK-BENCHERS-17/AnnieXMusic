@@ -33,7 +33,14 @@ async def helper_private(client: Client, update: Union[Message, types.CallbackQu
 
     if is_cb:
         await update.answer()
-        await update.message.edit_caption(caption, reply_markup=keyboard)
+        try:
+            await update.message.edit_caption(caption, reply_markup=keyboard)
+        except Exception:
+            await update.message.reply_photo(
+                photo=HELP_IMG_URL,
+                caption=caption,
+                reply_markup=keyboard,
+            )
     else:
         await update.delete()
         await update.reply_photo(
@@ -68,10 +75,9 @@ async def helper_cb(client: Client, CallbackQuery: types.CallbackQuery, _):
 
     #── Action (1) gets its own sub-menu
     if number == 1:
-        await CallbackQuery.edit_message_text(
+        await CallbackQuery.message.edit_caption(
             _["S_B_M"],
             reply_markup=action_sub_menu(_, current_page),
-            disable_web_page_preview=True
         )
         return
 
@@ -80,10 +86,9 @@ async def helper_cb(client: Client, CallbackQuery: types.CallbackQuery, _):
     if not help_text:
         return await CallbackQuery.answer("Invalid help topic.", show_alert=True)
 
-    await CallbackQuery.edit_message_text(
+    await CallbackQuery.message.edit_caption(
         help_text,
         reply_markup=help_back_markup(_, current_page),
-        disable_web_page_preview=True
     )
 
 # ─────────────────────────────────────────  pagination callbacks ─────
@@ -92,10 +97,9 @@ async def helper_cb(client: Client, CallbackQuery: types.CallbackQuery, _):
 @languageCB
 async def help_next_cb(client: Client, CallbackQuery: types.CallbackQuery, _):
     if CallbackQuery.data == "help_next_2":
-        await CallbackQuery.edit_message_text(
+        await CallbackQuery.message.edit_caption(
             _["help_1"].format(SUPPORT_CHAT),
             reply_markup=second_page(_),
-            disable_web_page_preview=True
         )
     else:
         await CallbackQuery.answer("No more pages.", show_alert=True)
@@ -104,10 +108,9 @@ async def help_next_cb(client: Client, CallbackQuery: types.CallbackQuery, _):
 @languageCB
 async def help_prev_cb(client: Client, CallbackQuery: types.CallbackQuery, _):
     if CallbackQuery.data == "help_prev_1":
-        await CallbackQuery.edit_message_text(
+        await CallbackQuery.message.edit_caption(
             _["help_1"].format(SUPPORT_CHAT),
             reply_markup=first_page(_),
-            disable_web_page_preview=True
         )
     else:
         await CallbackQuery.answer("No previous page.", show_alert=True)
@@ -124,13 +127,11 @@ async def help_back_cb(client: Client, CallbackQuery: types.CallbackQuery, _):
         return await CallbackQuery.answer("Invalid page.", show_alert=True)
 
     try:
-        await CallbackQuery.edit_message_text(
+        await CallbackQuery.message.edit_caption(
             _["help_1"].format(SUPPORT_CHAT),
             reply_markup=keyboard,
-            disable_web_page_preview=True
         )
     except Exception as e:
-        # Ignore "MESSAGE_NOT_MODIFIED" errors when content is identical
         if "MESSAGE_NOT_MODIFIED" not in str(e):
             raise
         await CallbackQuery.answer("Already on this page.")
@@ -140,19 +141,17 @@ async def help_back_cb(client: Client, CallbackQuery: types.CallbackQuery, _):
 @app.on_callback_query(filters.regex("action_prom_1") & ~BANNED_USERS)
 @languageCB
 async def action_prom_cb(client: Client, CallbackQuery: types.CallbackQuery, _):
-    await CallbackQuery.edit_message_text(
+    await CallbackQuery.message.edit_caption(
         helpers.HELP_1_PROMO,
         reply_markup=help_back_markup(_, 1),
-        disable_web_page_preview=True
     )
 
 @app.on_callback_query(filters.regex("action_pun_1") & ~BANNED_USERS)
 @languageCB
 async def action_pun_cb(client: Client, CallbackQuery: types.CallbackQuery, _):
-    await CallbackQuery.edit_message_text(
+    await CallbackQuery.message.edit_caption(
         helpers.HELP_1_PUNISH,
         reply_markup=help_back_markup(_, 1),
-        disable_web_page_preview=True
     )
 
 # ────────────────────────────────────────────────  back to start panel ─

@@ -145,18 +145,26 @@ async def start_pm(client, message: Message, _):
     )
     _markup = InlineKeyboardMarkup(out)
     _img = random.choice(START_IMGS)
+    EFFECT_IDS = [
+        5046589136895476101,
+        5109662551006736236,
+        5046509860389126442,
+        5104841245755180586,
+    ]
     sent = False
-    try:
-        await message.reply_photo(
-            photo=_img,
-            caption=_start_caption,
-            reply_markup=_markup,
-            has_spoiler=True,
-            message_effect_id=5400083151722659509,
-        )
-        sent = True
-    except Exception:
-        pass
+    for effect_id in EFFECT_IDS:
+        try:
+            await message.reply_photo(
+                photo=_img,
+                caption=_start_caption,
+                reply_markup=_markup,
+                has_spoiler=True,
+                message_effect_id=effect_id,
+            )
+            sent = True
+            break
+        except Exception:
+            continue
 
     if not sent:
         try:
