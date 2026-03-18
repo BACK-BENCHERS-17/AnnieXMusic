@@ -13,19 +13,27 @@ TMDB_BASE = "https://api.themoviedb.org/3"
 async def movie_command(client: Client, message: Message):
     if len(message.command) < 2:
         return await message.reply_text(
-            "❌ Please provide a movie name.\n\nExample: `/movie Inception`",
-            parse_mode=ParseMode.MARKDOWN
+            "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Movie Search</b></blockquote>\n"
+            "<blockquote><emoji id=\"5039598514980520994\">❤️‍🔥</emoji> Please provide a movie name.\n"
+            "<b>Example:</b> <code>/movie Inception</code></blockquote>",
+            parse_mode=ParseMode.HTML
         )
 
     movie_name = " ".join(message.command[1:])
-    status = await message.reply_text("🔎 Searching for the movie...")
+    status = await message.reply_text(
+        "<blockquote><emoji id=\"5039598514980520994\">❤️‍🔥</emoji> <b>Searching for the movie...</b></blockquote>",
+        parse_mode=ParseMode.HTML
+    )
 
     try:
         info = await get_movie_info(movie_name)
-        await status.edit_text(info, parse_mode=ParseMode.MARKDOWN)
+        await status.edit_text(info, parse_mode=ParseMode.HTML)
     except Exception as e:
         print(f"[Movie Error] {e}")
-        await status.edit_text("❌ Failed to fetch movie information.")
+        await status.edit_text(
+            "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Failed to fetch movie information.</b></blockquote>",
+            parse_mode=ParseMode.HTML
+        )
 
 
 async def get_movie_info(query: str) -> str:
@@ -36,7 +44,7 @@ async def get_movie_info(query: str) -> str:
         })
         search_data = search.json()
         if not search_data.get("results"):
-            return "❌ Movie not found."
+            return "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Movie not found.</b></blockquote>"
 
         movie = search_data["results"][0]
         movie_id = movie["id"]
@@ -57,16 +65,17 @@ async def get_movie_info(query: str) -> str:
         overview = details_data.get("overview", "N/A")
         rating = details_data.get("vote_average", "N/A")
         revenue = details_data.get("revenue", 0)
-
         revenue_str = f"${revenue:,}" if revenue else "Not Available"
 
         info = (
-            f"🎬 <b>Title:</b> {title}\n"
-            f"📅 <b>Release Date:</b> {release}\n"
-            f"⭐ <b>Rating:</b> {rating}/10\n"
-            f"🎭 <b>Top Cast:</b> {actors}\n"
-            f"💰 <b>Box Office:</b> {revenue_str}\n\n"
-            f"📝 <b>Overview:</b>\n{overview}"
+            f"<blockquote><emoji id=\"5041975203853239332\">🎁</emoji> <b>{title}</b></blockquote>\n"
+            f"<blockquote>"
+            f"<emoji id=\"5042334757040423886\">⚡️</emoji> <b>Release:</b> {release}\n"
+            f"<emoji id=\"5039598514980520994\">❤️‍🔥</emoji> <b>Rating:</b> {rating}/10\n"
+            f"<emoji id=\"5449449325434266744\">❄️</emoji> <b>Top Cast:</b> {actors}\n"
+            f"<emoji id=\"5972072533833289156\">🔹</emoji> <b>Box Office:</b> {revenue_str}"
+            f"</blockquote>\n"
+            f"<blockquote><emoji id=\"5041975203853239332\">🎁</emoji> <b>Overview:</b>\n{overview}</blockquote>"
         )
 
         return info

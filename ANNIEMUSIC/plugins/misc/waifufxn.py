@@ -58,7 +58,7 @@ async def get_animation(action: str):
         result = await neko_client.get_image(action)
         return result.url
     except Exception as e:
-        print(f"❌ NekoClient error: {e}")
+        print(f"NekoClient error: {e}")
         return None
 
 
@@ -67,11 +67,17 @@ async def animation_command(client: Client, message: Message):
     command = message.command[0].lower()
 
     if command not in commands:
-        return await message.reply_text("⚠️ That command is not supported.")
+        return await message.reply_text(
+            "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>That command is not supported.</b></blockquote>",
+            parse_mode=ParseMode.HTML
+        )
 
     gif_url = await get_animation(command)
     if not gif_url:
-        return await message.reply_text("❌ Couldn't fetch the animation. Please try again later.")
+        return await message.reply_text(
+            "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Couldn't fetch the animation.</b> Please try again later.</blockquote>",
+            parse_mode=ParseMode.HTML
+        )
 
     sender_name = md_escape(message.from_user.first_name)
     sender = f"<a href=\"tg://user?id={message.from_user.id}\">{sender_name}</a>"
@@ -92,14 +98,17 @@ async def animation_command(client: Client, message: Message):
     emoji = commands[command]['emoji']
 
     if command in SOLO_COMMANDS:
-        caption = f"<b>{sender} {action_text}!</b> {emoji}"
+        caption = f"<blockquote><emoji id=\"5039598514980520994\">❤️‍🔥</emoji> <b>{sender} {action_text}!</b> {emoji}</blockquote>"
     else:
         if not target_user:
-            return await message.reply_text("⚠️ Please reply to a user or mention someone to use this command!")
-        
+            return await message.reply_text(
+                "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> Please reply to a user or mention someone to use this command!</blockquote>",
+                parse_mode=ParseMode.HTML
+            )
+
         target_name = md_escape(target_user.first_name)
         target = f"<a href=\"tg://user?id={target_user.id}\">{target_name}</a>"
-        caption = f"<b>{sender} {action_text} {target}!</b> {emoji}"
+        caption = f"<blockquote><emoji id=\"5039598514980520994\">❤️‍🔥</emoji> <b>{sender} {action_text} {target}!</b> {emoji}</blockquote>"
 
     await message.reply_animation(
         animation=gif_url,

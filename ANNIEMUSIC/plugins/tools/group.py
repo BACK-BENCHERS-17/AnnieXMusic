@@ -1,4 +1,5 @@
 from pyrogram import filters
+from pyrogram.enums import ParseMode
 from pyrogram.types import Message
 from pyrogram.enums import ChatType
 from pyrogram.errors import ChatSendPlainForbidden, ChatWriteForbidden, Forbidden, ChannelPrivate
@@ -19,12 +20,20 @@ async def _safe_reply_text(message: Message, *args, **kwargs):
 
 @app.on_message(filters.video_chat_started & filters.group)
 async def on_voice_chat_started(_, message: Message):
-    await _safe_reply_text(message, "🎙 <b>ᴠᴏɪᴄᴇ ᴄʜᴀᴛ ʜᴀs sᴛᴀʀᴛᴇᴅ!</b>")
+    await _safe_reply_text(
+        message,
+        "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>ᴠᴏɪᴄᴇ ᴄʜᴀᴛ ʜᴀs sᴛᴀʀᴛᴇᴅ!</b></blockquote>",
+        parse_mode=ParseMode.HTML
+    )
 
 
 @app.on_message(filters.video_chat_ended & filters.group)
 async def on_voice_chat_ended(_, message: Message):
-    await _safe_reply_text(message, "🔕 <b>ᴠᴏɪᴄᴇ ᴄʜᴀᴛ ᴇɴᴅᴇᴅ.</b>")
+    await _safe_reply_text(
+        message,
+        "<blockquote><emoji id=\"5449449325434266744\">❄️</emoji> <b>ᴠᴏɪᴄᴇ ᴄʜᴀᴛ ᴇɴᴅᴇᴅ.</b></blockquote>",
+        parse_mode=ParseMode.HTML
+    )
 
 
 @app.on_message(filters.video_chat_members_invited & filters.group)
@@ -49,13 +58,18 @@ async def on_voice_chat_members_invited(_, message: Message):
     if invited:
         await _safe_reply_text(
             message,
-            f"👥 {inviter} ɪɴᴠɪᴛᴇᴅ {', '.join(invited)} ᴛᴏ ᴛʜᴇ ᴠᴏɪᴄᴇ ᴄʜᴀᴛ. 😉",
+            f"<blockquote><emoji id=\"5041975203853239332\">🎁</emoji> {inviter} ɪɴᴠɪᴛᴇᴅ {', '.join(invited)} ᴛᴏ ᴛʜᴇ ᴠᴏɪᴄᴇ ᴄʜᴀᴛ.</blockquote>",
+            parse_mode=ParseMode.HTML
         )
 
 
 @app.on_message(filters.command("leavegroup") & filters.user(OWNER_ID) & filters.group)
 async def leave_group(_, message: Message):
-    await _safe_reply_text(message, "👋 <b>ʟᴇᴀᴠɪɴɢ ᴛʜɪs ɢʀᴏᴜᴘ...</b>")
+    await _safe_reply_text(
+        message,
+        "<blockquote><emoji id=\"5039598514980520994\">❤️‍🔥</emoji> <b>ʟᴇᴀᴠɪɴɢ ᴛʜɪs ɢʀᴏᴜᴘ...</b></blockquote>",
+        parse_mode=ParseMode.HTML
+    )
     try:
         await app.leave_chat(chat_id=message.chat.id, delete=True)
     except (ChatWriteForbidden, Forbidden, ChannelPrivate):

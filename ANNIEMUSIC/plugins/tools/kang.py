@@ -119,7 +119,10 @@ async def _prepare_media(message, tmp_dir: str, notify) -> Tuple[str, str, bool,
 
 @app.on_message(filters.command("kang") & filters.reply)
 async def kang(client, message):
-    notify = await message.reply_text("➣ ᴘʀᴏᴄᴇssɪɴɢ…")
+    notify = await message.reply_text(
+        "<blockquote><emoji id=\"5039598514980520994\">❤️‍🔥</emoji> <b>➣ ᴘʀᴏᴄᴇssɪɴɢ…</b></blockquote>",
+        parse_mode="html"
+    )
     tmp_dir = tempfile.mkdtemp()
 
     try:
@@ -215,20 +218,30 @@ async def kang(client, message):
         kind_lbl = "ᴀɴɪᴍᴀᴛᴇᴅ" if is_anim else "ᴠɪᴅᴇᴏ" if is_vid else "sᴛᴀᴛɪᴄ"
 
         await notify.edit(
-            f"➣ {'ᴄʀᴇᴀᴛᴇᴅ' if created else 'ᴀᴅᴅᴇᴅ ᴛᴏ'} ʏᴏᴜʀ {kind_lbl} ᴘᴀᴄᴋ!\n"
-            f"ᴘᴀᴄᴋ: {title}\n"
-            f"ᴄᴏᴜɴᴛ: {count}\n"
-            f"ᴇᴍᴏᴊɪ: {emoji}",
+            f"<blockquote><emoji id=\"5041975203853239332\">🎁</emoji> <b>➣ {'ᴄʀᴇᴀᴛᴇᴅ' if created else 'ᴀᴅᴅᴇᴅ ᴛᴏ'} ʏᴏᴜʀ {kind_lbl} ᴘᴀᴄᴋ!</b></blockquote>\n"
+            f"<blockquote><emoji id=\"5449449325434266744\">❄️</emoji> <b>ᴘᴀᴄᴋ:</b> {title}\n"
+            f"<emoji id=\"5039598514980520994\">❤️‍🔥</emoji> <b>ᴄᴏᴜɴᴛ:</b> {count}\n"
+            f"<emoji id=\"5042334757040423886\">⚡️</emoji> <b>ᴇᴍᴏᴊɪ:</b> {emoji}</blockquote>",
             reply_markup=InlineKeyboardMarkup(
                 [[InlineKeyboardButton("ᴏᴘᴇɴ ᴘᴀᴄᴋ", url=f"https://t.me/addstickers/{short}")]]
-            )
+            ),
+            parse_mode="html"
         )
 
     except FloodWait as e:
-        await notify.edit(f"flood wait – retry in {e.x}s")
+        await notify.edit(
+            f"<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Flood wait</b> – retry in <code>{e.x}s</code></blockquote>",
+            parse_mode="html"
+        )
     except (StickerEmojiInvalid, PeerIdInvalid, FileReferenceExpired, RPCError) as err:
-        await notify.edit(f"error: {err}")
+        await notify.edit(
+            f"<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Error:</b> <code>{err}</code></blockquote>",
+            parse_mode="html"
+        )
     except Exception:
-        await notify.edit("unexpected error:\n" + traceback.format_exc())
+        await notify.edit(
+            f"<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Unexpected error:</b>\n<code>{traceback.format_exc()[:500]}</code></blockquote>",
+            parse_mode="html"
+        )
     finally:
         shutil.rmtree(tmp_dir, ignore_errors=True)

@@ -34,7 +34,7 @@ async def get_anime_info(anime_name):
     data = response.json()
 
     if 'errors' in data:
-        return None, f"❌ Error: {data['errors'][0]['message']}"
+        return None, f"<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Error:</b> {data['errors'][0]['message']}</blockquote>"
 
     return data['data']['Media'], None
 
@@ -51,8 +51,10 @@ def clean_description(desc):
 async def anime_info(client: Client, message: Message):
     if len(message.command) < 2:
         return await message.reply_text(
-            "❌ Please provide an anime name.\n\nExample: `/anime Naruto`",
-            parse_mode=ParseMode.MARKDOWN
+            "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Anime Search</b></blockquote>\n"
+            "<blockquote><emoji id=\"5039598514980520994\">❤️‍🔥</emoji> Please provide an anime name.\n"
+            "<b>Example:</b> <code>/anime Naruto</code></blockquote>",
+            parse_mode=ParseMode.HTML
         )
 
     anime_name = " ".join(message.command[1:])
@@ -60,7 +62,8 @@ async def anime_info(client: Client, message: Message):
 
     if not result:
         return await message.reply_text(
-            error or "❌ Anime not found.",
+            error or "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Anime not found.</b></blockquote>",
+            parse_mode=ParseMode.HTML
         )
 
     title = result['title']['romaji']
@@ -72,20 +75,23 @@ async def anime_info(client: Client, message: Message):
     desc = clean_description(result.get('description'))
     image = result['coverImage']['large']
 
-    english_line = f"<b>🇺🇸 Title (English):</b> {english}\n" if english else ""
+    english_line = f"<emoji id=\"5449449325434266744\">❄️</emoji> <b>Title (English):</b> {english}\n" if english else ""
 
     caption = (
-        f"<b>🎌 Title (Romaji):</b> {title}\n"
+        f"<blockquote><emoji id=\"5041975203853239332\">🎁</emoji> <b>{title}</b></blockquote>\n"
+        f"<blockquote>"
+        f"<emoji id=\"5042334757040423886\">⚡️</emoji> <b>Romaji:</b> {title}\n"
         f"{english_line}"
-        f"<b>🈶 Title (Native):</b> {native}\n"
-        f"<b>📺 Episodes:</b> {episodes}\n"
-        f"<b>📊 Score:</b> {score}/100\n"
-        f"<b>📌 Status:</b> {status}\n\n"
-        f"<b>📝 Description:</b>\n{desc}"
+        f"<emoji id=\"5972072533833289156\">🔹</emoji> <b>Native:</b> {native}\n"
+        f"<emoji id=\"5039598514980520994\">❤️‍🔥</emoji> <b>Episodes:</b> {episodes}\n"
+        f"<emoji id=\"5449449325434266744\">❄️</emoji> <b>Score:</b> {score}/100\n"
+        f"<emoji id=\"5041975203853239332\">🎁</emoji> <b>Status:</b> {status}"
+        f"</blockquote>\n"
+        f"<blockquote><emoji id=\"5972072533833289156\">🔹</emoji> <b>Description:</b>\n{desc}</blockquote>"
     )
 
     await message.reply_photo(
         image,
         caption=caption,
-        parse_mode=ParseMode.MARKDOWN
+        parse_mode=ParseMode.HTML
     )

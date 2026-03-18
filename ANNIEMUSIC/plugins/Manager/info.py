@@ -37,7 +37,10 @@ async def whois_handler(_, message: Message):
         else:
             user = message.from_user
 
-        loading = await message.reply("🔍 <b>ɢᴀᴛʜᴇʀɪɴɢ ᴜsᴇʀ ɪɴғᴏ...</b>")
+        loading = await message.reply(
+            "<blockquote><emoji id=\"5039598514980520994\">❤️‍🔥</emoji> <b>ɢᴀᴛʜᴇʀɪɴɢ ᴜsᴇʀ ɪɴғᴏ...</b></blockquote>",
+            parse_mode=enums.ParseMode.HTML
+        )
         await asyncio.sleep(0.5)
 
         chat_user = await app.get_chat(user.id)
@@ -50,29 +53,29 @@ async def whois_handler(_, message: Message):
         lang = getattr(user, "language_code", "ɴ/ᴀ")
 
         text = (
-            f"👤 <b>ᴜsᴇʀ ɪɴғᴏ</b>\n"
-            f"━━━━━━━━━━━━━━━\n"
-            f"➣ <b>ᴜsᴇʀ ɪᴅ:</b> <code>{user.id}</code>\n"
-            f"➣ <b>ɴᴀᴍᴇ:</b> {name}\n"
-            f"➣ <b>ᴜsᴇʀɴᴀᴍᴇ:</b> {username}\n"
-            f"➣ <b>ʟᴀsᴛ sᴇᴇɴ:</b> {last_seen}\n"
-            f"➣ <b>ᴅᴀᴛᴀᴄᴇɴᴛᴇʀ ɪᴅ:</b> {dc_id}\n"
-            f"➣ <b>ʟᴀɴɢᴜᴀɢᴇ:</b> {lang}\n"
-            f"━━━━━━━━━━━━━━━\n"
-            f"➣ <b>ᴠᴇʀɪғɪᴇᴅ:</b> {'ʏᴇs ✅' if user.is_verified else 'ɴᴏ 🥀'}\n"
-            f"➣ <b>ᴘʀᴇᴍɪᴜᴍ:</b> {'ʏᴇs ☑️' if user.is_premium else 'ɴᴏ 🥀'}\n"
-            f"➣ <b>ʙᴏᴛ:</b> {'ʏᴇs 🤖' if user.is_bot else 'ɴᴏ 👤'}\n"
-            f"➣ <b>sᴄᴀᴍ ᴀᴄᴄᴏᴜɴᴛ:</b> {'ʏᴇs ⚠️' if getattr(user, 'is_scam', False) else 'ɴᴏ ☑️'}\n"
-            f"➣ <b>ғᴀᴋᴇ ᴀᴄᴄᴏᴜɴᴛ:</b> {'ʏᴇs 🎭' if getattr(user, 'is_fake', False) else 'ɴᴏ ☑️'}\n"
-            f"➣ <b>ᴘʀᴏғɪʟᴇ ᴘɪᴄᴛᴜʀᴇ:</b> {'ʏᴇs 🌠' if user.photo else 'ɴᴏ 🥀'}\n"
-            f"━━━━━━━━━━━━━━━\n"
-            f"➣ <b>ʙɪᴏ:</b> <code>{bio}</code>"
+            f"<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>ᴜsᴇʀ ɪɴғᴏ</b></blockquote>\n"
+            f"<blockquote>"
+            f"<emoji id=\"5449449325434266744\">❄️</emoji> <b>ɪᴅ:</b> <code>{user.id}</code>\n"
+            f"<emoji id=\"5039598514980520994\">❤️‍🔥</emoji> <b>ɴᴀᴍᴇ:</b> {name}\n"
+            f"<emoji id=\"5972072533833289156\">🔹</emoji> <b>ᴜsᴇʀɴᴀᴍᴇ:</b> {username}\n"
+            f"<emoji id=\"5041975203853239332\">🎁</emoji> <b>ʟᴀsᴛ sᴇᴇɴ:</b> {last_seen}\n"
+            f"<emoji id=\"5042334757040423886\">⚡️</emoji> <b>ᴅᴀᴛᴀᴄᴇɴᴛᴇʀ:</b> {dc_id}\n"
+            f"<emoji id=\"5449449325434266744\">❄️</emoji> <b>ʟᴀɴɢᴜᴀɢᴇ:</b> {lang}"
+            f"</blockquote>\n"
+            f"<blockquote>"
+            f"<emoji id=\"5039598514980520994\">❤️‍🔥</emoji> <b>ᴠᴇʀɪғɪᴇᴅ:</b> {'ʏᴇs ✅' if user.is_verified else 'ɴᴏ'}\n"
+            f"<emoji id=\"5972072533833289156\">🔹</emoji> <b>ᴘʀᴇᴍɪᴜᴍ:</b> {'ʏᴇs ☑️' if user.is_premium else 'ɴᴏ'}\n"
+            f"<emoji id=\"5041975203853239332\">🎁</emoji> <b>ʙᴏᴛ:</b> {'ʏᴇs 🤖' if user.is_bot else 'ɴᴏ 👤'}\n"
+            f"<emoji id=\"5042334757040423886\">⚡️</emoji> <b>sᴄᴀᴍ:</b> {'ʏᴇs ⚠️' if getattr(user, 'is_scam', False) else 'ɴᴏ ☑️'}\n"
+            f"<emoji id=\"5449449325434266744\">❄️</emoji> <b>ғᴀᴋᴇ:</b> {'ʏᴇs 🎭' if getattr(user, 'is_fake', False) else 'ɴᴏ ☑️'}\n"
+            f"<emoji id=\"5039598514980520994\">❤️‍🔥</emoji> <b>ᴘʜᴏᴛᴏ:</b> {'ʏᴇs 🌠' if user.photo else 'ɴᴏ'}"
+            f"</blockquote>\n"
+            f"<blockquote><emoji id=\"5972072533833289156\">🔹</emoji> <b>ʙɪᴏ:</b> <code>{bio}</code></blockquote>"
         )
 
         profile_url = f"https://t.me/{user.username}" if user.username else f"tg://user?id={user.id}"
         buttons = InlineKeyboardMarkup([[
-            InlineKeyboardButton("👤 ᴠɪᴇᴡ ᴘʀᴏғɪʟᴇ", url=profile_url, style="primary"),
-            InlineKeyboardButton("📞 ᴘʜᴏɴᴇ", url="tg://settings", style="success")
+            InlineKeyboardButton("👤 ᴠɪᴇᴡ ᴘʀᴏғɪʟᴇ", url=profile_url),
         ]])
 
         await app.edit_message_text(
@@ -84,11 +87,20 @@ async def whois_handler(_, message: Message):
         )
 
     except PeerIdInvalid:
-        await message.reply("🥀 ɪ ᴄᴏᴜʟᴅɴ'ᴛ ꜰɪɴᴅ ᴛʜᴀᴛ ᴜsᴇʀ.")
+        await message.reply(
+            "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Couldn't find that user.</b></blockquote>",
+            parse_mode=enums.ParseMode.HTML
+        )
     except FloodWait as e:
         await asyncio.sleep(e.value)
         return await whois_handler(_, message)
     except RPCError as e:
-        await message.reply(f"⚠️ ʀᴘᴄ ᴇʀʀᴏʀ:\n<code>{e}</code>")
+        await message.reply(
+            f"<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>RPC Error:</b>\n<code>{e}</code></blockquote>",
+            parse_mode=enums.ParseMode.HTML
+        )
     except Exception as e:
-        await message.reply(f"🥀 ᴇʀʀᴏʀ:\n<code>{e}</code>")
+        await message.reply(
+            f"<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Error:</b>\n<code>{e}</code></blockquote>",
+            parse_mode=enums.ParseMode.HTML
+        )

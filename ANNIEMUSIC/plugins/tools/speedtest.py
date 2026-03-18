@@ -46,4 +46,7 @@ async def speedtest_function(_, message: Message, lang):
         await m.delete()
 
     except Exception as e:
-        await message.reply_text(f"<code>{e}</code>")
+        await message.reply_text(
+            f"<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Error:</b> <code>{e}</code></blockquote>",
+            parse_mode="html"
+        )

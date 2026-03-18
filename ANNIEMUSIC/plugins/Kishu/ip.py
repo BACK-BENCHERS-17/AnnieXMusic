@@ -1,4 +1,5 @@
 from pyrogram import filters
+from pyrogram.enums import ParseMode
 from pyrogram.types import InlineKeyboardMarkup
 from ANNIEMUSIC.utils.inline import InlineKeyboardButton
 from ANNIEMUSIC import app
@@ -10,8 +11,6 @@ import html
 
 IPINFO_TOKEN = "6274faab58da61"
 IPQUALITYSCORE_API_KEY = "952ztTq41AxoXam43pStVjVNcEjo1ntQ"
-
-# ---------- Helpers ----------
 
 def _flag_emoji(country_code: str | None) -> str:
     if not country_code or len(country_code) != 2:
@@ -37,7 +36,6 @@ def _escape(v: str | None) -> str:
 def _split_asn_org(org: str | None) -> tuple[str, str]:
     if not org:
         return "N/A", "N/A"
-
     parts = org.split(maxsplit=1)
     if parts and parts[0].startswith("AS"):
         asn = parts[0]
@@ -50,15 +48,13 @@ def _build_card(ip: str, info: dict, score: int | None) -> tuple[str, InlineKeyb
     flag = _flag_emoji(country)
     city = info.get("city")
     region = info.get("region")
-    loc = info.get("loc")  # "lat,lon"
+    loc = info.get("loc")
     org = info.get("org")
     timezone = info.get("timezone")
     postal = info.get("postal")
     asn, isp = _split_asn_org(org)
-
     badge, bar = _score_badge(score)
 
-    # Safe text
     s_ip      = _escape(ip)
     s_city    = _escape(city)
     s_region  = _escape(region)
@@ -68,7 +64,6 @@ def _build_card(ip: str, info: dict, score: int | None) -> tuple[str, InlineKeyb
     s_asn     = _escape(asn)
     s_isp     = _escape(isp)
 
-    # Maps + references
     maps_q = loc.replace(" ", "") if loc else ""
     maps_url = f"https://maps.google.com/?q={maps_q}" if maps_q else f"https://duckduckgo.com/?q={s_ip}"
     ipinfo_url = f"https://ipinfo.io/{s_ip}"
@@ -76,38 +71,30 @@ def _build_card(ip: str, info: dict, score: int | None) -> tuple[str, InlineKeyb
     abuse_url = f"https://www.abuseipdb.com/check/{s_ip}"
 
     text = (
-        "<b>🔎 IP Intelligence</b>\n"
-        f"{flag} <b>{s_ip}</b>\n"
-        "\n"
-        "┏━━━━━━━━━━━━━━━━━━━\n"
-        f"┃ <b>Risk</b> : {badge}\n"
-        f"┃ <code>{bar}</code>\n"
-        "┗━━━━━━━━━━━━━━━━━━━\n"
-        "\n"
-        f"🏙️ <b>City</b> : <code>{s_city}</code>\n"
-        f"🗺️ <b>Region</b> : <code>{s_region}</code>\n"
-        f"🌍 <b>Country</b> : <code>{s_country}</code>\n"
-        f"📮 <b>Postal</b> : <code>{s_postal}</code>\n"
-        f"🕒 <b>Timezone</b> : <code>{s_tz}</code>\n"
-        f"🏢 <b>ISP</b> : <code>{s_isp}</code>\n"
-        f"🔢 <b>ASN</b> : <code>{s_asn}</code>\n"
+        f"<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>IP Intelligence</b>\n"
+        f"{flag} <b>{s_ip}</b></blockquote>\n"
+        f"<blockquote><emoji id=\"5039598514980520994\">❤️‍🔥</emoji> <b>Risk:</b> {badge}\n"
+        f"<code>{bar}</code></blockquote>\n"
+        f"<blockquote><emoji id=\"5449449325434266744\">❄️</emoji> <b>City:</b> <code>{s_city}</code>\n"
+        f"<emoji id=\"5972072533833289156\">🔹</emoji> <b>Region:</b> <code>{s_region}</code>\n"
+        f"<emoji id=\"5041975203853239332\">🎁</emoji> <b>Country:</b> <code>{s_country}</code>\n"
+        f"<emoji id=\"5042334757040423886\">⚡️</emoji> <b>Postal:</b> <code>{s_postal}</code>\n"
+        f"<emoji id=\"5039598514980520994\">❤️‍🔥</emoji> <b>Timezone:</b> <code>{s_tz}</code>\n"
+        f"<emoji id=\"5449449325434266744\">❄️</emoji> <b>ISP:</b> <code>{s_isp}</code>\n"
+        f"<emoji id=\"5972072533833289156\">🔹</emoji> <b>ASN:</b> <code>{s_asn}</code></blockquote>"
     )
 
-    keyboard = InlineKeyboardMarkup(
+    keyboard = InlineKeyboardMarkup([
         [
-            [
-                InlineKeyboardButton("🗺️ View on Maps", url=maps_url),
-                InlineKeyboardButton("ℹ️ ipinfo", url=ipinfo_url),
-            ],
-            [
-                InlineKeyboardButton("🛡️ IPQualityScore", url=ipqs_url),
-                InlineKeyboardButton("🚫 AbuseIPDB", url=abuse_url),
-            ],
-        ]
-    )
+            InlineKeyboardButton("🗺️ View on Maps", url=maps_url),
+            InlineKeyboardButton("ℹ️ ipinfo", url=ipinfo_url),
+        ],
+        [
+            InlineKeyboardButton("🛡️ IPQualityScore", url=ipqs_url),
+            InlineKeyboardButton("🚫 AbuseIPDB", url=abuse_url),
+        ],
+    ])
     return text, keyboard
-
-# ---------- API Calls (async) ----------
 
 async def fetch_ipinfo(client: httpx.AsyncClient, ip: str) -> dict | None:
     url = f"https://ipinfo.io/{ip}?token={IPINFO_TOKEN}"
@@ -131,39 +118,43 @@ async def fetch_ipqs(client: httpx.AsyncClient, ip: str) -> int | None:
         pass
     return None
 
-# ---------- Command ----------
-
 @app.on_message(filters.command(["ip"]))
 async def ip_info_and_score(_, message):
     if len(message.command) != 2:
         await message.reply_text(
-            "Please provide an IP address.\n"
-            "Example: <code>/ip 8.8.8.8</code>",
+            "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>IP Lookup</b></blockquote>\n"
+            "<blockquote><emoji id=\"5039598514980520994\">❤️‍🔥</emoji> Please provide an IP address.\n"
+            "<b>Example:</b> <code>/ip 8.8.8.8</code></blockquote>",
+            parse_mode=ParseMode.HTML,
             disable_web_page_preview=True,
         )
         return
 
     ip_raw = message.command[1].strip()
 
-    # Validate IP
     try:
         ip_obj = ipaddress.ip_address(ip_raw)
         if ip_obj.is_private or ip_obj.is_loopback or ip_obj.is_reserved or ip_obj.is_multicast:
             await message.reply_text(
-                "That looks like a <b>non-routable</b> or <b>private</b> address. "
-                "Please provide a public IP.",
+                "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> That looks like a <b>non-routable</b> or <b>private</b> address.\n"
+                "Please provide a public IP.</blockquote>",
+                parse_mode=ParseMode.HTML,
                 disable_web_page_preview=True,
             )
             return
     except ValueError:
         await message.reply_text(
-            "Invalid IP format. Please provide a valid IPv4 or IPv6 address.\n"
-            "Example: <code>/ip 1.1.1.1</code>",
+            "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Invalid IP format.</b> Please provide a valid IPv4 or IPv6 address.\n"
+            "<b>Example:</b> <code>/ip 1.1.1.1</code></blockquote>",
+            parse_mode=ParseMode.HTML,
             disable_web_page_preview=True,
         )
         return
 
-    wait_msg = await message.reply_text("Analyzing IP… <i>fetching intelligence</i> 🔍")
+    wait_msg = await message.reply_text(
+        "<blockquote><emoji id=\"5039598514980520994\">❤️‍🔥</emoji> <b>Analyzing IP...</b> fetching intelligence 🔍</blockquote>",
+        parse_mode=ParseMode.HTML
+    )
 
     async with httpx.AsyncClient(headers={"User-Agent": "AnnieX/IpIntel/1.0"}) as client:
         ipinfo_task = fetch_ipinfo(client, ip_raw)
@@ -172,7 +163,8 @@ async def ip_info_and_score(_, message):
 
     if not ipinfo and score is None:
         await wait_msg.edit_text(
-            "Unable to fetch details for the provided IP at the moment. Please try again later."
+            "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Unable to fetch details</b> for the provided IP. Please try again later.</blockquote>",
+            parse_mode=ParseMode.HTML
         )
         return
 
@@ -181,4 +173,5 @@ async def ip_info_and_score(_, message):
         text,
         reply_markup=keyboard,
         disable_web_page_preview=True,
+        parse_mode=ParseMode.HTML,
     )

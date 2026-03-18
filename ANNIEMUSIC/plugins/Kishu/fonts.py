@@ -12,7 +12,12 @@ async def style_buttons(c, m, cb=False):
         text = message.text.replace("`", "")
     else:
         if len(m.command) < 2:
-            return await m.reply("❌ Please provide text to style.\n\nExample: `/font Hello World!`", quote=True)
+            return await m.reply(
+                "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Font Styler</b></blockquote>\n"
+                "<blockquote><emoji id=\"5039598514980520994\">❤️‍🔥</emoji> Please provide text to style.\n"
+                "<b>Example:</b> <code>/font Hello World!</code></blockquote>",
+                quote=True
+            )
         message = m
         text = m.text.split(" ", 1)[1]
 

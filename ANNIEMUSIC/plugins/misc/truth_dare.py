@@ -16,14 +16,21 @@ async def get_truth(client: Client, message: Message):
         if res.status_code == 200:
             question = res.json().get("question", "No question found.")
             await message.reply_text(
-                f"🔎 <b>Truth:</b>\n\n{question}",
-                parse_mode=ParseMode.MARKDOWN
+                f"<blockquote><emoji id=\"5039598514980520994\">❤️‍🔥</emoji> <b>Truth!</b></blockquote>\n"
+                f"<blockquote><emoji id=\"5972072533833289156\">🔹</emoji> {question}</blockquote>",
+                parse_mode=ParseMode.HTML
             )
         else:
-            await message.reply_text("❌ Failed to fetch a truth question.")
+            await message.reply_text(
+                "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Failed to fetch a truth question.</b></blockquote>",
+                parse_mode=ParseMode.HTML
+            )
     except Exception as e:
         print(f"Truth error: {e}")
-        await message.reply_text("⚠️ Error occurred while fetching a truth question.")
+        await message.reply_text(
+            "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Error occurred</b> while fetching a truth question.</blockquote>",
+            parse_mode=ParseMode.HTML
+        )
 
 
 @app.on_message(filters.command("dare"))
@@ -34,11 +41,18 @@ async def get_dare(client: Client, message: Message):
         if res.status_code == 200:
             question = res.json().get("question", "No question found.")
             await message.reply_text(
-                f"🎯 <b>Dare:</b>\n\n{question}",
-                parse_mode=ParseMode.MARKDOWN
+                f"<blockquote><emoji id=\"5041975203853239332\">🎁</emoji> <b>Dare!</b></blockquote>\n"
+                f"<blockquote><emoji id=\"5972072533833289156\">🔹</emoji> {question}</blockquote>",
+                parse_mode=ParseMode.HTML
             )
         else:
-            await message.reply_text("❌ Failed to fetch a dare question.")
+            await message.reply_text(
+                "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Failed to fetch a dare question.</b></blockquote>",
+                parse_mode=ParseMode.HTML
+            )
     except Exception as e:
         print(f"Dare error: {e}")
-        await message.reply_text("⚠️ Error occurred while fetching a dare question.")
+        await message.reply_text(
+            "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Error occurred</b> while fetching a dare question.</blockquote>",
+            parse_mode=ParseMode.HTML
+        )

@@ -11,29 +11,23 @@ from ANNIEMUSIC.utils.inline import InlineKeyboardButton
 
 from ANNIEMUSIC import app
 
-# ---------------------------------------------------------------------------
-# Global caches & constants
-# ---------------------------------------------------------------------------
 _voice_sessions: Dict[Tuple[int, int], str] = {}
 _voices: List[dict] = []
 _languages: List[str] = []
 _VOICES_LOCK = asyncio.Lock()
 
-PER_ROW = 4          # 4 buttons per row
-PER_PAGE = 16        # 4 × 4 grid per page
-TMP_DIR = "/tmp"   # location for temporary audio / text files
+PER_ROW = 4
+PER_PAGE = 16
+TMP_DIR = "/tmp"
 
-# ---------------------------------------------------------------------------
-# Helper functions
-# ---------------------------------------------------------------------------
+
 async def _init_voices() -> None:
-    """Populate the global voice cache exactly once (with coroutine safety)."""
     global _voices, _languages
-    if _voices:  # already cached
+    if _voices:
         return
 
     async with _VOICES_LOCK:
-        if _voices:  # may have been populated while waiting for the lock
+        if _voices:
             return
 
         raw = await edge_tts.list_voices()
@@ -49,7 +43,6 @@ async def _init_voices() -> None:
 
 
 def _paginate(items: List[str], page: int) -> Tuple[List[str], int]:
-    """Return the slice for *page* (1-based) and the total number of pages."""
     total = len(items)
     pages = max(1, ceil(total / PER_PAGE))
     page = max(1, min(page, pages))
@@ -63,10 +56,8 @@ def _build_keyboard(
     extra: Dict[str, str],
     page: int,
 ) -> InlineKeyboardMarkup:
-    """Build an inline keyboard for the current *step* with navigation."""
     page_items, total_pages = _paginate(items, page)
 
-    # item buttons
     rows: List[List[InlineKeyboardButton]] = []
     for i in range(0, len(page_items), PER_ROW):
         chunk = page_items[i : i + PER_ROW]
@@ -83,7 +74,6 @@ def _build_keyboard(
             ]
         )
 
-    # navigation row
     nav: List[InlineKeyboardButton] = []
     if page > 1:
         nav.append(
@@ -121,20 +111,18 @@ def _cleanup(path: str) -> None:
 
 
 async def _synthesize(voice: str, text: str, out_path: str) -> None:
-    """Generate an MP3 file using edge-TTS."""
     comm = edge_tts.Communicate(text=text, voice=voice)
     await comm.save(out_path)
 
-# ---------------------------------------------------------------------------
-# Commands
-# ---------------------------------------------------------------------------
+
 @app.on_message(filters.command("voices"))
 async def cmd_voices(client: Client, message: Message):
-    """Start interactive TTS selection."""
     if len(message.command) < 2:
         return await message.reply_text(
-            "❌ Please provide the text to convert.\n\nExample: `/voices Hello world`",
-            parse_mode=ParseMode.MARKDOWN,
+            "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Text to Speech</b></blockquote>\n"
+            "<blockquote><emoji id=\"5039598514980520994\">❤️‍🔥</emoji> Please provide the text to convert.\n"
+            "<b>Example:</b> <code>/voices Hello world</code></blockquote>",
+            parse_mode=ParseMode.HTML,
         )
 
     await _init_voices()
@@ -144,19 +132,20 @@ async def cmd_voices(client: Client, message: Message):
 
     kb = _build_keyboard(_languages, step="lang", extra={}, page=1)
     await message.reply_text(
-        "🌐 <b>Step 1:</b> Select a language",
+        "<blockquote><emoji id=\"5449449325434266744\">❄️</emoji> <b>Step 1:</b> Select a language</blockquote>",
         reply_markup=kb,
-        parse_mode=ParseMode.MARKDOWN,
+        parse_mode=ParseMode.HTML,
     )
 
 
 @app.on_message(filters.command("tts"))
 async def cmd_tts(client: Client, message: Message):
-    """Direct `/tts <voice> <text>` command."""
     if len(message.command) < 3:
         return await message.reply_text(
-            "❌ Usage:\n`/tts <voice_model> <text>`\nAlternatively try `/voices` for guided selection.",
-            parse_mode=ParseMode.MARKDOWN,
+            "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>TTS Usage:</b></blockquote>\n"
+            "<blockquote><emoji id=\"5039598514980520994\">❤️‍🔥</emoji> <code>/tts &lt;voice_model&gt; &lt;text&gt;</code>\n"
+            "Or try <code>/voices</code> for guided selection.</blockquote>",
+            parse_mode=ParseMode.HTML,
         )
 
     await _init_voices()
@@ -166,8 +155,9 @@ async def cmd_tts(client: Client, message: Message):
 
     if not any(v["short_name"] == voice for v in _voices):
         return await message.reply_text(
-            f"⚠️ Unknown voice: `{voice}`\nUse `/voiceall` or `/voices` to browse voices.",
-            parse_mode=ParseMode.MARKDOWN,
+            f"<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Unknown voice:</b> <code>{voice}</code>\n"
+            f"Use <code>/voiceall</code> or <code>/voices</code> to browse voices.</blockquote>",
+            parse_mode=ParseMode.HTML,
         )
 
     tmp = os.path.join(TMP_DIR, f"tts_{message.from_user.id}.mp3")
@@ -179,20 +169,22 @@ async def cmd_tts(client: Client, message: Message):
         await client.send_audio(
             chat_id=message.chat.id,
             audio=tmp,
-            caption=f"🗣️ `{voice}`",
+            caption=f"<blockquote><emoji id=\"5041975203853239332\">🎁</emoji> <b>Voice:</b> <code>{voice}</code></blockquote>",
             reply_to_message_id=message.id,
-            parse_mode=ParseMode.MARKDOWN,
+            parse_mode=ParseMode.HTML,
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         print(f"[TTS DIRECT ERROR] {exc}")
-        await message.reply_text("⚠️ Failed to generate speech.")
+        await message.reply_text(
+            "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Failed to generate speech.</b></blockquote>",
+            parse_mode=ParseMode.HTML
+        )
     finally:
         _cleanup(tmp)
 
 
 @app.on_callback_query(filters.regex(r"^tts:"))
 async def cb_tts(client: Client, callback: CallbackQuery):
-    """Inline-keyboard callback handler for the /voices workflow."""
     data = callback.data[4:]
     parts = dict(p.split("=", 1) for p in data.split("|") if "=" in p)
     step = parts.get("s")
@@ -204,20 +196,19 @@ async def cb_tts(client: Client, callback: CallbackQuery):
     text = _voice_sessions.get(key)
     if not text:
         return await callback.answer(
-            "⚠️ Session expired. Send `/voices` again.", show_alert=True
+            "Session expired. Send /voices again.", show_alert=True
         )
 
-    # -------------------- language level --------------------
     if step == "lang":
-        if "v" not in parts:  # show languages
+        if "v" not in parts:
             kb = _build_keyboard(_languages, "lang", {}, page)
             return await callback.message.edit_text(
-                "🌐 <b>Step 1:</b> Select a language",
+                "<blockquote><emoji id=\"5449449325434266744\">❄️</emoji> <b>Step 1:</b> Select a language</blockquote>",
                 reply_markup=kb,
-                parse_mode=ParseMode.MARKDOWN,
+                parse_mode=ParseMode.HTML,
             )
 
-        lang = parts["v"]  # language chosen → regions
+        lang = parts["v"]
         regions = sorted(
             {
                 v["locale"].split("-", 1)[1]
@@ -227,16 +218,15 @@ async def cb_tts(client: Client, callback: CallbackQuery):
         )
         kb = _build_keyboard(regions, "region", {"l": lang}, 1)
         return await callback.message.edit_text(
-            "🌍 <b>Step 2:</b> Select a region",
+            "<blockquote><emoji id=\"5039598514980520994\">❤️‍🔥</emoji> <b>Step 2:</b> Select a region</blockquote>",
             reply_markup=kb,
-            parse_mode=ParseMode.MARKDOWN,
+            parse_mode=ParseMode.HTML,
         )
 
-    # -------------------- region level --------------------
     if step == "region":
         lang = parts["l"]
 
-        if "v" not in parts:  # show regions
+        if "v" not in parts:
             regions = sorted(
                 {
                     v["locale"].split("-", 1)[1]
@@ -246,38 +236,35 @@ async def cb_tts(client: Client, callback: CallbackQuery):
             )
             kb = _build_keyboard(regions, "region", {"l": lang}, page)
             return await callback.message.edit_text(
-                "🌍 <b>Step 2:</b> Select a region",
+                "<blockquote><emoji id=\"5039598514980520994\">❤️‍🔥</emoji> <b>Step 2:</b> Select a region</blockquote>",
                 reply_markup=kb,
-                parse_mode=ParseMode.MARKDOWN,
+                parse_mode=ParseMode.HTML,
             )
 
-        # region chosen → show models
         region = parts["v"]
         locale = f"{lang}-{region}"
         models = sorted([v["short_name"] for v in _voices if v["locale"] == locale])
         kb = _build_keyboard(models, "model", {"l": lang, "r": region}, 1)
         return await callback.message.edit_text(
-            "🔊 <b>Step 3:</b> Choose a voice model",
+            "<blockquote><emoji id=\"5041975203853239332\">🎁</emoji> <b>Step 3:</b> Choose a voice model</blockquote>",
             reply_markup=kb,
-            parse_mode=ParseMode.MARKDOWN,
+            parse_mode=ParseMode.HTML,
         )
 
-    # -------------------- model level --------------------
     if step == "model":
         lang = parts["l"]
         region = parts["r"]
 
-        if "v" not in parts:  # show models
+        if "v" not in parts:
             locale = f"{lang}-{region}"
             models = sorted([v["short_name"] for v in _voices if v["locale"] == locale])
             kb = _build_keyboard(models, "model", {"l": lang, "r": region}, page)
             return await callback.message.edit_text(
-                "🔊 <b>Step 3:</b> Choose a voice model",
+                "<blockquote><emoji id=\"5041975203853239332\">🎁</emoji> <b>Step 3:</b> Choose a voice model</blockquote>",
                 reply_markup=kb,
-                parse_mode=ParseMode.MARKDOWN,
+                parse_mode=ParseMode.HTML,
             )
 
-        # model chosen → synthesize
         voice = parts["v"]
         tmp = os.path.join(TMP_DIR, f"tts_{callback.from_user.id}.mp3")
         try:
@@ -288,26 +275,26 @@ async def cb_tts(client: Client, callback: CallbackQuery):
             await client.send_audio(
                 chat_id=callback.message.chat.id,
                 audio=tmp,
-                caption=f"🗣️ `{voice}`",
+                caption=f"<blockquote><emoji id=\"5041975203853239332\">🎁</emoji> <b>Voice:</b> <code>{voice}</code></blockquote>",
                 reply_to_message_id=callback.message.id,
-                parse_mode=ParseMode.MARKDOWN,
+                parse_mode=ParseMode.HTML,
             )
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             print(f"[TTS CALLBACK ERROR] {exc}")
-            await callback.message.reply_text(f"⚠️ Generation failed:\n`{exc}`")
+            await callback.message.reply_text(
+                f"<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>Generation failed:</b> <code>{exc}</code></blockquote>",
+                parse_mode=ParseMode.HTML
+            )
         finally:
             _cleanup(tmp)
             _voice_sessions.pop(key, None)
         return await callback.answer()
 
-    # ------------------------------------------------------------------
-    # Unknown action
-    await callback.answer("🤔 Unknown action. Send /voices again.", show_alert=True)
+    await callback.answer("Unknown action. Send /voices again.", show_alert=True)
 
 
 @app.on_message(filters.command("voiceall"))
 async def cmd_voiceall(client: Client, message: Message):
-    """Send a text file listing all voices."""
     await _init_voices()
 
     lines = [
@@ -317,5 +304,9 @@ async def cmd_voiceall(client: Client, message: Message):
     with open(path, "w", encoding="utf-8") as fp:
         fp.write("\n".join(lines))
 
-    await message.reply_document(document=path, caption="📋 List of all available voices")
+    await message.reply_document(
+        document=path,
+        caption="<blockquote><emoji id=\"5041975203853239332\">🎁</emoji> <b>List of all available voices</b></blockquote>",
+        parse_mode=ParseMode.HTML
+    )
     _cleanup(path)
