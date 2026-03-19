@@ -235,7 +235,7 @@ async def get_thumb(videoid: str) -> str:
     dev_txt = "Dev :- @PGL_B4CHI"
 
     strip_y = H - 44
-    draw.text((TX, strip_y), _uname, fill=(*CYAN, 200), font=fc)
+    draw.text((ART_X, strip_y), _uname, fill=(*CYAN, 200), font=fc)
 
     dev_w = int(fc.getlength(dev_txt))
     draw.text((W - dev_w - 40, strip_y), dev_txt, fill=(*GOLD, 220), font=fc)
