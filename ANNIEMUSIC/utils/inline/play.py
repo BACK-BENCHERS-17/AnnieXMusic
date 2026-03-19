@@ -81,7 +81,7 @@ def control_buttons(_, chat_id):
         ],
         [
             InlineKeyboardButton(
-                text="<emoji id='6095843123252957701'>⚡️</emoji> ᴀᴜᴛᴏᴘʟᴀʏ",
+                text="<emoji id='5042200814190330758'>💫</emoji> ᴀᴜᴛᴏᴘʟᴀʏ",
                 callback_data=f"ADMIN Autoplay|{chat_id}",
                 style="primary"
             ),

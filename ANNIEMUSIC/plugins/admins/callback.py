@@ -212,31 +212,32 @@ async def manage_callback(client, callback: CallbackQuery, _):
         from ANNIEMUSIC.utils.database import autoplay_off, autoplay_on, is_autoplay
         await callback.answer()
         enabled = await is_autoplay(chat_id)
+        _BANNER = (
+            "<emoji id='5463107823946717464'>🎵</emoji>"
+            " <b>ᴀɴɴɪᴇ ✘ ᴀᴜᴛᴏᴘʟᴀʏ</b> "
+            "<emoji id='5463107823946717464'>🎵</emoji>\n"
+            "<b>┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄</b>\n"
+        )
         if enabled:
             await autoplay_off(chat_id)
             await callback.message.reply_text(
-                "<emoji id='5296587316201005019'>💕</emoji>"
-                "<emoji id='6095843123252957701'>⚡️</emoji>"
-                " <b>ᴀɴɴɪᴇ ✘ ᴀᴜᴛᴏᴘʟᴀʏ</b> "
-                "<emoji id='6095843123252957701'>⚡️</emoji>"
-                "<emoji id='5296587316201005019'>💕</emoji>\n"
-                "<b>▰▰▰▰▰▰▰▰▰▰▰▰▰</b>\n\n"
-                f"<emoji id='4956222745814762495'>❤️‍🔥</emoji> <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴅɪsᴀʙʟᴇᴅ ❌</b>\n"
-                f"<b>ʙʏ :</b> {user_mention}",
+                f"{_BANNER}"
+                f"<blockquote>"
+                f"<emoji id='5040042498634810056'>❌</emoji> <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴅɪsᴀʙʟᴇᴅ</b>\n\n"
+                f"<emoji id='5039771357349413873'>🎶</emoji> <b>ᴀɴɴɪᴇ ᴡɪʟʟ sᴛᴏᴘ ᴀғᴛᴇʀ ǫᴜᴇᴜᴇ ᴇɴᴅs.</b>\n"
+                f"<b>ʙʏ :</b> {user_mention}"
+                f"</blockquote>",
                 reply_markup=close_markup(_),
             )
         else:
             await autoplay_on(chat_id)
             await callback.message.reply_text(
-                "<emoji id='5296587316201005019'>💕</emoji>"
-                "<emoji id='6095843123252957701'>⚡️</emoji>"
-                " <b>ᴀɴɴɪᴇ ✘ ᴀᴜᴛᴏᴘʟᴀʏ</b> "
-                "<emoji id='6095843123252957701'>⚡️</emoji>"
-                "<emoji id='5296587316201005019'>💕</emoji>\n"
-                "<b>▰▰▰▰▰▰▰▰▰▰▰▰▰</b>\n\n"
-                f"<emoji id='6095843123252957701'>⚡️</emoji> <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴇɴᴀʙʟᴇᴅ ✅</b>\n"
-                f"<b>ᴀɴɴɪᴇ ᴡɪʟʟ ᴀᴜᴛᴏ-ᴘʟᴀʏ ʀᴇʟᴀᴛᴇᴅ sᴏɴɢs ⚡️</b>\n"
-                f"<b>ʙʏ :</b> {user_mention}",
+                f"{_BANNER}"
+                f"<blockquote>"
+                f"<emoji id='5042334757040423886'>⚡️</emoji> <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴇɴᴀʙʟᴇᴅ ✅</b>\n\n"
+                f"<emoji id='6030657343744644592'>🔁</emoji> <b>ᴀɴɴɪᴇ ᴡɪʟʟ ᴀᴜᴛᴏ-ᴘʟᴀʏ ʀᴇʟᴀᴛᴇᴅ sᴏɴɢs!</b>\n"
+                f"<b>ʙʏ :</b> {user_mention}"
+                f"</blockquote>",
                 reply_markup=close_markup(_),
             )
 

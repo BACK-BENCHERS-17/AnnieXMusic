@@ -367,17 +367,20 @@ class Call:
                                         chat_id=original_chat_id,
                                         photo=img,
                                         caption=(
-                                            "<emoji id='5296587316201005019'>💕</emoji>"
-                                            "<emoji id='6095843123252957701'>⚡️</emoji>"
+                                            "<emoji id='5463107823946717464'>🎵</emoji>"
                                             " <b>ᴀɴɴɪᴇ ✘ ᴀᴜᴛᴏᴘʟᴀʏ</b> "
-                                            "<emoji id='6095843123252957701'>⚡️</emoji>"
-                                            "<emoji id='5296587316201005019'>💕</emoji>\n"
-                                            "<b>▰▰▰▰▰▰▰▰▰▰▰▰▰</b>\n\n"
-                                            f"<b>🎵 ɴᴏᴡ ᴘʟᴀʏɪɴɢ :</b> "
+                                            "<emoji id='5463107823946717464'>🎵</emoji>\n"
+                                            "<b>┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄</b>\n"
+                                            "<blockquote>"
+                                            "<emoji id='5039771357349413873'>🎶</emoji>"
+                                            f" <b>ɴᴏᴡ ᴘʟᴀʏɪɴɢ :</b> "
                                             f"<a href='https://www.youtube.com/watch?v={ap_vidid}'>"
-                                            f"{ap_title[:55]}</a>\n"
-                                            f"<b>⏱ ᴅᴜʀᴀᴛɪᴏɴ :</b> {ap_dur}\n"
-                                            f"<b>🔁 ᴀᴜᴛᴏᴘʟᴀʏ ɪs ᴏɴ</b>"
+                                            f"{ap_title[:55]}</a>\n\n"
+                                            "<emoji id='5123230779593196220'>⏰</emoji>"
+                                            f" <b>ᴅᴜʀᴀᴛɪᴏɴ :</b> <b>{ap_dur}</b>\n\n"
+                                            "<emoji id='6030657343744644592'>🔁</emoji>"
+                                            " <b>ᴀᴜᴛᴏᴘʟᴀʏ ɪs ᴏɴ</b>"
+                                            "</blockquote>"
                                         ),
                                         reply_markup=InlineKeyboardMarkup(btn),
                                         has_spoiler=True,

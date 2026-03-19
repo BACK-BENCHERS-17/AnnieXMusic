@@ -7,13 +7,18 @@ from ANNIEMUSIC.utils.decorators import AdminRightsCheck
 from ANNIEMUSIC.utils.inline import close_markup, InlineKeyboardButton
 from config import BANNED_USERS
 
+E_MUSIC  = "<emoji id='5463107823946717464'>🎵</emoji>"
+E_SPARK  = "<emoji id='5039827436737397847'>✨</emoji>"
+E_ZAP    = "<emoji id='5042334757040423886'>⚡️</emoji>"
+E_CROSS  = "<emoji id='5040042498634810056'>❌</emoji>"
+E_NOTE   = "<emoji id='5039771357349413873'>🎶</emoji>"
+E_CLOCK  = "<emoji id='5123230779593196220'>⏰</emoji>"
+E_REPEAT = "<emoji id='6030657343744644592'>🔁</emoji>"
+E_STAR   = "<emoji id='5042200814190330758'>💫</emoji>"
+
 BANNER = (
-    "<emoji id='5296587316201005019'>💕</emoji>"
-    "<emoji id='6095843123252957701'>⚡️</emoji>"
-    " <b>ᴀɴɴɪᴇ ✘ ᴀᴜᴛᴏᴘʟᴀʏ</b> "
-    "<emoji id='6095843123252957701'>⚡️</emoji>"
-    "<emoji id='5296587316201005019'>💕</emoji>\n"
-    "<b>▰▰▰▰▰▰▰▰▰▰▰▰▰</b>\n"
+    f"{E_MUSIC} <b>ᴀɴɴɪᴇ ✘ ᴀᴜᴛᴏᴘʟᴀʏ</b> {E_MUSIC}\n"
+    f"<b>┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄</b>\n"
 )
 
 
@@ -21,20 +26,12 @@ def autoplay_markup(_, enabled: bool):
     return InlineKeyboardMarkup([
         [
             InlineKeyboardButton(
-                text=(
-                    "<emoji id='6095843123252957701'>⚡️</emoji> ᴏɴ ✅"
-                    if enabled else
-                    "<emoji id='5361964771509808811'>🍷</emoji> ᴏɴ"
-                ),
+                text=f"{E_ZAP} ᴏɴ ✅" if enabled else f"{E_ZAP} ᴏɴ",
                 callback_data="AUTOPLAY_TOGGLE_ON",
                 style="success" if enabled else "primary",
             ),
             InlineKeyboardButton(
-                text=(
-                    "<emoji id='4956222745814762495'>❤️‍🔥</emoji> ᴏғғ"
-                    if enabled else
-                    "<emoji id='4956222745814762495'>❤️‍🔥</emoji> ᴏғғ ✅"
-                ),
+                text=f"{E_CROSS} ᴏғғ" if enabled else f"{E_CROSS} ᴏғғ ✅",
                 callback_data="AUTOPLAY_TOGGLE_OFF",
                 style="primary" if enabled else "danger",
             ),
@@ -56,20 +53,23 @@ def autoplay_markup(_, enabled: bool):
 async def autoplay_command(cli, message: Message, _, chat_id):
     enabled = await is_autoplay(chat_id)
 
-    status_line = (
-        "<emoji id='6095843123252957701'>⚡️</emoji> <b>ᴀᴜᴛᴏᴘʟᴀʏ :</b> "
-        + ("<b>ᴇɴᴀʙʟᴇᴅ ✅</b>" if enabled else "<b>ᴅɪsᴀʙʟᴇᴅ ❌</b>")
+    status = (
+        f"{E_ZAP} <b>ᴀᴜᴛᴏᴘʟᴀʏ :</b> <b>ᴇɴᴀʙʟᴇᴅ ✅</b>"
+        if enabled else
+        f"{E_CROSS} <b>ᴀᴜᴛᴏᴘʟᴀʏ :</b> <b>ᴅɪsᴀʙʟᴇᴅ</b>"
     )
 
     text = (
         f"{BANNER}"
-        f"{status_line}\n"
-        f"<b>▰▰▰▰▰▰▰▰▰▰▰▰▰</b>\n\n"
-        f"<emoji id='4958719848390591540'>🦋</emoji> <b>ᴡʜᴇɴ ᴇɴᴀʙʟᴇᴅ, ᴀɴɴɪᴇ ᴀᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ\n"
-        f"ᴘʟᴀʏs ᴀ ʀᴇʟᴀᴛᴇᴅ sᴏɴɢ ᴡʜᴇɴ ǫᴜᴇᴜᴇ ɪs ᴇᴍᴘᴛʏ.</b>\n\n"
-        f"<emoji id='5298709502491637271'>🌈</emoji> <b>ᴜsᴇ ʙᴜᴛᴛᴏɴs ʙᴇʟᴏᴡ ᴏʀ:</b>\n"
-        f"  <code>/autoplay on</code> — ᴇɴᴀʙʟᴇ\n"
-        f"  <code>/autoplay off</code> — ᴅɪsᴀʙʟᴇ"
+        f"{status}\n"
+        f"<b>┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄</b>\n\n"
+        f"<blockquote>"
+        f"{E_NOTE} <b>ᴡʜᴇɴ ᴇɴᴀʙʟᴇᴅ, ᴀɴɴɪᴇ ᴀᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ ᴘʟᴀʏs\n"
+        f"ᴀ ʀᴇʟᴀᴛᴇᴅ sᴏɴɢ ᴡʜᴇɴ ǫᴜᴇᴜᴇ ɪs ᴇᴍᴘᴛʏ.</b>\n\n"
+        f"{E_SPARK} <b>ᴜsᴇ ʙᴜᴛᴛᴏɴs ʙᴇʟᴏᴡ ᴏʀ:</b>\n"
+        f"  <code>/autoplay on</code>  —  ᴇɴᴀʙʟᴇ\n"
+        f"  <code>/autoplay off</code>  —  ᴅɪsᴀʙʟᴇ"
+        f"</blockquote>"
     )
 
     if len(message.command) == 2:
@@ -78,32 +78,43 @@ async def autoplay_command(cli, message: Message, _, chat_id):
             if enabled:
                 return await message.reply_text(
                     f"{BANNER}"
-                    f"<emoji id='6095843123252957701'>⚡️</emoji> <b>ᴀᴜᴛᴏᴘʟᴀʏ ɪs ᴀʟʀᴇᴀᴅʏ ᴇɴᴀʙʟᴇᴅ ✅</b>"
+                    f"<blockquote>"
+                    f"{E_ZAP} <b>ᴀᴜᴛᴏᴘʟᴀʏ ɪs ᴀʟʀᴇᴀᴅʏ ᴇɴᴀʙʟᴇᴅ ✅</b>"
+                    f"</blockquote>"
                 )
             await autoplay_on(chat_id)
             return await message.reply_text(
                 f"{BANNER}"
-                f"<emoji id='6095843123252957701'>⚡️</emoji> <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴇɴᴀʙʟᴇᴅ ✅</b>\n\n"
-                f"<b>ᴀɴɴɪᴇ ᴡɪʟʟ ᴀᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ ᴘʟᴀʏ ʀᴇʟᴀᴛᴇᴅ sᴏɴɢs ⚡️</b>",
+                f"<blockquote>"
+                f"{E_ZAP} <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴇɴᴀʙʟᴇᴅ ✅</b>\n\n"
+                f"{E_REPEAT} <b>ᴀɴɴɪᴇ ᴡɪʟʟ ᴀᴜᴛᴏ-ᴘʟᴀʏ ʀᴇʟᴀᴛᴇᴅ sᴏɴɢs!</b>"
+                f"</blockquote>",
                 reply_markup=close_markup(_),
             )
         elif arg == "off":
             if not enabled:
                 return await message.reply_text(
                     f"{BANNER}"
-                    f"<emoji id='4956222745814762495'>❤️‍🔥</emoji> <b>ᴀᴜᴛᴏᴘʟᴀʏ ɪs ᴀʟʀᴇᴀᴅʏ ᴅɪsᴀʙʟᴇᴅ ❌</b>"
+                    f"<blockquote>"
+                    f"{E_CROSS} <b>ᴀᴜᴛᴏᴘʟᴀʏ ɪs ᴀʟʀᴇᴀᴅʏ ᴅɪsᴀʙʟᴇᴅ</b>"
+                    f"</blockquote>"
                 )
             await autoplay_off(chat_id)
             return await message.reply_text(
                 f"{BANNER}"
-                f"<emoji id='4956222745814762495'>❤️‍🔥</emoji> <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴅɪsᴀʙʟᴇᴅ ❌</b>\n\n"
-                f"<b>ᴀɴɴɪᴇ ᴡɪʟʟ sᴛᴏᴘ ᴀғᴛᴇʀ ǫᴜᴇᴜᴇ ᴇɴᴅs.</b>",
+                f"<blockquote>"
+                f"{E_CROSS} <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴅɪsᴀʙʟᴇᴅ ❌</b>\n\n"
+                f"{E_NOTE} <b>ᴀɴɴɪᴇ ᴡɪʟʟ sᴛᴏᴘ ᴀғᴛᴇʀ ǫᴜᴇᴜᴇ ᴇɴᴅs.</b>"
+                f"</blockquote>",
                 reply_markup=close_markup(_),
             )
         else:
             return await message.reply_text(
                 f"{BANNER}"
-                f"<b>ᴜsᴀɢᴇ:</b> <code>/autoplay on</code> ᴏʀ <code>/autoplay off</code>"
+                f"<blockquote>"
+                f"{E_SPARK} <b>ᴜsᴀɢᴇ:</b> "
+                f"<code>/autoplay on</code> ᴏʀ <code>/autoplay off</code>"
+                f"</blockquote>"
             )
 
     await message.reply_text(text, reply_markup=autoplay_markup(_, enabled))
@@ -111,7 +122,6 @@ async def autoplay_command(cli, message: Message, _, chat_id):
 
 @app.on_callback_query(filters.regex("^AUTOPLAY_TOGGLE_") & ~BANNED_USERS)
 async def autoplay_toggle_cb(client, callback):
-    from ANNIEMUSIC.utils.decorators import languageCB
     from strings import get_string
     from ANNIEMUSIC.utils.database import get_lang
 
