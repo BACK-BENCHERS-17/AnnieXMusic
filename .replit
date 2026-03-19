@@ -32,13 +32,9 @@ outputType = "console"
 [userenv]
 
 [userenv.shared]
-API_HASH = "317cec181636ecdbb76c6d43a2d5935d"
 API_ID = "33679425"
-BOT_TOKEN = "8181377432:AAGCMxdbGAo5zX1nxcG00pQO9Qcep5ywt4c"
 COOKIE_URL = "https://batbin.me/ribbonfish"
 LOGGER_ID = "-1003455370306"
-MONGO_DB_URI = "mongodb+srv://bb:bb@cluster0.by6uncl.mongodb.net/?appName=Cluster0"
-STRING_SESSION = "BQIB6EEAr6bLR5EjGYxHLF6ZANRy9TlswPaTfRHcojB3DECbhz_mxF8CLbUhmvyxNtIZYIKzdUMEkdJ1M3aqc0X9sYp9cMFP3BKHbSBXnc5VezYg0CPh6pctrpijreZSYTfuHodQjgUcKb-GF1g3IwaHrJflG6F7afkGRoSzbtXAsUKcVUqc5e0aJPMlVN3GEWOK1OeXJUG76dLKqlyx3sXfxXbmwi34Eb3tPi6SqHfe0iXdlcRu0uW7gzB3unRE__zg-ZF9nirWz2sC8F5TwflqxgbNmlq0hw7-fs6k9QhpfzCO0bR7AkemSN56iVfJgPc1O3s6nU4nT_t-YoL_255eXWXmpAAAAAHkdbuiAA"
 
 [[ports]]
 localPort = 8080
