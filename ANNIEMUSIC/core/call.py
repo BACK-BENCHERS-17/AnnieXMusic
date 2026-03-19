@@ -31,7 +31,7 @@ from ANNIEMUSIC.utils.database import (
 )
 from ANNIEMUSIC.utils.exceptions import AssistantErr
 from ANNIEMUSIC.utils.formatters import check_duration, seconds_to_min, speed_converter
-from ANNIEMUSIC.utils.inline import stream_markup, add_to_channel_markup
+from ANNIEMUSIC.utils.inline import stream_markup, stream_markup_timer, add_to_channel_markup, InlineKeyboardButton as StyledBtn
 from ANNIEMUSIC.utils.stream.autoclear import auto_clean
 from ANNIEMUSIC.utils.thumbnails import get_thumb
 from ANNIEMUSIC.utils.errors import capture_internal_err, send_large_error
@@ -439,13 +439,19 @@ class Call:
                                         "<emoji id='5213337333742454261'>🔤</emoji>"
                                     )
                                     _add_btn = f"https://t.me/{app.username}?startgroup=true"
-                                    btn = [
-                                        [InlineKeyboardButton(
+                                    btn = (
+                                        [[StyledBtn(
                                             text=f"🎵 {ap_title_short}  •  {ap_dur}",
                                             url=_add_btn,
-                                        )],
-                                    ] + stream_markup(_lang, chat_id, autoplay_on=True)
-                                    await app.send_photo(
+                                            style="primary",
+                                        )]]
+                                        + stream_markup_timer(
+                                            _lang, chat_id,
+                                            "0:00", ap_dur,
+                                            autoplay_on=True,
+                                        )
+                                    )
+                                    ap_msg = await app.send_photo(
                                         chat_id=original_chat_id,
                                         photo=img,
                                         caption=(
@@ -463,6 +469,7 @@ class Call:
                                         reply_markup=InlineKeyboardMarkup(btn),
                                         has_spoiler=True,
                                     )
+                                    db[chat_id][0]["mystic"] = ap_msg
                                 except Exception:
                                     pass
                                 return
