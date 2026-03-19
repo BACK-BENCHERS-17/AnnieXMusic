@@ -23,6 +23,7 @@ from ANNIEMUSIC.utils.database import (
     get_loop,
     group_assistant,
     is_autoend,
+    is_autoplay,
     music_on,
     remove_active_chat,
     remove_active_video_chat,
@@ -294,6 +295,99 @@ class Call:
                 await set_loop(chat_id, loop)
             await auto_clean(popped)
             if not check:
+                # ── Autoplay: find & play a related song ───────────────────────
+                if popped and await is_autoplay(chat_id):
+                    try:
+                        last_title = popped.get("title", "")
+                        last_vidid = popped.get("vidid", "")
+                        original_chat_id = popped.get("chat_id", chat_id)
+                        from youtubesearchpython.__future__ import VideosSearch
+                        import config as _cfg
+                        from ANNIEMUSIC.utils.formatters import time_to_seconds as _tts
+
+                        results = await VideosSearch(
+                            f"{last_title} songs mix", limit=6
+                        ).next()
+                        candidates = results.get("result") or []
+
+                        chosen = None
+                        for item in candidates:
+                            vid = item.get("id", "")
+                            dur_raw = item.get("duration") or ""
+                            if vid and vid != last_vidid and dur_raw:
+                                try:
+                                    if _tts(dur_raw) <= _cfg.DURATION_LIMIT:
+                                        chosen = item
+                                        break
+                                except Exception:
+                                    chosen = item
+                                    break
+
+                        if chosen:
+                            ap_vidid   = chosen.get("id")
+                            ap_title   = chosen.get("title", "Unknown")
+                            ap_dur     = chosen.get("duration") or "Unknown"
+
+                            n, ap_link = await YouTube.video("", ap_vidid)
+                            if n == 1 and ap_link:
+                                ap_stream = dynamic_media_stream(
+                                    path=ap_link, video=False
+                                )
+                                try:
+                                    await client.play(chat_id, ap_stream)
+                                except Exception:
+                                    pass
+
+                                try:
+                                    ap_sec = _tts(ap_dur) - 3
+                                except Exception:
+                                    ap_sec = 0
+
+                                db[chat_id] = [{
+                                    "title":      ap_title,
+                                    "dur":        ap_dur,
+                                    "streamtype": "audio",
+                                    "by":         "Annie AutoPlay",
+                                    "user_id":    0,
+                                    "chat_id":    original_chat_id,
+                                    "file":       f"live_{ap_vidid}",
+                                    "vidid":      ap_vidid,
+                                    "seconds":    ap_sec,
+                                    "played":     0,
+                                }]
+
+                                language = await get_lang(chat_id)
+                                _lang = get_string(language)
+                                try:
+                                    from ANNIEMUSIC.utils.thumbnails import get_thumb
+                                    from pyrogram.types import InlineKeyboardMarkup
+                                    img = await get_thumb(ap_vidid)
+                                    btn = stream_markup(_lang, chat_id)
+                                    await app.send_photo(
+                                        chat_id=original_chat_id,
+                                        photo=img,
+                                        caption=(
+                                            "<emoji id='5296587316201005019'>💕</emoji>"
+                                            "<emoji id='6095843123252957701'>⚡️</emoji>"
+                                            " <b>ᴀɴɴɪᴇ ✘ ᴀᴜᴛᴏᴘʟᴀʏ</b> "
+                                            "<emoji id='6095843123252957701'>⚡️</emoji>"
+                                            "<emoji id='5296587316201005019'>💕</emoji>\n"
+                                            "<b>▰▰▰▰▰▰▰▰▰▰▰▰▰</b>\n\n"
+                                            f"<b>🎵 ɴᴏᴡ ᴘʟᴀʏɪɴɢ :</b> "
+                                            f"<a href='https://www.youtube.com/watch?v={ap_vidid}'>"
+                                            f"{ap_title[:55]}</a>\n"
+                                            f"<b>⏱ ᴅᴜʀᴀᴛɪᴏɴ :</b> {ap_dur}\n"
+                                            f"<b>🔁 ᴀᴜᴛᴏᴘʟᴀʏ ɪs ᴏɴ</b>"
+                                        ),
+                                        reply_markup=InlineKeyboardMarkup(btn),
+                                        has_spoiler=True,
+                                    )
+                                except Exception:
+                                    pass
+                                return
+                    except Exception as ap_err:
+                        LOGGER(__name__).warning(f"Autoplay error: {ap_err}")
+                # ── Normal end: clear and leave ────────────────────────────────
                 await _clear_(chat_id)
                 if chat_id in self.active_calls:
                     try:

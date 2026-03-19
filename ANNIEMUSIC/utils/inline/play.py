@@ -51,33 +51,42 @@ def generate_progress_bar(played_sec, duration_sec):
 
 
 def control_buttons(_, chat_id):
-    return [[
-        InlineKeyboardButton(
-            text="▷", 
-            callback_data=f"ADMIN Resume|{chat_id}", 
-            style="success"
-        ),
-        InlineKeyboardButton(
-            text="II", 
-            callback_data=f"ADMIN Pause|{chat_id}", 
-            style="primary"
-        ),
-        InlineKeyboardButton(
-            text="↻", 
-            callback_data=f"ADMIN Replay|{chat_id}", 
-            style="primary"
-        ),
-        InlineKeyboardButton(
-            text="‣‣I", 
-            callback_data=f"ADMIN Skip|{chat_id}", 
-            style="primary"
-        ),
-        InlineKeyboardButton(
-            text="▢", 
-            callback_data=f"ADMIN Stop|{chat_id}", 
-            style="danger"
-        ),
-    ]]
+    return [
+        [
+            InlineKeyboardButton(
+                text="▷",
+                callback_data=f"ADMIN Resume|{chat_id}",
+                style="success"
+            ),
+            InlineKeyboardButton(
+                text="II",
+                callback_data=f"ADMIN Pause|{chat_id}",
+                style="primary"
+            ),
+            InlineKeyboardButton(
+                text="↻",
+                callback_data=f"ADMIN Replay|{chat_id}",
+                style="primary"
+            ),
+            InlineKeyboardButton(
+                text="‣‣I",
+                callback_data=f"ADMIN Skip|{chat_id}",
+                style="primary"
+            ),
+            InlineKeyboardButton(
+                text="▢",
+                callback_data=f"ADMIN Stop|{chat_id}",
+                style="danger"
+            ),
+        ],
+        [
+            InlineKeyboardButton(
+                text="<emoji id='6095843123252957701'>⚡️</emoji> ᴀᴜᴛᴏᴘʟᴀʏ",
+                callback_data=f"ADMIN Autoplay|{chat_id}",
+                style="primary"
+            ),
+        ],
+    ]
 
 
 def stream_markup_timer(_, chat_id, played, dur):

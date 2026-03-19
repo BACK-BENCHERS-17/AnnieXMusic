@@ -7,6 +7,7 @@ from ANNIEMUSIC.core.mongo import mongodb
 authdb = mongodb.adminauth
 authuserdb = mongodb.authuser
 autoenddb = mongodb.autoend
+autplaydb = mongodb.autoplaymode
 assdb = mongodb.assistants
 blacklist_chatdb = mongodb.blacklistChat
 blockeddb = mongodb.blockedusers
@@ -27,6 +28,7 @@ active = []
 activevideo = []
 assistantdict = {}
 autoend = {}
+autoplay_cache = {}
 count = {}
 channelconnect = {}
 langm = {}
@@ -660,3 +662,24 @@ async def remove_banned_user(user_id: int):
     if not is_gbanned:
         return
     return await blockeddb.delete_one({"user_id": user_id})
+
+
+async def is_autoplay(chat_id: int) -> bool:
+    mode = autoplay_cache.get(chat_id)
+    if mode is None:
+        user = await autplaydb.find_one({"chat_id": chat_id})
+        autoplay_cache[chat_id] = bool(user)
+        return bool(user)
+    return mode
+
+
+async def autoplay_on(chat_id: int):
+    autoplay_cache[chat_id] = True
+    await autplaydb.update_one(
+        {"chat_id": chat_id}, {"$set": {"chat_id": chat_id}}, upsert=True
+    )
+
+
+async def autoplay_off(chat_id: int):
+    autoplay_cache[chat_id] = False
+    await autplaydb.delete_one({"chat_id": chat_id})

@@ -208,6 +208,38 @@ async def manage_callback(client, callback: CallbackQuery, _):
         playlist.insert(0, popped)
         await callback.message.reply_text(_["admin_44"].format(user_mention))
 
+    elif command == "Autoplay":
+        from ANNIEMUSIC.utils.database import autoplay_off, autoplay_on, is_autoplay
+        await callback.answer()
+        enabled = await is_autoplay(chat_id)
+        if enabled:
+            await autoplay_off(chat_id)
+            await callback.message.reply_text(
+                "<emoji id='5296587316201005019'>💕</emoji>"
+                "<emoji id='6095843123252957701'>⚡️</emoji>"
+                " <b>ᴀɴɴɪᴇ ✘ ᴀᴜᴛᴏᴘʟᴀʏ</b> "
+                "<emoji id='6095843123252957701'>⚡️</emoji>"
+                "<emoji id='5296587316201005019'>💕</emoji>\n"
+                "<b>▰▰▰▰▰▰▰▰▰▰▰▰▰</b>\n\n"
+                f"<emoji id='4956222745814762495'>❤️‍🔥</emoji> <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴅɪsᴀʙʟᴇᴅ ❌</b>\n"
+                f"<b>ʙʏ :</b> {user_mention}",
+                reply_markup=close_markup(_),
+            )
+        else:
+            await autoplay_on(chat_id)
+            await callback.message.reply_text(
+                "<emoji id='5296587316201005019'>💕</emoji>"
+                "<emoji id='6095843123252957701'>⚡️</emoji>"
+                " <b>ᴀɴɴɪᴇ ✘ ᴀᴜᴛᴏᴘʟᴀʏ</b> "
+                "<emoji id='6095843123252957701'>⚡️</emoji>"
+                "<emoji id='5296587316201005019'>💕</emoji>\n"
+                "<b>▰▰▰▰▰▰▰▰▰▰▰▰▰</b>\n\n"
+                f"<emoji id='6095843123252957701'>⚡️</emoji> <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴇɴᴀʙʟᴇᴅ ✅</b>\n"
+                f"<b>ᴀɴɴɪᴇ ᴡɪʟʟ ᴀᴜᴛᴏ-ᴘʟᴀʏ ʀᴇʟᴀᴛᴇᴅ sᴏɴɢs ⚡️</b>\n"
+                f"<b>ʙʏ :</b> {user_mention}",
+                reply_markup=close_markup(_),
+            )
+
     elif command in ["Skip", "Replay"]:
         await handle_skip_replay(callback, _, chat_id, command, user_mention)
 
