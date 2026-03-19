@@ -45,8 +45,9 @@ def generate_progress_bar(played_sec, duration_sec):
     else:
         percentage = min((played_sec / duration_sec) * 100, 100)
 
-    bar_length = 8
-    filled = int(round(bar_length * percentage / 70))
+    bar_length = 11
+    filled = int(round(bar_length * percentage / 100))
+    filled = max(0, min(filled, bar_length))
     return "▰" * filled + "▱" * (bar_length - filled)
 
 
