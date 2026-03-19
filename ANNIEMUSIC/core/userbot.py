@@ -20,52 +20,45 @@ class Userbot:
             "AnnieAssis1",
             config.API_ID,
             config.API_HASH,
-            session_string=str(config.STRING1),
+            session_string=config.STRING1,
             no_updates=True,
             parse_mode=enums.ParseMode.HTML,
-        )
+        ) if config.STRING1 else None
         self.two = Client(
             "AnnieAssis2",
             config.API_ID,
             config.API_HASH,
-            session_string=str(config.STRING2),
+            session_string=config.STRING2,
             no_updates=True,
             parse_mode=enums.ParseMode.HTML,
-        )
+        ) if config.STRING2 else None
         self.three = Client(
             "AnnieAssis3",
             config.API_ID,
             config.API_HASH,
-            session_string=str(config.STRING3),
+            session_string=config.STRING3,
             no_updates=True,
             parse_mode=enums.ParseMode.HTML,
-        )
+        ) if config.STRING3 else None
         self.four = Client(
             "AnnieAssis4",
             config.API_ID,
             config.API_HASH,
-            session_string=str(config.STRING4),
+            session_string=config.STRING4,
             no_updates=True,
             parse_mode=enums.ParseMode.HTML,
-        )
+        ) if config.STRING4 else None
         self.five = Client(
             "AnnieAssis5",
             config.API_ID,
             config.API_HASH,
-            session_string=str(config.STRING5),
+            session_string=config.STRING5,
             no_updates=True,
             parse_mode=enums.ParseMode.HTML,
-        )
+        ) if config.STRING5 else None
 
-    async def start_assistant(self, client: Client, index: int):
-        string_attr = [
-            config.STRING1,
-            config.STRING2,
-            config.STRING3,
-            config.STRING4,
-            config.STRING5,
-        ][index - 1]
-        if not string_attr:
+    async def start_assistant(self, client, index: int):
+        if client is None:
             return
 
         try:

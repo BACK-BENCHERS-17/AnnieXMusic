@@ -396,7 +396,7 @@ class Call:
                                     LOGGER(__name__).warning(f"Autoplay client.play error: {_play_err}")
 
                                 if not ap_played:
-                                    break
+                                    return
 
                                 try:
                                     ap_sec = _tts(ap_dur) - 3
