@@ -4,7 +4,7 @@ expertMode = true
 
 [nix]
 channel = "stable-25_05"
-packages = ["ffmpeg", "git", "libGL", "libGLU", "mesa", "xorg.libxcb", "xorg.libX11", "xorg.libXext"]
+packages = ["ffmpeg", "ffmpeg-full", "freetype", "git", "gmp", "lcms2", "libGL", "libGLU", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "libyaml", "mesa", "openjpeg", "tcl", "tk", "xorg.libX11", "xorg.libXext", "xorg.libxcb", "zlib"]
 
 [workflows]
 runButton = "Project"

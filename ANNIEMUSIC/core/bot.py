@@ -1,10 +1,28 @@
 import sys
 import asyncio
+import os
 from pyrogram import Client, errors, enums
 from pyrogram.enums import ChatMemberStatus
 
 import config
 from ..logging import LOGGER
+
+UPIC_PATH = "ANNIEMUSIC/assets/upic.png"
+
+
+async def _update_bot_pfp(client: "JARVIS"):
+    try:
+        photo = None
+        async for p in client.get_chat_photos(client.id, limit=1):
+            photo = p
+            break
+        if photo:
+            await client.download_media(photo.file_id, file_name=UPIC_PATH)
+            LOGGER(__name__).info("✅ Bot profile picture updated (upic.png).")
+        else:
+            LOGGER(__name__).info("ℹ️ Bot has no profile picture — using existing upic.png.")
+    except Exception as e:
+        LOGGER(__name__).warning(f"⚠️ Could not update bot PFP: {e}")
 
 
 class JARVIS(Client):
@@ -61,3 +79,4 @@ class JARVIS(Client):
             sys.exit()
 
         LOGGER(__name__).info(f"✅ Music Bot started as {self.name} (@{self.username})")
+        await _update_bot_pfp(self)

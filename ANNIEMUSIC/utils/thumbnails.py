@@ -112,12 +112,15 @@ async def get_thumb(videoid: str) -> str:
 
     # ── Base background: blurred + darkened ────────────────────────────────────
     raw  = Image.open(thumb_path).resize((W, H)).convert("RGBA")
+    # Slightly less dark so background colors still show through
     bg   = ImageEnhance.Brightness(
-               raw.filter(ImageFilter.GaussianBlur(28))
-           ).enhance(0.22).convert("RGBA")
+               raw.filter(ImageFilter.GaussianBlur(22))
+           ).enhance(0.35).convert("RGBA")
+    # Boost contrast a little so it feels vivid
+    bg = ImageEnhance.Color(bg).enhance(1.4)
 
-    # Dark blue-tinted overlay
-    overlay = Image.new("RGBA", (W, H), (4, 4, 20, 215))
+    # Dark blue-tinted overlay (reduced opacity so bg is visible)
+    overlay = Image.new("RGBA", (W, H), (4, 6, 28, 175))
     bg = Image.alpha_composite(bg, overlay)
 
     # ── Top neon bar (cyan) ────────────────────────────────────────────────────
