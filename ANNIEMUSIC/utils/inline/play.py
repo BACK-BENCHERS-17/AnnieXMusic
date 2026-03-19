@@ -48,29 +48,27 @@ def control_buttons(_, chat_id, autoplay_on=None):
     return [
         [
             InlineKeyboardButton(
-                text="▷ ʀᴇsᴜᴍᴇ",
+                text="▷",
                 callback_data=f"ADMIN Resume|{chat_id}",
                 style="success"
             ),
             InlineKeyboardButton(
-                text="II ᴘᴀᴜsᴇ",
+                text="II",
                 callback_data=f"ADMIN Pause|{chat_id}",
                 style="primary"
             ),
-        ],
-        [
             InlineKeyboardButton(
-                text="↻ ʀᴇᴘʟᴀʏ",
+                text="↻",
                 callback_data=f"ADMIN Replay|{chat_id}",
                 style="primary"
             ),
             InlineKeyboardButton(
-                text="‣‣I sᴋɪᴩ",
+                text="‣‣I",
                 callback_data=f"ADMIN Skip|{chat_id}",
                 style="primary"
             ),
             InlineKeyboardButton(
-                text="▢ sᴛᴏᴩ",
+                text="▢",
                 callback_data=f"ADMIN Stop|{chat_id}",
                 style="danger"
             ),

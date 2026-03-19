@@ -24,15 +24,19 @@ ANNIE_ROW = (
 
 
 def autoplay_markup(_, enabled: bool):
+    bar_on  = "▰▰▰▰▰▰▱▱▱▱▱"
+    bar_off = "▱▱▱▱▱▰▰▰▰▰▰"
     return InlineKeyboardMarkup([
         [
             InlineKeyboardButton(
-                text="✅ ᴇɴᴀʙʟᴇᴅ" if enabled else "ᴇɴᴀʙʟᴇ",
+                text=f"✅ ᴏɴ  {bar_on}" if enabled else f"ᴏɴ  {bar_on}",
                 callback_data="AUTOPLAY_TOGGLE_ON",
                 style="success" if enabled else "primary",
             ),
+        ],
+        [
             InlineKeyboardButton(
-                text="ᴅɪsᴀʙʟᴇ" if enabled else "✅ ᴅɪsᴀʙʟᴇᴅ",
+                text=f"ᴏꜰꜰ  {bar_off}" if enabled else f"❌ ᴏꜰꜰ  {bar_off}",
                 callback_data="AUTOPLAY_TOGGLE_OFF",
                 style="primary" if enabled else "danger",
             ),
