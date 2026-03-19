@@ -1,9 +1,16 @@
-import time
 from . import InlineKeyboardButton
 from ANNIEMUSIC.utils.formatters import time_to_seconds
-import config
+from config import BOT_USERNAME
 
-LAST_UPDATE_TIME = {}
+
+def generate_progress_bar(played_sec, duration_sec):
+    if duration_sec == 0:
+        percentage = 0
+    else:
+        percentage = min((played_sec / duration_sec) * 100, 100)
+    bar_length = 11
+    filled = max(0, min(int(round(bar_length * percentage / 100)), bar_length))
+    return "▰" * filled + "▱" * (bar_length - filled)
 
 
 def track_markup(_, videoid, user_id, channel, fplay):
@@ -30,62 +37,40 @@ def track_markup(_, videoid, user_id, channel, fplay):
     ]
 
 
-def should_update_progress(chat_id):
-    now = time.time()
-    last = LAST_UPDATE_TIME.get(chat_id, 0)
-    if now - last >= 6:
-        LAST_UPDATE_TIME[chat_id] = now
-        return True
-    return False
-
-
-def generate_progress_bar(played_sec, duration_sec):
-    if duration_sec == 0:
-        percentage = 0
-    else:
-        percentage = min((played_sec / duration_sec) * 100, 100)
-
-    bar_length = 11
-    filled = int(round(bar_length * percentage / 100))
-    filled = max(0, min(filled, bar_length))
-    return "▰" * filled + "▱" * (bar_length - filled)
-
-
 def control_buttons(_, chat_id, autoplay_on=None):
     if autoplay_on is True:
-        ap_text = "✅ ᴀᴜᴛᴏᴘʟᴀʏ"
+        ap_text  = "✅ ᴀᴜᴛᴏᴘʟᴀʏ : ᴏɴ"
         ap_style = "success"
-    elif autoplay_on is False:
-        ap_text = "❌ ᴀᴜᴛᴏᴘʟᴀʏ"
-        ap_style = "danger"
     else:
-        ap_text = "ᴀᴜᴛᴏᴘʟᴀʏ"
-        ap_style = "primary"
+        ap_text  = "❌ ᴀᴜᴛᴏᴘʟᴀʏ : ᴏꜰꜰ"
+        ap_style = "danger"
 
     return [
         [
             InlineKeyboardButton(
-                text="▷",
+                text="▷ ʀᴇsᴜᴍᴇ",
                 callback_data=f"ADMIN Resume|{chat_id}",
                 style="success"
             ),
             InlineKeyboardButton(
-                text="II",
+                text="II ᴘᴀᴜsᴇ",
                 callback_data=f"ADMIN Pause|{chat_id}",
                 style="primary"
             ),
+        ],
+        [
             InlineKeyboardButton(
-                text="↻",
+                text="↻ ʀᴇᴘʟᴀʏ",
                 callback_data=f"ADMIN Replay|{chat_id}",
                 style="primary"
             ),
             InlineKeyboardButton(
-                text="‣‣I",
+                text="‣‣I sᴋɪᴩ",
                 callback_data=f"ADMIN Skip|{chat_id}",
                 style="primary"
             ),
             InlineKeyboardButton(
-                text="▢",
+                text="▢ sᴛᴏᴩ",
                 callback_data=f"ADMIN Stop|{chat_id}",
                 style="danger"
             ),
@@ -101,26 +86,35 @@ def control_buttons(_, chat_id, autoplay_on=None):
 
 
 def stream_markup_timer(_, chat_id, played, dur, autoplay_on=None):
-    if not should_update_progress(chat_id):
-        return None
-
-    played_sec = time_to_seconds(played)
+    played_sec   = time_to_seconds(played)
     duration_sec = time_to_seconds(dur)
-    bar = generate_progress_bar(played_sec, duration_sec)
+    bar          = generate_progress_bar(played_sec, duration_sec)
+
+    bot_url = f"https://t.me/{BOT_USERNAME}" if BOT_USERNAME else "https://t.me/ANNIEXMUSICxBOT"
+    progress_row = [
+        InlineKeyboardButton(
+            text=f"⏱ {played}  {bar}  {dur}",
+            url=bot_url,
+            style="primary"
+        )
+    ]
 
     return (
-        [[InlineKeyboardButton(text=f"{played} {bar} {dur}", url="https://t.me/ANNIEXMUSICxBOT?startgroup=true", style="primary")]] +
-        control_buttons(_, chat_id, autoplay_on=autoplay_on) +
-        [[InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close", style="danger")]]
+        [progress_row]
+        + control_buttons(_, chat_id, autoplay_on=autoplay_on)
+        + [[InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close", style="danger")]]
     )
 
 
 def stream_markup(_, chat_id, autoplay_on=None):
-    return control_buttons(_, chat_id, autoplay_on=autoplay_on) + [[InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close", style="danger")]]
+    return (
+        control_buttons(_, chat_id, autoplay_on=autoplay_on)
+        + [[InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close", style="danger")]]
+    )
 
 
 def playlist_markup(_, videoid, user_id, ptype, channel, fplay):
-    buttons = [
+    return [
         [
             InlineKeyboardButton(
                 text=_["P_B_1"],
@@ -142,7 +136,6 @@ def playlist_markup(_, videoid, user_id, ptype, channel, fplay):
         ],
     ]
 
-    return buttons
 
 def livestream_markup(_, videoid, user_id, mode, channel, fplay):
     return [
