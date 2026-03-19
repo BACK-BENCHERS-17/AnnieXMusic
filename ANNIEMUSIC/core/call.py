@@ -265,6 +265,17 @@ class Call:
                     break
                 except Exception:
                     pass
+            except FloodWait as fw:
+                wait_sec = fw.value + 3
+                if attempt < 2:
+                    await asyncio.sleep(wait_sec)
+                    continue
+                raise AssistantErr(
+                    f"<emoji id='5040042498634810056'>❌</emoji> <b>ᴛᴇʟᴇɢʀᴀᴍ ғʟᴏᴏᴅ ᴡᴀɪᴛ</b>\n\n"
+                    f"<blockquote>"
+                    f"<emoji id='5123230779593196220'>⏰</emoji> ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ <b>{wait_sec}s</b> ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ."
+                    f"</blockquote>"
+                )
             except Exception as e:
                 raise AssistantErr(
                     f"ᴜɴᴀʙʟᴇ ᴛᴏ ᴊᴏɪɴ ᴛʜᴇ ɢʀᴏᴜᴘ ᴄᴀʟʟ.\nRᴇᴀsᴏɴ: {e}"
@@ -411,7 +422,19 @@ class Call:
                 try:
                     await app.send_message(
                         chat_id,
-                        text=f"<b>ᴀʟʟ sᴏɴɢ ғɪɴɪsʜᴇᴅ ʙᴏᴛ ʟᴇғᴛ ᴠᴏɪᴄᴇ ᴄʜᴀᴛ ⚡️~!</b>\n\n<b>ᴘʟᴀʏ ᴀɢᴀɪɴ ᴀɴᴅ ᴇɴᴊᴏʏ sᴏɴɢs.⚡️~!</b>",
+                        text=(
+                            "<emoji id='5463107823946717464'>🎵</emoji>"
+                            " <b>ᴀɴɴɪᴇ ✘ ᴍᴜsɪᴄ</b> "
+                            "<emoji id='5463107823946717464'>🎵</emoji>\n"
+                            "<b>┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄</b>\n"
+                            "<blockquote>"
+                            "<emoji id='5039827436737397847'>✨</emoji>"
+                            " <b>ᴀʟʟ sᴏɴɢs ғɪɴɪsʜᴇᴅ!</b>"
+                            " <b>ʙᴏᴛ ʟᴇғᴛ ᴠᴏɪᴄᴇ ᴄʜᴀᴛ.</b>\n\n"
+                            "<emoji id='5042334757040423886'>⚡️</emoji>"
+                            " <b>ᴘʟᴀʏ ᴀɢᴀɪɴ ᴀɴᴅ ᴇɴᴊᴏʏ sᴏɴɢs!</b>"
+                            "</blockquote>"
+                        ),
                         reply_markup=add_to_channel_markup(_, app.username),
                     )
                 except:
