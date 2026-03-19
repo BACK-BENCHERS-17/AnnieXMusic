@@ -17,8 +17,8 @@ E_REPEAT = "<emoji id='6030657343744644592'>🔁</emoji>"
 E_STAR   = "<emoji id='5042200814190330758'>💫</emoji>"
 
 BANNER = (
-    f"{E_MUSIC} <b>ᴀɴɴɪᴇ ✘ ᴀᴜᴛᴏᴘʟᴀʏ</b> {E_MUSIC}\n"
-    f"<b>┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄</b>\n"
+    f"{E_MUSIC}\n\n"
+    f"<b>ᴀᴜᴛᴏᴘʟᴀʏ</b>\n\n"
 )
 
 

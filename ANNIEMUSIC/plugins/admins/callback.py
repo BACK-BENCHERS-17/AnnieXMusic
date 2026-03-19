@@ -213,10 +213,8 @@ async def manage_callback(client, callback: CallbackQuery, _):
         await callback.answer()
         enabled = await is_autoplay(chat_id)
         _BANNER = (
-            "<emoji id='5463107823946717464'>🎵</emoji>"
-            " <b>ᴀɴɴɪᴇ ✘ ᴀᴜᴛᴏᴘʟᴀʏ</b> "
-            "<emoji id='5463107823946717464'>🎵</emoji>\n"
-            "<b>┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄</b>\n"
+            "<emoji id='5463107823946717464'>🎵</emoji>\n\n"
+            "<b>ᴀᴜᴛᴏᴘʟᴀʏ</b>\n\n"
         )
         if enabled:
             await autoplay_off(chat_id)
