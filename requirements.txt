@@ -15,6 +15,7 @@ gtts
 heroku3
 httpx[http2]==0.28.1
 kurigram==2.2.19
+pyrogram
 lexica-api
 motor
 nekosbest
