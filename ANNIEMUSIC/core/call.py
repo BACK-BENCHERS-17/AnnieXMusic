@@ -38,6 +38,7 @@ from ANNIEMUSIC.utils.errors import capture_internal_err, send_large_error
 
 autoend = {}
 counter = {}
+autoplay_history: dict[int, list] = {}  # per-chat played video IDs history
 
 def dynamic_media_stream(path: str, video: bool = False, ffmpeg_params: str = None) -> MediaStream:
     ytdlp_args = "--js-runtimes node --remote-components ejs:github"
@@ -317,31 +318,59 @@ class Call:
                         import config as _cfg
                         from ANNIEMUSIC.utils.formatters import time_to_seconds as _tts
 
+                        # Build / update per-chat history (keep last 25 songs)
+                        _hist = autoplay_history.setdefault(chat_id, [])
+                        if last_vidid and last_vidid not in _hist:
+                            _hist.append(last_vidid)
+                        if len(_hist) > 25:
+                            _hist.pop(0)
+
+                        # Build a varied search query each call
                         _suffixes = [
                             "best songs", "top hits", "audio jukebox",
                             "hit songs", "songs collection", "popular songs",
                             "playlist", "new songs", "full songs",
+                            "superhit", "evergreen hits", "blockbuster songs",
                         ]
                         _words = [w for w in last_title.split() if len(w) > 3]
-                        _base = _random.choice(_words) if _words else last_title.split()[0] if last_title else "hindi"
-                        _query = f"{_base} {_random.choice(_suffixes)}"
+                        _base = _random.choice(_words) if _words else (
+                            last_title.split()[0] if last_title else "hindi"
+                        )
+                        # Try up to 3 different queries to maximise variety
+                        all_candidates: list = []
+                        for _ in range(3):
+                            _query = f"{_base} {_random.choice(_suffixes)}"
+                            try:
+                                _res = await VideosSearch(_query, limit=10).next()
+                                all_candidates += (_res.get("result") or [])
+                            except Exception:
+                                pass
 
-                        results = await VideosSearch(_query, limit=10).next()
-                        candidates = results.get("result") or []
+                        # Deduplicate by video id
+                        seen_ids: set = set()
+                        unique_candidates = []
+                        for _item in all_candidates:
+                            _vid = _item.get("id", "")
+                            if _vid and _vid not in seen_ids:
+                                seen_ids.add(_vid)
+                                unique_candidates.append(_item)
+
+                        _random.shuffle(unique_candidates)
 
                         chosen = None
-                        _random.shuffle(candidates)
-                        for item in candidates:
+                        for item in unique_candidates:
                             vid = item.get("id", "")
                             dur_raw = item.get("duration") or ""
-                            if vid and vid != last_vidid and dur_raw:
-                                try:
-                                    if _tts(dur_raw) <= _cfg.DURATION_LIMIT:
-                                        chosen = item
-                                        break
-                                except Exception:
+                            # Skip if in history
+                            if not vid or vid in _hist or not dur_raw:
+                                continue
+                            try:
+                                if _tts(dur_raw) <= _cfg.DURATION_LIMIT:
                                     chosen = item
                                     break
+                            except Exception:
+                                chosen = item
+                                break
 
                         if chosen:
                             ap_vidid   = chosen.get("id")
@@ -376,6 +405,12 @@ class Call:
                                     "seconds":    ap_sec,
                                     "played":     0,
                                 }]
+
+                                # Track chosen song in history to prevent repeat
+                                if ap_vidid not in _hist:
+                                    _hist.append(ap_vidid)
+                                if len(_hist) > 25:
+                                    _hist.pop(0)
 
                                 language = await get_lang(chat_id)
                                 _lang = get_string(language)
