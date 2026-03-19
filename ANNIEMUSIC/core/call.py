@@ -5,7 +5,7 @@ from typing import Union
 
 from ntgcalls import TelegramServerError, ConnectionError as NTgConnectionError
 from pyrogram import Client
-from pyrogram.errors import FloodWait, ChatAdminRequired
+from pyrogram.errors import FloodWait, ChatAdminRequired, ChannelInvalid
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pytgcalls import PyTgCalls
 from pytgcalls.exceptions import NoActiveGroupCall
@@ -277,6 +277,11 @@ class Call:
                     f"<emoji id='5123230779593196220'>⏰</emoji> ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ <b>{wait_sec}s</b> ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ."
                     f"</blockquote>"
                 )
+            except ChannelInvalid:
+                raise AssistantErr(
+                    "<b>ᴀssɪsᴛᴀɴᴛ ᴄᴀɴɴᴏᴛ ᴊᴏɪɴ ᴛʜɪs ɢʀᴏᴜᴘ.</b>\n\n"
+                    "<blockquote>ᴘʟᴇᴀsᴇ ᴀᴅᴅ ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.</blockquote>"
+                )
             except Exception as e:
                 raise AssistantErr(
                     f"ᴜɴᴀʙʟᴇ ᴛᴏ ᴊᴏɪɴ ᴛʜᴇ ɢʀᴏᴜᴘ ᴄᴀʟʟ.\nRᴇᴀsᴏɴ: {e}"
@@ -338,7 +343,7 @@ class Call:
                         )
                         # Try up to 3 different queries to maximise variety
                         all_candidates: list = []
-                        for _ in range(3):
+                        for _attempt in range(3):
                             _query = f"{_base} {_random.choice(_suffixes)}"
                             try:
                                 _res = await VideosSearch(_query, limit=10).next()
@@ -383,10 +388,15 @@ class Call:
                                 ap_stream = dynamic_media_stream(
                                     path=ap_link, video=False
                                 )
+                                ap_played = False
                                 try:
                                     await client.play(chat_id, ap_stream)
-                                except Exception:
-                                    pass
+                                    ap_played = True
+                                except Exception as _play_err:
+                                    LOGGER(__name__).warning(f"Autoplay client.play error: {_play_err}")
+
+                                if not ap_played:
+                                    break
 
                                 try:
                                     ap_sec = _tts(ap_dur) - 3
@@ -405,6 +415,7 @@ class Call:
                                     "seconds":    ap_sec,
                                     "played":     0,
                                 }]
+                                await add_active_chat(chat_id)
 
                                 # Track chosen song in history to prevent repeat
                                 if ap_vidid not in _hist:
@@ -416,7 +427,6 @@ class Call:
                                 _lang = get_string(language)
                                 try:
                                     img = await get_thumb(ap_vidid)
-                                    btn = stream_markup(_lang, chat_id)
                                     _BEAR = "<emoji id='5042192219960771668'>🧸</emoji>"
                                     _TIME = "<emoji id='4979027931234830344'>⏳</emoji>"
                                     _DOT  = "<emoji id='5972072533833289156'>🔹</emoji>"
@@ -428,6 +438,13 @@ class Call:
                                         "<emoji id='5211032856154885824'>🔤</emoji>"
                                         "<emoji id='5213337333742454261'>🔤</emoji>"
                                     )
+                                    _add_btn = f"https://t.me/{app.username}?startgroup=true"
+                                    btn = [
+                                        [InlineKeyboardButton(
+                                            text="➕ ᴀᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ",
+                                            url=_add_btn,
+                                        )],
+                                    ] + stream_markup(_lang, chat_id)
                                     await app.send_photo(
                                         chat_id=original_chat_id,
                                         photo=img,
