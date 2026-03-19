@@ -213,16 +213,16 @@ async def manage_callback(client, callback: CallbackQuery, _):
         await callback.answer()
         enabled = await is_autoplay(chat_id)
         _BANNER = (
-            "<emoji id='5463107823946717464'>🎵</emoji>\n\n"
-            "<b>ᴀᴜᴛᴏᴘʟᴀʏ</b>\n\n"
+            "<emoji id='5210820276748566172'>🔤</emoji>  <b>ᴀᴜᴛᴏᴘʟᴀʏ sᴇᴛᴛɪɴɢs</b>  <emoji id='5210820276748566172'>🔤</emoji>\n"
+            "<b>━━━━━━━━━━━━━━━━━━━━━</b>\n\n"
         )
         if enabled:
             await autoplay_off(chat_id)
             await callback.message.reply_text(
                 f"{_BANNER}"
                 f"<blockquote>"
-                f"<emoji id='5040042498634810056'>❌</emoji> <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴅɪsᴀʙʟᴇᴅ</b>\n\n"
-                f"<emoji id='5039771357349413873'>🎶</emoji> <b>ᴀɴɴɪᴇ ᴡɪʟʟ sᴛᴏᴘ ᴀғᴛᴇʀ ǫᴜᴇᴜᴇ ᴇɴᴅs.</b>\n"
+                f"<emoji id='5213337333742454261'>🔤</emoji> <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴅɪsᴀʙʟᴇᴅ ❌</b>\n\n"
+                f"<emoji id='5211032856154885824'>🔤</emoji> <b>ᴀɴɴɪᴇ ᴡɪʟʟ sᴛᴏᴘ ᴀғᴛᴇʀ ǫᴜᴇᴜᴇ ᴇɴᴅs.</b>\n"
                 f"<b>ʙʏ :</b> {user_mention}"
                 f"</blockquote>",
                 reply_markup=close_markup(_),
@@ -232,8 +232,8 @@ async def manage_callback(client, callback: CallbackQuery, _):
             await callback.message.reply_text(
                 f"{_BANNER}"
                 f"<blockquote>"
-                f"<emoji id='5042334757040423886'>⚡️</emoji> <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴇɴᴀʙʟᴇᴅ ✅</b>\n\n"
-                f"<emoji id='6030657343744644592'>🔁</emoji> <b>ᴀɴɴɪᴇ ᴡɪʟʟ ᴀᴜᴛᴏ-ᴘʟᴀʏ ʀᴇʟᴀᴛᴇᴅ sᴏɴɢs!</b>\n"
+                f"<emoji id='5213301251722203632'>🔤</emoji> <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴇɴᴀʙʟᴇᴅ ✅</b>\n\n"
+                f"<emoji id='5211032856154885824'>🔤</emoji> <b>ᴀɴɴɪᴇ ᴡɪʟʟ ᴀᴜᴛᴏ-ᴘʟᴀʏ ʀᴇʟᴀᴛᴇᴅ sᴏɴɢs!</b>\n"
                 f"<b>ʙʏ :</b> {user_mention}"
                 f"</blockquote>",
                 reply_markup=close_markup(_),
