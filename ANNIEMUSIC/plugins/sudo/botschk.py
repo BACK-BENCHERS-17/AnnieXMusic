@@ -11,7 +11,7 @@ BOT_LIST = [
     "TuneviaBot",
     "AvaTheRobot",
     "TheFlashRobot",
-    "AnnieXRobot",
+    "AnnieXMusicXBot",
     "SafeGramRobot"
 ]
 

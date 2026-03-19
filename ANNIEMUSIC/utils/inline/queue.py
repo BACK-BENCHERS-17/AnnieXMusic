@@ -29,7 +29,7 @@ def queue_markup(
         [
             InlineKeyboardButton(
                 text=_["QU_B_2"].format(played, dur),
-                url="https://t.me/ANNIEXMUSICxBOT?startgroup=true",
+                url=f"https://t.me/AnnieXMusicXBot?startgroup=true",
                 style="primary"
             )
         ],
