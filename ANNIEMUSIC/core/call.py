@@ -441,10 +441,10 @@ class Call:
                                     _add_btn = f"https://t.me/{app.username}?startgroup=true"
                                     btn = [
                                         [InlineKeyboardButton(
-                                            text="➕ ᴀᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ",
+                                            text=f"🎵 {ap_title_short}  •  {ap_dur}",
                                             url=_add_btn,
                                         )],
-                                    ] + stream_markup(_lang, chat_id)
+                                    ] + stream_markup(_lang, chat_id, autoplay_on=True)
                                     await app.send_photo(
                                         chat_id=original_chat_id,
                                         photo=img,
@@ -545,7 +545,7 @@ class Call:
                     return await app.send_message(original_chat_id, text=_["call_6"])
 
                 img = await get_thumb(videoid)
-                button = stream_markup(_, chat_id)
+                button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
                 run = await app.send_photo(
                     chat_id=original_chat_id,
                     photo=img,
@@ -582,7 +582,7 @@ class Call:
                     return await app.send_message(original_chat_id, text=_["call_6"])
 
                 img = await get_thumb(videoid)
-                button = stream_markup(_, chat_id)
+                button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
                 await mystic.delete()
                 run = await app.send_photo(
                     chat_id=original_chat_id,
@@ -606,7 +606,7 @@ class Call:
                 except:
                     return await app.send_message(original_chat_id, text=_["call_6"])
 
-                button = stream_markup(_, chat_id)
+                button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
                 run = await app.send_photo(
                     chat_id=original_chat_id,
                     photo=config.STREAM_IMG_URL,
@@ -625,7 +625,7 @@ class Call:
                     return await app.send_message(original_chat_id, text=_["call_6"])
 
                 if videoid == "telegram":
-                    button = stream_markup(_, chat_id)
+                    button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
                     run = await app.send_photo(
                         chat_id=original_chat_id,
                         photo=(
@@ -643,7 +643,7 @@ class Call:
                     db[chat_id][0]["markup"] = "tg"
 
                 elif videoid == "soundcloud":
-                    button = stream_markup(_, chat_id)
+                    button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
                     run = await app.send_photo(
                         chat_id=original_chat_id,
                         photo=config.SOUNCLOUD_IMG_URL,
@@ -658,7 +658,7 @@ class Call:
 
                 else:
                     img = await get_thumb(videoid)
-                    button = stream_markup(_, chat_id)
+                    button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
                     try:
                         run = await app.send_photo(
                             chat_id=original_chat_id,

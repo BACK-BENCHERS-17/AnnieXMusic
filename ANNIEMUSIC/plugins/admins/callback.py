@@ -27,6 +27,7 @@ from ANNIEMUSIC.utils.database import (
     get_lang,
     get_upvote_count,
     is_active_chat,
+    is_autoplay,
     is_music_playing,
     is_muted,
     is_nonadmin_chat,
@@ -309,6 +310,8 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
         db[chat_id][0]["speed_path"] = None
         db[chat_id][0]["speed"] = 1.0
 
+    ap_state = await is_autoplay(chat_id)
+
     if "live_" in queued:
         n, new_link = await YouTube.video(videoid, True)
         if n == 0:
@@ -324,7 +327,7 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
             await JARVIS.skip_stream(chat_id, new_link, video=status, image=image)
         except Exception:
             return await callback.message.reply_text(_["call_6"])
-        buttons = stream_markup(_, chat_id)
+        buttons = stream_markup(_, chat_id, autoplay_on=ap_state)
         img = await get_thumb(videoid)
         run = await callback.message.reply_photo(
             photo=img,
@@ -350,7 +353,7 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
             await JARVIS.skip_stream(chat_id, file_path, video=status, image=image)
         except Exception:
             return await mystic.edit_text(_["call_6"])
-        buttons = stream_markup(_, chat_id)
+        buttons = stream_markup(_, chat_id, autoplay_on=ap_state)
         img = await get_thumb(videoid)
         run = await callback.message.reply_photo(
             photo=img,
@@ -367,7 +370,7 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
             await JARVIS.skip_stream(chat_id, videoid, video=status)
         except Exception:
             return await callback.message.reply_text(_["call_6"])
-        buttons = stream_markup(_, chat_id)
+        buttons = stream_markup(_, chat_id, autoplay_on=ap_state)
         run = await callback.message.reply_photo(
             photo=STREAM_IMG_URL,
             caption=_["stream_2"].format(user),
@@ -391,7 +394,7 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
         except Exception:
             return await callback.message.reply_text(_["call_6"])
         if videoid == "telegram":
-            buttons = stream_markup(_, chat_id)
+            buttons = stream_markup(_, chat_id, autoplay_on=ap_state)
             run = await callback.message.reply_photo(
                 photo=(TELEGRAM_AUDIO_URL if str(streamtype) == "audio" else TELEGRAM_VIDEO_URL),
                 caption=_["stream_1"].format(SUPPORT_CHAT, title[:23], duration, user),
@@ -400,7 +403,7 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "tg"
         elif videoid == "soundcloud":
-            buttons = stream_markup(_, chat_id)
+            buttons = stream_markup(_, chat_id, autoplay_on=ap_state)
             run = await callback.message.reply_photo(
                 photo=(SOUNCLOUD_IMG_URL if str(streamtype) == "audio" else TELEGRAM_VIDEO_URL),
                 caption=_["stream_1"].format(SUPPORT_CHAT, title[:23], duration, user),
@@ -409,7 +412,7 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "tg"
         else:
-            buttons = stream_markup(_, chat_id)
+            buttons = stream_markup(_, chat_id, autoplay_on=ap_state)
             img = await get_thumb(videoid)
             run = await callback.message.reply_photo(
                 photo=img,
@@ -503,11 +506,13 @@ async def markup_timer():
                 except Exception:
                     _lang = get_string("en")
                 try:
+                    _ap_state = await is_autoplay(chat_id)
                     buttons = stream_markup_timer(
                         _lang,
                         chat_id,
                         seconds_to_min(playing[0]["played"]),
                         playing[0]["dur"],
+                        autoplay_on=_ap_state,
                     )
                     await mystic.edit_reply_markup(reply_markup=InlineKeyboardMarkup(buttons))
                 except Exception:
