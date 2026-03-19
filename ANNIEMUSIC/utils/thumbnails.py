@@ -360,7 +360,7 @@ async def get_thumb(videoid: str) -> str:
             draw.text((bl_x, AV_Y + AV + 7), _bot_lbl, fill=(*CYAN, 215), font=font_tiny)
 
             # @username below bot name
-            _bot_un = f"@{BOT_USERNAME}" if BOT_USERNAME else "@AnnieXMusicXBot"
+            _bot_un = f"@{BOT_USERNAME}" if BOT_USERNAME else "@ANNIEXMUSICxBOT"
             un_w    = int(font_tiny.getlength(_bot_un))
             un_x    = AV_X + (AV - un_w) // 2
             draw.text((un_x, AV_Y + AV + 26), _bot_un, fill=(*SOFT_GRAY, 180), font=font_tiny)
@@ -370,7 +370,7 @@ async def get_thumb(videoid: str) -> str:
     # ══════════════════════════════════════════════════════════════════════════
     # BOTTOM-LEFT: @username watermark (image-1 style)
     # ══════════════════════════════════════════════════════════════════════════
-    _un_bl = f"@{BOT_USERNAME}" if BOT_USERNAME else "@AnnieXMusicXBot"
+    _un_bl = f"@{BOT_USERNAME}" if BOT_USERNAME else "@ANNIEXMUSICxBOT"
     draw.text((18, H - 36), _un_bl, fill=(*CYAN, 180), font=font_small)
 
     # ══════════════════════════════════════════════════════════════════════════
