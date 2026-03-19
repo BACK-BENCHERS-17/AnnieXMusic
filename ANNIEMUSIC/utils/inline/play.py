@@ -88,10 +88,10 @@ def stream_markup_timer(_, chat_id, played, dur, autoplay_on=None):
     duration_sec = time_to_seconds(dur)
     bar          = generate_progress_bar(played_sec, duration_sec)
 
-    bot_url = f"https://t.me/{BOT_USERNAME}" if BOT_USERNAME else "https://t.me/ANNIEXMUSICxBOT"
+    bot_url = f"https://t.me/{BOT_USERNAME}?startgroup=true" if BOT_USERNAME else "https://t.me/ANNIEXMUSICxBOT?startgroup=true"
     progress_row = [
         InlineKeyboardButton(
-            text=f"⏱ {played}  {bar}  {dur}",
+            text=f"{played}  {bar}  {dur}",
             url=bot_url,
             style="primary"
         )
