@@ -7,7 +7,7 @@ from pyrogram.enums import ChatMemberStatus
 import config
 from ..logging import LOGGER
 
-UPIC_PATH = "ANNIEMUSIC/assets/upic.png"
+BOT_PFP_PATH = "ANNIEMUSIC/assets/bot_pfp.png"
 
 
 async def _update_bot_pfp(client: "JARVIS"):
@@ -17,12 +17,12 @@ async def _update_bot_pfp(client: "JARVIS"):
             photo = p
             break
         if photo:
-            await client.download_media(photo.file_id, file_name=UPIC_PATH)
-            LOGGER(__name__).info("✅ Bot profile picture updated (upic.png).")
+            await client.download_media(photo.file_id, file_name=BOT_PFP_PATH)
+            LOGGER(__name__).info("✅ Bot profile picture saved as bot_pfp.png.")
         else:
-            LOGGER(__name__).info("ℹ️ Bot has no profile picture — using existing upic.png.")
+            LOGGER(__name__).info("ℹ️ Bot has no profile picture — thumbnail will use upic.png.")
     except Exception as e:
-        LOGGER(__name__).warning(f"⚠️ Could not update bot PFP: {e}")
+        LOGGER(__name__).warning(f"⚠️ Could not fetch bot PFP: {e}")
 
 
 class JARVIS(Client):

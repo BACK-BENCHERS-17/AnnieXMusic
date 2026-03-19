@@ -291,7 +291,12 @@ async def get_thumb(videoid: str) -> str:
             pass
 
     # ── Bot avatar (circular with neon ring) ────────────────────────────────────
-    avatar_path = "ANNIEMUSIC/assets/upic.png"
+    # Use live-downloaded bot PFP if available, else fall back to static upic.png
+    avatar_path = (
+        "ANNIEMUSIC/assets/bot_pfp.png"
+        if os.path.isfile("ANNIEMUSIC/assets/bot_pfp.png")
+        else "ANNIEMUSIC/assets/upic.png"
+    )
     AV = 88
     AV_X = W - AV - 28
     AV_Y = 22
