@@ -415,8 +415,6 @@ class Call:
                                 language = await get_lang(chat_id)
                                 _lang = get_string(language)
                                 try:
-                                    from ANNIEMUSIC.utils.thumbnails import get_thumb
-                                    from pyrogram.types import InlineKeyboardMarkup
                                     img = await get_thumb(ap_vidid)
                                     btn = stream_markup(_lang, chat_id)
                                     _BEAR = "<emoji id='5042192219960771668'>🧸</emoji>"
