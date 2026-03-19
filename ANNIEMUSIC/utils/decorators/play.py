@@ -3,6 +3,7 @@ import asyncio
 from pyrogram.enums import ChatMemberStatus
 from pyrogram.errors import (
     ChatAdminRequired,
+    FloodWait,
     InviteHashExpired,
     InviteRequestSent,
     PeerIdInvalid,
@@ -207,6 +208,12 @@ def PlayWrapper(command):
                     await myu.edit(_["call_5"].format(app.mention))
                 except UserAlreadyParticipant:
                     pass
+                except FloodWait as fw:
+                    await asyncio.sleep(fw.value + 5)
+                    try:
+                        await userbot.join_chat(invitelink)
+                    except Exception:
+                        pass
                 except Exception as e:
                     return await message.reply_text(
                         _["call_3"].format(app.mention, type(e).__name__)

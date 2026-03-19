@@ -309,6 +309,7 @@ class Call:
                 # ── Autoplay: find & play a related song ───────────────────────
                 if popped and await is_autoplay(chat_id):
                     try:
+                        import random as _random
                         last_title = popped.get("title", "")
                         last_vidid = popped.get("vidid", "")
                         original_chat_id = popped.get("chat_id", chat_id)
@@ -316,12 +317,20 @@ class Call:
                         import config as _cfg
                         from ANNIEMUSIC.utils.formatters import time_to_seconds as _tts
 
-                        results = await VideosSearch(
-                            f"{last_title} songs mix", limit=6
-                        ).next()
+                        _suffixes = [
+                            "best songs", "top hits", "audio jukebox",
+                            "hit songs", "songs collection", "popular songs",
+                            "playlist", "new songs", "full songs",
+                        ]
+                        _words = [w for w in last_title.split() if len(w) > 3]
+                        _base = _random.choice(_words) if _words else last_title.split()[0] if last_title else "hindi"
+                        _query = f"{_base} {_random.choice(_suffixes)}"
+
+                        results = await VideosSearch(_query, limit=10).next()
                         candidates = results.get("result") or []
 
                         chosen = None
+                        _random.shuffle(candidates)
                         for item in candidates:
                             vid = item.get("id", "")
                             dur_raw = item.get("duration") or ""
@@ -338,6 +347,7 @@ class Call:
                             ap_vidid   = chosen.get("id")
                             ap_title   = chosen.get("title", "Unknown")
                             ap_dur     = chosen.get("duration") or "Unknown"
+                            ap_title_short = ap_title[:35] + "..." if len(ap_title) > 35 else ap_title
 
                             n, ap_link = await YouTube.video("", ap_vidid)
                             if n == 1 and ap_link:
@@ -374,24 +384,26 @@ class Call:
                                     from pyrogram.types import InlineKeyboardMarkup
                                     img = await get_thumb(ap_vidid)
                                     btn = stream_markup(_lang, chat_id)
+                                    _AE1 = "<emoji id='5210820276748566172'>🔤</emoji>"
+                                    _AE2 = "<emoji id='5213301251722203632'>🔤</emoji>"
+                                    _AE3 = "<emoji id='5211032856154885824'>🔤</emoji>"
+                                    _AE4 = "<emoji id='5213337333742454261'>🔤</emoji>"
                                     await app.send_photo(
                                         chat_id=original_chat_id,
                                         photo=img,
                                         caption=(
-                                            "<emoji id='5463107823946717464'>🎵</emoji>\n\n"
-                                            "<b>ᴀᴜᴛᴏᴘʟᴀʏ</b>\n\n"
-                                            "<b>┌────── ˹ ɪɴғᴏʀᴍᴀᴛɪᴏɴ ˼─── ⏤‌‌●</b>\n"
-                                            f"<b>┆ᴛɪᴛʟᴇ :</b> "
+                                            f"<b>{_AE1}{_AE2}{_AE3}{_AE4}{_AE2}</b>\n"
+                                            f"<b>━━━━━━━━━━━━━━━━━━━━━━━</b>\n"
+                                            f"<b>      ˹ ᴀɴɴɪᴇ ✘ ᴀᴜᴛᴏᴘʟᴀʏ ˼</b>\n"
+                                            f"<b>━━━━━━━━━━━━━━━━━━━━━━━</b>\n\n"
+                                            f"<blockquote>"
+                                            f"{_AE2} <b>ɴᴏᴡ ᴘʟᴀʏɪɴɢ</b>\n\n"
+                                            f"{_AE1} <b>ᴛɪᴛʟᴇ :</b> "
                                             f"<a href='https://www.youtube.com/watch?v={ap_vidid}'>"
-                                            f"{ap_title[:50]}</a>\n"
-                                            f"<b>┆ᴅᴜʀᴀᴛɪᴏɴ :</b> {ap_dur}\n"
-                                            f"<b>┆ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ :</b> ᴀɴɴɪᴇ ᴀᴜᴛᴏᴘʟᴀʏ\n"
-                                            "<b>└──────────────────────●</b>\n\n"
-                                            "<emoji id='5039827436737397847'>✨</emoji>"
-                                            "<emoji id='5042334757040423886'>⚡️</emoji>"
-                                            "<emoji id='6030657343744644592'>🔁</emoji>"
-                                            "<emoji id='5042200814190330758'>💫</emoji>"
-                                            "<emoji id='5039771357349413873'>🎶</emoji>"
+                                            f"{ap_title_short}</a>\n"
+                                            f"{_AE3} <b>ᴅᴜʀᴀᴛɪᴏɴ :</b> {ap_dur}\n"
+                                            f"{_AE4} <b>ᴘʟᴀʏᴇᴅ ʙʏ :</b> ᴀɴɴɪᴇ ᴀᴜᴛᴏᴘʟᴀʏ"
+                                            f"</blockquote>"
                                         ),
                                         reply_markup=InlineKeyboardMarkup(btn),
                                         has_spoiler=True,
