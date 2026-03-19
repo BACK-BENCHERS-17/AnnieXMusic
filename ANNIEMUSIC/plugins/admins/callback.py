@@ -212,36 +212,41 @@ async def manage_callback(client, callback: CallbackQuery, _):
         from ANNIEMUSIC.utils.database import autoplay_off, autoplay_on, is_autoplay
         await callback.answer()
         enabled = await is_autoplay(chat_id)
-        _E1 = "<emoji id='5210820276748566172'>🔤</emoji>"
-        _E2 = "<emoji id='5213301251722203632'>🔤</emoji>"
-        _E3 = "<emoji id='5211032856154885824'>🔤</emoji>"
-        _E4 = "<emoji id='5213337333742454261'>🔤</emoji>"
-        _BANNER = (
-            f"<b>{_E1}{_E2}{_E3}{_E4}{_E2}</b>\n"
-            f"<b>━━━━━━━━━━━━━━━━━━━━━━━</b>\n"
-            f"<b>      ˹ ᴀɴɴɪᴇ ✘ ᴀᴜᴛᴏᴘʟᴀʏ ˼</b>\n"
-            f"<b>━━━━━━━━━━━━━━━━━━━━━━━</b>\n\n"
+        _BEAR  = "<emoji id='5042192219960771668'>🧸</emoji>"
+        _TIME  = "<emoji id='4979027931234830344'>⏳</emoji>"
+        _DOT   = "<emoji id='5972072533833289156'>🔹</emoji>"
+        _AROW  = (
+            "<emoji id='5042192219960771668'>🧸</emoji>"
+            "<emoji id='5210820276748566172'>🔤</emoji>"
+            "<emoji id='5213301251722203632'>🔤</emoji>"
+            "<emoji id='5213301251722203632'>🔤</emoji>"
+            "<emoji id='5211032856154885824'>🔤</emoji>"
+            "<emoji id='5213337333742454261'>🔤</emoji>"
         )
         if enabled:
             await autoplay_off(chat_id)
             await callback.message.reply_text(
-                f"{_BANNER}"
                 f"<blockquote>"
-                f"{_E4} <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴅɪsᴀʙʟᴇᴅ ❌</b>\n\n"
-                f"{_E3} <b>ᴀɴɴɪᴇ ᴡɪʟʟ sᴛᴏᴘ ᴀғᴛᴇʀ ᴄᴜʀʀᴇɴᴛ ǫᴜᴇᴜᴇ ᴇɴᴅs.</b>\n\n"
-                f"{_E1} <b>ʙʏ :</b> {user_mention}"
-                f"</blockquote>",
+                f"┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
+                f"┆{_BEAR} <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴅɪsᴀʙʟᴇᴅ ❌</b>\n"
+                f"┆{_TIME} <b>ᴀɴɴɪᴇ ᴡɪʟʟ sᴛᴏᴘ ᴀғᴛᴇʀ ǫᴜᴇᴜᴇ ᴇɴᴅs.</b>\n"
+                f"┆{_DOT} <b>ʙʏ :</b> {user_mention}\n"
+                f"└──────────────────────●"
+                f"</blockquote>\n"
+                f"<blockquote>{_AROW}</blockquote>",
                 reply_markup=close_markup(_),
             )
         else:
             await autoplay_on(chat_id)
             await callback.message.reply_text(
-                f"{_BANNER}"
                 f"<blockquote>"
-                f"{_E2} <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴇɴᴀʙʟᴇᴅ ✅</b>\n\n"
-                f"{_E3} <b>ᴀɴɴɪᴇ ᴡɪʟʟ ᴀᴜᴛᴏ-ᴘʟᴀʏ ʀᴇʟᴀᴛᴇᴅ sᴏɴɢs !</b>\n\n"
-                f"{_E1} <b>ʙʏ :</b> {user_mention}"
-                f"</blockquote>",
+                f"┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
+                f"┆{_BEAR} <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴇɴᴀʙʟᴇᴅ ✅</b>\n"
+                f"┆{_TIME} <b>ᴀɴɴɪᴇ ᴡɪʟʟ ᴀᴜᴛᴏ-ᴘʟᴀʏ ʀᴇʟᴀᴛᴇᴅ sᴏɴɢs !</b>\n"
+                f"┆{_DOT} <b>ʙʏ :</b> {user_mention}\n"
+                f"└──────────────────────●"
+                f"</blockquote>\n"
+                f"<blockquote>{_AROW}</blockquote>",
                 reply_markup=close_markup(_),
             )
 

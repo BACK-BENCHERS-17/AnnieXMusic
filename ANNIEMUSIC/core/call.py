@@ -384,26 +384,31 @@ class Call:
                                     from pyrogram.types import InlineKeyboardMarkup
                                     img = await get_thumb(ap_vidid)
                                     btn = stream_markup(_lang, chat_id)
-                                    _AE1 = "<emoji id='5210820276748566172'>🔤</emoji>"
-                                    _AE2 = "<emoji id='5213301251722203632'>🔤</emoji>"
-                                    _AE3 = "<emoji id='5211032856154885824'>🔤</emoji>"
-                                    _AE4 = "<emoji id='5213337333742454261'>🔤</emoji>"
+                                    _BEAR = "<emoji id='5042192219960771668'>🧸</emoji>"
+                                    _TIME = "<emoji id='4979027931234830344'>⏳</emoji>"
+                                    _DOT  = "<emoji id='5972072533833289156'>🔹</emoji>"
+                                    _AROW = (
+                                        "<emoji id='5042192219960771668'>🧸</emoji>"
+                                        "<emoji id='5210820276748566172'>🔤</emoji>"
+                                        "<emoji id='5213301251722203632'>🔤</emoji>"
+                                        "<emoji id='5213301251722203632'>🔤</emoji>"
+                                        "<emoji id='5211032856154885824'>🔤</emoji>"
+                                        "<emoji id='5213337333742454261'>🔤</emoji>"
+                                    )
                                     await app.send_photo(
                                         chat_id=original_chat_id,
                                         photo=img,
                                         caption=(
-                                            f"<b>{_AE1}{_AE2}{_AE3}{_AE4}{_AE2}</b>\n"
-                                            f"<b>━━━━━━━━━━━━━━━━━━━━━━━</b>\n"
-                                            f"<b>      ˹ ᴀɴɴɪᴇ ✘ ᴀᴜᴛᴏᴘʟᴀʏ ˼</b>\n"
-                                            f"<b>━━━━━━━━━━━━━━━━━━━━━━━</b>\n\n"
                                             f"<blockquote>"
-                                            f"{_AE2} <b>ɴᴏᴡ ᴘʟᴀʏɪɴɢ</b>\n\n"
-                                            f"{_AE1} <b>ᴛɪᴛʟᴇ :</b> "
+                                            f"┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
+                                            f"┆{_BEAR} <b>ᴛɪᴛʟᴇ :</b> "
                                             f"<a href='https://www.youtube.com/watch?v={ap_vidid}'>"
                                             f"{ap_title_short}</a>\n"
-                                            f"{_AE3} <b>ᴅᴜʀᴀᴛɪᴏɴ :</b> {ap_dur}\n"
-                                            f"{_AE4} <b>ᴘʟᴀʏᴇᴅ ʙʏ :</b> ᴀɴɴɪᴇ ᴀᴜᴛᴏᴘʟᴀʏ"
-                                            f"</blockquote>"
+                                            f"┆{_TIME} <b>ᴅᴜʀᴀᴛɪᴏɴ :</b> {ap_dur}\n"
+                                            f"┆{_DOT} <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ :</b> ᴀɴɴɪᴇ ᴀᴜᴛᴏᴘʟᴀʏ\n"
+                                            f"└──────────────────────●"
+                                            f"</blockquote>\n"
+                                            f"<blockquote>{_AROW}</blockquote>"
                                         ),
                                         reply_markup=InlineKeyboardMarkup(btn),
                                         has_spoiler=True,

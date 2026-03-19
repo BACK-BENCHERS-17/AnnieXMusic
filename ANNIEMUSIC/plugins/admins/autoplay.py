@@ -1,4 +1,3 @@
-import random
 from pyrogram import filters
 from pyrogram.types import Message, InlineKeyboardMarkup
 
@@ -8,18 +7,19 @@ from ANNIEMUSIC.utils.decorators import AdminRightsCheck
 from ANNIEMUSIC.utils.inline import close_markup, InlineKeyboardButton
 from config import BANNED_USERS
 
-E1 = "<emoji id='5210820276748566172'>🔤</emoji>"
-E2 = "<emoji id='5213301251722203632'>🔤</emoji>"
-E3 = "<emoji id='5211032856154885824'>🔤</emoji>"
-E4 = "<emoji id='5213337333742454261'>🔤</emoji>"
+# Same emojis as stream_1 in en.yml
+E_BEAR  = "<emoji id='5042192219960771668'>🧸</emoji>"
+E_TIME  = "<emoji id='4979027931234830344'>⏳</emoji>"
+E_DOT   = "<emoji id='5972072533833289156'>🔹</emoji>"
 
-EMOJIS_ROW = f"{E1}{E2}{E3}{E4}{E2}"
-
-BANNER = (
-    f"<b>{EMOJIS_ROW}</b>\n"
-    f"<b>━━━━━━━━━━━━━━━━━━━━━━━</b>\n"
-    f"<b>      ˹ ᴀɴɴɪᴇ ✘ ᴀᴜᴛᴏᴘʟᴀʏ ˼</b>\n"
-    f"<b>━━━━━━━━━━━━━━━━━━━━━━━</b>\n\n"
+# Annie premium emojis row (exact same as stream_1 footer)
+ANNIE_ROW = (
+    f"<emoji id='5042192219960771668'>🧸</emoji>"
+    f"<emoji id='5210820276748566172'>🔤</emoji>"
+    f"<emoji id='5213301251722203632'>🔤</emoji>"
+    f"<emoji id='5213301251722203632'>🔤</emoji>"
+    f"<emoji id='5211032856154885824'>🔤</emoji>"
+    f"<emoji id='5213337333742454261'>🔤</emoji>"
 )
 
 
@@ -27,12 +27,12 @@ def autoplay_markup(_, enabled: bool):
     return InlineKeyboardMarkup([
         [
             InlineKeyboardButton(
-                text=f"{E2} ᴇɴᴀʙʟᴇ ✅" if enabled else f"{E2} ᴇɴᴀʙʟᴇ",
+                text="✅ ᴇɴᴀʙʟᴇᴅ" if enabled else "ᴇɴᴀʙʟᴇ",
                 callback_data="AUTOPLAY_TOGGLE_ON",
                 style="success" if enabled else "primary",
             ),
             InlineKeyboardButton(
-                text=f"{E4} ᴅɪsᴀʙʟᴇ" if enabled else f"{E4} ᴅɪsᴀʙʟᴇ ✅",
+                text="ᴅɪsᴀʙʟᴇ" if enabled else "✅ ᴅɪsᴀʙʟᴇᴅ",
                 callback_data="AUTOPLAY_TOGGLE_OFF",
                 style="primary" if enabled else "danger",
             ),
@@ -54,21 +54,17 @@ def autoplay_markup(_, enabled: bool):
 async def autoplay_command(cli, message: Message, _, chat_id):
     enabled = await is_autoplay(chat_id)
 
-    if enabled:
-        status_line = f"{E2} <b>sᴛᴀᴛᴜs :</b> <b>ᴇɴᴀʙʟᴇᴅ ✅</b>"
-    else:
-        status_line = f"{E4} <b>sᴛᴀᴛᴜs :</b> <b>ᴅɪsᴀʙʟᴇᴅ ❌</b>"
+    status = "ᴇɴᴀʙʟᴇᴅ ✅" if enabled else "ᴅɪsᴀʙʟᴇᴅ ❌"
 
     text = (
-        f"{BANNER}"
-        f"{status_line}\n\n"
         f"<blockquote>"
-        f"{E3} <b>ᴡʜᴇɴ ᴇɴᴀʙʟᴇᴅ, ᴀɴɴɪᴇ ᴡɪʟʟ ᴀᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ ᴘʟᴀʏ\n"
-        f"   ᴀ ɴᴇᴡ sᴏɴɢ ᴡʜᴇɴ ǫᴜᴇᴜᴇ ʙᴇᴄᴏᴍᴇs ᴇᴍᴘᴛʏ.\n\n"
-        f"{E1} <b>ᴄᴏᴍᴍᴀɴᴅs :</b>\n"
-        f"  • <code>/autoplay on</code>  —  ᴇɴᴀʙʟᴇ\n"
-        f"  • <code>/autoplay off</code>  —  ᴅɪsᴀʙʟᴇ"
-        f"</blockquote>"
+        f"┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
+        f"┆{E_BEAR} <b>sᴛᴀᴛᴜs :</b> <b>{status}</b>\n"
+        f"┆{E_TIME} <b>ᴀɴɴɪᴇ ᴀᴜᴛᴏ-ᴘʟᴀʏs ᴀ ɴᴇᴡ sᴏɴɢ ᴡʜᴇɴ ǫᴜᴇᴜᴇ ɪs ᴇᴍᴘᴛʏ</b>\n"
+        f"┆{E_DOT} <code>/autoplay on</code>  ᴏʀ  <code>/autoplay off</code>\n"
+        f"└──────────────────────●"
+        f"</blockquote>\n"
+        f"<blockquote>{ANNIE_ROW}</blockquote>"
     )
 
     if len(message.command) == 2:
@@ -76,44 +72,53 @@ async def autoplay_command(cli, message: Message, _, chat_id):
         if arg == "on":
             if enabled:
                 return await message.reply_text(
-                    f"{BANNER}"
                     f"<blockquote>"
-                    f"{E2} <b>ᴀᴜᴛᴏᴘʟᴀʏ ɪs ᴀʟʀᴇᴀᴅʏ ᴇɴᴀʙʟᴇᴅ ✅</b>"
-                    f"</blockquote>"
+                    f"┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
+                    f"┆{E_BEAR} <b>ᴀᴜᴛᴏᴘʟᴀʏ ɪs ᴀʟʀᴇᴀᴅʏ ᴇɴᴀʙʟᴇᴅ ✅</b>\n"
+                    f"└──────────────────────●"
+                    f"</blockquote>\n"
+                    f"<blockquote>{ANNIE_ROW}</blockquote>"
                 )
             await autoplay_on(chat_id)
             return await message.reply_text(
-                f"{BANNER}"
                 f"<blockquote>"
-                f"{E2} <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴇɴᴀʙʟᴇᴅ ✅</b>\n\n"
-                f"{E3} <b>ᴀɴɴɪᴇ ᴡɪʟʟ ᴀᴜᴛᴏ-ᴘʟᴀʏ ʀᴇʟᴀᴛᴇᴅ sᴏɴɢs !</b>"
-                f"</blockquote>",
+                f"┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
+                f"┆{E_BEAR} <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴇɴᴀʙʟᴇᴅ ✅</b>\n"
+                f"┆{E_TIME} <b>ᴀɴɴɪᴇ ᴡɪʟʟ ᴀᴜᴛᴏ-ᴘʟᴀʏ ʀᴇʟᴀᴛᴇᴅ sᴏɴɢs !</b>\n"
+                f"└──────────────────────●"
+                f"</blockquote>\n"
+                f"<blockquote>{ANNIE_ROW}</blockquote>",
                 reply_markup=close_markup(_),
             )
         elif arg == "off":
             if not enabled:
                 return await message.reply_text(
-                    f"{BANNER}"
                     f"<blockquote>"
-                    f"{E4} <b>ᴀᴜᴛᴏᴘʟᴀʏ ɪs ᴀʟʀᴇᴀᴅʏ ᴅɪsᴀʙʟᴇᴅ ❌</b>"
-                    f"</blockquote>"
+                    f"┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
+                    f"┆{E_BEAR} <b>ᴀᴜᴛᴏᴘʟᴀʏ ɪs ᴀʟʀᴇᴀᴅʏ ᴅɪsᴀʙʟᴇᴅ ❌</b>\n"
+                    f"└──────────────────────●"
+                    f"</blockquote>\n"
+                    f"<blockquote>{ANNIE_ROW}</blockquote>"
                 )
             await autoplay_off(chat_id)
             return await message.reply_text(
-                f"{BANNER}"
                 f"<blockquote>"
-                f"{E4} <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴅɪsᴀʙʟᴇᴅ ❌</b>\n\n"
-                f"{E3} <b>ᴀɴɴɪᴇ ᴡɪʟʟ sᴛᴏᴘ ᴀғᴛᴇʀ ᴄᴜʀʀᴇɴᴛ ǫᴜᴇᴜᴇ ᴇɴᴅs.</b>"
-                f"</blockquote>",
+                f"┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
+                f"┆{E_BEAR} <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴅɪsᴀʙʟᴇᴅ ❌</b>\n"
+                f"┆{E_TIME} <b>ᴀɴɴɪᴇ ᴡɪʟʟ sᴛᴏᴘ ᴀғᴛᴇʀ ᴄᴜʀʀᴇɴᴛ ǫᴜᴇᴜᴇ ᴇɴᴅs.</b>\n"
+                f"└──────────────────────●"
+                f"</blockquote>\n"
+                f"<blockquote>{ANNIE_ROW}</blockquote>",
                 reply_markup=close_markup(_),
             )
         else:
             return await message.reply_text(
-                f"{BANNER}"
                 f"<blockquote>"
-                f"{E1} <b>ᴜsᴀɢᴇ :</b> "
-                f"<code>/autoplay on</code> ᴏʀ <code>/autoplay off</code>"
-                f"</blockquote>"
+                f"┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
+                f"┆{E_DOT} <b>ᴜsᴀɢᴇ :</b> <code>/autoplay on</code> ᴏʀ <code>/autoplay off</code>\n"
+                f"└──────────────────────●"
+                f"</blockquote>\n"
+                f"<blockquote>{ANNIE_ROW}</blockquote>"
             )
 
     await message.reply_text(text, reply_markup=autoplay_markup(_, enabled))
