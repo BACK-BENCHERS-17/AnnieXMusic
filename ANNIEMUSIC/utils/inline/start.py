@@ -27,7 +27,7 @@ def start_panel(_):
     if WEB_URL:
         buttons.append([
             InlineKeyboardButton(
-                text="🎵 ᴏᴘᴇɴ ᴍᴜsɪᴄ ᴘʟᴀʏᴇʀ",
+                text="🎵 ᴀɴɴɪᴇ",
                 web_app=WebAppInfo(url=WEB_URL),
                 style="primary",
             )
@@ -69,7 +69,7 @@ def private_panel(_):
     if WEB_URL:
         buttons.append([
             InlineKeyboardButton(
-                text="🎵 ᴏᴘᴇɴ ᴍᴜsɪᴄ ᴘʟᴀʏᴇʀ",
+                text="🎵 ᴀɴɴɪᴇ",
                 web_app=WebAppInfo(url=WEB_URL),
                 style="primary",
             )

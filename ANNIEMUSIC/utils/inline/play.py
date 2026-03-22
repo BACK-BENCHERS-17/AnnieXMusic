@@ -22,7 +22,7 @@ def _webapp_btn():
         return []
     return [[
         InlineKeyboardButton(
-            text="🎵 ʟɪᴠᴇ ᴍᴜsɪᴄ ᴘʟᴀʏᴇʀ",
+            text="🎵 ᴀɴɴɪᴇ",
             web_app=WebAppInfo(url=WEB_URL),
             style="primary",
         )
