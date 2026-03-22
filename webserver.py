@@ -370,7 +370,7 @@ def health():
     return jsonify({"status": "alive"}), 200
 
 if __name__ == "__main__":
-    port = int(os.environ.get("WEB_PORT", 5000))
+    port = int(os.environ.get("PORT") or os.environ.get("WEB_PORT") or 5000)
     from ANNIEMUSIC.utils.weburl import WEB_URL
     if WEB_URL:
         print(f"[AnnieXMusic Web] 🎵 Player URL: {WEB_URL}")
