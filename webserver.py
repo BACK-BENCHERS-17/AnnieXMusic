@@ -3,8 +3,10 @@ import time
 import threading
 import psutil
 import yt_dlp
-from flask import Flask, jsonify, send_from_directory, request, Response
+from flask import Flask, jsonify, send_from_directory, request, Response, send_file
 import requests
+import tempfile
+import re
 
 WEB_DIR = os.path.join(os.path.dirname(__file__), 'ANNIEMUSIC', 'utils', 'web')
 app = Flask(__name__)
@@ -288,6 +290,46 @@ def api_search():
         return jsonify({"results": results})
     except Exception as e:
         return jsonify({"error": str(e), "results": []}), 500
+
+@app.route("/api/download")
+def api_download():
+    """Download audio file via yt-dlp and send to browser."""
+    vid = request.args.get("v", "").strip()
+    if not vid or len(vid) != 11:
+        return jsonify({"error": "Invalid video id"}), 400
+    try:
+        tmp_dir = tempfile.mkdtemp()
+        out_template = os.path.join(tmp_dir, "%(title)s.%(ext)s")
+        ydl_opts = {
+            "quiet": True,
+            "no_warnings": True,
+            "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
+            "outtmpl": out_template,
+            "postprocessors": [{
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "m4a",
+            }],
+        }
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(f"https://www.youtube.com/watch?v={vid}", download=True)
+            title = info.get("title", vid)
+            # Find the downloaded file
+            safe_title = re.sub(r'[^\w\s\-\.]', '', title)[:80]
+            files = [f for f in os.listdir(tmp_dir) if os.path.isfile(os.path.join(tmp_dir, f))]
+            if not files:
+                return jsonify({"error": "Download failed"}), 500
+            filepath = os.path.join(tmp_dir, files[0])
+            ext = os.path.splitext(files[0])[1].lstrip('.')
+            mime = "audio/mp4" if ext in ("m4a", "mp4") else f"audio/{ext}"
+            filename = f"{safe_title}.{ext}"
+            return send_file(
+                filepath,
+                mimetype=mime,
+                as_attachment=True,
+                download_name=filename,
+            )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/api/health")
 def health():
