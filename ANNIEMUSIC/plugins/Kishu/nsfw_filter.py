@@ -86,8 +86,16 @@ def _has_nsfw_text(text: str) -> bool:
 # ─────────────────────────────────────────────────────────────────────────────
 # File helpers
 # ─────────────────────────────────────────────────────────────────────────────
+def _best_thumb(thumbs) -> str | None:
+    """Return the file_id of the largest (highest resolution) thumbnail."""
+    if not thumbs:
+        return None
+    best = max(thumbs, key=lambda t: (getattr(t, "file_size", 0) or 0))
+    return best.file_id
+
+
 def _get_file_id(message: Message):
-    """Get scannable file_id — use thumbnail for video/animated stickers."""
+    """Get scannable file_id — use largest thumbnail for video/animated content."""
     if message.document:
         if message.document.file_size and int(message.document.file_size) > 5_000_000:
             return None
@@ -97,20 +105,17 @@ def _get_file_id(message: Message):
 
     if message.sticker:
         if message.sticker.is_animated or message.sticker.is_video:
-            thumbs = message.sticker.thumbs
-            return thumbs[0].file_id if thumbs else None
+            return _best_thumb(message.sticker.thumbs)
         return message.sticker.file_id
 
     if message.photo:
         return message.photo.file_id
 
     if message.animation:
-        thumbs = message.animation.thumbs
-        return thumbs[0].file_id if thumbs else None
+        return _best_thumb(message.animation.thumbs)
 
     if message.video:
-        thumbs = message.video.thumbs
-        return thumbs[0].file_id if thumbs else None
+        return _best_thumb(message.video.thumbs)
 
     return None
 
@@ -275,6 +280,9 @@ async def nsfw_guard(client: Client, message: Message):
         kws = [
             "nsfw", "adult", "sex", "porn", "nude", "lewd", "hentai",
             "xxx", "erotic", "18", "drug", "weed", "naked", "boob",
+            "wallgif", "wall_gif", "naughty", "kinky", "seduct",
+            "lingerie", "bikini_hot", "hotgirl", "sexygirl", "sexygif",
+            "onlyfans", "slutty", "bdsm", "fetish", "horny",
         ]
         if any(k in set_name for k in kws) or _has_nsfw_text(set_name) or _has_nsfw_text(emoji):
             return await _handle_violation(client, message, "NSFW sticker pack", is_group)
