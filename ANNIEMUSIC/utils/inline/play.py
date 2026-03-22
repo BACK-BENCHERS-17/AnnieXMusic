@@ -1,5 +1,3 @@
-from pyrogram.types import WebAppInfo
-
 from . import InlineKeyboardButton
 from ANNIEMUSIC.utils.formatters import time_to_seconds
 from ANNIEMUSIC.utils.weburl import WEB_URL
@@ -23,7 +21,7 @@ def _webapp_btn():
     return [[
         InlineKeyboardButton(
             text="🎵 ᴀɴɴɪᴇ ᴘʟᴀʏᴇʀ",
-            web_app=WebAppInfo(url=WEB_URL),
+            url=WEB_URL,
             style="primary",
             icon_custom_emoji_id=5041975203853239332,
         )
