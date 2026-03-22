@@ -53,6 +53,7 @@ class JARVIS(Client):
         self.mention = me.mention
 
         try:
+            await self.get_chat(config.LOGGER_ID)
             await self.send_message(
                 config.LOGGER_ID,
                 (
@@ -62,15 +63,26 @@ class JARVIS(Client):
                     f"ᴜsᴇʀɴᴀᴍᴇ : @{self.username}"
                 ),
             )
-        except (errors.ChannelInvalid, errors.PeerIdInvalid):
-            LOGGER(__name__).warning("⚠️ Bot cannot access the log group/channel – add & promote it for logging. Continuing anyway...")
+            LOGGER(__name__).info(f"✅ Start message sent to log channel ({config.LOGGER_ID})")
+        except (errors.ChannelInvalid, errors.PeerIdInvalid, ValueError):
+            LOGGER(__name__).warning(
+                f"⚠️ Cannot send to log channel (ID: {config.LOGGER_ID}). "
+                "Please add the bot as admin in your log channel and set correct LOGGER_ID."
+            )
+        except errors.ChatAdminRequired:
+            LOGGER(__name__).warning("⚠️ Bot needs admin rights in the log channel to send messages.")
         except Exception as exc:
-            LOGGER(__name__).warning(f"⚠️ Log group not accessible ({type(exc).__name__}). Continuing without logging...")
+            LOGGER(__name__).warning(f"⚠️ Log group not accessible ({type(exc).__name__}): {exc}")
 
         try:
             member = await self.get_chat_member(config.LOGGER_ID, self.id)
             if member.status != ChatMemberStatus.ADMINISTRATOR:
                 LOGGER(__name__).warning("⚠️ Bot is not admin in log group/channel. Logging disabled.")
+        except (ValueError, errors.PeerIdInvalid, errors.ChannelInvalid):
+            LOGGER(__name__).warning(
+                f"⚠️ Log channel (ID: {config.LOGGER_ID}) not accessible. "
+                "Steps to fix: 1) Add bot as admin in log channel  2) Set correct LOGGER_ID"
+            )
         except Exception as e:
             LOGGER(__name__).warning(f"⚠️ Could not check log group admin status: {e}")
 
