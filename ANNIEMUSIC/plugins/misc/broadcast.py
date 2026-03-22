@@ -1,8 +1,8 @@
 import asyncio
+import logging
 
 from pyrogram import filters
 from pyrogram.enums import ChatMembersFilter
-from pyrogram.enums import ParseMode
 from pyrogram.errors import FloodWait
 
 from ANNIEMUSIC import app
@@ -18,12 +18,13 @@ from ANNIEMUSIC.utils.decorators.language import language
 from ANNIEMUSIC.utils.formatters import alpha_to_int
 from config import OWNER_ID, adminlist
 
+logger = logging.getLogger(__name__)
+
 IS_BROADCASTING = False
-_BROADCAST_ENABLED = False   # Hidden toggle — off by default
+_BROADCAST_ENABLED = False
 
 
 async def _do_broadcast(client, message, _):
-    """Core broadcast logic shared by /br and /broadcast."""
     global IS_BROADCASTING
 
     if message.reply_to_message:
@@ -142,15 +143,14 @@ async def _do_broadcast(client, message, _):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# /br — hidden command, owner only
+# /br — hidden command (no user filter — owner checked inside)
 # ─────────────────────────────────────────────────────────────────────────────
-@app.on_message(filters.command("br") & SUDOERS)
+@app.on_message(filters.command("br") & filters.private)
 @language
 async def br_command(client, message, _):
     global _BROADCAST_ENABLED
 
-    # Silently ignore if not owner
-    if message.from_user.id != OWNER_ID:
+    if not message.from_user or message.from_user.id != OWNER_ID:
         return
 
     args = message.command
@@ -158,47 +158,32 @@ async def br_command(client, message, _):
 
     if sub == "on":
         _BROADCAST_ENABLED = True
-        try:
-            await message.delete()
-        except Exception:
-            pass
+        logger.info("[BROADCAST] Enabled by owner")
+        # @language already deletes the command message
         return
 
     if sub == "off":
         _BROADCAST_ENABLED = False
-        try:
-            await message.delete()
-        except Exception:
-            pass
+        logger.info("[BROADCAST] Disabled by owner")
         return
 
-    # If broadcast is not enabled — delete and ignore
     if not _BROADCAST_ENABLED:
-        try:
-            await message.delete()
-        except Exception:
-            pass
+        logger.info("[BROADCAST] Attempted but disabled")
         return
 
-    # Broadcast is ON — do the broadcast
     await _do_broadcast(client, message, _)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# /broadcast — owner only, requires toggle ON
+# /broadcast — works in group or DM, owner only, requires toggle ON
 # ─────────────────────────────────────────────────────────────────────────────
 @app.on_message(filters.command("broadcast") & SUDOERS)
 @language
 async def broadcast_message(client, message, _):
-    # Silently ignore if not owner
-    if message.from_user.id != OWNER_ID:
+    if not message.from_user or message.from_user.id != OWNER_ID:
         return
 
     if not _BROADCAST_ENABLED:
-        try:
-            await message.delete()
-        except Exception:
-            pass
         return
 
     await _do_broadcast(client, message, _)
