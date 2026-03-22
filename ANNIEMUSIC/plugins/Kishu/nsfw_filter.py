@@ -8,6 +8,7 @@ import logging
 from PIL import Image
 from nudenet import NudeDetector
 from pyrogram import Client, filters, enums
+from pyrogram.enums import ParseMode
 from pyrogram.types import Message
 
 from ANNIEMUSIC import app
@@ -193,16 +194,18 @@ async def _handle_violation(client: Client, message: Message, reason: str, is_gr
             logger.error(f"[NSFW] Could not delete group message: {e}")
         try:
             alert = await message.chat.send_message(
-                f"⛔ **Content Removed**\n"
-                f"Reason: **{reason}**\n"
-                f"This group enforces a strict **No NSFW / No Illegal Content** policy."
+                "<b>⛔ Content Removed</b>\n\n"
+                f"🚫 Reason: <b>{reason}</b>\n\n"
+                "This group has a strict <b>No NSFW / No Illegal Content</b> policy.\n"
+                "<i>This notice will be deleted in 8 seconds.</i>",
+                parse_mode=ParseMode.HTML,
             )
             await asyncio.sleep(8)
             await alert.delete()
         except Exception:
             pass
     else:
-        # DMs: bots cannot delete user messages — log + warn
+        # DMs: Telegram does not allow bots to delete user messages in private chats
         try:
             user = message.from_user
             uid = user.id if user else "N/A"
@@ -210,14 +213,23 @@ async def _handle_violation(client: Client, message: Message, reason: str, is_gr
             await client.forward_messages(LOGGER_ID, message.chat.id, message.id)
             await client.send_message(
                 LOGGER_ID,
-                f"⚠️ **NSFW in DM**\nUser: {mention} (`{uid}`)\nReason: {reason}"
+                f"<b>⚠️ NSFW Detected in DM</b>\n\n"
+                f"👤 User: {mention} (<code>{uid}</code>)\n"
+                f"📌 Reason: <b>{reason}</b>\n\n"
+                "<i>Note: Telegram does not allow bots to delete messages in private chats.</i>",
+                parse_mode=ParseMode.HTML,
             )
         except Exception:
             pass
         try:
             await message.reply(
-                f"⛔ **Warning!** You sent **{reason}**.\n"
-                f"This violates our policy and has been reported to admins."
+                "<b>⛔ Content Policy Violation</b>\n\n"
+                f"🚫 You sent: <b>{reason}</b>\n\n"
+                "This content violates our <b>No NSFW / No Illegal Content</b> policy.\n"
+                "Your message has been <b>reported to admins</b> for review.\n\n"
+                "<i>⚠️ Note: Telegram does not allow bots to delete messages in private chats. "
+                "Please refrain from sending such content.</i>",
+                parse_mode=ParseMode.HTML,
             )
         except Exception:
             pass
