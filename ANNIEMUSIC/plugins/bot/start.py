@@ -56,7 +56,7 @@ async def send_photo_with_effect(client, message: Message, photo_url: str,
         media = raw_types.InputMediaPhotoExternal(url=photo_url, spoiler=True)
 
         # Reply-to the triggering message
-        reply_to = raw_types.InputReplyToMessage(reply_to_msg_id=message.id)
+        reply_to = raw_types.InputMessageReplyTo(id=message.id)
 
         await client.invoke(
             raw_func.messages.SendMedia(

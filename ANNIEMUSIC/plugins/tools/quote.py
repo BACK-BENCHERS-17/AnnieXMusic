@@ -186,26 +186,31 @@ async def pyrogram_to_quotly(messages, is_reply):
 # ------------------------------------------------------------------------------------------------------------
     for message in messages:
         the_message_dict_to_append = {}
-        if message.entities:
-            the_message_dict_to_append["entities"] = [
-                {
-                    "type": entity.type.name.lower(),
-                    "offset": entity.offset,
-                    "length": entity.length,
-                }
-                for entity in message.entities
-            ]
-        elif message.caption_entities:
-            the_message_dict_to_append["entities"] = [
-                {
-                    "type": entity.type.name.lower(),
-                    "offset": entity.offset,
-                    "length": entity.length,
-                }
-                for entity in message.caption_entities
-            ]
-        else:
-            the_message_dict_to_append["entities"] = []
+        SUPPORTED_ENTITIES = {
+            "bold", "italic", "underline", "strikethrough",
+            "spoiler", "blockquote", "code", "pre",
+            "text_link", "mention", "url",
+        }
+
+        def build_entity(entity):
+            etype = entity.type.name.lower()
+            if etype not in SUPPORTED_ENTITIES:
+                return None
+            obj = {
+                "type": etype,
+                "offset": entity.offset,
+                "length": entity.length,
+            }
+            if etype == "text_link" and entity.url:
+                obj["url"] = entity.url
+            if etype == "pre" and entity.language:
+                obj["language"] = entity.language
+            return obj
+
+        raw_entities = message.entities or message.caption_entities or []
+        the_message_dict_to_append["entities"] = [
+            e for e in (build_entity(ent) for ent in raw_entities) if e is not None
+        ]
         the_message_dict_to_append["chatId"] = await get_message_sender_id(message)
         the_message_dict_to_append["text"] = await get_text_or_caption(message)
         the_message_dict_to_append["avatar"] = True
