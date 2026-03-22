@@ -284,7 +284,7 @@ img{display:block}
 
   <div class="ov-art-wrap">
     <div class="ov-art" id="ovArt">🎵
-      <img id="ovArtImg" src="" alt="" style="display:none" onerror="this.style.display='none';this.parentElement.textContent='🎵'"/>
+      <img id="ovArtImg" src="" alt="" style="display:none" onerror="this.style.display='none'"/>
     </div>
   </div>
 
@@ -547,13 +547,19 @@ async function playSong(song) {
   try {
     // Fetch metadata in background
     const metaP = fetch(`/api/stream?v=${song.id}`).then(r=>r.json()).catch(()=>({}));
+
+    // Set src + load + play — all synchronously before any await (preserves user gesture)
     aud.src = `/api/audio?v=${song.id}`;
+    aud.load();
     aud.loop = repeatOn;
-    // Call play() immediately within user gesture context (before any await)
-    const playP = aud.play();
-    playing = true;
-    setPlayBtns(true);
-    startProgTimer();
+    aud.play().then(() => {
+      playing = true;
+      setPlayBtns(true);
+      startProgTimer();
+    }).catch(() => {
+      toast('❌ Could not play. Try again.');
+      playing = false; setPlayBtns(false);
+    });
 
     // Update UI with metadata once it arrives
     const meta = await metaP;
@@ -561,8 +567,7 @@ async function playSong(song) {
     curTrack = {...song, title: meta.title||song.title, channel: meta.channel||song.channel, thumb: meta.thumb||song.thumb, seconds: sec};
     updateMiniPlayer(curTrack.title, curTrack.channel, curTrack.thumb, 0, sec);
     updateOverlay(curTrack.title, curTrack.channel, curTrack.thumb, 0, sec);
-
-    await playP;
+    updateProg(Math.floor(aud.currentTime||0), sec);
     toast('▶ '+curTrack.title.slice(0,38));
   } catch(e) {
     toast('❌ Could not load. Try again.');
@@ -660,9 +665,17 @@ function updateOverlay(title, artist, thumb, played, total) {
   const artEl = document.getElementById('ovArt');
   const imgEl = document.getElementById('ovArtImg');
   if (thumb) {
-    imgEl.src = thumb; imgEl.style.display='block'; artEl.textContent='';
-    artEl.appendChild(imgEl);
-  } else { imgEl.style.display='none'; artEl.textContent='🎵'; }
+    // Remove text nodes only, keep the img element in DOM
+    Array.from(artEl.childNodes).forEach(n => { if (n.nodeType === 3) n.remove(); });
+    if (!artEl.contains(imgEl)) artEl.appendChild(imgEl);
+    imgEl.src = thumb;
+    imgEl.style.display = 'block';
+  } else {
+    imgEl.style.display = 'none';
+    imgEl.src = '';
+    Array.from(artEl.childNodes).forEach(n => { if (n.nodeType === 3) n.remove(); });
+    if (!artEl.childNodes.length) artEl.textContent = '🎵';
+  }
   const liked = curTrack && likedSet.has(curTrack.id);
   document.getElementById('ovLike').textContent = liked?'❤️':'🤍';
   document.getElementById('ovLike').classList.toggle('liked', liked);
