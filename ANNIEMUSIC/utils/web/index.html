@@ -690,23 +690,41 @@ function updateBottomBar(track, played, total) {
 let webProgTimer = null;
 
 async function playWebSong(vid, title, channel, thumb) {
-  // Show loading
+  if (!vid) return;
+
+  // Stop any current playback
+  audio.pause();
+  isWebPlaying = false;
+  if (webProgTimer) { clearInterval(webProgTimer); webProgTimer = null; }
+
   const btn = document.getElementById('pbPlay');
   btn.textContent = '⟳';
   btn.style.animation = 'spin 1s linear infinite';
   btn.classList.remove('playing');
 
-  // Update bottom bar immediately
+  // Show song info immediately in bottom bar while loading
   webTrack = { title, sub: channel, thumb };
   updateBottomBar(webTrack, 0, 0);
 
   try {
-    const r = await fetch(`/api/stream?v=${vid}`);
-    const d = await r.json();
-    if (d.error || !d.url) throw new Error(d.error || 'No stream');
+    // Fetch metadata (title, duration, thumb) — also warms the server-side stream cache
+    const metaPromise = fetch(`/api/stream?v=${vid}`).then(r => r.json()).catch(() => ({}));
 
-    audio.src = d.url;
+    // Set audio src to our proxy endpoint — browser plays from Flask, not YouTube directly
+    audio.src = `/api/audio?v=${vid}`;
     audio.load();
+
+    // Get metadata result
+    const meta = await metaPromise;
+    const dur = meta.seconds || 0;
+    webTrack = {
+      title: meta.title || title,
+      sub:   meta.channel || channel,
+      thumb: meta.thumb || thumb,
+    };
+    updateBottomBar(webTrack, 0, dur);
+
+    // Play
     await audio.play();
 
     isWebPlaying = true;
@@ -714,33 +732,37 @@ async function playWebSong(vid, title, channel, thumb) {
     btn.style.animation = '';
     btn.classList.add('playing');
 
-    webTrack = { title: d.title || title, sub: d.channel || channel, thumb: d.thumb || thumb };
-    updateBottomBar(webTrack, 0, d.seconds || 0);
-
+    // Progress tracker
     if (webProgTimer) clearInterval(webProgTimer);
-    let webPlayed = 0;
-    const dur = d.seconds || 0;
     webProgTimer = setInterval(() => {
-      webPlayed = Math.floor(audio.currentTime);
-      const pct = dur > 0 ? Math.min(webPlayed/dur*100,100).toFixed(2) : 0;
-      document.getElementById('plFill').style.width = pct + '%';
-      document.getElementById('plPlayed').textContent = fmt(webPlayed);
-      document.getElementById('plTotal').textContent = fmt(dur);
+      if (!audio.paused) {
+        const played = Math.floor(audio.currentTime);
+        const total  = dur || Math.floor(audio.duration) || 0;
+        const pct    = total > 0 ? Math.min(played / total * 100, 100).toFixed(2) : 0;
+        document.getElementById('plFill').style.width = pct + '%';
+        document.getElementById('plPlayed').textContent = fmt(played);
+        document.getElementById('plTotal').textContent = fmt(total);
+      }
     }, 1000);
 
     audio.onended = () => {
       isWebPlaying = false; webTrack = null;
       btn.textContent = '▶'; btn.classList.remove('playing');
-      if (webProgTimer) clearInterval(webProgTimer);
+      if (webProgTimer) { clearInterval(webProgTimer); webProgTimer = null; }
     };
-    audio.onerror = () => {
+
+    audio.onerror = (e) => {
       isWebPlaying = false; webTrack = null;
-      btn.textContent = '▶'; btn.classList.remove('playing');
-      alert('Stream error. Try again.');
+      btn.textContent = '▶'; btn.style.animation = ''; btn.classList.remove('playing');
+      if (webProgTimer) { clearInterval(webProgTimer); webProgTimer = null; }
+      const msgs = {1:'Aborted',2:'Network error',3:'Decode error',4:'Not supported'};
+      const code = audio.error ? audio.error.code : 0;
+      alert('Stream error: ' + (msgs[code] || 'Unknown') + '. Please try again.');
     };
+
   } catch (e) {
     btn.textContent = '▶'; btn.style.animation = ''; btn.classList.remove('playing');
-    alert('Could not load stream: ' + (e.message || e));
+    alert('Could not load stream. Please try again.');
   }
 }
 

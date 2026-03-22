@@ -10,14 +10,14 @@ WEB_DIR = os.path.join(os.path.dirname(__file__), 'ANNIEMUSIC', 'utils', 'web')
 app = Flask(__name__)
 _boot_time = time.time()
 
-# ── Trending cache ──────────────────────────────────────────────
+# ── Trending cache ───────────────────────────────────────────────
 _trending_cache = {"data": [], "ts": 0}
 _CACHE_TTL = 1800  # 30 min
 
 TRENDING_QUERIES = [
     ("Bollywood Hits 2025", "ytsearch10:bollywood hits trending 2025"),
-    ("International", "ytsearch10:top hits 2025 pop"),
-    ("Punjabi", "ytsearch10:punjabi songs trending 2025"),
+    ("International",       "ytsearch10:top hits 2025 pop"),
+    ("Punjabi",             "ytsearch10:punjabi songs trending 2025"),
 ]
 
 def _fetch_trending():
@@ -39,11 +39,11 @@ def _fetch_trending():
                     if not vid or len(vid) != 11:
                         continue
                     results.append({
-                        "id": vid,
-                        "title": e.get("title", "Unknown"),
-                        "channel": e.get("channel") or e.get("uploader", ""),
+                        "id":       vid,
+                        "title":    e.get("title", "Unknown"),
+                        "channel":  e.get("channel") or e.get("uploader", ""),
                         "duration": e.get("duration_string") or _sec_to_min(e.get("duration", 0)),
-                        "thumb": f"https://img.youtube.com/vi/{vid}/mqdefault.jpg",
+                        "thumb":    f"https://img.youtube.com/vi/{vid}/mqdefault.jpg",
                         "category": category,
                     })
         except Exception:
@@ -71,6 +71,45 @@ def _sec_to_min(s):
 # Start trending prefetch in background on startup
 threading.Thread(target=get_trending, daemon=True).start()
 
+# ── Stream URL cache (avoids double yt-dlp calls) ───────────────
+_stream_cache = {}
+_STREAM_TTL   = 600  # 10 min (YouTube signed URLs last ~6h)
+_stream_lock  = threading.Lock()
+
+def _get_stream_data(vid):
+    """Fetch (or return cached) stream data for a YouTube video ID."""
+    now = time.time()
+    with _stream_lock:
+        cached = _stream_cache.get(vid)
+        if cached and now - cached["ts"] < _STREAM_TTL:
+            return cached
+
+    ydl_opts = {
+        "quiet": True, "no_warnings": True,
+        "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
+        "skip_download": True,
+    }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(f"https://www.youtube.com/watch?v={vid}", download=False)
+        if not info:
+            return None
+        stream_url = info.get("url", "")
+        if not stream_url:
+            return None
+        data = {
+            "url":      stream_url,
+            "ext":      info.get("ext", "m4a"),
+            "title":    info.get("title", "Unknown"),
+            "channel":  info.get("channel") or info.get("uploader", ""),
+            "duration": _sec_to_min(info.get("duration", 0)),
+            "seconds":  info.get("duration", 0),
+            "thumb":    f"https://img.youtube.com/vi/{vid}/mqdefault.jpg",
+            "ts":       now,
+        }
+        with _stream_lock:
+            _stream_cache[vid] = data
+        return data
+
 # ── Routes ──────────────────────────────────────────────────────
 @app.route("/")
 def index():
@@ -95,51 +134,51 @@ def api_status():
         chats_data.append({
             "chat_id": chat_id,
             "current": {
-                "title": cur.get("title", "Unknown"),
-                "duration": cur.get("dur", "0:00"),
-                "played": cur.get("played", 0),
-                "seconds": cur.get("seconds", 0),
-                "by": cur.get("by", "Unknown"),
+                "title":      cur.get("title", "Unknown"),
+                "duration":   cur.get("dur", "0:00"),
+                "played":     cur.get("played", 0),
+                "seconds":    cur.get("seconds", 0),
+                "by":         cur.get("by", "Unknown"),
                 "streamtype": cur.get("streamtype", "youtube"),
-                "vidid": vid,
-                "thumbnail": thumb,
+                "vidid":      vid,
+                "thumbnail":  thumb,
             },
             "queue_count": max(len(queue) - 1, 0),
             "queue": [
                 {
-                    "title": t.get("title", "Unknown"),
+                    "title":    t.get("title", "Unknown"),
                     "duration": t.get("dur", "0:00"),
-                    "by": t.get("by", "Unknown"),
-                    "vidid": str(t.get("vidid", "")),
-                    "thumb": f"https://img.youtube.com/vi/{str(t.get('vidid',''))}/default.jpg"
-                           if len(str(t.get("vidid", ""))) == 11 else "",
+                    "by":       t.get("by", "Unknown"),
+                    "vidid":    str(t.get("vidid", "")),
+                    "thumb":    f"https://img.youtube.com/vi/{str(t.get('vidid',''))}/default.jpg"
+                                if len(str(t.get("vidid", ""))) == 11 else "",
                 }
                 for t in queue[1:8]
             ],
         })
 
     try:
-        cpu = psutil.cpu_percent(interval=None)
-        ram = psutil.virtual_memory()
-        ram_used = f"{ram.used // (1024**2)} MB"
+        cpu     = psutil.cpu_percent(interval=None)
+        ram     = psutil.virtual_memory()
+        ram_used  = f"{ram.used // (1024**2)} MB"
         ram_total = f"{ram.total // (1024**2)} MB"
-        ram_pct = round(ram.percent, 1)
+        ram_pct   = round(ram.percent, 1)
     except Exception:
         cpu, ram_used, ram_total, ram_pct = 0, "N/A", "N/A", 0
 
-    up = int(time.time() - boot_time)
+    up   = int(time.time() - boot_time)
     h, rem = divmod(up, 3600)
-    m, s = divmod(rem, 60)
+    m, s   = divmod(rem, 60)
 
     return jsonify({
-        "status": "online",
-        "uptime": f"{h}h {m}m {s}s",
+        "status":       "online",
+        "uptime":       f"{h}h {m}m {s}s",
         "active_chats": len(chats_data),
-        "cpu": cpu,
-        "ram_used": ram_used,
-        "ram_total": ram_total,
-        "ram_percent": ram_pct,
-        "chats": chats_data,
+        "cpu":          cpu,
+        "ram_used":     ram_used,
+        "ram_total":    ram_total,
+        "ram_percent":  ram_pct,
+        "chats":        chats_data,
     })
 
 @app.route("/api/trending")
@@ -149,32 +188,72 @@ def api_trending():
 
 @app.route("/api/stream")
 def api_stream():
+    """Return metadata for a video (no stream URL exposed to browser)."""
     vid = request.args.get("v", "").strip()
     if not vid or len(vid) != 11:
         return jsonify({"error": "Invalid video id"}), 400
     try:
-        ydl_opts = {
-            "quiet": True, "no_warnings": True,
-            "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
-            "skip_download": True,
+        data = _get_stream_data(vid)
+        if not data:
+            return jsonify({"error": "Could not fetch stream"}), 500
+        return jsonify({
+            "title":    data["title"],
+            "channel":  data["channel"],
+            "duration": data["duration"],
+            "seconds":  data["seconds"],
+            "thumb":    data["thumb"],
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/audio")
+def api_audio():
+    """Proxy audio stream from YouTube — avoids browser CORS issues."""
+    vid = request.args.get("v", "").strip()
+    if not vid or len(vid) != 11:
+        return jsonify({"error": "Invalid video id"}), 400
+    try:
+        data = _get_stream_data(vid)
+        if not data:
+            return jsonify({"error": "Could not fetch stream"}), 500
+
+        stream_url = data["url"]
+        ext = data.get("ext", "m4a")
+        content_type = "audio/mp4" if ext == "m4a" else f"audio/{ext}"
+
+        # Forward Range header so seeking works
+        range_header = request.headers.get("Range")
+        req_headers = {
+            "User-Agent":      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "Accept":          "*/*",
+            "Accept-Encoding": "identity",
+            "Connection":      "keep-alive",
+            "Referer":         "https://www.youtube.com/",
         }
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(f"https://www.youtube.com/watch?v={vid}", download=False)
-            if not info:
-                return jsonify({"error": "Could not fetch stream"}), 500
-            url = info.get("url", "")
-            title = info.get("title", "Unknown")
-            channel = info.get("channel") or info.get("uploader", "")
-            dur = info.get("duration", 0)
-            thumb = f"https://img.youtube.com/vi/{vid}/mqdefault.jpg"
-            return jsonify({
-                "url": url,
-                "title": title,
-                "channel": channel,
-                "duration": _sec_to_min(dur),
-                "seconds": dur,
-                "thumb": thumb,
-            })
+        if range_header:
+            req_headers["Range"] = range_header
+
+        upstream = requests.get(stream_url, headers=req_headers, stream=True, timeout=30)
+
+        resp_headers = {
+            "Content-Type":  upstream.headers.get("Content-Type", content_type),
+            "Accept-Ranges": "bytes",
+            "Cache-Control": "no-cache",
+        }
+        if "Content-Length" in upstream.headers:
+            resp_headers["Content-Length"] = upstream.headers["Content-Length"]
+        if "Content-Range" in upstream.headers:
+            resp_headers["Content-Range"] = upstream.headers["Content-Range"]
+
+        status_code = upstream.status_code
+
+        def generate():
+            for chunk in upstream.iter_content(chunk_size=65536):
+                if chunk:
+                    yield chunk
+
+        return Response(generate(), status=status_code, headers=resp_headers)
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -200,11 +279,11 @@ def api_search():
                 if not vid or len(vid) != 11:
                     continue
                 results.append({
-                    "id": vid,
-                    "title": e.get("title", "Unknown"),
-                    "channel": e.get("channel") or e.get("uploader", ""),
+                    "id":       vid,
+                    "title":    e.get("title", "Unknown"),
+                    "channel":  e.get("channel") or e.get("uploader", ""),
                     "duration": e.get("duration_string") or _sec_to_min(e.get("duration", 0)),
-                    "thumb": f"https://img.youtube.com/vi/{vid}/mqdefault.jpg",
+                    "thumb":    f"https://img.youtube.com/vi/{vid}/mqdefault.jpg",
                 })
         return jsonify({"results": results})
     except Exception as e:
