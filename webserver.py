@@ -216,4 +216,10 @@ def health():
 
 if __name__ == "__main__":
     port = int(os.environ.get("WEB_PORT", 5000))
+    from ANNIEMUSIC.utils.weburl import WEB_URL
+    if WEB_URL:
+        print(f"[AnnieXMusic Web] 🎵 Player URL: {WEB_URL}")
+        print("[AnnieXMusic Web] ✅ Mini App button will auto-appear in /start and play messages")
+    else:
+        print("[AnnieXMusic Web] ⚠️  No WEB_APP_URL detected. Set WEB_APP_URL env var for Mini App buttons.")
     app.run(host="0.0.0.0", port=port, debug=False)

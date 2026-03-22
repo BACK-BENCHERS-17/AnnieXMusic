@@ -35,6 +35,11 @@ API_URL = getenv("API_URL")        # optional
 API_KEY = getenv("API_KEY")        # optional
 DEEP_API = getenv("DEEP_API")      # optional
 
+# ── Web Player (Mini App) ──────────────────────────────────────────────────────
+# Auto-detected from RAILWAY_PUBLIC_DOMAIN / REPLIT_DEV_DOMAIN.
+# Override manually by setting this env var.
+WEB_APP_URL = getenv("WEB_APP_URL", "")
+
 # ── Hosting / deployment ───────────────────────────────────────────────────────
 HEROKU_APP_NAME = getenv("HEROKU_APP_NAME")
 HEROKU_API_KEY = getenv("HEROKU_API_KEY")
