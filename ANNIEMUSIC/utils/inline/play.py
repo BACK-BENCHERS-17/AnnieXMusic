@@ -15,13 +15,11 @@ def generate_progress_bar(played_sec, duration_sec):
 
 
 def _webapp_btn():
-    """Return the Open Player button row, or empty list if no URL configured."""
-    if not WEB_URL:
-        return []
+    """Return the Open Player button row."""
     return [[
         InlineKeyboardButton(
-            text="🎵 ᴀɴɴɪᴇ ᴘʟᴀʏᴇʀ",
-            url=WEB_URL,
+            text="ᴀɴɴɪᴇ ᴘʟᴀʏᴇʀ",
+            url="https://t.me/ANNIEXMUSICxBOT/annie",
             style="primary",
             icon_custom_emoji_id=5041975203853239332,
         )
