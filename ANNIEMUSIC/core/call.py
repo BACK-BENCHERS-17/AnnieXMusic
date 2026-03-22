@@ -127,6 +127,21 @@ class Call:
         finally:
             self.active_calls.discard(chat_id)
 
+    @capture_internal_err
+    async def stop_or_autoplay(self, chat_id: int, last_song: dict) -> None:
+        """Called after skip when queue is empty.
+        If autoplay is ON → trigger autoplay using last played song as context.
+        If autoplay is OFF → stop stream and leave VC normally.
+        """
+        from ANNIEMUSIC.utils.database import is_autoplay
+        if last_song and await is_autoplay(chat_id):
+            # Re-insert the last song so play() can pop it and use it for autoplay search
+            if not db.get(chat_id):
+                db[chat_id] = [last_song]
+            assistant = await group_assistant(self, chat_id)
+            await self.play(assistant, chat_id)
+        else:
+            await self.stop_stream(chat_id)
 
     @capture_internal_err
     async def force_stop_stream(self, chat_id: int) -> None:

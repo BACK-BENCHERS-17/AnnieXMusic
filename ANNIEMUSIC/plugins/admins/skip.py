@@ -48,7 +48,7 @@ async def skip(cli, message: Message, _, chat_id):
                                         ),
                                         reply_markup=add_to_channel_markup(_, app.username),
                                     )
-                                    await JARVIS.stop_stream(chat_id)
+                                    await JARVIS.stop_or_autoplay(chat_id, popped)
                                 except:
                                     return
                                 break
@@ -75,7 +75,7 @@ async def skip(cli, message: Message, _, chat_id):
                     reply_markup=add_to_channel_markup(_, app.username),
                 )
                 try:
-                    return await JARVIS.stop_stream(chat_id)
+                    return await JARVIS.stop_or_autoplay(chat_id, popped)
                 except:
                     return
         except:
@@ -86,7 +86,7 @@ async def skip(cli, message: Message, _, chat_id):
                     ),
                     reply_markup=add_to_channel_markup(_, app.username),
                 )
-                return await JARVIS.stop_stream(chat_id)
+                return await JARVIS.stop_or_autoplay(chat_id, popped)
             except:
                 return
     queued = check[0]["file"]

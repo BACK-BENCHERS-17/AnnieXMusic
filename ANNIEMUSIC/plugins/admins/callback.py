@@ -275,7 +275,7 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
                     _["admin_6"].format(user_mention, callback.message.chat.title),
                     reply_markup=add_to_channel_markup(_, app.username)
                 )
-                return await JARVIS.stop_stream(chat_id)
+                return await JARVIS.stop_or_autoplay(chat_id, popped)
         except Exception:
             try:
                 await callback.edit_message_text(text_msg)
@@ -283,7 +283,7 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
                     _["admin_6"].format(user_mention, callback.message.chat.title),
                     reply_markup=add_to_channel_markup(_, app.username)
                 )
-                return await JARVIS.stop_stream(chat_id)
+                return await JARVIS.stop_or_autoplay(chat_id, None)
             except Exception:
                 return
     else:
