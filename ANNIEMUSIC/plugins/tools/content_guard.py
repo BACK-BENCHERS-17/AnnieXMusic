@@ -1,4 +1,6 @@
+import asyncio
 import io
+from concurrent.futures import ThreadPoolExecutor
 
 from pyrogram import filters
 from pyrogram.enums import ChatMemberStatus
@@ -12,6 +14,13 @@ from ANNIEMUSIC.utils.database import (
     is_content_guard_on,
 )
 
+_executor = ThreadPoolExecutor(max_workers=2)
+
+
+async def _run_image_check(image_bytes: bytes) -> bool:
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(_executor, analyze_image_bytes, image_bytes)
+
 
 async def _is_admin(client, chat_id: int, user_id: int) -> bool:
     try:
@@ -24,13 +33,30 @@ async def _is_admin(client, chat_id: int, user_id: int) -> bool:
         return False
 
 
+async def _delete_and_warn(message: Message, reason: str):
+    try:
+        await message.delete()
+    except Exception:
+        return
+    try:
+        warning = await message.reply_text(
+            f"🚫 <b>Message delete kar diya gaya!</b>\n"
+            f"{reason}\n"
+            f"<i>Content Guard active hai is group mein. 🛡️</i>"
+        )
+        await asyncio.sleep(8)
+        await warning.delete()
+    except Exception:
+        pass
+
+
 @app.on_message(
     filters.command(["contentguard", "cguard"]) & filters.group
 )
 async def content_guard_cmd(client, message: Message):
     if not message.from_user:
         return await message.reply_text(
-            "<b>❌ Anonymous admins cannot use this command.</b>"
+            "<b>❌ Anonymous admins ye command use nahi kar sakte.</b>"
         )
 
     if not await _is_admin(client, message.chat.id, message.from_user.id):
@@ -45,12 +71,13 @@ async def content_guard_cmd(client, message: Message):
         return await message.reply_text(
             f"<b>🛡️ Content Guard - {status}</b>\n\n"
             "<b>Usage:</b>\n"
-            "<code>/contentguard on</code> — Enable protection\n"
-            "<code>/contentguard off</code> — Disable protection\n\n"
-            "<b>Kya karta hai:</b>\n"
-            "• 18+ images/stickers automatically delete hoti hain\n"
-            "• Drugs/explicit content ki images delete hoti hain\n"
-            "• Play command mein bhi bad keywords block hote hain"
+            "<code>/contentguard on</code>  — Protect ON\n"
+            "<code>/contentguard off</code> — Protect OFF\n\n"
+            "<b>Kya protect karta hai:</b>\n"
+            "• 18+ images automatic delete\n"
+            "• Drugs / explicit content images delete\n"
+            "• Bad keywords wale stickers delete\n"
+            "• Bad keywords wale songs/videos play block"
         )
 
     if args[1].lower() == "on":
@@ -58,15 +85,16 @@ async def content_guard_cmd(client, message: Message):
         await message.reply_text(
             "<b>🛡️ Content Guard: ✅ ON</b>\n\n"
             "Ab is group mein:\n"
-            "• 18+ aur drugs wali images/stickers auto-delete ho jayengi\n"
-            "• Bad keywords wale songs/videos play nahi honge\n\n"
+            "• 18+ aur drugs wali images auto-delete hongi\n"
+            "• Bad stickers bhi pakde jayenge\n"
+            "• Bad keywords wale songs play nahi honge\n\n"
             "<i>Group safe hai! 🔒</i>"
         )
     else:
         await content_guard_off(message.chat.id)
         await message.reply_text(
             "<b>🛡️ Content Guard: ❌ OFF</b>\n\n"
-            "Content filtering disabled kar diya gaya hai."
+            "Content filtering disable ho gaya."
         )
 
 
@@ -85,39 +113,26 @@ async def check_media(client, message: Message):
         pass
 
     caption = message.caption or ""
-    if caption and is_bad_text(caption):
-        try:
-            await message.delete()
-            warning = await message.reply_text(
-                "🚫 <b>Message delete kar diya gaya!</b>\n"
-                "Caption mein inappropriate content tha.\n"
-                "<i>Content Guard active hai is group mein.</i>"
+    if caption:
+        bad_word = is_bad_text(caption)
+        if bad_word:
+            await _delete_and_warn(
+                message,
+                f"Caption mein inappropriate content mila: <code>{bad_word}</code>"
             )
-            import asyncio
-            await asyncio.sleep(8)
-            await warning.delete()
-        except Exception:
-            pass
-        return
+            return
 
     if message.sticker:
         sticker = message.sticker
-        sticker_name = (sticker.set_name or "").lower()
+        set_name = (sticker.set_name or "").lower()
         emoji = sticker.emoji or ""
-        combined = f"{sticker_name} {emoji}"
-        if is_bad_text(combined):
-            try:
-                await message.delete()
-                warning = await message.reply_text(
-                    "🚫 <b>Sticker delete kar diya gaya!</b>\n"
-                    "Inappropriate sticker pack detect hua.\n"
-                    "<i>Content Guard active hai is group mein.</i>"
-                )
-                import asyncio
-                await asyncio.sleep(8)
-                await warning.delete()
-            except Exception:
-                pass
+        combined = f"{set_name} {emoji}"
+        bad_word = is_bad_text(combined)
+        if bad_word:
+            await _delete_and_warn(
+                message,
+                f"Inappropriate sticker pack detect hua: <code>{bad_word}</code>"
+            )
         return
 
     if message.photo or message.animation:
@@ -130,17 +145,9 @@ async def check_media(client, message: Message):
         except Exception:
             return
 
-        is_nsfw = await analyze_image_bytes(image_bytes)
+        is_nsfw = await _run_image_check(image_bytes)
         if is_nsfw:
-            try:
-                await message.delete()
-                warning = await message.reply_text(
-                    "🚫 <b>Image delete kar diya gaya!</b>\n"
-                    "18+ ya explicit content detect hua.\n"
-                    "<i>Content Guard active hai is group mein.</i>"
-                )
-                import asyncio
-                await asyncio.sleep(8)
-                await warning.delete()
-            except Exception:
-                pass
+            await _delete_and_warn(
+                message,
+                "18+ ya explicit content detect hua (skin analysis)."
+            )

@@ -1,17 +1,17 @@
 import re
-import httpx
+import io
 from typing import Optional
 
 BAD_KEYWORDS = [
     "porn", "pornhub", "xvideos", "xnxx", "xxx", "sex", "nude", "naked",
     "18+", "adult", "hentai", "nsfw", "erotic", "explicit",
-    "blowjob", "handjob", "boobs", "pussy", "dick", "cock", "ass",
-    "sexy", "hot girl", "hot video", "bf video", "gf video",
+    "blowjob", "handjob", "boobs", "pussy", "dick", "cock",
+    "sexy video", "hot girl", "hot video", "bf video", "gf video",
     "rape", "mms", "viral sex", "blue film", "b grade",
     "drug", "drugs", "cocaine", "heroin", "weed", "ganja", "marijuana",
     "meth", "opium", "charas", "smack", "narcotics", "afeem",
     "mdma", "lsd", "ecstasy", "crack", "hash", "bhang",
-    "smuggling", "trafficking", "darkweb", "darknet",
+    "smuggling", "trafficking",
 ]
 
 _PATTERN = re.compile(
@@ -29,41 +29,30 @@ def is_bad_text(text: str) -> Optional[str]:
     return None
 
 
-async def analyze_image_url(image_url: str) -> bool:
+def _skin_ratio(image_bytes: bytes) -> float:
     try:
-        async with httpx.AsyncClient(timeout=15) as client:
-            resp = await client.post(
-                "https://api.deepai.org/api/nsfw-detector",
-                data={"image": image_url},
-                headers={"api-key": "quickstart-QUdJIGlzIGNvbWluZy4uLi4K"},
-            )
-            if resp.status_code != 200:
-                return False
-            data = resp.json()
-            output = data.get("output", {})
-            nsfw_score = output.get("nsfw_score", 0)
-            if isinstance(nsfw_score, (int, float)) and nsfw_score > 0.65:
-                return True
+        from PIL import Image
+        import numpy as np
+
+        img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+        img = img.resize((200, 200))
+        arr = np.array(img, dtype=np.float32)
+
+        r, g, b = arr[:, :, 0], arr[:, :, 1], arr[:, :, 2]
+
+        skin_mask = (
+            (r > 95) & (g > 40) & (b > 20) &
+            (r > g) & (r > b) &
+            ((r - g) > 15) &
+            (r < 240) & (g < 200) & (b < 180)
+        )
+
+        ratio = float(skin_mask.sum()) / (200 * 200)
+        return ratio
     except Exception:
-        pass
-    return False
+        return 0.0
 
 
-async def analyze_image_bytes(image_bytes: bytes, filename: str = "image.jpg") -> bool:
-    try:
-        async with httpx.AsyncClient(timeout=20) as client:
-            resp = await client.post(
-                "https://api.deepai.org/api/nsfw-detector",
-                files={"image": (filename, image_bytes, "image/jpeg")},
-                headers={"api-key": "quickstart-QUdJIGlzIGNvbWluZy4uLi4K"},
-            )
-            if resp.status_code != 200:
-                return False
-            data = resp.json()
-            output = data.get("output", {})
-            nsfw_score = output.get("nsfw_score", 0)
-            if isinstance(nsfw_score, (int, float)) and nsfw_score > 0.65:
-                return True
-    except Exception:
-        pass
-    return False
+def analyze_image_bytes(image_bytes: bytes) -> bool:
+    ratio = _skin_ratio(image_bytes)
+    return ratio > 0.45
