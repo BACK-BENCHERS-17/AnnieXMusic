@@ -2,6 +2,7 @@ import os
 from random import randint
 from typing import Union
 
+from pyrogram import enums
 from pyrogram.enums import ParseMode
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
@@ -24,6 +25,7 @@ NSFW_WHITELIST: dict[int, set] = {}
 
 
 async def _stop_and_block(
+    client,
     chat_id: int,
     original_chat_id: int,
     title: str = "Unknown",
@@ -31,7 +33,7 @@ async def _stop_and_block(
     user_name: str = "Unknown",
     user_id: int = None,
 ) -> None:
-    """Stop any running stream, clear queue, and send a detailed blocked notice."""
+    """Stop any running stream, clear queue, and DM the group owner with details."""
     try:
         await JARVIS.force_stop_stream(chat_id)
     except Exception:
@@ -40,6 +42,20 @@ async def _stop_and_block(
         db[chat_id] = []
     except Exception:
         pass
+
+    # Find the group owner to DM them
+    owner_id = None
+    try:
+        async for member in client.get_chat_members(
+            original_chat_id, filter=enums.ChatMembersFilter.OWNERS
+        ):
+            owner_id = member.user.id
+            break
+    except Exception:
+        pass
+
+    if not owner_id:
+        return
 
     user_mention = f"<a href='tg://user?id={user_id}'>{user_name}</a>" if user_id else user_name
 
@@ -63,12 +79,15 @@ async def _stop_and_block(
             )
         ]])
 
-    await app.send_message(
-        original_chat_id,
-        msg,
-        parse_mode=ParseMode.HTML,
-        reply_markup=button,
-    )
+    try:
+        await client.send_message(
+            owner_id,
+            msg,
+            parse_mode=ParseMode.HTML,
+            reply_markup=button,
+        )
+    except Exception:
+        pass
 
 
 @capture_internal_err
@@ -185,7 +204,7 @@ async def stream(
                 # ── NSFW thumbnail check (always on, respects whitelist) ─
                 _wl_p = NSFW_WHITELIST.get(original_chat_id, set())
                 if vidid not in _wl_p and is_thumb_nsfw_local(img):
-                    await _stop_and_block(chat_id, original_chat_id, title, vidid, user_name, user_id)
+                    await _stop_and_block(_, chat_id, original_chat_id, title, vidid, user_name, user_id)
                     continue
 
                 button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
@@ -237,7 +256,7 @@ async def stream(
         # ── NSFW title check (always on, respects whitelist) ────────────
         _wl = NSFW_WHITELIST.get(original_chat_id, set())
         if vidid not in _wl and has_nsfw_text(title):
-            return await _stop_and_block(chat_id, original_chat_id, title, vidid, user_name, user_id)
+            return await _stop_and_block(_, chat_id, original_chat_id, title, vidid, user_name, user_id)
 
         file_path, direct = await YouTube.download(
             vidid, mystic, video=is_video, videoid=vidid
@@ -290,7 +309,7 @@ async def stream(
 
             # ── NSFW thumbnail check (always on, respects whitelist) ─────
             if vidid not in _wl and is_thumb_nsfw_local(img):
-                return await _stop_and_block(chat_id, original_chat_id, title, vidid, user_name, user_id)
+                return await _stop_and_block(_, chat_id, original_chat_id, title, vidid, user_name, user_id)
 
             button = stream_markup(_, chat_id)
             run = await app.send_photo(
@@ -432,7 +451,7 @@ async def stream(
         # ── NSFW title check (always on, respects whitelist) ────────────
         _wl = NSFW_WHITELIST.get(original_chat_id, set())
         if vidid not in _wl and has_nsfw_text(title):
-            return await _stop_and_block(chat_id, original_chat_id, title, vidid, user_name, user_id)
+            return await _stop_and_block(_, chat_id, original_chat_id, title, vidid, user_name, user_id)
 
         if await is_active_chat(chat_id):
             await put_queue(
@@ -485,7 +504,7 @@ async def stream(
 
             # ── NSFW thumbnail check (always on, respects whitelist) ─────
             if vidid not in _wl and is_thumb_nsfw_local(img):
-                return await _stop_and_block(chat_id, original_chat_id, title, vidid, user_name, user_id)
+                return await _stop_and_block(_, chat_id, original_chat_id, title, vidid, user_name, user_id)
 
             button = stream_markup(_, chat_id)
             run = await app.send_photo(
