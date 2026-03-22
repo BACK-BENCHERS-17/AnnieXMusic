@@ -1,5 +1,6 @@
 import asyncio
 import importlib
+import requests
 
 from pyrogram import idle
 from pytgcalls.exceptions import NoActiveGroupCall
@@ -11,15 +12,40 @@ from ANNIEMUSIC.misc import sudo
 from ANNIEMUSIC.plugins import ALL_MODULES
 from ANNIEMUSIC.utils.database import get_banned_users, get_gbanned
 from ANNIEMUSIC.utils.cookie_handler import fetch_and_store_cookies
+from ANNIEMUSIC.utils.weburl import WEB_URL
 from config import BANNED_USERS
 
-
 from ANNIEMUSIC.utils.health_check import start_health_server
+
+
+async def _set_menu_button():
+    """Set the bot menu button via Bot API (works with all pyrogram versions)."""
+    if not WEB_URL:
+        LOGGER("ANNIEMUSIC").info("⚙️  No WEB_URL detected — menu button not set.")
+        return
+    try:
+        url = f"https://api.telegram.org/bot{config.BOT_TOKEN}/setChatMenuButton"
+        payload = {
+            "menu_button": {
+                "type": "web_app",
+                "text": "🎵 Music Player",
+                "web_app": {"url": WEB_URL},
+            }
+        }
+        resp = requests.post(url, json=payload, timeout=10)
+        data = resp.json()
+        if data.get("ok"):
+            LOGGER("ANNIEMUSIC").info(f"✅ Menu button set → {WEB_URL}")
+        else:
+            LOGGER("ANNIEMUSIC").warning(f"⚠️  Menu button API error: {data.get('description')}")
+    except Exception as e:
+        LOGGER("ANNIEMUSIC").warning(f"⚠️  Could not set menu button: {e}")
+
 
 async def init():
     # Start health check server for Railway
     start_health_server()
-    
+
     if (
         not config.STRING1
         and not config.STRING2
@@ -37,7 +63,6 @@ async def init():
     except Exception as e:
         LOGGER("ANNIEMUSIC").warning(f"⚠️ᴄᴏᴏᴋɪᴇ ᴇʀʀᴏʀ: {e}")
 
-
     await sudo()
 
     try:
@@ -51,6 +76,10 @@ async def init():
         pass
 
     await app.start()
+
+    # ── Set the menu button (Mini App) ───────────────────────────
+    await _set_menu_button()
+
     for all_module in ALL_MODULES:
         importlib.import_module("ANNIEMUSIC.plugins" + all_module)
 
