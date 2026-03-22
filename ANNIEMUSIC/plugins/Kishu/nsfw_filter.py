@@ -12,7 +12,6 @@ from pyrogram.enums import ParseMode
 from pyrogram.types import Message
 
 from ANNIEMUSIC import app
-from config import LOGGER_ID
 
 logger = logging.getLogger(__name__)
 
@@ -292,30 +291,13 @@ async def _handle_violation(client: Client, message: Message, reason: str, is_gr
         except Exception:
             pass
     else:
-        # DMs: Telegram does not allow bots to delete user messages in private chats
-        try:
-            user = message.from_user
-            uid = user.id if user else "N/A"
-            mention = user.mention if user else "Unknown"
-            await client.forward_messages(LOGGER_ID, message.chat.id, message.id)
-            await client.send_message(
-                LOGGER_ID,
-                "<blockquote>"
-                f"⚠️ <b>NSFW Detected in DM</b>\n\n"
-                f"👤 User: {mention} (<code>{uid}</code>)\n"
-                f"📌 Reason: <b>{reason}</b>"
-                "</blockquote>",
-                parse_mode=ParseMode.HTML,
-            )
-        except Exception:
-            pass
+        # DMs: just warn the user in chat, no log channel spam
         try:
             warn = await message.reply(
                 "<blockquote>"
                 "⛔ <b>Content Policy Violation</b>\n\n"
                 f"🚫 You sent: <b>{reason}</b>\n\n"
-                "This content violates our <b>No NSFW / No Illegal / No Drug</b> policy.\n"
-                "Your message has been <b>reported to admins</b> for review."
+                "This content violates our <b>No NSFW / No Illegal / No Drug</b> policy."
                 "</blockquote>\n"
                 "<i>This notice will be deleted in 10 seconds.</i>",
                 parse_mode=ParseMode.HTML,
