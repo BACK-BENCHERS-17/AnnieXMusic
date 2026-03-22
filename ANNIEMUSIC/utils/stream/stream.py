@@ -2,6 +2,7 @@ import os
 from random import randint
 from typing import Union
 
+from pyrogram.enums import ParseMode
 from pyrogram.types import InlineKeyboardMarkup
 
 import config
@@ -16,6 +17,34 @@ from ANNIEMUSIC.utils.pastebin import ANNIEBIN
 from ANNIEMUSIC.utils.stream.queue import put_queue, put_queue_index
 from ANNIEMUSIC.utils.thumbnails import get_thumb
 from ANNIEMUSIC.utils.errors import capture_internal_err
+from ANNIEMUSIC.plugins.Kishu.nsfw_filter import has_nsfw_text, is_thumb_nsfw_local
+
+_BLOCKED_MSG = (
+    "<blockquote>"
+    "🚫 <b>Content Blocked!</b>\n\n"
+    "Is track ka <b>thumbnail ya title</b> mein\n"
+    "18+ / illegal / drug content detect hua hai.\n\n"
+    "⛔ <b>This is Blocked.</b>\n"
+    "Yeh track play nahi ho sakta."
+    "</blockquote>"
+)
+
+
+async def _stop_and_block(chat_id: int, original_chat_id: int) -> None:
+    """Stop any running stream and clear the queue for this chat."""
+    try:
+        await JARVIS.force_stop_stream(chat_id)
+    except Exception:
+        pass
+    try:
+        db[chat_id] = []
+    except Exception:
+        pass
+    await app.send_message(
+        original_chat_id,
+        _BLOCKED_MSG,
+        parse_mode=ParseMode.HTML,
+    )
 
 
 @capture_internal_err
@@ -77,7 +106,7 @@ async def stream(
             if duration_sec and duration_sec > config.DURATION_LIMIT:
                 continue
 
-            if await is_content_guard_on(original_chat_id) and is_bad_text(title):
+            if has_nsfw_text(title) or (await is_content_guard_on(original_chat_id) and is_bad_text(title)):
                 continue
 
             if await is_active_chat(chat_id):
@@ -128,6 +157,12 @@ async def stream(
                     forceplay=forceplay,
                 )
                 img = await get_thumb(vidid)
+
+                # ── NSFW thumbnail check (always on) ────────────────────
+                if is_thumb_nsfw_local(img):
+                    await _stop_and_block(chat_id, original_chat_id)
+                    continue
+
                 button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
                 run = await app.send_photo(
                     original_chat_id,
@@ -173,6 +208,10 @@ async def stream(
         title = (result["title"]).title()
         duration_min = result["duration_min"]
         thumbnail = result["thumb"]
+
+        # ── NSFW title check (always on) ────────────────────────────────
+        if has_nsfw_text(title):
+            return await _stop_and_block(chat_id, original_chat_id)
 
         file_path, direct = await YouTube.download(
             vidid, mystic, video=is_video, videoid=vidid
@@ -222,6 +261,11 @@ async def stream(
                 forceplay=forceplay,
             )
             img = await get_thumb(vidid)
+
+            # ── NSFW thumbnail check (always on) ────────────────────────
+            if is_thumb_nsfw_local(img):
+                return await _stop_and_block(chat_id, original_chat_id)
+
             button = stream_markup(_, chat_id)
             run = await app.send_photo(
                 original_chat_id,
@@ -359,6 +403,10 @@ async def stream(
         thumbnail = result["thumb"]
         duration_min = "Live Track"
 
+        # ── NSFW title check (always on) ────────────────────────────────
+        if has_nsfw_text(title):
+            return await _stop_and_block(chat_id, original_chat_id)
+
         if await is_active_chat(chat_id):
             await put_queue(
                 chat_id,
@@ -407,6 +455,11 @@ async def stream(
                 forceplay=forceplay,
             )
             img = await get_thumb(vidid)
+
+            # ── NSFW thumbnail check (always on) ────────────────────────
+            if is_thumb_nsfw_local(img):
+                return await _stop_and_block(chat_id, original_chat_id)
+
             button = stream_markup(_, chat_id)
             run = await app.send_photo(
                 original_chat_id,

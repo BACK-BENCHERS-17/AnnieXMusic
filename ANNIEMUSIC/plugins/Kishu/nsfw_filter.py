@@ -164,6 +164,42 @@ def _get_file_id(message: Message):
     return None
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Public helper — check a LOCAL image file for NSFW (used by stream.py)
+# ─────────────────────────────────────────────────────────────────────────────
+def is_thumb_nsfw_local(img_path: str) -> bool:
+    """Synchronously scan a locally saved thumbnail with NudeDetector."""
+    if not _NUDE_OK or not img_path or not os.path.exists(img_path):
+        return False
+    png_path = None
+    try:
+        png_path = _to_png(img_path)
+        detections = _detector.detect(png_path)
+        logger.info(f"[NSFW-THUMB] Detections for {img_path}: {detections}")
+        return any(
+            (
+                det.get("class") in _NSFW_EXPOSED and det.get("score", 0) >= _THRESHOLD_EXPOSED
+            ) or (
+                det.get("class") in _NSFW_COVERED and det.get("score", 0) >= _THRESHOLD_COVERED
+            )
+            for det in detections
+        )
+    except Exception:
+        logger.error(f"[NSFW-THUMB] Error:\n{traceback.format_exc()}")
+        return False
+    finally:
+        if png_path and png_path != img_path and os.path.exists(png_path):
+            try:
+                os.remove(png_path)
+            except Exception:
+                pass
+
+
+def has_nsfw_text(text: str) -> bool:
+    """Public wrapper around _has_nsfw_text for use outside this module."""
+    return _has_nsfw_text(text)
+
+
 def _file_hash(path: str) -> str:
     h = hashlib.sha256()
     with open(path, "rb") as f:
