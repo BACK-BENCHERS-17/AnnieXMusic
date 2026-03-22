@@ -666,24 +666,26 @@ async def remove_banned_user(user_id: int):
 
 
 async def is_autoplay(chat_id: int) -> bool:
+    """Default is ON. Returns False only if explicitly disabled in DB."""
     mode = autoplay_cache.get(chat_id)
     if mode is None:
-        user = await autplaydb.find_one({"chat_id": chat_id})
-        autoplay_cache[chat_id] = bool(user)
-        return bool(user)
+        disabled = await autplaydb.find_one({"chat_id": chat_id, "disabled": True})
+        result = not bool(disabled)
+        autoplay_cache[chat_id] = result
+        return result
     return mode
 
 
 async def autoplay_on(chat_id: int):
     autoplay_cache[chat_id] = True
-    await autplaydb.update_one(
-        {"chat_id": chat_id}, {"$set": {"chat_id": chat_id}}, upsert=True
-    )
+    await autplaydb.delete_one({"chat_id": chat_id})
 
 
 async def autoplay_off(chat_id: int):
     autoplay_cache[chat_id] = False
-    await autplaydb.delete_one({"chat_id": chat_id})
+    await autplaydb.update_one(
+        {"chat_id": chat_id}, {"$set": {"chat_id": chat_id, "disabled": True}}, upsert=True
+    )
 
 
 content_guard_cache = {}
