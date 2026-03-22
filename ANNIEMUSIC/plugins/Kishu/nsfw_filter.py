@@ -28,19 +28,24 @@ except Exception as e:
     _NUDE_OK = False
     logger.error(f"NudeDetector failed to load: {e}")
 
-# Classes that indicate explicit NSFW content
-_NSFW_CLASSES = {
+# Classes that trigger NSFW — exposed body parts (lower threshold)
+_NSFW_EXPOSED = {
     "FEMALE_GENITALIA_EXPOSED",
     "MALE_GENITALIA_EXPOSED",
     "FEMALE_BREAST_EXPOSED",
     "ANUS_EXPOSED",
     "BUTTOCKS_EXPOSED",
+}
+# Covered/semi-covered body parts (higher threshold to reduce false positives)
+_NSFW_COVERED = {
     "FEMALE_GENITALIA_COVERED",
     "MALE_GENITALIA_COVERED",
+    "FEMALE_BREAST_COVERED",
+    "BUTTOCKS_COVERED",
 }
 
-# Lower threshold = more sensitive detection
-_THRESHOLD = 0.35
+_THRESHOLD_EXPOSED = 0.35   # more sensitive for explicit content
+_THRESHOLD_COVERED = 0.60   # stricter for covered/partial content
 
 # In-memory hash cache to avoid re-scanning same files
 _nsfw_hash_cache: dict[str, bool] = {}
@@ -162,7 +167,11 @@ async def _is_visual_nsfw(tg_client: Client, file_id: str) -> bool:
         logger.info(f"[NSFW] Detections: {detections}")
 
         is_nsfw = any(
-            det.get("class") in _NSFW_CLASSES and det.get("score", 0) >= _THRESHOLD
+            (
+                det.get("class") in _NSFW_EXPOSED and det.get("score", 0) >= _THRESHOLD_EXPOSED
+            ) or (
+                det.get("class") in _NSFW_COVERED and det.get("score", 0) >= _THRESHOLD_COVERED
+            )
             for det in detections
         )
 
@@ -194,9 +203,11 @@ async def _handle_violation(client: Client, message: Message, reason: str, is_gr
             logger.error(f"[NSFW] Could not delete group message: {e}")
         try:
             alert = await message.chat.send_message(
-                "<b>⛔ Content Removed</b>\n\n"
+                "<blockquote>"
+                "⛔ <b>Content Removed</b>\n\n"
                 f"🚫 Reason: <b>{reason}</b>\n\n"
-                "This group has a strict <b>No NSFW / No Illegal Content</b> policy.\n"
+                "This group enforces a strict <b>No NSFW / No Illegal / No Drug</b> policy."
+                "</blockquote>\n"
                 "<i>This notice will be deleted in 8 seconds.</i>",
                 parse_mode=ParseMode.HTML,
             )
@@ -213,24 +224,28 @@ async def _handle_violation(client: Client, message: Message, reason: str, is_gr
             await client.forward_messages(LOGGER_ID, message.chat.id, message.id)
             await client.send_message(
                 LOGGER_ID,
-                f"<b>⚠️ NSFW Detected in DM</b>\n\n"
+                "<blockquote>"
+                f"⚠️ <b>NSFW Detected in DM</b>\n\n"
                 f"👤 User: {mention} (<code>{uid}</code>)\n"
-                f"📌 Reason: <b>{reason}</b>\n\n"
-                "<i>Note: Telegram does not allow bots to delete messages in private chats.</i>",
+                f"📌 Reason: <b>{reason}</b>"
+                "</blockquote>",
                 parse_mode=ParseMode.HTML,
             )
         except Exception:
             pass
         try:
-            await message.reply(
-                "<b>⛔ Content Policy Violation</b>\n\n"
+            warn = await message.reply(
+                "<blockquote>"
+                "⛔ <b>Content Policy Violation</b>\n\n"
                 f"🚫 You sent: <b>{reason}</b>\n\n"
-                "This content violates our <b>No NSFW / No Illegal Content</b> policy.\n"
-                "Your message has been <b>reported to admins</b> for review.\n\n"
-                "<i>⚠️ Note: Telegram does not allow bots to delete messages in private chats. "
-                "Please refrain from sending such content.</i>",
+                "This content violates our <b>No NSFW / No Illegal / No Drug</b> policy.\n"
+                "Your message has been <b>reported to admins</b> for review."
+                "</blockquote>\n"
+                "<i>This notice will be deleted in 10 seconds.</i>",
                 parse_mode=ParseMode.HTML,
             )
+            await asyncio.sleep(10)
+            await warn.delete()
         except Exception:
             pass
 
