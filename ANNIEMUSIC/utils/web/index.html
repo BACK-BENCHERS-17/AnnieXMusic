@@ -606,6 +606,17 @@ function prevSong() {
 }
 
 function nextSong() {
+  // First try next in the full songs list (like Spotify autoplay)
+  if (curTrack && allSongs.length) {
+    const idx = allSongs.findIndex(s => s.id === curTrack.id);
+    if (idx !== -1 && idx + 1 < allSongs.length) {
+      playSong(allSongs[idx + 1]);
+      return;
+    }
+    // If at end of list, wrap around to first song
+    if (allSongs.length) { playSong(allSongs[0]); return; }
+  }
+  // Fallback: next in history
   if (histIdx < history.length-1) { histIdx++; playSong(history[histIdx]); }
   else toast('🎵 No next song');
 }
@@ -622,7 +633,10 @@ function seekTo(val) {
   if (dur > 0) { aud.currentTime = val/100*dur; }
 }
 
-aud.addEventListener('ended', () => { playing=false; setPlayBtns(false); clearInterval(progTimer); updateProg(1,1); });
+aud.addEventListener('ended', () => {
+  playing = false; setPlayBtns(false); clearInterval(progTimer);
+  if (!repeatOn) nextSong();
+});
 aud.addEventListener('error', () => { toast('❌ Stream error'); playing=false; setPlayBtns(false); });
 
 function startProgTimer() {
