@@ -96,7 +96,7 @@ def control_buttons(_, chat_id, autoplay_on=None):
         ],
     ]
 
-    return rows + _webapp_btn()
+    return rows
 
 
 def stream_markup_timer(_, chat_id, played, dur, autoplay_on=None):
@@ -118,7 +118,8 @@ def stream_markup_timer(_, chat_id, played, dur, autoplay_on=None):
     ]
 
     return (
-        [progress_row]
+        _webapp_btn()
+        + [progress_row]
         + control_buttons(_, chat_id, autoplay_on=autoplay_on)
         + [[InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close", style="danger")]]
     )
@@ -126,7 +127,8 @@ def stream_markup_timer(_, chat_id, played, dur, autoplay_on=None):
 
 def stream_markup(_, chat_id, autoplay_on=None):
     return (
-        control_buttons(_, chat_id, autoplay_on=autoplay_on)
+        _webapp_btn()
+        + control_buttons(_, chat_id, autoplay_on=autoplay_on)
         + [[InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close", style="danger")]]
     )
 
