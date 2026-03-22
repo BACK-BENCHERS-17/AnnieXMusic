@@ -131,7 +131,7 @@ async def nsfw_guard(client: Client, message: Message):
     if _has_nsfw(text):
         return await _try_delete(message, "18+ / illegal / drug-related content")
 
-    # ── 2. Stickers — all blocked in groups; keyword check in DMs ───────
+    # ── 2. Stickers — all blocked in groups; visual + keyword scan in DMs ──
     if message.sticker:
         if is_group:
             return await _try_delete(message, "sticker (not allowed in this group)")
@@ -146,6 +146,11 @@ async def nsfw_guard(client: Client, message: Message):
                 return await _try_delete(message, "NSFW sticker pack")
             if _has_nsfw(emoji) or _has_nsfw(set_name):
                 return await _try_delete(message, "NSFW sticker")
+            file_id = _get_file_id(message)
+            if file_id:
+                unsafe = await _is_visual_nsfw(client, file_id)
+                if unsafe:
+                    return await _try_delete(message, "18+ sticker")
 
     # ── 3. Visual NSFW scan — photos, videos, animations, documents ──────
     if message.photo or message.video or message.animation or message.document:
