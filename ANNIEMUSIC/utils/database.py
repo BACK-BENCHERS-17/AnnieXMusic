@@ -690,23 +690,12 @@ content_guard_cache = {}
 
 
 async def is_content_guard_on(chat_id: int) -> bool:
-    if chat_id in content_guard_cache:
-        return content_guard_cache[chat_id]
-    doc = await contentguarddb.find_one({"chat_id": chat_id})
-    result = bool(doc and doc.get("enabled"))
-    content_guard_cache[chat_id] = result
-    return result
+    return True
 
 
 async def content_guard_on(chat_id: int):
-    content_guard_cache[chat_id] = True
-    await contentguarddb.update_one(
-        {"chat_id": chat_id},
-        {"$set": {"enabled": True}},
-        upsert=True,
-    )
+    pass
 
 
 async def content_guard_off(chat_id: int):
-    content_guard_cache[chat_id] = False
-    await contentguarddb.delete_one({"chat_id": chat_id})
+    pass
