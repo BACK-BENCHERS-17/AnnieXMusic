@@ -36,6 +36,10 @@ async def get_message_sender_id(ctx: Message):
         return ctx.sender_chat.id
     else:
         return 1
+
+def get_name_color(user_id: int) -> int:
+    colors = [0, 1, 2, 3, 4, 5, 6]
+    return colors[abs(user_id) % 7]
 # -----------------------------------------------------------------------------------------
 async def get_message_sender_name(ctx: Message):
     if ctx.forward_date:
@@ -214,6 +218,9 @@ async def pyrogram_to_quotly(messages, is_reply):
             "username"
         ] = await get_message_sender_username(message)
         the_message_dict_to_append["from"]["type"] = message.chat.type.name.lower()
+        the_message_dict_to_append["from"]["color"] = get_name_color(
+            await get_message_sender_id(message)
+        )
         the_message_dict_to_append["from"]["photo"] = await get_message_sender_photo(
             message
         )
