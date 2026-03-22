@@ -57,5 +57,9 @@ MONGO_DB_URI = "mongodb+srv://bb:bb@cluster0.by6uncl.mongodb.net/?appName=Cluste
 STRING_SESSION = "BQIB6EEAr6bLR5EjGYxHLF6ZANRy9TlswPaTfRHcojB3DECbhz_mxF8CLbUhmvyxNtIZYIKzdUMEkdJ1M3aqc0X9sYp9cMFP3BKHbSBXnc5VezYg0CPh6pctrpijreZSYTfuHodQjgUcKb-GF1g3IwaHrJflG6F7afkGRoSzbtXAsUKcVUqc5e0aJPMlVN3GEWOK1OeXJUG76dLKqlyx3sXfxXbmwi34Eb3tPi6SqHfe0iXdlcRu0uW7gzB3unRE__zg-ZF9nirWz2sC8F5TwflqxgbNmlq0hw7-fs6k9QhpfzCO0bR7AkemSN56iVfJgPc1O3s6nU4nT_t-YoL_255eXWXmpAAAAAHkdbuiAA"
 
 [[ports]]
+localPort = 5000
+externalPort = 5000
+
+[[ports]]
 localPort = 8080
 externalPort = 80

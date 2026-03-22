@@ -1,908 +1,739 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Annie X Music — Live Player</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg: #0a0a0f;
-      --card: #12121a;
-      --card2: #1a1a28;
-      --accent: #a855f7;
-      --accent2: #ec4899;
-      --accent3: #6366f1;
-      --text: #f1f0ff;
-      --muted: #8b8aa0;
-      --border: #2a2a40;
-      --glow: rgba(168,85,247,0.35);
-    }
-
-    html, body {
-      height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      overflow-x: hidden;
-    }
-
-    /* ── Animated bg ── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 60% 40% at 20% 10%, rgba(168,85,247,0.12) 0%, transparent 70%),
-        radial-gradient(ellipse 50% 50% at 80% 80%, rgba(99,102,241,0.10) 0%, transparent 70%),
-        radial-gradient(ellipse 40% 30% at 60% 40%, rgba(236,72,153,0.07) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .page { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
-
-    /* ── Header ── */
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 20px 32px;
-      border-bottom: 1px solid var(--border);
-      backdrop-filter: blur(20px);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(10,10,15,0.85);
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .logo-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      box-shadow: 0 0 20px var(--glow);
-      animation: pulse-glow 3s ease-in-out infinite;
-    }
-
-    @keyframes pulse-glow {
-      0%, 100% { box-shadow: 0 0 20px var(--glow); }
-      50% { box-shadow: 0 0 40px rgba(168,85,247,0.6); }
-    }
-
-    .logo-text {
-      font-size: 20px;
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .header-status {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      border-radius: 100px;
-      background: var(--card2);
-      border: 1px solid var(--border);
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #22c55e;
-      animation: blink 2s ease-in-out infinite;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
-    }
-
-    /* ── Main grid ── */
-    .main {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 1fr 380px;
-      gap: 24px;
-      padding: 28px 32px;
-      max-width: 1280px;
-      width: 100%;
-      margin: 0 auto;
-    }
-
-    /* ── Now Playing Card ── */
-    .now-playing-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 36px;
-      display: flex;
-      flex-direction: column;
-      gap: 28px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .now-playing-card::before {
-      content: '';
-      position: absolute;
-      top: -60px;
-      right: -60px;
-      width: 200px;
-      height: 200px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(168,85,247,0.15), transparent 70%);
-      pointer-events: none;
-    }
-
-    .np-label {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
-
-    .np-label::before {
-      content: '';
-      display: block;
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: var(--accent);
-    }
-
-    .np-main {
-      display: flex;
-      align-items: center;
-      gap: 32px;
-    }
-
-    .album-art {
-      position: relative;
-      flex-shrink: 0;
-    }
-
-    .album-art img {
-      width: 180px;
-      height: 180px;
-      border-radius: 20px;
-      object-fit: cover;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px var(--border);
-    }
-
-    .album-art-placeholder {
-      width: 180px;
-      height: 180px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, #1e1e2e, #2a1a3e);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 60px;
-      border: 1px solid var(--border);
-    }
-
-    .vinyl-ring {
-      position: absolute;
-      bottom: -8px;
-      right: -8px;
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      animation: spin 3s linear infinite;
-      box-shadow: 0 4px 15px var(--glow);
-    }
-
-    .vinyl-ring.paused { animation-play-state: paused; }
-
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    .np-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .np-title {
-      font-size: 26px;
-      font-weight: 800;
-      line-height: 1.2;
-      margin-bottom: 8px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-    }
-
-    .np-by {
-      font-size: 14px;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-
-    .np-by span { color: var(--accent); font-weight: 600; }
-
-    .np-type {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 12px;
-      border-radius: 100px;
-      background: rgba(168,85,247,0.15);
-      border: 1px solid rgba(168,85,247,0.3);
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--accent);
-      margin-bottom: 20px;
-    }
-
-    /* ── Progress bar ── */
-    .progress-wrap {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .progress-bar {
-      width: 100%;
-      height: 6px;
-      background: var(--border);
-      border-radius: 100px;
-      overflow: hidden;
-      cursor: pointer;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent3), var(--accent), var(--accent2));
-      border-radius: 100px;
-      transition: width 1s linear;
-      position: relative;
-    }
-
-    .progress-fill::after {
-      content: '';
-      position: absolute;
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: white;
-      box-shadow: 0 0 8px var(--accent);
-    }
-
-    .progress-times {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 500;
-    }
-
-    /* ── Controls ── */
-    .controls {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      margin-top: 4px;
-    }
-
-    .ctrl-btn {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: var(--card2);
-      border: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      cursor: pointer;
-      transition: all 0.2s;
-      color: var(--muted);
-      user-select: none;
-    }
-
-    .ctrl-btn:hover { background: var(--border); color: var(--text); }
-
-    .ctrl-btn.play {
-      width: 58px;
-      height: 58px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border: none;
-      font-size: 22px;
-      color: white;
-      box-shadow: 0 4px 20px var(--glow);
-    }
-
-    .ctrl-btn.play:hover { transform: scale(1.05); box-shadow: 0 6px 30px rgba(168,85,247,0.5); }
-
-    /* ── Idle state ── */
-    .idle-state {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      color: var(--muted);
-      padding: 60px 0;
-    }
-
-    .idle-icon {
-      font-size: 64px;
-      opacity: 0.5;
-      animation: float 4s ease-in-out infinite;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-
-    .idle-title { font-size: 22px; font-weight: 700; color: var(--text); }
-    .idle-sub { font-size: 14px; text-align: center; max-width: 320px; line-height: 1.6; }
-
-    /* ── Right sidebar ── */
-    .sidebar {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .stats-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 24px;
-    }
-
-    .card-title {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 18px;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .stat-item {
-      background: var(--card2);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 16px 14px;
-    }
-
-    .stat-value {
-      font-size: 22px;
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 4px;
-    }
-
-    .stat-label {
-      font-size: 11px;
-      color: var(--muted);
-      font-weight: 500;
-    }
-
-    /* ── Resource bars ── */
-    .resource-bar-wrap {
-      margin-top: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .res-row {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .res-label {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .res-bar {
-      height: 5px;
-      background: var(--border);
-      border-radius: 100px;
-      overflow: hidden;
-    }
-
-    .res-fill {
-      height: 100%;
-      border-radius: 100px;
-      transition: width 0.8s ease;
-    }
-
-    .res-fill.cpu { background: linear-gradient(90deg, var(--accent3), var(--accent)); }
-    .res-fill.ram { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
-
-    /* ── Queue card ── */
-    .queue-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 24px;
-      flex: 1;
-    }
-
-    .queue-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      max-height: 300px;
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: var(--border) transparent;
-    }
-
-    .queue-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: var(--card2);
-      border: 1px solid var(--border);
-      transition: border-color 0.2s;
-    }
-
-    .queue-item:hover { border-color: rgba(168,85,247,0.4); }
-
-    .queue-num {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--muted);
-      min-width: 18px;
-      text-align: center;
-    }
-
-    .queue-info { flex: 1; min-width: 0; }
-
-    .queue-title {
-      font-size: 13px;
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .queue-meta {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-
-    .queue-dur {
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 600;
-      flex-shrink: 0;
-    }
-
-    .empty-queue {
-      text-align: center;
-      padding: 24px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    /* ── Active chats selector ── */
-    .chat-selector {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-    }
-
-    .chat-chip {
-      padding: 6px 14px;
-      border-radius: 100px;
-      background: var(--card2);
-      border: 1px solid var(--border);
-      font-size: 12px;
-      cursor: pointer;
-      transition: all 0.2s;
-      color: var(--muted);
-      font-weight: 600;
-    }
-
-    .chat-chip.active {
-      background: rgba(168,85,247,0.2);
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    /* ── Waveform animation ── */
-    .waveform {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      height: 24px;
-    }
-
-    .wave-bar {
-      width: 3px;
-      border-radius: 3px;
-      background: var(--accent);
-      animation: wave 1.2s ease-in-out infinite;
-    }
-
-    .wave-bar:nth-child(1) { animation-delay: 0s; height: 8px; }
-    .wave-bar:nth-child(2) { animation-delay: 0.1s; height: 16px; }
-    .wave-bar:nth-child(3) { animation-delay: 0.2s; height: 24px; }
-    .wave-bar:nth-child(4) { animation-delay: 0.3s; height: 16px; }
-    .wave-bar:nth-child(5) { animation-delay: 0.4s; height: 10px; }
-    .wave-bar:nth-child(6) { animation-delay: 0.2s; height: 20px; }
-    .wave-bar:nth-child(7) { animation-delay: 0.1s; height: 14px; }
-
-    @keyframes wave {
-      0%, 100% { transform: scaleY(0.4); opacity: 0.6; }
-      50% { transform: scaleY(1); opacity: 1; }
-    }
-
-    /* ── Footer ── */
-    footer {
-      text-align: center;
-      padding: 16px 32px;
-      font-size: 12px;
-      color: var(--muted);
-      border-top: 1px solid var(--border);
-    }
-
-    footer a { color: var(--accent); text-decoration: none; }
-
-    /* ── Responsive ── */
-    @media (max-width: 900px) {
-      .main { grid-template-columns: 1fr; }
-      header { padding: 16px 20px; }
-      .main { padding: 20px; gap: 16px; }
-      .np-main { flex-direction: column; align-items: flex-start; gap: 20px; }
-      .album-art img, .album-art-placeholder { width: 140px; height: 140px; }
-      .np-title { font-size: 20px; }
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Annie X Music</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#000;
+  --sidebar:#121212;
+  --surface:#1a1a1a;
+  --surface2:#242424;
+  --surface3:#2a2a2a;
+  --accent:#1db954;
+  --accent-dark:#158a3e;
+  --text:#fff;
+  --text2:#b3b3b3;
+  --text3:#727272;
+  --player-bg:#181818;
+  --border:rgba(255,255,255,0.07);
+  --radius:8px;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow:hidden}
+a{color:inherit;text-decoration:none}
+
+/* ── Layout ── */
+.app{display:grid;grid-template-rows:1fr 90px;height:100vh}
+.body{display:grid;grid-template-columns:240px 1fr;overflow:hidden}
+
+/* ── Sidebar ── */
+.sidebar{
+  background:var(--sidebar);
+  display:flex;flex-direction:column;
+  overflow-y:auto;overflow-x:hidden;
+  border-right:1px solid var(--border);
+  scrollbar-width:none;
+}
+.sidebar::-webkit-scrollbar{display:none}
+
+.sidebar-logo{
+  padding:28px 24px 20px;
+  display:flex;align-items:center;gap:12px;
+}
+.logo-mark{
+  width:36px;height:36px;border-radius:10px;
+  background:var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;
+}
+.logo-name{font-size:17px;font-weight:800;letter-spacing:-0.3px}
+.logo-sub{font-size:10px;color:var(--text3);font-weight:500;letter-spacing:0.5px;text-transform:uppercase;margin-top:1px}
+
+.nav-section{padding:0 12px 8px}
+.nav-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:16px 12px 8px}
+.nav-item{
+  display:flex;align-items:center;gap:14px;
+  padding:10px 12px;border-radius:6px;
+  font-size:14px;font-weight:600;color:var(--text2);
+  cursor:pointer;transition:all 0.15s;
+  margin-bottom:2px;
+}
+.nav-item:hover{color:var(--text);background:rgba(255,255,255,0.06)}
+.nav-item.active{color:var(--text);background:rgba(255,255,255,0.1)}
+.nav-icon{font-size:20px;width:24px;text-align:center;flex-shrink:0}
+
+.sidebar-divider{height:1px;background:var(--border);margin:8px 24px}
+
+.queue-sidebar{flex:1;padding:0 12px 16px;overflow-y:auto;scrollbar-width:none}
+.queue-sidebar::-webkit-scrollbar{display:none}
+.queue-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 12px 8px;
+}
+.queue-h-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)}
+.queue-count{font-size:11px;font-weight:600;color:var(--accent);background:rgba(29,185,84,0.15);padding:2px 8px;border-radius:100px}
+
+.q-item{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 12px;border-radius:6px;
+  cursor:pointer;transition:background 0.15s;
+}
+.q-item:hover{background:rgba(255,255,255,0.06)}
+.q-num{font-size:12px;color:var(--text3);width:14px;text-align:center;flex-shrink:0}
+.q-thumb{
+  width:36px;height:36px;border-radius:4px;
+  background:var(--surface2);flex-shrink:0;
+  object-fit:cover;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;color:var(--text3);
+}
+.q-thumb img{width:36px;height:36px;border-radius:4px;object-fit:cover}
+.q-info{flex:1;min-width:0}
+.q-title{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.q-by{font-size:11px;color:var(--text2);margin-top:1px}
+.q-dur{font-size:12px;color:var(--text3);flex-shrink:0}
+
+/* ── Main content ── */
+.main{
+  overflow-y:auto;overflow-x:hidden;
+  background:linear-gradient(180deg,#1a0a2e 0%,#0f0f0f 40%,#000 100%);
+  scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.1) transparent;
+}
+.main::-webkit-scrollbar{width:8px}
+.main::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:4px}
+
+/* Top bar */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 32px;
+  background:rgba(0,0,0,0.5);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.nav-arrows{display:flex;gap:8px}
+.nav-btn{
+  width:32px;height:32px;border-radius:50%;
+  background:rgba(0,0,0,0.5);border:none;
+  color:var(--text);font-size:16px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:background 0.15s;
+}
+.nav-btn:hover{background:rgba(255,255,255,0.1)}
+.online-pill{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 16px;border-radius:100px;
+  background:rgba(0,0,0,0.4);
+  border:1px solid var(--border);
+  font-size:13px;font-weight:600;color:var(--text2);
+}
+.online-dot{width:8px;height:8px;border-radius:50%;background:#1db954;animation:pulse 2s ease-in-out infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(29,185,84,0.4)}50%{opacity:0.7;box-shadow:0 0 0 6px rgba(29,185,84,0)}}
+
+/* Hero - Now Playing section */
+.hero{padding:32px 32px 24px}
+.hero-top{display:flex;align-items:flex-end;gap:28px;margin-bottom:28px}
+.hero-art{
+  position:relative;flex-shrink:0;
+  filter:drop-shadow(0 20px 60px rgba(0,0,0,0.8));
+}
+.hero-art img{
+  width:220px;height:220px;border-radius:12px;
+  object-fit:cover;display:block;
+}
+.art-placeholder{
+  width:220px;height:220px;border-radius:12px;
+  background:linear-gradient(135deg,#1a1a2e,#2d1b4e);
+  display:flex;align-items:center;justify-content:center;
+  font-size:72px;
+}
+.hero-meta{flex:1;min-width:0}
+.hero-type{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:8px}
+.hero-title{
+  font-size:clamp(28px,4vw,56px);font-weight:900;
+  line-height:1.05;margin-bottom:12px;
+  overflow:hidden;text-overflow:ellipsis;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  letter-spacing:-0.5px;
+}
+.hero-detail{font-size:14px;color:var(--text2);margin-bottom:8px}
+.hero-detail span{color:var(--text);font-weight:600}
+.hero-badges{display:flex;gap:8px;flex-wrap:wrap}
+.badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 12px;border-radius:100px;
+  font-size:12px;font-weight:600;
+  background:rgba(255,255,255,0.08);color:var(--text2);
+}
+
+/* Controls bar */
+.controls-row{
+  display:flex;align-items:center;gap:16px;
+  margin-bottom:20px;
+}
+.btn-play-main{
+  width:56px;height:56px;border-radius:50%;
+  background:var(--accent);border:none;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;cursor:pointer;
+  transition:all 0.2s;color:#000;
+  box-shadow:0 4px 20px rgba(29,185,84,0.4);
+  flex-shrink:0;
+}
+.btn-play-main:hover{transform:scale(1.06);background:#1ed760;box-shadow:0 6px 30px rgba(29,185,84,0.5)}
+.btn-ctrl{
+  width:40px;height:40px;border-radius:50%;
+  background:transparent;border:none;
+  color:var(--text2);font-size:18px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all 0.15s;
+}
+.btn-ctrl:hover{color:var(--text);transform:scale(1.1)}
+.btn-ctrl.active{color:var(--accent)}
+
+/* Progress */
+.progress-section{margin-bottom:8px}
+.progress-track{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:4px;
+}
+.time-txt{font-size:12px;color:var(--text3);font-weight:500;min-width:36px}
+.time-txt.end{text-align:right}
+.prog-bar{
+  flex:1;height:4px;background:rgba(255,255,255,0.15);
+  border-radius:100px;cursor:pointer;position:relative;
+  transition:height 0.1s;
+}
+.prog-bar:hover{height:6px}
+.prog-fill{
+  height:100%;border-radius:100px;
+  background:var(--text);transition:width 1s linear;
+  position:relative;
+}
+.prog-fill::after{
+  content:'';position:absolute;right:-6px;top:50%;
+  transform:translateY(-50%) scale(0);
+  width:12px;height:12px;border-radius:50%;
+  background:#fff;transition:transform 0.1s;
+}
+.prog-bar:hover .prog-fill::after{transform:translateY(-50%) scale(1)}
+.prog-bar:hover .prog-fill{background:var(--accent)}
+
+/* Stats row */
+.stats-row{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
+  margin-top:28px;
+}
+.stat-card{
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  border-radius:10px;padding:16px;
+  transition:background 0.15s;cursor:default;
+}
+.stat-card:hover{background:rgba(255,255,255,0.07)}
+.stat-val{font-size:24px;font-weight:800;color:var(--text);margin-bottom:4px}
+.stat-lbl{font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--text3)}
+
+/* Resource bars */
+.resources{
+  margin-top:20px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  border-radius:10px;padding:20px 24px;
+}
+.res-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:16px}
+.res-rows{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.res-row{display:flex;flex-direction:column;gap:6px}
+.res-head{display:flex;justify-content:space-between;align-items:center}
+.res-name{font-size:12px;font-weight:600;color:var(--text2)}
+.res-pct{font-size:12px;font-weight:700;color:var(--text)}
+.res-bar{height:4px;background:rgba(255,255,255,0.1);border-radius:100px;overflow:hidden}
+.res-fill{height:100%;border-radius:100px;transition:width 0.8s ease}
+.res-fill.cpu{background:linear-gradient(90deg,#1db954,#17e24c)}
+.res-fill.ram{background:linear-gradient(90deg,#a855f7,#ec4899)}
+.res-detail{font-size:11px;color:var(--text3)}
+
+/* Multi-chat tabs */
+.chat-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.chat-tab{
+  padding:7px 18px;border-radius:100px;
+  font-size:13px;font-weight:600;
+  background:rgba(255,255,255,0.07);
+  border:1px solid transparent;
+  color:var(--text2);cursor:pointer;transition:all 0.15s;
+}
+.chat-tab:hover{background:rgba(255,255,255,0.12);color:var(--text)}
+.chat-tab.active{background:var(--accent);color:#000;border-color:var(--accent)}
+
+/* Idle */
+.idle-wrap{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:60vh;gap:16px;color:var(--text2);text-align:center;padding:32px;
+}
+.idle-emoji{font-size:80px;opacity:0.4;animation:float 4s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.idle-h{font-size:26px;font-weight:800;color:var(--text);margin-bottom:4px}
+.idle-p{font-size:14px;line-height:1.7;max-width:340px;color:var(--text2)}
+
+/* ── Bottom Player Bar ── */
+.player-bar{
+  background:var(--player-bg);
+  border-top:1px solid var(--border);
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  align-items:center;
+  padding:0 24px;
+  z-index:100;
+}
+
+/* Left: track info */
+.pb-left{display:flex;align-items:center;gap:14px;min-width:0}
+.pb-art{
+  width:56px;height:56px;border-radius:6px;
+  background:var(--surface2);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;overflow:hidden;
+}
+.pb-art img{width:56px;height:56px;object-fit:cover;border-radius:6px}
+.pb-info{min-width:0}
+.pb-title{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+.pb-by{font-size:12px;color:var(--text2)}
+.pb-heart{
+  font-size:18px;color:var(--text3);cursor:pointer;padding:4px;
+  transition:all 0.15s;flex-shrink:0;
+}
+.pb-heart:hover{color:var(--text);transform:scale(1.1)}
+
+/* Center: player controls */
+.pb-center{display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 0}
+.pb-btns{display:flex;align-items:center;gap:12px}
+.pb-btn{
+  background:transparent;border:none;
+  color:var(--text3);font-size:16px;
+  cursor:pointer;padding:6px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;
+}
+.pb-btn:hover{color:var(--text);background:rgba(255,255,255,0.07)}
+.pb-btn.active{color:var(--accent)}
+.pb-play{
+  width:34px;height:34px;border-radius:50%;
+  background:var(--text);border:none;
+  color:#000;font-size:14px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all 0.15s;
+}
+.pb-play:hover{transform:scale(1.06);background:#ddd}
+
+.pb-prog{display:flex;align-items:center;gap:10px;width:100%;max-width:480px}
+.pb-time{font-size:11px;color:var(--text3);min-width:32px;font-weight:500}
+.pb-time.end{text-align:right}
+.pb-bar{flex:1;height:4px;background:rgba(255,255,255,0.15);border-radius:100px;cursor:pointer;position:relative}
+.pb-bar:hover{height:5px}
+.pb-bar-fill{height:100%;border-radius:100px;background:var(--text);transition:width 1s linear}
+.pb-bar:hover .pb-bar-fill{background:var(--accent)}
+
+/* Right: volume etc */
+.pb-right{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+.vol-btn{
+  background:transparent;border:none;color:var(--text3);
+  font-size:16px;cursor:pointer;padding:6px;
+  transition:color 0.15s;display:flex;align-items:center;justify-content:center;
+}
+.vol-btn:hover{color:var(--text)}
+.vol-bar{width:80px;height:4px;background:rgba(255,255,255,0.15);border-radius:100px;cursor:pointer}
+.vol-bar:hover{height:5px}
+.vol-fill{height:100%;border-radius:100px;background:var(--text);width:70%}
+.vol-bar:hover .vol-fill{background:var(--accent)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:4px}
+
+/* Waveform bars on playing indicator */
+.wave{display:inline-flex;align-items:flex-end;gap:2px;height:14px;margin-right:4px}
+.wb{width:3px;border-radius:2px;background:var(--accent);animation:wb 1s ease-in-out infinite}
+.wb:nth-child(1){height:6px;animation-delay:0s}
+.wb:nth-child(2){height:10px;animation-delay:0.15s}
+.wb:nth-child(3){height:14px;animation-delay:0.3s}
+.wb:nth-child(4){height:10px;animation-delay:0.45s}
+.wb:nth-child(5){height:6px;animation-delay:0.6s}
+@keyframes wb{0%,100%{transform:scaleY(0.4)}50%{transform:scaleY(1)}}
+
+@media(max-width:900px){
+  .body{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .hero-art img,.art-placeholder{width:160px;height:160px}
+  .hero-title{font-size:28px}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .res-rows{grid-template-columns:1fr}
+  .pb-right{display:none}
+  .player-bar{grid-template-columns:auto 1fr auto}
+}
+</style>
 </head>
 <body>
-<div class="page">
+<div class="app">
+  <div class="body">
 
-  <!-- Header -->
-  <header>
-    <div class="logo">
-      <div class="logo-icon">🎵</div>
-      <div class="logo-text">Annie X Music</div>
-    </div>
-    <div class="header-status">
-      <div class="status-dot" id="statusDot"></div>
-      <span id="headerStatus">Connecting...</span>
-    </div>
-  </header>
-
-  <!-- Main content -->
-  <div class="main">
-
-    <!-- Left: Now Playing -->
-    <div class="now-playing-card" id="nowPlayingCard">
-
-      <div class="np-label">
-        <div class="waveform" id="waveform" style="display:none">
-          <div class="wave-bar"></div><div class="wave-bar"></div>
-          <div class="wave-bar"></div><div class="wave-bar"></div>
-          <div class="wave-bar"></div><div class="wave-bar"></div>
-          <div class="wave-bar"></div>
+    <!-- ── Sidebar ── -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-mark">♪</div>
+        <div>
+          <div class="logo-name">Annie X Music</div>
+          <div class="logo-sub">Telegram Bot</div>
         </div>
-        <span id="npLabel">Now Playing</span>
       </div>
 
-      <!-- Active chats selector -->
-      <div class="chat-selector" id="chatSelector" style="display:none"></div>
+      <div class="nav-section">
+        <div class="nav-label">Menu</div>
+        <div class="nav-item active">
+          <span class="nav-icon">🏠</span> Home
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">🔍</span> Search
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">📊</span> Stats
+        </div>
+      </div>
 
-      <!-- Playing state -->
-      <div id="playingState" style="display:none; flex-direction:column; gap:28px;">
-        <div class="np-main">
-          <div class="album-art">
-            <img id="albumArt" src="" alt="Album Art" onerror="this.style.display='none'; document.getElementById('albumPlaceholder').style.display='flex'" />
-            <div class="album-art-placeholder" id="albumPlaceholder" style="display:none">🎵</div>
-            <div class="vinyl-ring" id="vinylRing">♪</div>
-          </div>
-          <div class="np-info">
-            <div class="np-title" id="npTitle">Song Title</div>
-            <div class="np-by">Requested by <span id="npBy">User</span></div>
-            <div class="np-type" id="npType">🎵 YouTube</div>
-            <div class="progress-wrap">
-              <div class="progress-bar">
-                <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      <div class="sidebar-divider"></div>
+
+      <div class="queue-sidebar">
+        <div class="queue-header">
+          <span class="queue-h-title">Queue</span>
+          <span class="queue-count" id="sideQueueCount">0</span>
+        </div>
+        <div id="sideQueue"></div>
+      </div>
+    </aside>
+
+    <!-- ── Main ── */
+    <main class="main" id="mainContent">
+      <!-- Topbar -->
+      <div class="topbar">
+        <div class="nav-arrows">
+          <button class="nav-btn">‹</button>
+          <button class="nav-btn">›</button>
+        </div>
+        <div class="online-pill">
+          <div class="online-dot" id="onlineDot"></div>
+          <span id="onlineStatus">Connecting...</span>
+        </div>
+      </div>
+
+      <!-- Hero -->
+      <div class="hero">
+
+        <!-- Multi-chat tabs -->
+        <div class="chat-tabs" id="chatTabs" style="display:none"></div>
+
+        <!-- PLAYING STATE -->
+        <div id="playingView" style="display:none">
+          <div class="hero-top">
+            <div class="hero-art">
+              <img id="heroArt" src="" alt="" onerror="this.style.display='none';document.getElementById('artPlaceholder').style.display='flex'"/>
+              <div class="art-placeholder" id="artPlaceholder" style="display:none">🎵</div>
+            </div>
+            <div class="hero-meta">
+              <div class="hero-type" id="heroType">
+                <span class="wave"><span class="wb"></span><span class="wb"></span><span class="wb"></span><span class="wb"></span><span class="wb"></span></span>
+                Now Playing
               </div>
-              <div class="progress-times">
-                <span id="playedTime">0:00</span>
-                <span id="totalTime">0:00</span>
+              <div class="hero-title" id="heroTitle">—</div>
+              <div class="hero-detail">Requested by <span id="heroBy">—</span></div>
+              <div class="hero-badges" id="heroBadges" style="margin-top:12px"></div>
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <div class="controls-row">
+            <button class="btn-ctrl" title="Shuffle">🔀</button>
+            <button class="btn-ctrl" title="Previous">⏮</button>
+            <button class="btn-play-main" id="heroPlayBtn">▶</button>
+            <button class="btn-ctrl" title="Next">⏭</button>
+            <button class="btn-ctrl" title="Loop">🔁</button>
+          </div>
+
+          <!-- Progress -->
+          <div class="progress-section">
+            <div class="progress-track">
+              <span class="time-txt" id="heroPlayed">0:00</span>
+              <div class="prog-bar">
+                <div class="prog-fill" id="heroProg" style="width:0%"></div>
               </div>
+              <span class="time-txt end" id="heroTotal">0:00</span>
             </div>
           </div>
         </div>
 
-        <div class="controls">
-          <div class="ctrl-btn" title="Shuffle">🔀</div>
-          <div class="ctrl-btn" title="Previous">⏮</div>
-          <div class="ctrl-btn play" title="Playing" id="playBtn">▶</div>
-          <div class="ctrl-btn" title="Next">⏭</div>
-          <div class="ctrl-btn" title="Loop">🔁</div>
+        <!-- IDLE STATE -->
+        <div class="idle-wrap" id="idleView">
+          <div class="idle-emoji">🎵</div>
+          <div class="idle-h">Nothing Playing Yet</div>
+          <div class="idle-p">Start playing music in your Telegram group using <strong>@ANNIEXMUSICxBOT</strong> — it will appear here live.</div>
         </div>
-      </div>
 
-      <!-- Idle state -->
-      <div class="idle-state" id="idleState">
-        <div class="idle-icon">🎶</div>
-        <div class="idle-title">No Music Playing</div>
-        <div class="idle-sub">Play any song in your Telegram group using Annie X Music bot and it will appear here automatically.</div>
-      </div>
-
-    </div>
-
-    <!-- Right: Sidebar -->
-    <div class="sidebar">
-
-      <!-- Stats -->
-      <div class="stats-card">
-        <div class="card-title">Bot Stats</div>
-        <div class="stats-grid">
-          <div class="stat-item">
-            <div class="stat-value" id="activeChats">0</div>
-            <div class="stat-label">Active Chats</div>
+        <!-- Stats -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-val" id="sActiveChats">0</div>
+            <div class="stat-lbl">Active Chats</div>
           </div>
-          <div class="stat-item">
-            <div class="stat-value" id="uptime">—</div>
-            <div class="stat-label">Uptime</div>
+          <div class="stat-card">
+            <div class="stat-val" id="sUptime">—</div>
+            <div class="stat-lbl">Uptime</div>
           </div>
-          <div class="stat-item">
-            <div class="stat-value" id="cpuVal">0%</div>
-            <div class="stat-label">CPU Load</div>
+          <div class="stat-card">
+            <div class="stat-val" id="sCpu">—</div>
+            <div class="stat-lbl">CPU Load</div>
           </div>
-          <div class="stat-item">
-            <div class="stat-value" id="ramVal">0%</div>
-            <div class="stat-label">RAM Used</div>
+          <div class="stat-card">
+            <div class="stat-val" id="sRam">—</div>
+            <div class="stat-lbl">RAM Used</div>
           </div>
         </div>
-        <div class="resource-bar-wrap">
-          <div class="res-row">
-            <div class="res-label">
-              <span>CPU</span>
-              <span id="cpuLabel">0%</span>
+
+        <!-- Resources -->
+        <div class="resources">
+          <div class="res-title">System Resources</div>
+          <div class="res-rows">
+            <div class="res-row">
+              <div class="res-head"><span class="res-name">CPU</span><span class="res-pct" id="rCpuPct">0%</span></div>
+              <div class="res-bar"><div class="res-fill cpu" id="rCpuBar" style="width:0%"></div></div>
             </div>
-            <div class="res-bar"><div class="res-fill cpu" id="cpuBar" style="width:0%"></div></div>
-          </div>
-          <div class="res-row">
-            <div class="res-label">
-              <span>RAM</span>
-              <span id="ramLabel">0 MB / 0 MB</span>
+            <div class="res-row">
+              <div class="res-head"><span class="res-name">RAM</span><span class="res-pct" id="rRamPct">0%</span></div>
+              <div class="res-bar"><div class="res-fill ram" id="rRamBar" style="width:0%"></div></div>
+              <div class="res-detail" id="rRamDetail"></div>
             </div>
-            <div class="res-bar"><div class="res-fill ram" id="ramBar" style="width:0%"></div></div>
           </div>
         </div>
-      </div>
 
-      <!-- Queue -->
-      <div class="queue-card">
-        <div class="card-title">Queue</div>
-        <div class="queue-list" id="queueList">
-          <div class="empty-queue">No songs in queue</div>
-        </div>
       </div>
-
-    </div>
+    </main>
   </div>
 
-  <footer>
-    Powered by <a href="https://t.me/AnnieSupportGroup" target="_blank">Annie X Music</a> • Auto-refreshes every 3s
-  </footer>
+  <!-- ── Bottom Player Bar ── -->
+  <div class="player-bar" id="playerBar">
+    <!-- Left -->
+    <div class="pb-left">
+      <div class="pb-art" id="pbArt">🎵</div>
+      <div class="pb-info">
+        <div class="pb-title" id="pbTitle">Not Playing</div>
+        <div class="pb-by" id="pbBy">—</div>
+      </div>
+      <div class="pb-heart">♡</div>
+    </div>
 
+    <!-- Center -->
+    <div class="pb-center">
+      <div class="pb-btns">
+        <button class="pb-btn">🔀</button>
+        <button class="pb-btn">⏮</button>
+        <button class="pb-play" id="pbPlayBtn">▶</button>
+        <button class="pb-btn">⏭</button>
+        <button class="pb-btn">🔁</button>
+      </div>
+      <div class="pb-prog">
+        <span class="pb-time" id="pbPlayed">0:00</span>
+        <div class="pb-bar">
+          <div class="pb-bar-fill" id="pbFill" style="width:0%"></div>
+        </div>
+        <span class="pb-time end" id="pbTotal">0:00</span>
+      </div>
+    </div>
+
+    <!-- Right -->
+    <div class="pb-right">
+      <button class="vol-btn">🔊</button>
+      <div class="vol-bar"><div class="vol-fill"></div></div>
+      <button class="vol-btn" title="Fullscreen">⛶</button>
+    </div>
+  </div>
 </div>
 
 <script>
-  let selectedChat = null;
-  let lastData = null;
-  let progressTimer = null;
-  let localPlayed = 0;
+let selectedChat = 0;
+let lastData = null;
+let pTimer = null;
+let localPlayed = 0;
 
-  async function fetchStatus() {
-    try {
-      const res = await fetch('/api/status');
-      if (!res.ok) throw new Error('offline');
-      const data = await res.json();
-      lastData = data;
-      updateUI(data);
-      setOnline();
-    } catch (e) {
-      setOffline();
-    }
+async function poll() {
+  try {
+    const r = await fetch('/api/status');
+    if (!r.ok) throw new Error();
+    const d = await r.json();
+    lastData = d;
+    render(d);
+    setOnline(true);
+  } catch {
+    setOnline(false);
+  }
+}
+
+function setOnline(online) {
+  const dot = document.getElementById('onlineDot');
+  const txt = document.getElementById('onlineStatus');
+  if (online) {
+    dot.style.background = '#1db954';
+    txt.textContent = 'Bot Online';
+  } else {
+    dot.style.background = '#f44';
+    txt.textContent = 'Bot Offline';
+    showIdle();
+  }
+}
+
+function render(d) {
+  // Stats
+  document.getElementById('sActiveChats').textContent = d.active_chats || 0;
+  const up = (d.uptime || '—').replace('h ','h ').replace('m ','m ');
+  document.getElementById('sUptime').textContent = up.split(' ').slice(0,2).join(' ');
+  document.getElementById('sCpu').textContent = (d.cpu || 0) + '%';
+  document.getElementById('sRam').textContent = (d.ram_percent || 0).toFixed(0) + '%';
+  document.getElementById('rCpuPct').textContent = (d.cpu || 0) + '%';
+  document.getElementById('rCpuBar').style.width = Math.min(d.cpu||0,100)+'%';
+  document.getElementById('rRamPct').textContent = (d.ram_percent||0).toFixed(1) + '%';
+  document.getElementById('rRamBar').style.width = Math.min(d.ram_percent||0,100)+'%';
+  document.getElementById('rRamDetail').textContent = (d.ram_used||'') + ' / ' + (d.ram_total||'');
+
+  const chats = d.chats || [];
+
+  // Chat tabs
+  const tabsEl = document.getElementById('chatTabs');
+  if (chats.length > 1) {
+    tabsEl.style.display = 'flex';
+    tabsEl.innerHTML = chats.map((c, i) =>
+      `<div class="chat-tab ${i===selectedChat?'active':''}" onclick="switchChat(${i})">Chat ${i+1}</div>`
+    ).join('');
+  } else {
+    tabsEl.style.display = 'none';
   }
 
-  function setOnline() {
-    document.getElementById('statusDot').style.background = '#22c55e';
-    document.getElementById('headerStatus').textContent = 'Bot Online';
+  if (!chats.length) { showIdle(); renderSideQueue([]); return; }
+
+  const chat = chats[Math.min(selectedChat, chats.length-1)];
+  const cur = chat.current;
+
+  showPlaying(cur);
+  renderSideQueue(chat.queue || [], cur);
+
+  // Progress ticker
+  if (pTimer) clearInterval(pTimer);
+  localPlayed = cur.played || 0;
+  const total = cur.seconds || 0;
+  updateProg(localPlayed, total);
+  if (total > 0) {
+    pTimer = setInterval(() => {
+      localPlayed++;
+      updateProg(localPlayed, total);
+    }, 1000);
+  }
+}
+
+function showPlaying(cur) {
+  document.getElementById('playingView').style.display = 'block';
+  document.getElementById('idleView').style.display = 'none';
+
+  const thumb = cur.thumbnail || '';
+  const art = document.getElementById('heroArt');
+  const placeholder = document.getElementById('artPlaceholder');
+  if (thumb) {
+    art.style.display = 'block';
+    if (art.src !== thumb) { art.src = thumb; placeholder.style.display='none'; }
+  } else {
+    art.style.display = 'none';
+    placeholder.style.display = 'flex';
   }
 
-  function setOffline() {
-    document.getElementById('statusDot').style.background = '#ef4444';
-    document.getElementById('headerStatus').textContent = 'Bot Offline';
-    document.getElementById('idleState').style.display = 'flex';
-    document.getElementById('playingState').style.display = 'none';
-    document.getElementById('waveform').style.display = 'none';
+  document.getElementById('heroTitle').textContent = cur.title || 'Unknown';
+  document.getElementById('heroBy').textContent = cur.by || 'Unknown';
+
+  const typeMap = {youtube:'▶ YouTube',spotify:'🎧 Spotify',soundcloud:'☁ SoundCloud',telegram:'✈ Telegram',apple:'🍎 Apple Music'};
+  const stype = (cur.streamtype||'youtube').toLowerCase();
+  document.getElementById('heroBadges').innerHTML =
+    `<span class="badge">${typeMap[stype]||'🎵 Music'}</span>` +
+    `<span class="badge">⏱ ${cur.duration||'0:00'}</span>`;
+
+  // Bottom bar
+  document.getElementById('pbTitle').textContent = cur.title || 'Unknown';
+  document.getElementById('pbBy').textContent = 'by ' + (cur.by || 'Unknown');
+
+  const pbArt = document.getElementById('pbArt');
+  if (thumb) {
+    pbArt.innerHTML = `<img src="${thumb}" alt="" onerror="this.parentElement.textContent='🎵'"/>`;
+  } else {
+    pbArt.textContent = '🎵';
   }
+}
 
-  function updateUI(data) {
-    // Stats
-    document.getElementById('activeChats').textContent = data.active_chats || 0;
-    document.getElementById('uptime').textContent = (data.uptime || '—').split(' ').slice(0,2).join(' ');
-    document.getElementById('cpuVal').textContent = (data.cpu || 0) + '%';
-    document.getElementById('ramVal').textContent = (data.ram_percent || 0) + '%';
-    document.getElementById('cpuLabel').textContent = (data.cpu || 0) + '%';
-    document.getElementById('ramLabel').textContent = (data.ram_used || '0 MB') + ' / ' + (data.ram_total || '0 MB');
-    document.getElementById('cpuBar').style.width = Math.min(data.cpu || 0, 100) + '%';
-    document.getElementById('ramBar').style.width = Math.min(data.ram_percent || 0, 100) + '%';
+function showIdle() {
+  document.getElementById('playingView').style.display = 'none';
+  document.getElementById('idleView').style.display = 'flex';
+  document.getElementById('pbTitle').textContent = 'Not Playing';
+  document.getElementById('pbBy').textContent = '—';
+  document.getElementById('pbArt').innerHTML = '🎵';
+  document.getElementById('pbArt').textContent = '🎵';
+  updateProg(0, 0);
+  renderSideQueue([]);
+}
 
-    const chats = data.chats || [];
+function updateProg(played, total) {
+  const pct = total > 0 ? Math.min(played/total*100, 100) : 0;
+  const pctStr = pct.toFixed(2) + '%';
+  document.getElementById('heroProg').style.width = pctStr;
+  document.getElementById('pbFill').style.width = pctStr;
+  document.getElementById('heroPlayed').textContent = fmt(played);
+  document.getElementById('heroTotal').textContent = fmt(total);
+  document.getElementById('pbPlayed').textContent = fmt(played);
+  document.getElementById('pbTotal').textContent = fmt(total);
+}
 
-    // Chat chips
-    const selector = document.getElementById('chatSelector');
-    if (chats.length > 1) {
-      selector.style.display = 'flex';
-      selector.innerHTML = chats.map((c, i) => `
-        <div class="chat-chip ${selectedChat === i ? 'active' : ''}" onclick="selectChat(${i})">
-          Chat ${i + 1}
-        </div>
-      `).join('');
-    } else {
-      selector.style.display = 'none';
-    }
+function fmt(s) {
+  if (!s || isNaN(s)) return '0:00';
+  s = Math.floor(s);
+  return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
+}
 
-    if (chats.length === 0) {
-      document.getElementById('idleState').style.display = 'flex';
-      document.getElementById('playingState').style.display = 'none';
-      document.getElementById('waveform').style.display = 'none';
-      document.getElementById('npLabel').textContent = 'Now Playing';
-      renderQueue([]);
-      return;
-    }
-
-    const chatIdx = selectedChat !== null && selectedChat < chats.length ? selectedChat : 0;
-    const chat = chats[chatIdx];
-    const cur = chat.current;
-
-    // Show playing
-    document.getElementById('idleState').style.display = 'none';
-    document.getElementById('playingState').style.display = 'flex';
-    document.getElementById('waveform').style.display = 'flex';
-    document.getElementById('npLabel').textContent = 'Now Playing';
-
-    // Album art
-    const imgEl = document.getElementById('albumArt');
-    const placeholder = document.getElementById('albumPlaceholder');
-    if (cur.thumbnail) {
-      imgEl.style.display = 'block';
-      if (imgEl.src !== cur.thumbnail) {
-        imgEl.src = cur.thumbnail;
-        placeholder.style.display = 'none';
-      }
-    } else {
-      imgEl.style.display = 'none';
-      placeholder.style.display = 'flex';
-    }
-
-    document.getElementById('npTitle').textContent = cur.title || 'Unknown';
-    document.getElementById('npBy').textContent = cur.by || 'Unknown';
-
-    const typeIcons = { youtube: '▶️ YouTube', spotify: '🎧 Spotify', soundcloud: '☁️ SoundCloud', telegram: '✈️ Telegram', apple: '🍎 Apple Music' };
-    const stype = (cur.streamtype || 'youtube').toLowerCase();
-    document.getElementById('npType').textContent = typeIcons[stype] || ('🎵 ' + (cur.streamtype || 'Music'));
-
-    // Progress
-    const seconds = cur.seconds || 0;
-    localPlayed = cur.played || 0;
-    if (progressTimer) clearInterval(progressTimer);
-    updateProgress(localPlayed, seconds);
-    if (seconds > 0) {
-      progressTimer = setInterval(() => {
-        localPlayed++;
-        updateProgress(localPlayed, seconds);
-      }, 1000);
-    }
-
-    // Queue
-    renderQueue(chat.queue || []);
+function renderSideQueue(queue, cur) {
+  const el = document.getElementById('sideQueue');
+  const cnt = document.getElementById('sideQueueCount');
+  cnt.textContent = queue.length;
+  if (!queue.length) {
+    el.innerHTML = '<div style="padding:16px 12px;font-size:13px;color:var(--text3)">No songs queued</div>';
+    return;
   }
-
-  function updateProgress(played, total) {
-    const pct = total > 0 ? Math.min((played / total) * 100, 100) : 0;
-    document.getElementById('progressFill').style.width = pct + '%';
-    document.getElementById('playedTime').textContent = formatTime(played);
-    document.getElementById('totalTime').textContent = formatTime(total);
-  }
-
-  function formatTime(secs) {
-    if (!secs || isNaN(secs)) return '0:00';
-    const m = Math.floor(secs / 60);
-    const s = Math.floor(secs % 60);
-    return m + ':' + String(s).padStart(2, '0');
-  }
-
-  function renderQueue(queue) {
-    const el = document.getElementById('queueList');
-    if (!queue || queue.length === 0) {
-      el.innerHTML = '<div class="empty-queue">No songs in queue</div>';
-      return;
-    }
-    el.innerHTML = queue.map((item, i) => `
-      <div class="queue-item">
-        <div class="queue-num">${i + 1}</div>
-        <div class="queue-info">
-          <div class="queue-title">${escapeHtml(item.title || 'Unknown')}</div>
-          <div class="queue-meta">by ${escapeHtml(item.by || 'Unknown')}</div>
-        </div>
-        <div class="queue-dur">${item.duration || '0:00'}</div>
+  el.innerHTML = queue.map((t, i) => {
+    const vid = t.vidid || '';
+    const thumbHtml = (vid && vid.length === 11)
+      ? `<div class="q-thumb"><img src="https://img.youtube.com/vi/${vid}/default.jpg" onerror="this.parentElement.textContent='🎵'"/></div>`
+      : `<div class="q-thumb">🎵</div>`;
+    return `<div class="q-item">
+      <div class="q-num">${i+1}</div>
+      ${thumbHtml}
+      <div class="q-info">
+        <div class="q-title">${esc(t.title||'Unknown')}</div>
+        <div class="q-by">${esc(t.by||'Unknown')}</div>
       </div>
-    `).join('');
-  }
+      <div class="q-dur">${t.duration||'0:00'}</div>
+    </div>`;
+  }).join('');
+}
 
-  function selectChat(i) {
-    selectedChat = i;
-    if (lastData) updateUI(lastData);
-  }
+function switchChat(i) { selectedChat = i; if(lastData) render(lastData); }
 
-  function escapeHtml(str) {
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
 
-  fetchStatus();
-  setInterval(fetchStatus, 3000);
+poll();
+setInterval(poll, 3000);
 </script>
 </body>
 </html>
