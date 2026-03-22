@@ -8,7 +8,8 @@ import config
 from ANNIEMUSIC import Carbon, YouTube, app
 from ANNIEMUSIC.core.call import JARVIS
 from ANNIEMUSIC.misc import db
-from ANNIEMUSIC.utils.database import add_active_video_chat, is_active_chat, is_autoplay
+from ANNIEMUSIC.utils.content_filter import is_bad_text
+from ANNIEMUSIC.utils.database import add_active_video_chat, is_active_chat, is_autoplay, is_content_guard_on
 from ANNIEMUSIC.utils.exceptions import AssistantErr
 from ANNIEMUSIC.utils.inline import aq_markup, close_markup, stream_markup
 from ANNIEMUSIC.utils.pastebin import ANNIEBIN
@@ -37,6 +38,22 @@ async def stream(
     forceplay = bool(forceplay)
     is_video = bool(video)
 
+    if await is_content_guard_on(original_chat_id):
+        title_to_check = None
+        if isinstance(result, dict):
+            title_to_check = result.get("title") or result.get("filename")
+        elif isinstance(result, str):
+            title_to_check = result
+        if title_to_check:
+            bad_word = is_bad_text(title_to_check)
+            if bad_word:
+                raise AssistantErr(
+                    f"🚫 <b>Play Block!</b>\n\n"
+                    f"Ye track play nahi ho sakta.\n"
+                    f"Title mein inappropriate content detect hua: <code>{bad_word}</code>\n\n"
+                    f"<i>Content Guard is group mein active hai. 🛡️</i>"
+                )
+
     if forceplay:
         await JARVIS.force_stop_stream(chat_id)
 
@@ -58,6 +75,9 @@ async def stream(
             if str(duration_min) == "None":
                 continue
             if duration_sec and duration_sec > config.DURATION_LIMIT:
+                continue
+
+            if await is_content_guard_on(original_chat_id) and is_bad_text(title):
                 continue
 
             if await is_active_chat(chat_id):

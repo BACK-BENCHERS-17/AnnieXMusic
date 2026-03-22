@@ -10,6 +10,8 @@ from pytgcalls.exceptions import NoActiveGroupCall
 import config
 from config import AYU, BANNED_USERS, lyrical
 from ANNIEMUSIC import Apple, Resso, SoundCloud, Spotify, Telegram, YouTube, app
+from ANNIEMUSIC.utils.content_filter import is_bad_text
+from ANNIEMUSIC.utils.database import is_content_guard_on
 from ANNIEMUSIC.core.call import JARVIS
 from ANNIEMUSIC.utils import seconds_to_min, time_to_seconds
 from ANNIEMUSIC.utils.channelplay import get_channeplayCB
@@ -405,6 +407,16 @@ async def play_command(
         query = message.text.split(None, 1)[1]
         if "-v" in query:
             query = query.replace("-v", "")
+
+        if await is_content_guard_on(message.chat.id):
+            bad_word = is_bad_text(query)
+            if bad_word:
+                return await mystic.edit_text(
+                    f"🚫 <b>Search Block!</b>\n\n"
+                    f"Ye search nahi ho sakti.\n"
+                    f"Query mein inappropriate content detect hua: <code>{bad_word}</code>\n\n"
+                    f"<i>Content Guard is group mein active hai. 🛡️</i>"
+                )
 
         try:
             details, track_id = await YouTube.track(query)
