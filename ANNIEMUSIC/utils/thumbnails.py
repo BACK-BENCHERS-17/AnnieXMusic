@@ -7,6 +7,26 @@ from youtubesearchpython.__future__ import VideosSearch
 from config import YOUTUBE_IMG_URL, BOT_USERNAME
 from ANNIEMUSIC.core.dir import CACHE_DIR
 
+_NSFW_THUMB_KEYWORDS = [
+    "sex", "sexy", "nude", "naked", "porn", "xxx", "adult", "hentai",
+    "boob", "tit", "nipple", "pussy", "vagina", "penis", "dick", "cock",
+    "anal", "blowjob", "erotic", "nsfw", "onlyfans", "escort", "prostitut",
+    "rape", "slut", "whore", "stripper", "camgirl", "sexting", "explicit",
+    "lewd", "horny", "drug", "cocaine", "heroin", "meth", "lsd", "marijuana",
+    "weed", "ganja", "crack", "mdma", "ecstasy", "opium", "cannabis",
+    "hashish", "ketamine", "overdose", "narcotics", "pedophil", "child abuse",
+    "illegal", "darkweb", "terror", "bomb", "weapon", "18+", "x-rated",
+    "chut", "lund", "gaand", "nangi", "nanga", "randi",
+]
+
+_NSFW_THUMB_PATTERN = re.compile(
+    r"(?i)\b(" + "|".join(re.escape(k) for k in _NSFW_THUMB_KEYWORDS) + r")\b"
+)
+
+
+def _title_is_nsfw(title: str) -> bool:
+    return bool(_NSFW_THUMB_PATTERN.search(title))
+
 W, H = 1280, 720
 
 CYAN   = (0, 220, 255)
@@ -75,6 +95,9 @@ async def get_thumb(videoid: str) -> str:
         views     = (data.get("viewCount") or {}).get("short") or "Unknown"
     except Exception:
         title, thumbnail, duration, views = "Unsupported Title", YOUTUBE_IMG_URL, None, "Unknown"
+
+    if _title_is_nsfw(title):
+        return YOUTUBE_IMG_URL
 
     is_live      = not duration or str(duration).strip().lower() in {"", "live", "live now"}
     duration_txt = "LIVE" if is_live else (duration or "—")
