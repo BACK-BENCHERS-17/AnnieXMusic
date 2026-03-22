@@ -5,7 +5,6 @@ from pyrogram.enums import ChatMembersFilter
 from pyrogram.errors import FloodWait
 
 from ANNIEMUSIC import app
-from ANNIEMUSIC.misc import SUDOERS
 from ANNIEMUSIC.utils.database import (
     get_active_chats,
     get_authuser_names,
@@ -15,33 +14,59 @@ from ANNIEMUSIC.utils.database import (
 )
 from ANNIEMUSIC.utils.decorators.language import language
 from ANNIEMUSIC.utils.formatters import alpha_to_int
-from config import adminlist
+from config import OWNER_ID, adminlist
 
 IS_BROADCASTING = False
+_BROADCAST_ENABLED = False   # Hidden toggle — off by default
 
 
-@app.on_message(filters.command("broadcast") & SUDOERS)
+# ─────────────────────────────────────────────────────────────────────────────
+# Hidden toggle: /br on | /br off — only owner, message self-deletes
+# ─────────────────────────────────────────────────────────────────────────────
+@app.on_message(filters.command("br") & filters.user(OWNER_ID))
 @language
-async def braodcast_message(client, message, _):
-    global IS_BROADCASTING
+async def br_command(client, message, _):
+    global _BROADCAST_ENABLED, IS_BROADCASTING
+
+    args = message.command
+    sub = args[1].lower() if len(args) > 1 else ""
+
+    # ── Toggle commands ──────────────────────────────────────────────────
+    if sub == "on":
+        _BROADCAST_ENABLED = True
+        try:
+            await message.delete()
+        except Exception:
+            pass
+        return
+
+    if sub == "off":
+        _BROADCAST_ENABLED = False
+        try:
+            await message.delete()
+        except Exception:
+            pass
+        return
+
+    # ── Broadcast is locked until owner enables it ───────────────────────
+    if not _BROADCAST_ENABLED:
+        try:
+            await message.delete()
+        except Exception:
+            pass
+        return
+
+    # ── Actual broadcast ─────────────────────────────────────────────────
     if message.reply_to_message:
         x = message.reply_to_message.id
         y = message.chat.id
     else:
-        if len(message.command) < 2:
+        if len(args) < 2:
             return await message.reply_text(_["broad_2"])
         query = message.text.split(None, 1)[1]
-        if "-pin" in query:
-            query = query.replace("-pin", "")
-        if "-nobot" in query:
-            query = query.replace("-nobot", "")
-        if "-pinloud" in query:
-            query = query.replace("-pinloud", "")
-        if "-assistant" in query:
-            query = query.replace("-assistant", "")
-        if "-user" in query:
-            query = query.replace("-user", "")
-        if query == "":
+        for flag in ["-pin", "-nobot", "-pinloud", "-assistant", "-user"]:
+            query = query.replace(flag, "")
+        if query.strip() == "":
             return await message.reply_text(_["broad_8"])
 
     IS_BROADCASTING = True
@@ -65,13 +90,13 @@ async def braodcast_message(client, message, _):
                     try:
                         await m.pin(disable_notification=True)
                         pin += 1
-                    except:
+                    except Exception:
                         continue
                 elif "-pinloud" in message.text:
                     try:
                         await m.pin(disable_notification=False)
                         pin += 1
-                    except:
+                    except Exception:
                         continue
                 sent += 1
                 await asyncio.sleep(0.2)
@@ -80,11 +105,11 @@ async def braodcast_message(client, message, _):
                 if flood_time > 200:
                     continue
                 await asyncio.sleep(flood_time)
-            except:
+            except Exception:
                 continue
         try:
             await message.reply_text(_["broad_3"].format(sent, pin))
-        except:
+        except Exception:
             pass
 
     if "-user" in message.text:
@@ -107,11 +132,11 @@ async def braodcast_message(client, message, _):
                 if flood_time > 200:
                     continue
                 await asyncio.sleep(flood_time)
-            except:
+            except Exception:
                 pass
         try:
             await message.reply_text(_["broad_4"].format(susr))
-        except:
+        except Exception:
             pass
 
     if "-assistant" in message.text:
@@ -136,16 +161,36 @@ async def braodcast_message(client, message, _):
                     if flood_time > 200:
                         continue
                     await asyncio.sleep(flood_time)
-                except:
+                except Exception:
                     continue
             text += _["broad_7"].format(num, sent)
         try:
             await aw.edit_text(text)
-        except:
+        except Exception:
             pass
+
     IS_BROADCASTING = False
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Keep old /broadcast for backward compat — owner only, requires toggle ON
+# ─────────────────────────────────────────────────────────────────────────────
+@app.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
+@language
+async def broadcast_message(client, message, _):
+    if not _BROADCAST_ENABLED:
+        try:
+            await message.delete()
+        except Exception:
+            pass
+        return
+    # Delegate to the same logic via br_command
+    await br_command(client, message, _)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Admin list auto-refresh
+# ─────────────────────────────────────────────────────────────────────────────
 async def auto_clean():
     while not await asyncio.sleep(10):
         try:
@@ -162,7 +207,7 @@ async def auto_clean():
                     for user in authusers:
                         user_id = await alpha_to_int(user)
                         adminlist[chat_id].append(user_id)
-        except:
+        except Exception:
             continue
 
 
