@@ -143,39 +143,64 @@ async def _do_broadcast(client, message, _):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# /br — hidden command (no user filter — owner checked inside)
+# /br — NO decorator, raw handler, owner check inside
 # ─────────────────────────────────────────────────────────────────────────────
-@app.on_message(filters.command("br") & filters.private)
-@language
-async def br_command(client, message, _):
+@app.on_message(filters.command("br"))
+async def br_command(client, message):
     global _BROADCAST_ENABLED
 
+    # Ignore anyone who isn't the owner
     if not message.from_user or message.from_user.id != OWNER_ID:
         return
 
     args = message.command
     sub = args[1].lower() if len(args) > 1 else ""
 
+    logger.info(f"[BR] sub='{sub}' enabled={_BROADCAST_ENABLED}")
+
+    # ── Toggle ON ────────────────────────────────────────────────────────
     if sub == "on":
         _BROADCAST_ENABLED = True
-        logger.info("[BROADCAST] Enabled by owner")
-        # @language already deletes the command message
+        logger.info("[BR] Broadcast ENABLED")
+        try:
+            await message.delete()
+        except Exception:
+            pass
         return
 
+    # ── Toggle OFF ───────────────────────────────────────────────────────
     if sub == "off":
         _BROADCAST_ENABLED = False
-        logger.info("[BROADCAST] Disabled by owner")
+        logger.info("[BR] Broadcast DISABLED")
+        try:
+            await message.delete()
+        except Exception:
+            pass
         return
 
+    # ── Broadcast locked — silently delete and ignore ────────────────────
     if not _BROADCAST_ENABLED:
-        logger.info("[BROADCAST] Attempted but disabled")
+        logger.info("[BR] Blocked — broadcast not enabled")
+        try:
+            await message.delete()
+        except Exception:
+            pass
         return
+
+    # ── Do broadcast (needs language strings) ───────────────────────────
+    from strings import get_string
+    from ANNIEMUSIC.utils.database import get_lang
+    try:
+        lang_code = await get_lang(message.chat.id)
+        _ = get_string(lang_code)
+    except Exception:
+        _ = get_string("en")
 
     await _do_broadcast(client, message, _)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# /broadcast — works in group or DM, owner only, requires toggle ON
+# /broadcast — owner only via SUDOERS, requires toggle ON
 # ─────────────────────────────────────────────────────────────────────────────
 @app.on_message(filters.command("broadcast") & SUDOERS)
 @language
@@ -184,6 +209,10 @@ async def broadcast_message(client, message, _):
         return
 
     if not _BROADCAST_ENABLED:
+        try:
+            await message.delete()
+        except Exception:
+            pass
         return
 
     await _do_broadcast(client, message, _)
