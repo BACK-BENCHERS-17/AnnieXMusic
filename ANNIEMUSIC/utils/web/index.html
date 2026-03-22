@@ -9,10 +9,13 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#000;--s1:#121212;--s2:#181818;--s3:#282828;--s4:#333;
-  --acc:#a855f7;--acc2:#7c3aed;--green:#1db954;--pink:#ec4899;
-  --text:#fff;--text2:#b3b3b3;--text3:#6b6b6b;--border:rgba(255,255,255,0.08);
-  --nav-h:68px;--mini-h:68px;--safe-b:env(safe-area-inset-bottom,0px);
+  --bg:#050508;--s1:#0f0f14;--s2:#16161e;--s3:#1e1e28;--s4:#2a2a38;
+  --acc:#a855f7;--acc2:#7c3aed;--acc3:#c084fc;
+  --green:#1db954;--pink:#ec4899;--blue:#3b82f6;--orange:#f97316;
+  --text:#fff;--text2:#a0a0b8;--text3:#505068;
+  --border:rgba(168,85,247,0.12);--border2:rgba(255,255,255,0.06);
+  --nav-h:64px;--mini-h:70px;--safe-b:env(safe-area-inset-bottom,0px);
+  --radius:14px;--radius-sm:10px;
 }
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
 img{display:block}
@@ -20,166 +23,220 @@ img{display:block}
 /* ── App Shell ── */
 #app{display:flex;flex-direction:column;height:100vh;height:100dvh;position:relative;overflow:hidden}
 .views{flex:1;position:relative;overflow:hidden}
-.view{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;display:none;padding-bottom:calc(var(--mini-h) + var(--nav-h) + var(--safe-b))}
+.view{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;display:none;padding-bottom:calc(var(--mini-h) + var(--nav-h) + var(--safe-b) + 8px)}
 .view::-webkit-scrollbar{display:none}
 .view.active{display:block}
 
 /* ── Bottom Nav ── */
-.bnav{position:absolute;bottom:0;left:0;right:0;background:var(--s1);border-top:1px solid var(--border);display:flex;height:calc(var(--nav-h) + var(--safe-b));padding-bottom:var(--safe-b);z-index:40;backdrop-filter:blur(20px)}
-.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;background:none;border:none;color:var(--text3);font-family:'Inter',sans-serif;font-size:10px;font-weight:600;padding:8px 0;transition:color 0.15s;-webkit-tap-highlight-color:transparent}
-.bnav-btn svg{width:22px;height:22px;fill:currentColor;transition:transform 0.15s}
+.bnav{position:absolute;bottom:0;left:0;right:0;background:rgba(5,5,8,0.92);border-top:1px solid var(--border);display:flex;height:calc(var(--nav-h) + var(--safe-b));padding-bottom:var(--safe-b);z-index:40;backdrop-filter:blur(24px)}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;background:none;border:none;color:var(--text3);font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:8px 0;transition:color 0.2s;-webkit-tap-highlight-color:transparent;position:relative}
+.bnav-btn svg{width:20px;height:20px;fill:currentColor;transition:transform 0.2s}
 .bnav-btn.active{color:var(--acc)}
-.bnav-btn.active svg{transform:scale(1.12)}
+.bnav-btn.active svg{transform:scale(1.15)}
+.bnav-dot{position:absolute;top:8px;right:calc(50% - 14px);width:5px;height:5px;border-radius:50%;background:var(--acc);display:none}
+.bnav-btn.has-badge .bnav-dot{display:block}
 
 /* ── Mini Player ── */
-.mini{position:absolute;bottom:calc(var(--nav-h) + var(--safe-b));left:0;right:0;height:var(--mini-h);background:var(--s3);border-top:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 14px;cursor:pointer;z-index:39;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.32,0.72,0,1)}
+.mini{position:absolute;bottom:calc(var(--nav-h) + var(--safe-b));left:8px;right:8px;height:var(--mini-h);background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;gap:12px;padding:0 14px;cursor:pointer;z-index:39;transform:translateY(120%);transition:transform 0.35s cubic-bezier(0.32,0.72,0,1);box-shadow:0 8px 32px rgba(0,0,0,0.6),0 0 0 1px rgba(168,85,247,0.08)}
 .mini.show{transform:translateY(0)}
-.mini-art{width:44px;height:44px;border-radius:6px;background:var(--s4);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px}
+.mini-prog{position:absolute;bottom:-1px;left:14px;right:14px;height:2px;background:rgba(255,255,255,0.08);border-radius:1px;overflow:hidden}
+.mini-prog-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--pink));border-radius:1px;transition:width 1s linear;width:0%}
+.mini-art{width:46px;height:46px;border-radius:10px;background:var(--s4);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 16px rgba(168,85,247,0.2)}
 .mini-art img{width:100%;height:100%;object-fit:cover}
 .mini-info{flex:1;min-width:0}
 .mini-title{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mini-artist{font-size:11px;color:var(--text2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mini-prog{position:absolute;top:0;left:0;height:2px;background:var(--acc);transition:width 1s linear}
-.mini-btn{width:36px;height:36px;border-radius:50%;border:none;background:none;color:var(--text);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mini-artist{font-size:11px;color:var(--text2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini-controls{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.mini-btn{width:34px;height:34px;border-radius:50%;border:none;background:none;color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.15s}
+.mini-btn:active{background:rgba(255,255,255,0.1)}
+.mini-play-btn{width:38px;height:38px;border-radius:50%;border:none;background:var(--acc);color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(168,85,247,0.5);transition:transform 0.1s}
+.mini-play-btn:active{transform:scale(0.92)}
 
-/* ── Song Overlay ── */
-.overlay{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;transform:translateY(100%);transition:transform 0.38s cubic-bezier(0.32,0.72,0,1);will-change:transform}
+/* ── Big Player Overlay ── */
+.overlay{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;transform:translateY(100%);transition:transform 0.4s cubic-bezier(0.32,0.72,0,1);will-change:transform;overflow:hidden}
 .overlay.open{transform:translateY(0)}
-.ov-handle{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);margin:10px auto 0}
-.ov-head{display:flex;align-items:center;justify-content:space-between;padding:8px 22px 0}
-.ov-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2)}
-.ov-close{width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,0.1);color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.ov-art-wrap{padding:28px 32px 20px;flex-shrink:0}
-.ov-art{width:100%;aspect-ratio:1;border-radius:16px;background:var(--s3);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:64px;box-shadow:0 16px 60px rgba(0,0,0,0.8)}
+.ov-bg{position:absolute;inset:0;z-index:0;opacity:0.15;filter:blur(60px);background-size:cover;background-position:center;transition:background-image 0.5s}
+.ov-content{position:relative;z-index:1;display:flex;flex-direction:column;height:100%}
+.ov-handle{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,0.18);margin:10px auto 0}
+.ov-head{display:flex;align-items:center;justify-content:space-between;padding:10px 22px 0}
+.ov-label{font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--text2)}
+.ov-close{width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,0.08);color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.ov-tab-bar{display:flex;gap:0;padding:14px 22px 0;border-bottom:1px solid var(--border2)}
+.ov-tab{flex:1;padding:8px;text-align:center;font-size:12px;font-weight:700;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;background:none;border-top:none;border-left:none;border-right:none;font-family:'Inter',sans-serif}
+.ov-tab.active{color:var(--acc);border-bottom-color:var(--acc)}
+
+/* Player Tab */
+.ov-player-tab{display:flex;flex-direction:column;flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+.ov-player-tab::-webkit-scrollbar{display:none}
+.ov-art-wrap{padding:22px 36px 16px;flex-shrink:0}
+.ov-art{width:100%;aspect-ratio:1;border-radius:20px;background:var(--s3);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:64px;box-shadow:0 20px 70px rgba(0,0,0,0.8),0 0 0 1px rgba(255,255,255,0.05)}
 .ov-art img{width:100%;height:100%;object-fit:cover;transition:opacity 0.3s}
 .ov-art.playing{animation:artPulse 3s ease-in-out infinite}
-@keyframes artPulse{0%,100%{box-shadow:0 16px 60px rgba(0,0,0,0.8),0 0 0 0 rgba(168,85,247,0)}50%{box-shadow:0 16px 60px rgba(0,0,0,0.8),0 0 0 12px rgba(168,85,247,0.12)}}
-.ov-body{padding:0 28px;flex:1;display:flex;flex-direction:column;overflow:hidden}
-.ov-meta{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px}
-.ov-title{font-size:20px;font-weight:800;letter-spacing:-0.3px;line-height:1.2;max-height:2.5em;overflow:hidden}
-.ov-artist{font-size:14px;color:var(--text2);margin-top:5px}
-.ov-like{width:38px;height:38px;border-radius:50%;border:none;background:none;font-size:24px;cursor:pointer;flex-shrink:0;margin-top:4px;opacity:0.7;transition:all 0.15s}
+@keyframes artPulse{0%,100%{box-shadow:0 20px 70px rgba(0,0,0,0.8),0 0 0 0 rgba(168,85,247,0)}50%{box-shadow:0 20px 70px rgba(0,0,0,0.8),0 0 0 16px rgba(168,85,247,0.1)}}
+.ov-body{padding:0 24px;flex-shrink:0}
+.ov-meta{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px}
+.ov-title{font-size:20px;font-weight:800;letter-spacing:-0.3px;line-height:1.2}
+.ov-artist{font-size:13px;color:var(--text2);margin-top:5px}
+.ov-like{width:38px;height:38px;border-radius:50%;border:none;background:none;font-size:24px;cursor:pointer;flex-shrink:0;margin-top:4px;opacity:0.6;transition:all 0.2s}
 .ov-like.liked{opacity:1;filter:drop-shadow(0 0 8px rgba(236,72,153,0.7))}
-.ov-prog-wrap{margin-bottom:8px}
-.ov-prog{width:100%;height:4px;background:var(--s3);border-radius:2px;cursor:pointer;position:relative;-webkit-appearance:none;appearance:none;outline:none}
-.ov-prog::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--text);margin-top:-5px;cursor:pointer}
-.ov-prog::-webkit-slider-runnable-track{height:4px;background:linear-gradient(to right,var(--acc) var(--prog,0%),var(--s3) var(--prog,0%));border-radius:2px}
-.ov-times{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:24px}
-.ov-controls{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
-.ov-ctrl-btn{background:none;border:none;color:var(--text2);font-size:14px;cursor:pointer;width:40px;height:40px;display:flex;align-items:center;justify-content:center}
-.ov-ctrl-btn svg{width:22px;height:22px;fill:currentColor}
-.ov-play-btn{width:60px;height:60px;border-radius:50%;background:var(--text);border:none;color:var(--bg);font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(255,255,255,0.15);transition:transform 0.1s,box-shadow 0.1s}
-.ov-play-btn:active{transform:scale(0.94)}
-.ov-actions{display:flex;justify-content:space-around;padding-bottom:20px}
-.ov-action{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:10px;font-weight:700;color:var(--text2);cursor:pointer;background:none;border:none;font-family:'Inter',sans-serif}
-.ov-action svg{width:24px;height:24px;fill:currentColor}
+.ov-prog-wrap{margin-bottom:6px;position:relative;height:4px;background:var(--s4);border-radius:2px;cursor:pointer}
+.ov-prog-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--pink));border-radius:2px;position:relative;pointer-events:none}
+.ov-prog-fill::after{content:'';position:absolute;right:-6px;top:-5px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.5)}
+.ov-prog-input{position:absolute;inset:0;width:100%;opacity:0;cursor:pointer;height:100%}
+.ov-times{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:20px}
+.ov-vol-wrap{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.ov-vol-icon{font-size:16px;cursor:pointer;color:var(--text2);flex-shrink:0}
+.ov-vol{flex:1;height:4px;background:var(--s4);border-radius:2px;cursor:pointer;-webkit-appearance:none;outline:none}
+.ov-vol::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#fff;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.4)}
+.ov-vol::-webkit-slider-runnable-track{height:4px;background:linear-gradient(to right,var(--acc) var(--vol,80%),var(--s4) var(--vol,80%));border-radius:2px}
+.ov-controls{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.ov-ctrl-btn{background:none;border:none;color:var(--text2);cursor:pointer;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:background 0.15s}
+.ov-ctrl-btn:active{background:rgba(255,255,255,0.08)}
+.ov-ctrl-btn svg{width:24px;height:24px;fill:currentColor}
+.ov-ctrl-btn.active{color:var(--acc)}
+.ov-play-btn{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--acc2));border:none;color:#fff;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 24px rgba(168,85,247,0.5);transition:transform 0.1s,box-shadow 0.1s}
+.ov-play-btn:active{transform:scale(0.93)}
+.ov-actions{display:flex;justify-content:space-around;padding:0 0 20px}
+.ov-action{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:10px;font-weight:700;color:var(--text2);cursor:pointer;background:none;border:none;font-family:'Inter',sans-serif;padding:8px 12px;border-radius:var(--radius-sm);transition:background 0.15s}
+.ov-action:active{background:rgba(255,255,255,0.06)}
+.ov-action svg{width:22px;height:22px;fill:currentColor}
 .ov-action.active{color:var(--acc)}
 
+/* Queue Tab */
+.ov-queue-tab{flex:1;overflow-y:auto;scrollbar-width:none;padding:12px 0}
+.ov-queue-tab::-webkit-scrollbar{display:none}
+.queue-now{padding:14px 22px;background:rgba(168,85,247,0.08);margin:0 12px 12px;border-radius:var(--radius);border:1px solid rgba(168,85,247,0.2);display:flex;align-items:center;gap:12px}
+.queue-now-label{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--acc);margin-bottom:4px}
+.queue-item{display:flex;align-items:center;gap:12px;padding:10px 22px;transition:background 0.15s;cursor:pointer}
+.queue-item:active{background:rgba(255,255,255,0.04)}
+.queue-num{width:20px;font-size:12px;color:var(--text3);text-align:center;flex-shrink:0}
+.queue-art{width:42px;height:42px;border-radius:8px;background:var(--s3);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.queue-art img{width:100%;height:100%;object-fit:cover}
+.queue-info{flex:1;min-width:0}
+.queue-title{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.queue-artist{font-size:11px;color:var(--text2);margin-top:2px}
+.queue-dur{font-size:11px;color:var(--text3);flex-shrink:0}
+
 /* ── Header ── */
-.view-head{padding:52px 18px 0;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.view-head-title{font-size:26px;font-weight:900;letter-spacing:-0.3px}
-.view-head-sub{font-size:13px;color:var(--text2)}
+.view-head{padding:48px 18px 0;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.view-head-title{font-size:28px;font-weight:900;letter-spacing:-0.5px}
+.view-head-sub{font-size:13px;color:var(--text2);margin-top:2px}
+
+/* ── Live VC Banner ── */
+.live-banner{margin:0 18px 20px;background:linear-gradient(135deg,rgba(168,85,247,0.15),rgba(236,72,153,0.1));border:1px solid rgba(168,85,247,0.25);border-radius:var(--radius);padding:14px 16px;display:none;align-items:center;gap:12px;cursor:pointer}
+.live-banner.show{display:flex}
+.live-dot{width:8px;height:8px;border-radius:50%;background:#ef4444;flex-shrink:0;animation:livePulse 1.5s ease-in-out infinite}
+@keyframes livePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+.live-info{flex:1;min-width:0}
+.live-label{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#ef4444;margin-bottom:3px}
+.live-title{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.live-sub{font-size:11px;color:var(--text2)}
+.live-art{width:40px;height:40px;border-radius:8px;background:var(--s4);overflow:hidden;flex-shrink:0}
+.live-art img{width:100%;height:100%;object-fit:cover}
 
 /* ── Category Pills ── */
 .pills{display:flex;gap:8px;overflow-x:auto;padding:0 18px 16px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .pills::-webkit-scrollbar{display:none}
-.pill{padding:7px 18px;border-radius:100px;font-size:13px;font-weight:700;background:var(--s2);color:var(--text2);cursor:pointer;white-space:nowrap;transition:all 0.15s;flex-shrink:0;border:none;font-family:'Inter',sans-serif}
-.pill:hover{background:var(--s3)}
-.pill.on{background:var(--text);color:var(--bg)}
+.pill{padding:7px 18px;border-radius:100px;font-size:12px;font-weight:700;background:var(--s2);color:var(--text2);cursor:pointer;white-space:nowrap;transition:all 0.15s;flex-shrink:0;border:1px solid var(--border2);font-family:'Inter',sans-serif}
+.pill.on{background:var(--acc);color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(168,85,247,0.4)}
 
-/* ── Song Cards ── */
+/* ── Section ── */
 .section-head{display:flex;align-items:center;justify-content:space-between;padding:0 18px;margin-bottom:12px}
-.section-title{font-size:18px;font-weight:800}
+.section-title{font-size:17px;font-weight:800}
+.section-more{font-size:12px;font-weight:700;color:var(--acc);cursor:pointer}
+
+/* ── Horizontal Scroll Row ── */
+.h-scroll{display:flex;gap:12px;overflow-x:auto;padding:0 18px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.h-scroll::-webkit-scrollbar{display:none}
+.feat-card{flex-shrink:0;width:150px;background:var(--s2);border-radius:var(--radius);padding:12px;cursor:pointer;transition:background 0.15s;border:1px solid var(--border2);position:relative;overflow:hidden}
+.feat-card:active{background:var(--s3)}
+.feat-art{width:100%;aspect-ratio:1;border-radius:10px;background:var(--s3);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:10px;position:relative}
+.feat-art img{width:100%;height:100%;object-fit:cover}
+.feat-title{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+.feat-artist{font-size:10px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ── Grid ── */
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0 18px 4px}
-.card{background:var(--s2);border-radius:10px;padding:12px;cursor:pointer;transition:background 0.15s;position:relative;overflow:hidden}
-.card:hover,.card:active{background:var(--s3)}
-.card-art{width:100%;aspect-ratio:1;border-radius:8px;background:var(--s3);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:10px;position:relative}
+.card{background:var(--s2);border-radius:var(--radius);padding:12px;cursor:pointer;transition:background 0.15s;position:relative;overflow:hidden;border:1px solid var(--border2)}
+.card:active{background:var(--s3)}
+.card-art{width:100%;aspect-ratio:1;border-radius:10px;background:var(--s3);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:10px;position:relative}
 .card-art img{width:100%;height:100%;object-fit:cover}
-.card-play{position:absolute;bottom:6px;right:6px;width:36px;height:36px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 4px 12px rgba(168,85,247,0.5);opacity:0;transform:translateY(6px);transition:all 0.2s}
+.card-play{position:absolute;bottom:6px;right:6px;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 4px 14px rgba(168,85,247,0.6);opacity:0;transform:translateY(6px);transition:all 0.2s}
 .card:hover .card-play,.card:active .card-play{opacity:1;transform:translateY(0)}
-.card-title{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.card.now-playing .card-art::after{content:'▶';position:absolute;inset:0;background:rgba(168,85,247,0.5);display:flex;align-items:center;justify-content:center;font-size:28px;border-radius:10px}
+.card-title{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
 .card-artist{font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .card-dur{font-size:10px;color:var(--text3);margin-top:4px}
 
+/* ── Liked Tab ── */
+.liked-head{padding:48px 18px 16px;display:flex;align-items:center;gap:14px}
+.liked-icon{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,#ec4899,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+.liked-info{flex:1}
+.liked-count{font-size:12px;color:var(--text2);margin-top:2px}
+.liked-list{padding:0 18px}
+.liked-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border2);cursor:pointer;transition:background 0.12s}
+.liked-row:last-child{border-bottom:none}
+.liked-num{width:24px;font-size:12px;color:var(--text3);text-align:center;flex-shrink:0}
+.liked-art{width:46px;height:46px;border-radius:8px;background:var(--s2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.liked-art img{width:100%;height:100%;object-fit:cover}
+.liked-info2{flex:1;min-width:0}
+.liked-title{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.liked-artist{font-size:11px;color:var(--text2);margin-top:2px}
+.liked-dur{font-size:11px;color:var(--text3);flex-shrink:0}
+.liked-rm{width:30px;height:30px;border-radius:50%;border:none;background:none;color:var(--text3);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
 /* ── Search ── */
-.search-sticky{position:sticky;top:0;z-index:10;background:var(--bg);padding:52px 18px 14px}
-.search-box{display:flex;align-items:center;gap:10px;background:var(--s2);border-radius:10px;padding:12px 16px}
+.search-sticky{position:sticky;top:0;z-index:10;background:rgba(5,5,8,0.95);padding:48px 18px 12px;backdrop-filter:blur(12px)}
+.search-box{display:flex;align-items:center;gap:10px;background:var(--s2);border-radius:var(--radius);padding:12px 16px;border:1px solid var(--border2);transition:border-color 0.2s}
+.search-box:focus-within{border-color:rgba(168,85,247,0.4)}
 .search-box input{flex:1;background:none;border:none;outline:none;color:var(--text);font-size:15px;font-family:'Inter',sans-serif}
 .search-box input::placeholder{color:var(--text3)}
 .search-ic{font-size:16px;color:var(--text3)}
+.search-clear{font-size:16px;color:var(--text3);cursor:pointer;display:none}
 .result-list{padding:0 18px}
-.result-row{display:flex;align-items:center;gap:12px;padding:10px 0;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.12s}
+.result-row{display:flex;align-items:center;gap:12px;padding:10px 0;cursor:pointer;border-bottom:1px solid var(--border2);transition:background 0.12s}
 .result-row:last-child{border-bottom:none}
-.result-art{width:46px;height:46px;border-radius:6px;background:var(--s2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.result-art{width:46px;height:46px;border-radius:8px;background:var(--s2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
 .result-art img{width:100%;height:100%;object-fit:cover}
 .result-info{flex:1;min-width:0}
 .result-title{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .result-artist{font-size:11px;color:var(--text2);margin-top:2px}
 .result-dur{font-size:11px;color:var(--text3);flex-shrink:0}
-.result-dl{width:32px;height:32px;border-radius:50%;border:none;background:var(--s3);color:var(--text2);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.result-dl{width:32px;height:32px;border-radius:50%;border:none;background:var(--s3);color:var(--text2);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.15s}
+.result-dl:active{background:var(--s4)}
 
 /* ── Download ── */
-.dl-wrap{padding:52px 18px 0}
-.dl-title{font-size:26px;font-weight:900;margin-bottom:6px}
+.dl-wrap{padding:48px 18px 0}
+.dl-title{font-size:28px;font-weight:900;letter-spacing:-0.5px;margin-bottom:4px}
 .dl-sub{font-size:13px;color:var(--text2);margin-bottom:22px}
 .dl-box{display:flex;gap:10px;margin-bottom:20px}
-.dl-input{flex:1;background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:13px 16px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;outline:none}
-.dl-input:focus{border-color:var(--acc)}
+.dl-input{flex:1;background:var(--s2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:13px 16px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border-color 0.2s}
+.dl-input:focus{border-color:rgba(168,85,247,0.5)}
 .dl-input::placeholder{color:var(--text3)}
-.dl-btn{padding:13px 18px;border-radius:10px;background:var(--acc);color:#fff;border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap}
+.dl-btn{padding:13px 18px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;box-shadow:0 4px 14px rgba(168,85,247,0.4)}
 .dl-btn:disabled{opacity:0.5;cursor:default}
-.dl-result{background:var(--s2);border-radius:12px;padding:16px;display:flex;gap:12px;align-items:center}
-.dl-result-art{width:60px;height:60px;border-radius:8px;background:var(--s3);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
-.dl-result-art img{width:100%;height:100%;object-fit:cover}
-.dl-result-info{flex:1;min-width:0}
-.dl-result-title{font-size:14px;font-weight:700;margin-bottom:3px}
-.dl-result-artist{font-size:12px;color:var(--text2)}
-.dl-result-dur{font-size:11px;color:var(--text3);margin-top:3px}
-.dl-result-btn{padding:10px 16px;border-radius:8px;background:var(--acc);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
-.dl-result-btn:disabled{opacity:0.5}
-
-/* ── Profile ── */
-.profile-wrap{padding:52px 18px 0}
-.profile-hero{background:linear-gradient(160deg,rgba(120,40,200,0.4) 0%,rgba(13,13,20,0) 70%);border-radius:20px;padding:28px;margin-bottom:20px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;position:relative;overflow:hidden}
-.profile-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(168,85,247,0.15) 0%,transparent 70%);pointer-events:none}
-.profile-avatar{width:88px;height:88px;border-radius:50%;background:var(--s3);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:36px;border:3px solid rgba(168,85,247,0.4);position:relative;flex-shrink:0}
-.profile-avatar img{width:100%;height:100%;object-fit:cover}
-.profile-name{font-size:24px;font-weight:900;letter-spacing:-0.3px}
-.profile-username{font-size:14px;color:var(--acc);font-weight:700}
-.profile-premium{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;background:linear-gradient(135deg,#9333ea,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;padding:3px 0}
-.profile-no-tg{color:var(--text2);font-size:13px;line-height:1.6}
-.profile-section{background:var(--s2);border-radius:14px;padding:18px;margin-bottom:14px}
-.profile-section-title{font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--text3);margin-bottom:14px}
-.profile-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border)}
-.profile-row:last-child{border-bottom:none}
-.profile-row-icon{font-size:20px;width:32px;text-align:center;flex-shrink:0}
-.profile-row-text{flex:1}
-.profile-row-label{font-size:11px;color:var(--text3);margin-bottom:2px}
-.profile-row-val{font-size:14px;font-weight:600}
-.bot-feature{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
-.bot-feat-badge{padding:5px 12px;border-radius:100px;background:var(--s3);font-size:11px;font-weight:700;color:var(--text2)}
 
 /* ── Empty / Loading ── */
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:12px;color:var(--text3)}
 .empty-icon{font-size:52px;opacity:0.4}
-.empty-text{font-size:14px;font-weight:600}
-.empty-sub{font-size:12px;text-align:center;line-height:1.6}
+.empty-text{font-size:14px;font-weight:700}
+.empty-sub{font-size:12px;text-align:center;line-height:1.6;color:var(--text3)}
 .skel{background:linear-gradient(90deg,var(--s2) 25%,var(--s3) 50%,var(--s2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:8px}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-.skel-card{background:var(--s2);border-radius:10px;padding:12px}
-.skel-thumb{aspect-ratio:1;border-radius:8px;margin-bottom:10px}
+.skel-card{background:var(--s2);border-radius:var(--radius);padding:12px;border:1px solid var(--border2)}
+.skel-thumb{aspect-ratio:1;border-radius:10px;margin-bottom:10px}
 .skel-text{height:12px;margin-bottom:6px}
 .skel-text-sm{height:10px;width:60%}
 
 /* ── Toast ── */
-.toast{position:fixed;bottom:calc(var(--nav-h) + var(--mini-h) + 12px + var(--safe-b));left:50%;transform:translateX(-50%) translateY(12px);background:var(--s3);border:1px solid var(--border);border-radius:100px;padding:10px 22px;font-size:13px;font-weight:600;z-index:200;opacity:0;pointer-events:none;white-space:nowrap;box-shadow:0 4px 24px rgba(0,0,0,0.6);transition:all 0.25s}
+.toast{position:fixed;bottom:calc(var(--nav-h) + var(--mini-h) + 16px + var(--safe-b));left:50%;transform:translateX(-50%) translateY(12px);background:rgba(30,30,40,0.96);border:1px solid var(--border);border-radius:100px;padding:10px 22px;font-size:13px;font-weight:600;z-index:200;opacity:0;pointer-events:none;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,0.6);transition:all 0.25s;backdrop-filter:blur(12px)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* ── Utils ── */
 .hidden{display:none!important}
-.mt8{margin-top:8px}
-.mt16{margin-top:16px}
-.mt24{margin-top:24px}
+.mt8{margin-top:8px}.mt16{margin-top:16px}.mt24{margin-top:24px}
+.mb12{margin-bottom:12px}
+.divider{height:1px;background:var(--border2);margin:8px 0}
 </style>
 </head>
 <body>
@@ -192,21 +249,43 @@ img{display:block}
       <div class="view-head">
         <div>
           <div class="view-head-title" id="greetText">Good Evening 🎵</div>
-          <div class="view-head-sub">What do you want to listen to?</div>
+          <div class="view-head-sub">What are you in the mood for?</div>
         </div>
       </div>
+
+      <!-- Live VC Banner -->
+      <div class="live-banner" id="liveBanner" onclick="navTo('search')">
+        <div class="live-art" id="liveArt"><img id="liveArtImg" src="" alt="" style="display:none"/></div>
+        <div class="live-info">
+          <div class="live-label">🔴 Live in VC</div>
+          <div class="live-title" id="liveTitle">Loading...</div>
+          <div class="live-sub" id="liveSub">Tap to search & play</div>
+        </div>
+      </div>
+
+      <!-- Category Pills -->
       <div class="pills" id="catPills">
-        <button class="pill on" onclick="filterCat('all',this)">All</button>
+        <button class="pill on" onclick="filterCat('all',this)">✨ All</button>
         <button class="pill" onclick="filterCat('Hindi',this)">🎵 Hindi</button>
         <button class="pill" onclick="filterCat('Punjabi',this)">🎶 Punjabi</button>
         <button class="pill" onclick="filterCat('Bollywood',this)">🎬 Bollywood</button>
         <button class="pill" onclick="filterCat('International',this)">🌍 International</button>
       </div>
-      <div class="section-head">
+
+      <!-- Featured / Horizontal Scroll -->
+      <div class="section-head mb12">
+        <div class="section-title">🔥 Featured</div>
+      </div>
+      <div class="h-scroll" id="featRow">
+        <div class="feat-card" style="background:var(--s2)"><div class="skel skel-thumb feat-art"></div><div class="skel skel-text" style="height:10px"></div></div>
+        <div class="feat-card" style="background:var(--s2)"><div class="skel skel-thumb feat-art"></div><div class="skel skel-text" style="height:10px"></div></div>
+        <div class="feat-card" style="background:var(--s2)"><div class="skel skel-thumb feat-art"></div><div class="skel skel-text" style="height:10px"></div></div>
+      </div>
+
+      <div class="section-head mt16">
         <div class="section-title" id="sectionTitle">Trending Now</div>
       </div>
       <div class="grid" id="songGrid">
-        <!-- Skeletons -->
         <div class="skel-card"><div class="skel skel-thumb"></div><div class="skel skel-text"></div><div class="skel skel-text-sm"></div></div>
         <div class="skel-card"><div class="skel skel-thumb"></div><div class="skel skel-text"></div><div class="skel skel-text-sm"></div></div>
         <div class="skel-card"><div class="skel skel-thumb"></div><div class="skel skel-text"></div><div class="skel skel-text-sm"></div></div>
@@ -219,15 +298,28 @@ img{display:block}
       <div class="search-sticky">
         <div class="search-box">
           <span class="search-ic">🔍</span>
-          <input id="searchInput" type="search" placeholder="Songs, artists, playlists..." autocomplete="off" oninput="onSearchInput(this.value)" onkeydown="if(event.key==='Enter')doSearch(this.value)"/>
+          <input id="searchInput" type="search" placeholder="Songs, artists..." autocomplete="off"
+            oninput="onSearchInput(this.value)"
+            onkeydown="if(event.key==='Enter')doSearch(this.value)"/>
+          <span class="search-clear" id="searchClear" onclick="clearSearch()">✕</span>
         </div>
       </div>
       <div id="searchResults">
-        <div class="empty">
-          <div class="empty-icon">🎵</div>
-          <div class="empty-text">Find your music</div>
-          <div class="empty-sub">Search for songs, artists or<br/>anything you're in the mood for</div>
+        <div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">Find your music</div><div class="empty-sub">Search for songs, artists<br/>or anything you love</div></div>
+      </div>
+    </div>
+
+    <!-- ══════ LIKED ══════ -->
+    <div class="view" id="v-liked">
+      <div class="liked-head">
+        <div class="liked-icon">❤️</div>
+        <div class="liked-info">
+          <div class="view-head-title" style="font-size:22px">Liked Songs</div>
+          <div class="liked-count" id="likedCount">0 songs</div>
         </div>
+      </div>
+      <div class="liked-list" id="likedList">
+        <div class="empty"><div class="empty-icon">💔</div><div class="empty-text">No liked songs yet</div><div class="empty-sub">Tap ❤️ on any song to save it here</div></div>
       </div>
     </div>
 
@@ -235,9 +327,10 @@ img{display:block}
     <div class="view" id="v-download">
       <div class="dl-wrap">
         <div class="dl-title">Download</div>
-        <div class="dl-sub">Search and download any song as audio</div>
+        <div class="dl-sub">Get any song as audio</div>
         <div class="dl-box">
-          <input class="dl-input" id="dlInput" type="text" placeholder="Song name or YouTube URL..." onkeydown="if(event.key==='Enter')dlSearch()"/>
+          <input class="dl-input" id="dlInput" type="text" placeholder="Song name or YouTube URL..."
+            onkeydown="if(event.key==='Enter')dlSearch()"/>
           <button class="dl-btn" id="dlSearchBtn" onclick="dlSearch()">Search</button>
         </div>
         <div id="dlResults"></div>
@@ -248,13 +341,16 @@ img{display:block}
 
   <!-- Mini Player -->
   <div class="mini" id="miniPlayer" onclick="openOverlay()">
-    <div class="mini-prog" id="miniProg" style="width:0%"></div>
+    <div class="mini-prog"><div class="mini-prog-fill" id="miniProgFill"></div></div>
     <div class="mini-art" id="miniArt">🎵</div>
     <div class="mini-info">
       <div class="mini-title" id="miniTitle">Nothing playing</div>
       <div class="mini-artist" id="miniArtist">Tap a song to play</div>
     </div>
-    <button class="mini-btn" id="miniPlayBtn" onclick="event.stopPropagation();togglePlay()">▶</button>
+    <div class="mini-controls">
+      <button class="mini-play-btn" id="miniPlayBtn" onclick="event.stopPropagation();togglePlay()">▶</button>
+      <button class="mini-btn" onclick="event.stopPropagation();nextSong()" title="Next">⏭</button>
+    </div>
   </div>
 
   <!-- Bottom Nav -->
@@ -267,6 +363,11 @@ img{display:block}
       <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
       Search
     </button>
+    <button class="bnav-btn" id="bn-liked" onclick="navTo('liked')">
+      <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+      Liked
+      <div class="bnav-dot"></div>
+    </button>
     <button class="bnav-btn" id="bn-download" onclick="navTo('download')">
       <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5z"/></svg>
       Download
@@ -274,86 +375,119 @@ img{display:block}
   </nav>
 </div>
 
-<!-- ══════ SONG OVERLAY ══════ -->
+<!-- ══════ BIG PLAYER OVERLAY ══════ -->
 <div class="overlay" id="songOverlay">
-  <div class="ov-handle"></div>
-  <div class="ov-head">
-    <span class="ov-label">Now Playing</span>
-    <button class="ov-close" onclick="closeOverlay()">╲╱</button>
-  </div>
-
-  <div class="ov-art-wrap">
-    <div class="ov-art" id="ovArt">🎵
-      <img id="ovArtImg" src="" alt="" style="display:none" onerror="this.style.display='none'"/>
+  <div class="ov-bg" id="ovBg"></div>
+  <div class="ov-content">
+    <div class="ov-handle"></div>
+    <div class="ov-head">
+      <span class="ov-label">Now Playing</span>
+      <button class="ov-close" onclick="closeOverlay()">✕</button>
     </div>
-  </div>
 
-  <div class="ov-body">
-    <div class="ov-meta">
-      <div>
-        <div class="ov-title" id="ovTitle">—</div>
-        <div class="ov-artist" id="ovArtist">—</div>
+    <!-- Tab Bar -->
+    <div class="ov-tab-bar">
+      <button class="ov-tab active" id="tab-player" onclick="switchOvTab('player')">Player</button>
+      <button class="ov-tab" id="tab-queue" onclick="switchOvTab('queue')">Queue</button>
+    </div>
+
+    <!-- Player Tab -->
+    <div class="ov-player-tab" id="ovPlayerTab">
+      <div class="ov-art-wrap">
+        <div class="ov-art" id="ovArt">🎵
+          <img id="ovArtImg" src="" alt="" style="display:none" onerror="this.style.display='none'"/>
+        </div>
       </div>
-      <button class="ov-like" id="ovLike" onclick="toggleLike()">🤍</button>
+
+      <div class="ov-body">
+        <div class="ov-meta">
+          <div style="flex:1;min-width:0;margin-right:12px">
+            <div class="ov-title" id="ovTitle">—</div>
+            <div class="ov-artist" id="ovArtist">—</div>
+          </div>
+          <button class="ov-like" id="ovLike" onclick="toggleLike()">🤍</button>
+        </div>
+
+        <div class="ov-prog-wrap" id="ovProgWrap">
+          <div class="ov-prog-fill" id="ovProgFill" style="width:0%"></div>
+          <input type="range" class="ov-prog-input" id="ovProg" min="0" max="100" value="0" oninput="seekTo(this.value)"/>
+        </div>
+        <div class="ov-times">
+          <span id="ovPlayed">0:00</span>
+          <span id="ovTotal">0:00</span>
+        </div>
+
+        <div class="ov-vol-wrap">
+          <span class="ov-vol-icon" onclick="toggleMute()">🔉</span>
+          <input type="range" class="ov-vol" id="volSlider" min="0" max="100" value="80" oninput="setVolume(this.value)" style="--vol:80%"/>
+          <span class="ov-vol-icon">🔊</span>
+        </div>
+
+        <div class="ov-controls">
+          <button class="ov-ctrl-btn" id="ovShuffleBtn" onclick="toggleShuffle()" title="Shuffle">
+            <svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+          </button>
+          <button class="ov-ctrl-btn" onclick="prevSong()" title="Previous">
+            <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+          </button>
+          <button class="ov-play-btn" id="ovPlayBtn" onclick="togglePlay()">▶</button>
+          <button class="ov-ctrl-btn" onclick="nextSong()" title="Next">
+            <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+          </button>
+          <button class="ov-ctrl-btn" id="ovRepeatBtn" onclick="toggleRepeat()" title="Repeat">
+            <svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
+          </button>
+        </div>
+
+        <div class="ov-actions">
+          <button class="ov-action" onclick="downloadCurrent()">
+            <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5z"/></svg>
+            Download
+          </button>
+          <button class="ov-action" onclick="toggleLike()">
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            Like
+          </button>
+          <button class="ov-action" onclick="shareSong()">
+            <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+            Share
+          </button>
+        </div>
+      </div>
     </div>
 
-    <div class="ov-prog-wrap">
-      <input type="range" class="ov-prog" id="ovProg" min="0" max="100" value="0"
-             oninput="seekTo(this.value)" style="--prog:0%"/>
-    </div>
-    <div class="ov-times">
-      <span id="ovPlayed">0:00</span>
-      <span id="ovTotal">0:00</span>
-    </div>
-
-    <div class="ov-controls">
-      <button class="ov-ctrl-btn" onclick="prevSong()" title="Previous">
-        <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
-      </button>
-      <button class="ov-play-btn" id="ovPlayBtn" onclick="togglePlay()">▶</button>
-      <button class="ov-ctrl-btn" onclick="nextSong()" title="Next">
-        <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-      </button>
-    </div>
-
-    <div class="ov-actions">
-      <button class="ov-action" onclick="downloadCurrent()" id="ovDlBtn">
-        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5z"/></svg>
-        Download
-      </button>
-      <button class="ov-action" id="ovRepeatBtn" onclick="toggleRepeat()">
-        <svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
-        Repeat
-      </button>
-      <button class="ov-action" id="ovShareBtn" onclick="shareSong()">
-        <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
-        Share
-      </button>
+    <!-- Queue Tab -->
+    <div class="ov-queue-tab hidden" id="ovQueueTab">
+      <div id="ovQueueList"><div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">Queue is empty</div></div></div>
     </div>
   </div>
 </div>
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
-
 <audio id="aud" preload="none"></audio>
 
 <script>
-// ── Telegram WebApp Init ──────────────────────────────────────
+// ── Telegram WebApp ────────────────────────────────────────────
 const tg = window.Telegram?.WebApp;
-if (tg) { tg.expand(); tg.ready(); tg.setHeaderColor?.('#000000'); tg.setBackgroundColor?.('#000000'); }
+if (tg) { tg.expand(); tg.ready(); tg.setHeaderColor?.('#050508'); tg.setBackgroundColor?.('#050508'); }
 
 // ── Greeting ──────────────────────────────────────────────────
-(function(){const h=new Date().getHours(),el=document.getElementById('greetText');el.textContent=h<5?'🌙 Late Night 🎵':h<12?'🌅 Good Morning 🎵':h<18?'☀️ Good Afternoon 🎵':h<22?'🌆 Good Evening 🎵':'🌙 Good Night 🎵'})();
+(function(){
+  const h = new Date().getHours();
+  const greets = ['🌙 Late Night','🌅 Good Morning','☀️ Good Afternoon','🌆 Good Evening','🌙 Good Night'];
+  const idx = h<5?0:h<12?1:h<18?2:h<22?3:4;
+  document.getElementById('greetText').textContent = greets[idx] + ' 🎵';
+})();
 
 // ── State ─────────────────────────────────────────────────────
 const aud = document.getElementById('aud');
 let allSongs = [], curCat = 'all', curTrack = null, playing = false;
-let history = [], histIdx = -1, likedSet = new Set(), repeatOn = false;
-let progTimer = null;
+let history = [], histIdx = -1, likedSet = new Map(), repeatOn = false, shuffleOn = false;
+let progTimer = null, volMuted = false, lastVol = 80;
+let curOvTab = 'player';
 
 // ── Navigation ────────────────────────────────────────────────
-const views = {home:'v-home',search:'v-search',download:'v-download'};
 let curView = 'home';
 function navTo(name) {
   document.getElementById('v-'+curView).classList.remove('active');
@@ -361,6 +495,42 @@ function navTo(name) {
   curView = name;
   document.getElementById('v-'+name).classList.add('active');
   document.getElementById('bn-'+name)?.classList.add('active');
+  if (name === 'liked') renderLiked();
+}
+
+// ── Overlay Tabs ──────────────────────────────────────────────
+function switchOvTab(tab) {
+  curOvTab = tab;
+  document.getElementById('ovPlayerTab').classList.toggle('hidden', tab !== 'player');
+  document.getElementById('ovQueueTab').classList.toggle('hidden', tab !== 'queue');
+  document.getElementById('tab-player').classList.toggle('active', tab === 'player');
+  document.getElementById('tab-queue').classList.toggle('active', tab === 'queue');
+  if (tab === 'queue') renderQueue();
+}
+
+function renderQueue() {
+  const el = document.getElementById('ovQueueList');
+  if (!history.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">Queue is empty</div></div>'; return; }
+  let html = '';
+  if (curTrack) {
+    html += `<div class="queue-now">
+      <div class="queue-art"><img src="${curTrack.thumb||''}" alt="" onerror="this.style.display='none'" style="display:${curTrack.thumb?'block':'none'}"/></div>
+      <div class="queue-info"><div class="queue-now-label">Now Playing</div><div class="queue-title">${esc(curTrack.title)}</div><div class="queue-artist">${esc(curTrack.channel||'')}</div></div>
+    </div>`;
+  }
+  const upcoming = history.slice(histIdx + 1, histIdx + 15);
+  if (upcoming.length) {
+    html += upcoming.map((s,i) => `
+      <div class="queue-item" onclick='playSong(${JSON.stringify(s)})'>
+        <div class="queue-num">${i+1}</div>
+        <div class="queue-art"><img src="${s.thumb||''}" alt="" onerror="this.style.display='none'" style="display:${s.thumb?'block':'none'}"/></div>
+        <div class="queue-info"><div class="queue-title">${esc(s.title)}</div><div class="queue-artist">${esc(s.channel||'')}</div></div>
+        <div class="queue-dur">${s.duration||''}</div>
+      </div>`).join('');
+  } else {
+    html += '<div class="empty" style="padding:30px 20px"><div class="empty-icon" style="font-size:32px">✅</div><div class="empty-text">You\'re all caught up</div></div>';
+  }
+  el.innerHTML = html;
 }
 
 // ── Toast ─────────────────────────────────────────────────────
@@ -385,9 +555,40 @@ async function loadTrending() {
     const d = await r.json();
     allSongs = d.songs || [];
     renderGrid(allSongs);
+    renderFeatured(allSongs.slice(0,8));
   } catch { renderGrid([]); }
 }
 loadTrending();
+
+async function loadLiveStatus() {
+  try {
+    const r = await fetch('/api/status');
+    const d = await r.json();
+    if (d.chats && d.chats.length > 0) {
+      const chat = d.chats[0];
+      const cur = chat.current;
+      document.getElementById('liveBanner').classList.add('show');
+      document.getElementById('liveTitle').textContent = cur.title || 'Unknown';
+      document.getElementById('liveSub').textContent = `${cur.duration} • ${chat.queue_count} in queue`;
+      if (cur.thumbnail) {
+        const img = document.getElementById('liveArtImg');
+        img.src = cur.thumbnail; img.style.display = 'block';
+      }
+    }
+  } catch {}
+}
+loadLiveStatus();
+
+function renderFeatured(songs) {
+  const el = document.getElementById('featRow');
+  if (!songs.length) { el.innerHTML = ''; return; }
+  el.innerHTML = songs.slice(0,8).map(s => `
+    <div class="feat-card" onclick='playSong(${JSON.stringify(s)})'>
+      <div class="feat-art"><img src="${s.thumb}" alt="" loading="lazy" onerror="this.style.display='none'"/></div>
+      <div class="feat-title">${esc(s.title)}</div>
+      <div class="feat-artist">${esc(s.channel||'')}</div>
+    </div>`).join('');
+}
 
 function filterCat(cat, btn) {
   curCat = cat;
@@ -401,11 +602,11 @@ function filterCat(cat, btn) {
 function renderGrid(songs) {
   const g = document.getElementById('songGrid');
   if (!songs.length) {
-    g.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">🎵</div><div class="empty-text">No songs found</div></div>';
+    g.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">😕</div><div class="empty-text">No songs found</div></div>';
     return;
   }
   g.innerHTML = songs.map((s,i) => `
-    <div class="card" onclick='playSong(${JSON.stringify(s)})'>
+    <div class="card ${curTrack&&curTrack.id===s.id?'now-playing':''}" id="card-${s.id}" onclick='playSong(${JSON.stringify(s)})'>
       <div class="card-art">
         <img src="${s.thumb}" alt="" loading="lazy" onerror="this.style.display='none'"/>
         <div class="card-play">▶</div>
@@ -419,13 +620,21 @@ function renderGrid(songs) {
 // ── Search ────────────────────────────────────────────────────
 let _searchTimer;
 function onSearchInput(q) {
+  const clear = document.getElementById('searchClear');
+  clear.style.display = q ? 'block' : 'none';
   clearTimeout(_searchTimer);
   if (!q.trim()) {
-    document.getElementById('searchResults').innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">Find your music</div></div>`;
+    document.getElementById('searchResults').innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">Find your music</div><div class="empty-sub">Search for songs, artists<br/>or anything you love</div></div>`;
     return;
   }
   _searchTimer = setTimeout(() => doSearch(q), 480);
 }
+
+function clearSearch() {
+  const inp = document.getElementById('searchInput');
+  inp.value = ''; onSearchInput(''); inp.focus();
+}
+
 async function doSearch(q) {
   if (!q.trim()) return;
   const el = document.getElementById('searchResults');
@@ -441,11 +650,7 @@ async function doSearch(q) {
     el.innerHTML = `<div class="result-list">${results.map(s=>`
       <div class="result-row" onclick='playSong(${JSON.stringify(s)})'>
         <div class="result-art"><img src="${s.thumb}" alt="" loading="lazy" onerror="this.style.display='none'"/></div>
-        <div class="result-info">
-          <div class="result-title">${esc(s.title)}</div>
-          <div class="result-artist">${esc(s.channel||'')}</div>
-        </div>
-        <span class="result-dur">${s.duration||''}</span>
+        <div class="result-info"><div class="result-title">${esc(s.title)}</div><div class="result-artist">${esc(s.channel||'')} · ${s.duration||''}</div></div>
         <button class="result-dl" title="Download" onclick="event.stopPropagation();dlSong('${s.id}','${esc(s.title)}')">⬇</button>
       </div>`).join('')}</div>`;
   } catch { el.innerHTML = `<div class="empty"><div class="empty-icon">❌</div><div class="empty-text">Search failed</div></div>`; }
@@ -466,7 +671,7 @@ async function dlSearch() {
     if (!results.length) { res.innerHTML = '<div class="empty"><div class="empty-icon">😕</div><div class="empty-text">Nothing found</div></div>'; return; }
     res.innerHTML = `<div class="result-list">${results.map(s=>`
       <div class="result-row">
-        <div class="result-art"><img src="${s.thumb}" alt="" loading="lazy" onerror="this.style.display='none'"/></div>
+        <div class="result-art"><img src="${s.thumb}" loading="lazy" onerror="this.style.display='none'"/></div>
         <div class="result-info"><div class="result-title">${esc(s.title)}</div><div class="result-artist">${esc(s.channel||'')} · ${s.duration||''}</div></div>
         <button class="result-dl" onclick="dlSong('${s.id}','${esc(s.title)}')">⬇</button>
       </div>`).join('')}</div>`;
@@ -490,65 +695,51 @@ function downloadCurrent() {
   dlSong(curTrack.id, curTrack.title);
 }
 
-// ── Profile ───────────────────────────────────────────────────
-async function loadProfile() {
-  // Telegram user profile
-  const tgUser = tg?.initDataUnsafe?.user;
-  const heroEl = document.getElementById('profileHero');
-  const avatarEl = document.getElementById('profileAvatar');
-  const nameEl = document.getElementById('profileName');
-  const usernameEl = document.getElementById('profileUsername');
-
-  if (tgUser) {
-    nameEl.textContent = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') || 'Telegram User';
-    usernameEl.textContent = tgUser.username ? '@'+tgUser.username : 'Telegram User';
-    if (tgUser.photo_url) {
-      avatarEl.innerHTML = `<img src="${tgUser.photo_url}" alt="" onerror="this.parentElement.textContent='👤'"/>`;
-    }
-    if (tgUser.is_premium) {
-      nameEl.insertAdjacentHTML('afterend', '<div class="profile-premium">⭐ Telegram Premium</div>');
-    }
-  } else {
-    nameEl.textContent = 'Annie X Music';
-    usernameEl.textContent = 'Open via Telegram Mini App';
-    avatarEl.textContent = '🎵';
+// ── Liked Songs ───────────────────────────────────────────────
+function renderLiked() {
+  const list = document.getElementById('likedList');
+  const count = document.getElementById('likedCount');
+  const songs = [...likedSet.values()];
+  count.textContent = songs.length + ' song' + (songs.length !== 1 ? 's' : '');
+  // Update badge
+  document.getElementById('bn-liked').classList.toggle('has-badge', songs.length > 0);
+  if (!songs.length) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">💔</div><div class="empty-text">No liked songs yet</div><div class="empty-sub">Tap ❤️ on any song to save it here</div></div>';
+    return;
   }
+  list.innerHTML = songs.map((s,i) => `
+    <div class="liked-row" onclick='playSong(${JSON.stringify(s)})'>
+      <div class="liked-num">${i+1}</div>
+      <div class="liked-art"><img src="${s.thumb||''}" alt="" loading="lazy" onerror="this.style.display='none'" style="display:${s.thumb?'block':'none'}"/></div>
+      <div class="liked-info2"><div class="liked-title">${esc(s.title)}</div><div class="liked-artist">${esc(s.channel||'')}</div></div>
+      <div class="liked-dur">${s.duration||''}</div>
+      <button class="liked-rm" onclick="event.stopPropagation();unlikeSong('${s.id}')" title="Remove">🗑</button>
+    </div>`).join('');
+}
 
-  // Bot info
-  try {
-    const r = await fetch('/api/botinfo');
-    const d = await r.json();
-    document.getElementById('botName').textContent = d.name || '—';
-    document.getElementById('botUsername').textContent = d.username ? '@'+d.username : '—';
-    document.getElementById('botBio').textContent = d.bio || '—';
-    const feats = document.getElementById('botFeatures');
-    feats.innerHTML = (d.features||[]).map(f=>`<span class="bot-feat-badge">${f}</span>`).join('');
-    if (d.pfp) {
-      avatarEl.innerHTML = tgUser
-        ? avatarEl.innerHTML
-        : `<img src="${d.pfp}" alt="" onerror="this.parentElement.textContent='🎵'"/>`;
-    }
-  } catch {}
+function unlikeSong(id) {
+  likedSet.delete(id);
+  updateLikeBtn();
+  renderLiked();
+  toast('Removed from liked');
 }
 
 // ── Audio Player ──────────────────────────────────────────────
 async function playSong(song) {
   curTrack = song;
-  // Add to history
   if (!history.length || history[history.length-1].id !== song.id) {
     history.push({...song}); histIdx = history.length-1;
     if (history.length > 50) history.shift();
   } else { histIdx = history.length-1; }
 
-  updateMiniPlayer(song.title, song.channel, song.thumb, 0, 0);
-  updateOverlay(song.title, song.channel, song.thumb, 0, 0);
+  updateMiniPlayer(song.title, song.channel, song.thumb);
+  updateOverlay(song.title, song.channel, song.thumb);
+  updateCardHighlight();
   toast('⏳ Loading…');
 
   try {
-    // Fetch metadata in background
     const metaP = fetch(`/api/stream?v=${song.id}`).then(r=>r.json()).catch(()=>({}));
 
-    // Set src + load + play — all synchronously before any await (preserves user gesture)
     aud.src = `/api/audio?v=${song.id}`;
     aud.load();
     aud.loop = repeatOn;
@@ -561,13 +752,13 @@ async function playSong(song) {
       playing = false; setPlayBtns(false);
     });
 
-    // Update UI with metadata once it arrives
     const meta = await metaP;
     const sec = meta.seconds || 0;
     curTrack = {...song, title: meta.title||song.title, channel: meta.channel||song.channel, thumb: meta.thumb||song.thumb, seconds: sec};
-    updateMiniPlayer(curTrack.title, curTrack.channel, curTrack.thumb, 0, sec);
-    updateOverlay(curTrack.title, curTrack.channel, curTrack.thumb, 0, sec);
+    updateMiniPlayer(curTrack.title, curTrack.channel, curTrack.thumb);
+    updateOverlay(curTrack.title, curTrack.channel, curTrack.thumb);
     updateProg(Math.floor(aud.currentTime||0), sec);
+    setOverlayBg(curTrack.thumb);
     toast('▶ '+curTrack.title.slice(0,38));
   } catch(e) {
     toast('❌ Could not load. Try again.');
@@ -587,36 +778,53 @@ function togglePlay() {
 function toggleRepeat() {
   repeatOn = !repeatOn;
   aud.loop = repeatOn;
-  const btn = document.getElementById('ovRepeatBtn');
-  btn.classList.toggle('active', repeatOn);
+  document.getElementById('ovRepeatBtn').classList.toggle('active', repeatOn);
   toast(repeatOn ? '🔁 Repeat On' : '🔁 Repeat Off');
+}
+
+function toggleShuffle() {
+  shuffleOn = !shuffleOn;
+  document.getElementById('ovShuffleBtn').classList.toggle('active', shuffleOn);
+  toast(shuffleOn ? '🔀 Shuffle On' : '🔀 Shuffle Off');
 }
 
 function toggleLike() {
   if (!curTrack) return;
   const key = curTrack.id;
+  if (likedSet.has(key)) {
+    likedSet.delete(key);
+    toast('Removed from liked');
+  } else {
+    likedSet.set(key, {...curTrack});
+    toast('❤️ Added to liked');
+  }
+  updateLikeBtn();
+  document.getElementById('bn-liked').classList.toggle('has-badge', likedSet.size > 0);
+}
+
+function updateLikeBtn() {
+  const liked = curTrack && likedSet.has(curTrack.id);
   const btn = document.getElementById('ovLike');
-  if (likedSet.has(key)) { likedSet.delete(key); btn.textContent='🤍'; btn.classList.remove('liked'); toast('Removed from liked'); }
-  else { likedSet.add(key); btn.textContent='❤️'; btn.classList.add('liked'); toast('❤️ Added to liked'); }
+  btn.textContent = liked ? '❤️' : '🤍';
+  btn.classList.toggle('liked', !!liked);
 }
 
 function prevSong() {
+  if (aud.currentTime > 3) { aud.currentTime = 0; return; }
   if (histIdx > 0) { histIdx--; playSong(history[histIdx]); }
-  else { aud.currentTime=0; }
+  else { aud.currentTime = 0; }
 }
 
 function nextSong() {
-  // First try next in the full songs list (like Spotify autoplay)
+  if (shuffleOn && allSongs.length > 1) {
+    let idx; do { idx = Math.floor(Math.random() * allSongs.length); } while (allSongs[idx]?.id === curTrack?.id && allSongs.length > 1);
+    playSong(allSongs[idx]); return;
+  }
   if (curTrack && allSongs.length) {
     const idx = allSongs.findIndex(s => s.id === curTrack.id);
-    if (idx !== -1 && idx + 1 < allSongs.length) {
-      playSong(allSongs[idx + 1]);
-      return;
-    }
-    // If at end of list, wrap around to first song
+    if (idx !== -1 && idx + 1 < allSongs.length) { playSong(allSongs[idx+1]); return; }
     if (allSongs.length) { playSong(allSongs[0]); return; }
   }
-  // Fallback: next in history
   if (histIdx < history.length-1) { histIdx++; playSong(history[histIdx]); }
   else toast('🎵 No next song');
 }
@@ -631,6 +839,27 @@ function shareSong() {
 function seekTo(val) {
   const dur = curTrack?.seconds || aud.duration || 0;
   if (dur > 0) { aud.currentTime = val/100*dur; }
+}
+
+// Volume
+function setVolume(val) {
+  aud.volume = val/100;
+  const slider = document.getElementById('volSlider');
+  slider.style.setProperty('--vol', val+'%');
+  lastVol = val;
+  volMuted = val == 0;
+}
+
+function toggleMute() {
+  if (volMuted) {
+    setVolume(lastVol||80);
+    document.getElementById('volSlider').value = lastVol||80;
+  } else {
+    lastVol = aud.volume * 100;
+    setVolume(0);
+    document.getElementById('volSlider').value = 0;
+  }
+  volMuted = !volMuted;
 }
 
 aud.addEventListener('ended', () => {
@@ -651,20 +880,32 @@ function startProgTimer() {
 function updateProg(played, total) {
   const pct = total>0 ? Math.min(played/total*100,100) : 0;
   const prog = document.getElementById('ovProg');
-  prog.value = pct; prog.style.setProperty('--prog', pct+'%');
+  prog.value = pct;
+  document.getElementById('ovProgFill').style.width = pct+'%';
   document.getElementById('ovPlayed').textContent = fmt(played);
   document.getElementById('ovTotal').textContent = fmt(total);
-  document.getElementById('miniProg').style.width = pct+'%';
+  document.getElementById('miniProgFill').style.width = pct+'%';
 }
 
 function setPlayBtns(isPlaying) {
-  const icon = isPlaying ? '⏸' : '▶';
   document.getElementById('ovPlayBtn').textContent = isPlaying ? '⏸' : '▶';
   document.getElementById('miniPlayBtn').textContent = isPlaying ? '⏸' : '▶';
   document.getElementById('ovArt').classList.toggle('playing', isPlaying);
 }
 
-function updateMiniPlayer(title, artist, thumb, played, total) {
+function setOverlayBg(thumb) {
+  if (thumb) document.getElementById('ovBg').style.backgroundImage = `url(${thumb})`;
+}
+
+function updateCardHighlight() {
+  document.querySelectorAll('.card.now-playing').forEach(c => c.classList.remove('now-playing'));
+  if (curTrack) {
+    const el = document.getElementById('card-'+curTrack.id);
+    if (el) el.classList.add('now-playing');
+  }
+}
+
+function updateMiniPlayer(title, artist, thumb) {
   document.getElementById('miniTitle').textContent = title||'';
   document.getElementById('miniArtist').textContent = artist||'';
   const art = document.getElementById('miniArt');
@@ -673,31 +914,29 @@ function updateMiniPlayer(title, artist, thumb, played, total) {
   document.getElementById('miniPlayer').classList.add('show');
 }
 
-function updateOverlay(title, artist, thumb, played, total) {
+function updateOverlay(title, artist, thumb) {
   document.getElementById('ovTitle').textContent = title||'—';
-  document.getElementById('ovArtist').textContent = artist||'';
+  document.getElementById('ovArtist').textContent = artist||'—';
   const artEl = document.getElementById('ovArt');
   const imgEl = document.getElementById('ovArtImg');
   if (thumb) {
-    // Remove text nodes only, keep the img element in DOM
     Array.from(artEl.childNodes).forEach(n => { if (n.nodeType === 3) n.remove(); });
     if (!artEl.contains(imgEl)) artEl.appendChild(imgEl);
     imgEl.src = thumb;
     imgEl.style.display = 'block';
+    setOverlayBg(thumb);
   } else {
     imgEl.style.display = 'none';
     imgEl.src = '';
-    Array.from(artEl.childNodes).forEach(n => { if (n.nodeType === 3) n.remove(); });
-    if (!artEl.childNodes.length) artEl.textContent = '🎵';
+    if (!artEl.textContent.trim()) artEl.textContent = '🎵';
   }
-  const liked = curTrack && likedSet.has(curTrack.id);
-  document.getElementById('ovLike').textContent = liked?'❤️':'🤍';
-  document.getElementById('ovLike').classList.toggle('liked', liked);
+  updateLikeBtn();
 }
 
 // ── Overlay ───────────────────────────────────────────────────
 function openOverlay() {
   document.getElementById('songOverlay').classList.add('open');
+  if (curOvTab === 'queue') renderQueue();
 }
 function closeOverlay() {
   document.getElementById('songOverlay').classList.remove('open');
@@ -714,7 +953,7 @@ ov.addEventListener('touchmove', e => {
 ov.addEventListener('touchend', e => {
   const dy = e.changedTouches[0].clientY - touchStartY;
   ov.style.transform = '';
-  if (dy > 100) closeOverlay();
+  if (dy > 90) closeOverlay();
 });
 
 // ── Helpers ───────────────────────────────────────────────────

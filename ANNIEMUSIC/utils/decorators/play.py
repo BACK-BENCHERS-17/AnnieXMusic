@@ -122,7 +122,14 @@ def PlayWrapper(command):
             fplay = None
 
         if not await is_active_chat(chat_id):
-            userbot = await get_assistant(chat_id)
+            try:
+                userbot = await get_assistant(chat_id)
+            except (IndexError, ValueError):
+                return await message.reply_text(
+                    "❌ <b>ᴄᴏᴜʟᴅɴ'ᴛ ᴘʟᴀʏ</b>\n\n"
+                    "ɴᴏ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ɪs ᴄᴏɴɴᴇᴄᴛᴇᴅ.\n"
+                    "ᴘʟᴇᴀsᴇ ᴀᴅᴅ ᴀɴ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ."
+                )
             try:
                 try:
                     member = await app.get_chat_member(chat_id, userbot.id)
