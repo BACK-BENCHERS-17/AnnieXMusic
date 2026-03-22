@@ -52,11 +52,36 @@ def _has_nsfw(text: str) -> bool:
 
 
 def _get_file_id(message: Message):
-    if message.photo:      return message.photo.file_id
-    if message.sticker:    return message.sticker.file_id
-    if message.animation:  return message.animation.file_id
-    if message.video:      return message.video.file_id
-    if message.document:   return message.document.file_id
+    if message.document:
+        if message.document.file_size and int(message.document.file_size) > 5245728:
+            return None
+        if message.document.mime_type not in ("image/png", "image/jpeg"):
+            return None
+        return message.document.file_id
+
+    if message.sticker:
+        if message.sticker.is_animated or message.sticker.is_video:
+            thumbs = message.sticker.thumbs
+            if not thumbs:
+                return None
+            return thumbs[0].file_id
+        return message.sticker.file_id
+
+    if message.photo:
+        return message.photo.file_id
+
+    if message.animation:
+        thumbs = message.animation.thumbs
+        if not thumbs:
+            return None
+        return thumbs[0].file_id
+
+    if message.video:
+        thumbs = message.video.thumbs
+        if not thumbs:
+            return None
+        return thumbs[0].file_id
+
     return None
 
 
@@ -77,19 +102,28 @@ def _convert_to_png(path: str):
 
 
 async def _upload_to_telegraph(path: str) -> str | None:
-    """Upload a file to Telegraph and return its public URL."""
+    """Upload a file to graph.org and return its public URL."""
     try:
-        async with httpx.AsyncClient(timeout=20) as client:
-            with open(path, "rb") as f:
-                resp = await client.post(
-                    "https://telegra.ph/upload",
-                    files={"file": ("image.png", f, "image/png")},
-                )
-            data = resp.json()
-            if isinstance(data, list) and data:
-                return "https://telegra.ph" + data[0]["src"]
+        async with httpx.AsyncClient(http2=True, timeout=20) as client:
+            resp = await client.post(
+                "https://graph.org/upload",
+                files={"file": open(path, "rb")},
+            )
+        if resp.status_code != 200:
+            return None
+        data = resp.json()
+        if "error" in data:
+            return None
+        if isinstance(data, list) and data:
+            return "https://graph.org" + data[0]["src"]
     except Exception:
         traceback.print_exc()
+    finally:
+        if os.path.exists(path):
+            try:
+                os.remove(path)
+            except Exception:
+                pass
     return None
 
 
@@ -111,7 +145,7 @@ async def _lexica_check(img_url: str) -> bool | None:
 
 
 async def _is_visual_nsfw(telegram_client: Client, file_id: str) -> bool:
-    """Download media, upload to Telegraph, check with Lexica AntiNsfw."""
+    """Download media, upload to graph.org, check with Lexica AntiNsfw."""
     path = None
     try:
         path = await telegram_client.download_media(file_id)
@@ -120,13 +154,17 @@ async def _is_visual_nsfw(telegram_client: Client, file_id: str) -> bool:
 
         file_hash = _file_hash(path)
         if file_hash in _nsfw_hash_cache:
+            if os.path.exists(path):
+                os.remove(path)
             return _nsfw_hash_cache[file_hash]
 
-        # Convert jpg/jpeg/webp → PNG (Telegraph handles PNG cleanly)
+        # Convert jpg/jpeg/webp → PNG for cleaner upload
         if any(path.endswith(ext) for ext in ("jpg", "jpeg", "webp")):
             _convert_to_png(path)
 
+        # _upload_to_telegraph removes the file in its finally block
         img_url = await _upload_to_telegraph(path)
+        path = None  # file already removed by upload function
         if not img_url:
             return False
 
