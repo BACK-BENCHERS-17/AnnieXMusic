@@ -15,7 +15,7 @@ gtts
 heroku3
 httpx[http2]==0.28.1
 kurigram==2.2.19
-pyrogram
+pyrofork
 lexica-api
 motor
 nekosbest
@@ -74,7 +74,7 @@ pycryptodome
 pycryptodomex
 pydub
 pyfiglet
-pyrogram
+pyrofork
 pyshorteners
 python-dotenv
 python-whois
@@ -108,7 +108,7 @@ numpy
 pillow==12.1.1
 psutil
 py-tgcalls==2.2.11
-pyrogram
+pyrofork
 pycryptodome
 pycryptodomex
 pydub
