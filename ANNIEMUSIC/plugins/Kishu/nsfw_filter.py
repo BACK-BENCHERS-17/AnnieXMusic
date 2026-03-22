@@ -11,6 +11,7 @@ from pyrogram import Client, filters, enums
 from pyrogram.types import Message
 
 from ANNIEMUSIC import app
+from config import LOGGER_ID
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Keyword lists (text / caption filter)
@@ -186,21 +187,48 @@ async def _is_visual_nsfw(telegram_client: Client, file_id: str) -> bool:
                 pass
 
 
-async def _try_delete(message: Message, reason: str):
-    try:
-        await message.delete()
-    except Exception:
-        pass
-    try:
-        alert = await message.chat.send_message(
-            f"⛔ **Content Removed**\n"
-            f"A message containing **{reason}** has been automatically deleted.\n"
-            f"This group has a strict **No NSFW / No Illegal Content** policy."
-        )
-        await asyncio.sleep(8)
-        await alert.delete()
-    except Exception:
-        pass
+async def _try_delete(client: Client, message: Message, reason: str, is_group: bool):
+    if is_group:
+        # Groups: bot can delete if it is admin
+        try:
+            await message.delete()
+        except Exception:
+            pass
+        try:
+            alert = await message.chat.send_message(
+                f"⛔ **Content Removed**\n"
+                f"A message containing **{reason}** has been automatically deleted.\n"
+                f"This group has a strict **No NSFW / No Illegal Content** policy."
+            )
+            await asyncio.sleep(8)
+            await alert.delete()
+        except Exception:
+            pass
+    else:
+        # DMs: bot cannot delete user messages — forward to log channel + warn user
+        try:
+            user = message.from_user
+            user_mention = user.mention if user else "Unknown"
+            user_id = user.id if user else "N/A"
+            await client.forward_messages(LOGGER_ID, message.chat.id, message.id)
+            await client.send_message(
+                LOGGER_ID,
+                f"⚠️ **NSFW Content Detected in DM**\n"
+                f"👤 User: {user_mention} (`{user_id}`)\n"
+                f"📌 Reason: **{reason}**\n"
+                f"⚠️ Note: Cannot delete DM messages — content forwarded for admin review."
+            )
+        except Exception:
+            traceback.print_exc()
+        try:
+            await message.reply(
+                f"⛔ **Warning!**\n"
+                f"You sent content that violates our **No NSFW / No Illegal Content** policy.\n"
+                f"Reason: **{reason}**\n\n"
+                f"This has been reported to the admins. Repeated violations may result in a ban."
+            )
+        except Exception:
+            pass
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -219,27 +247,27 @@ async def nsfw_guard(client: Client, message: Message):
     # ── 1. Text / caption keyword check ─────────────────────────────────
     text = message.text or message.caption or ""
     if _has_nsfw(text):
-        return await _try_delete(message, "18+ / illegal / drug-related content")
+        return await _try_delete(client, message, "18+ / illegal / drug-related content", is_group)
 
     # ── 2. Stickers ──────────────────────────────────────────────────────
     if message.sticker:
         if is_group:
-            return await _try_delete(message, "sticker (not allowed in this group)")
+            return await _try_delete(client, message, "sticker (not allowed in this group)", is_group)
         # DM: keyword check first, then visual scan
         set_name = (message.sticker.set_name or "").lower()
         emoji    = (message.sticker.emoji    or "").lower()
         kws = ["nsfw", "adult", "sex", "porn", "nude", "lewd", "hentai",
                "xxx", "erotic", "18", "drug", "weed"]
         if any(k in set_name for k in kws) or _has_nsfw(emoji) or _has_nsfw(set_name):
-            return await _try_delete(message, "NSFW sticker pack")
+            return await _try_delete(client, message, "NSFW sticker pack", is_group)
         file_id = _get_file_id(message)
         if file_id:
             if await _is_visual_nsfw(client, file_id):
-                return await _try_delete(message, "18+ sticker")
+                return await _try_delete(client, message, "18+ sticker", is_group)
 
     # ── 3. Visual scan — photos, videos, animations, documents ───────────
     if message.photo or message.video or message.animation or message.document:
         file_id = _get_file_id(message)
         if file_id:
             if await _is_visual_nsfw(client, file_id):
-                return await _try_delete(message, "18+ visual content")
+                return await _try_delete(client, message, "18+ visual content", is_group)
