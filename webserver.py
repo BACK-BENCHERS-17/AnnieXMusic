@@ -1,14 +1,15 @@
 import os
+import sys
 import time
 import threading
 import psutil
 from flask import Flask, jsonify, send_from_directory
 
+WEB_DIR = os.path.join(os.path.dirname(__file__), 'ANNIEMUSIC', 'utils', 'web')
+
 app = Flask(__name__)
 
 _boot_time = time.time()
-
-WEB_DIR = os.path.join(os.path.dirname(__file__), 'web')
 
 @app.route('/')
 def index():
@@ -23,16 +24,16 @@ def api_status():
         db = {}
         boot_time = _boot_time
 
-    active_chats = []
+    active_chats_data = []
     for chat_id, queue in db.items():
         if not queue:
             continue
         current = queue[0]
         vidid = current.get("vidid", "")
         thumb = ""
-        if vidid and len(vidid) == 11:
+        if vidid and len(str(vidid)) == 11:
             thumb = f"https://img.youtube.com/vi/{vidid}/hqdefault.jpg"
-        active_chats.append({
+        active_chats_data.append({
             "chat_id": chat_id,
             "current": {
                 "title": current.get("title", "Unknown"),
@@ -76,21 +77,18 @@ def api_status():
     return jsonify({
         "status": "online",
         "uptime": uptime_str,
-        "active_chats": len(active_chats),
+        "active_chats": len(active_chats_data),
         "cpu": cpu,
         "ram_used": ram_used,
         "ram_total": ram_total,
         "ram_percent": ram_percent,
-        "chats": active_chats,
+        "chats": active_chats_data,
     })
 
 @app.route('/api/health')
-def health_check():
+def health():
     return jsonify({"status": "alive"}), 200
 
-def start_health_server():
-    port = int(os.environ.get('PORT', 8080))
-    threading.Thread(
-        target=lambda: app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False),
-        daemon=True
-    ).start()
+if __name__ == '__main__':
+    port = int(os.environ.get('WEB_PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
