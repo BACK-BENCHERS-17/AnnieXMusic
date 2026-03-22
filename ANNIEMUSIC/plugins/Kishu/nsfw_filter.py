@@ -249,11 +249,8 @@ async def nsfw_guard(client: Client, message: Message):
     if _has_nsfw(text):
         return await _try_delete(client, message, "18+ / illegal / drug-related content", is_group)
 
-    # ── 2. Stickers ──────────────────────────────────────────────────────
+    # ── 2. Stickers — keyword check + visual scan (groups & DMs) ────────
     if message.sticker:
-        if is_group:
-            return await _try_delete(client, message, "sticker (not allowed in this group)", is_group)
-        # DM: keyword check first, then visual scan
         set_name = (message.sticker.set_name or "").lower()
         emoji    = (message.sticker.emoji    or "").lower()
         kws = ["nsfw", "adult", "sex", "porn", "nude", "lewd", "hentai",
