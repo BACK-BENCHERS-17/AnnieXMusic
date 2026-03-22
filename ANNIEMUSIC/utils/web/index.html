@@ -545,23 +545,24 @@ async function playSong(song) {
   toast('⏳ Loading…');
 
   try {
-    // Fetch metadata
+    // Fetch metadata in background
     const metaP = fetch(`/api/stream?v=${song.id}`).then(r=>r.json()).catch(()=>({}));
     aud.src = `/api/audio?v=${song.id}`;
-    aud.load();
     aud.loop = repeatOn;
-
-    const meta = await metaP;
-    const sec = meta.seconds || 0;
-    curTrack = {...song, title: meta.title||song.title, channel: meta.channel||song.channel, thumb: meta.thumb||song.thumb, seconds: sec};
-
-    updateMiniPlayer(curTrack.title, curTrack.channel, curTrack.thumb, 0, sec);
-    updateOverlay(curTrack.title, curTrack.channel, curTrack.thumb, 0, sec);
-
-    await aud.play();
+    // Call play() immediately within user gesture context (before any await)
+    const playP = aud.play();
     playing = true;
     setPlayBtns(true);
     startProgTimer();
+
+    // Update UI with metadata once it arrives
+    const meta = await metaP;
+    const sec = meta.seconds || 0;
+    curTrack = {...song, title: meta.title||song.title, channel: meta.channel||song.channel, thumb: meta.thumb||song.thumb, seconds: sec};
+    updateMiniPlayer(curTrack.title, curTrack.channel, curTrack.thumb, 0, sec);
+    updateOverlay(curTrack.title, curTrack.channel, curTrack.thumb, 0, sec);
+
+    await playP;
     toast('▶ '+curTrack.title.slice(0,38));
   } catch(e) {
     toast('❌ Could not load. Try again.');
