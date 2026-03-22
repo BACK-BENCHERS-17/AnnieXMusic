@@ -59,7 +59,7 @@ async def _try_delete(message: Message, reason: str):
 
 
 @app.on_message(
-    ~filters.private & ~filters.bot,
+    ~filters.bot,
     group=-5,
 )
 async def nsfw_guard(client: Client, message: Message):
