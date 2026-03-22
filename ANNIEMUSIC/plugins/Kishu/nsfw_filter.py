@@ -3,18 +3,49 @@ import os
 import asyncio
 import hashlib
 import traceback
+import logging
 
-import httpx
 from PIL import Image
-from lexica import AsyncClient
+from nudenet import NudeDetector
 from pyrogram import Client, filters, enums
 from pyrogram.types import Message
 
 from ANNIEMUSIC import app
 from config import LOGGER_ID
 
+logger = logging.getLogger(__name__)
+
 # ─────────────────────────────────────────────────────────────────────────────
-# Keyword lists (text / caption filter)
+# Nudenet setup
+# ─────────────────────────────────────────────────────────────────────────────
+try:
+    _detector = NudeDetector()
+    _NUDE_OK = True
+    logger.info("NudeDetector loaded successfully.")
+except Exception as e:
+    _detector = None
+    _NUDE_OK = False
+    logger.error(f"NudeDetector failed to load: {e}")
+
+# Classes that indicate explicit NSFW content
+_NSFW_CLASSES = {
+    "FEMALE_GENITALIA_EXPOSED",
+    "MALE_GENITALIA_EXPOSED",
+    "FEMALE_BREAST_EXPOSED",
+    "ANUS_EXPOSED",
+    "BUTTOCKS_EXPOSED",
+    "FEMALE_GENITALIA_COVERED",
+    "MALE_GENITALIA_COVERED",
+}
+
+# Lower threshold = more sensitive detection
+_THRESHOLD = 0.35
+
+# In-memory hash cache to avoid re-scanning same files
+_nsfw_hash_cache: dict[str, bool] = {}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Keyword filter (text / captions / sticker pack names)
 # ─────────────────────────────────────────────────────────────────────────────
 NSFW_KEYWORDS = [
     "sex", "sexy", "nude", "naked", "porn", "pornography", "xxx", "adult",
@@ -41,31 +72,27 @@ NSFW_PATTERN = re.compile(
     r"(?i)\b(" + "|".join(re.escape(k.strip()) for k in NSFW_KEYWORDS) + r")\b"
 )
 
-# In-memory NSFW hash cache (sha256 → True/False)
-_nsfw_hash_cache: dict[str, bool] = {}
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Helpers
-# ─────────────────────────────────────────────────────────────────────────────
-def _has_nsfw(text: str) -> bool:
+def _has_nsfw_text(text: str) -> bool:
     return bool(NSFW_PATTERN.search(text)) if text else False
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# File helpers
+# ─────────────────────────────────────────────────────────────────────────────
 def _get_file_id(message: Message):
+    """Get scannable file_id — use thumbnail for video/animated stickers."""
     if message.document:
-        if message.document.file_size and int(message.document.file_size) > 5245728:
+        if message.document.file_size and int(message.document.file_size) > 5_000_000:
             return None
-        if message.document.mime_type not in ("image/png", "image/jpeg"):
+        if message.document.mime_type not in ("image/png", "image/jpeg", "image/webp"):
             return None
         return message.document.file_id
 
     if message.sticker:
         if message.sticker.is_animated or message.sticker.is_video:
             thumbs = message.sticker.thumbs
-            if not thumbs:
-                return None
-            return thumbs[0].file_id
+            return thumbs[0].file_id if thumbs else None
         return message.sticker.file_id
 
     if message.photo:
@@ -73,15 +100,11 @@ def _get_file_id(message: Message):
 
     if message.animation:
         thumbs = message.animation.thumbs
-        if not thumbs:
-            return None
-        return thumbs[0].file_id
+        return thumbs[0].file_id if thumbs else None
 
     if message.video:
         thumbs = message.video.thumbs
-        if not thumbs:
-            return None
-        return thumbs[0].file_id
+        return thumbs[0].file_id if thumbs else None
 
     return None
 
@@ -94,145 +117,114 @@ def _file_hash(path: str) -> str:
     return h.hexdigest()
 
 
-def _convert_to_png(path: str):
+def _to_png(path: str) -> str:
+    """Convert any image to PNG for consistent nudenet processing."""
     try:
-        img = Image.open(path)
-        img.save(path, "PNG")
-    except Exception:
-        pass
+        img = Image.open(path).convert("RGB")
+        png_path = path + ".png"
+        img.save(png_path, "PNG")
+        return png_path
+    except Exception as e:
+        logger.error(f"Image conversion failed: {e}")
+        return path
 
 
-async def _upload_to_telegraph(path: str) -> str | None:
-    """Upload a file to graph.org and return its public URL."""
-    try:
-        async with httpx.AsyncClient(http2=True, timeout=20) as client:
-            resp = await client.post(
-                "https://graph.org/upload",
-                files={"file": open(path, "rb")},
-            )
-        if resp.status_code != 200:
-            return None
-        data = resp.json()
-        if "error" in data:
-            return None
-        if isinstance(data, list) and data:
-            return "https://graph.org" + data[0]["src"]
-    except Exception:
-        traceback.print_exc()
-    finally:
-        if os.path.exists(path):
-            try:
-                os.remove(path)
-            except Exception:
-                pass
-    return None
+# ─────────────────────────────────────────────────────────────────────────────
+# Core visual NSFW check (nudenet, fully local)
+# ─────────────────────────────────────────────────────────────────────────────
+async def _is_visual_nsfw(tg_client: Client, file_id: str) -> bool:
+    if not _NUDE_OK:
+        logger.warning("NudeDetector not available, skipping visual scan.")
+        return False
 
-
-async def _lexica_check(img_url: str) -> bool | None:
-    """Return True if NSFW, False if safe, None on API error."""
-    try:
-        client = AsyncClient()
-        result = await client.AntiNsfw(img_url)
-        await client.close()
-        if result and result.get("code") == 2:
-            sfw = result.get("content", {}).get("sfw")
-            if sfw is True:
-                return False
-            if sfw is False:
-                return True
-    except Exception:
-        traceback.print_exc()
-    return None
-
-
-async def _is_visual_nsfw(telegram_client: Client, file_id: str) -> bool:
-    """Download media, upload to graph.org, check with Lexica AntiNsfw."""
     path = None
+    png_path = None
     try:
-        path = await telegram_client.download_media(file_id)
+        path = await tg_client.download_media(file_id)
         if not path or not os.path.exists(path):
+            logger.warning(f"Download failed for file_id: {file_id}")
             return False
 
+        logger.info(f"[NSFW] Downloaded: {path} ({os.path.getsize(path)} bytes)")
+
+        # Check cache
         file_hash = _file_hash(path)
         if file_hash in _nsfw_hash_cache:
-            if os.path.exists(path):
-                os.remove(path)
+            logger.info(f"[NSFW] Cache hit: {_nsfw_hash_cache[file_hash]}")
             return _nsfw_hash_cache[file_hash]
 
-        # Convert jpg/jpeg/webp → PNG for cleaner upload
-        if any(path.endswith(ext) for ext in ("jpg", "jpeg", "webp")):
-            _convert_to_png(path)
+        # Convert to PNG for consistent processing
+        png_path = _to_png(path)
 
-        # _upload_to_telegraph removes the file in its finally block
-        img_url = await _upload_to_telegraph(path)
-        path = None  # file already removed by upload function
-        if not img_url:
-            return False
+        # Run nudenet
+        detections = _detector.detect(png_path)
+        logger.info(f"[NSFW] Detections: {detections}")
 
-        result = await _lexica_check(img_url)
-        if result is None:
-            return False
+        is_nsfw = any(
+            det.get("class") in _NSFW_CLASSES and det.get("score", 0) >= _THRESHOLD
+            for det in detections
+        )
 
-        _nsfw_hash_cache[file_hash] = result
-        return result
+        _nsfw_hash_cache[file_hash] = is_nsfw
+        logger.info(f"[NSFW] Result: {'NSFW' if is_nsfw else 'SAFE'}")
+        return is_nsfw
 
     except Exception:
-        traceback.print_exc()
+        logger.error(f"[NSFW] Visual scan error:\n{traceback.format_exc()}")
         return False
     finally:
-        if path and os.path.exists(path):
-            try:
-                os.remove(path)
-            except Exception:
-                pass
+        for p in [path, png_path]:
+            if p and os.path.exists(p):
+                try:
+                    os.remove(p)
+                except Exception:
+                    pass
 
 
-async def _try_delete(client: Client, message: Message, reason: str, is_group: bool):
+# ─────────────────────────────────────────────────────────────────────────────
+# Delete / warn handler
+# ─────────────────────────────────────────────────────────────────────────────
+async def _handle_violation(client: Client, message: Message, reason: str, is_group: bool):
     if is_group:
-        # Groups: bot can delete if it is admin
         try:
             await message.delete()
-        except Exception:
-            pass
+            logger.info(f"[NSFW] Deleted group message. Reason: {reason}")
+        except Exception as e:
+            logger.error(f"[NSFW] Could not delete group message: {e}")
         try:
             alert = await message.chat.send_message(
                 f"⛔ **Content Removed**\n"
-                f"A message containing **{reason}** has been automatically deleted.\n"
-                f"This group has a strict **No NSFW / No Illegal Content** policy."
+                f"Reason: **{reason}**\n"
+                f"This group enforces a strict **No NSFW / No Illegal Content** policy."
             )
             await asyncio.sleep(8)
             await alert.delete()
         except Exception:
             pass
     else:
-        # DMs: bot cannot delete user messages — forward to log channel + warn user
+        # DMs: bots cannot delete user messages — log + warn
         try:
             user = message.from_user
-            user_mention = user.mention if user else "Unknown"
-            user_id = user.id if user else "N/A"
+            uid = user.id if user else "N/A"
+            mention = user.mention if user else "Unknown"
             await client.forward_messages(LOGGER_ID, message.chat.id, message.id)
             await client.send_message(
                 LOGGER_ID,
-                f"⚠️ **NSFW Content Detected in DM**\n"
-                f"👤 User: {user_mention} (`{user_id}`)\n"
-                f"📌 Reason: **{reason}**\n"
-                f"⚠️ Note: Cannot delete DM messages — content forwarded for admin review."
+                f"⚠️ **NSFW in DM**\nUser: {mention} (`{uid}`)\nReason: {reason}"
             )
         except Exception:
-            traceback.print_exc()
+            pass
         try:
             await message.reply(
-                f"⛔ **Warning!**\n"
-                f"You sent content that violates our **No NSFW / No Illegal Content** policy.\n"
-                f"Reason: **{reason}**\n\n"
-                f"This has been reported to the admins. Repeated violations may result in a ban."
+                f"⛔ **Warning!** You sent **{reason}**.\n"
+                f"This violates our policy and has been reported to admins."
             )
         except Exception:
             pass
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Main handler — always ON, no toggle
+# Main handler — permanently ON, no toggle
 # ─────────────────────────────────────────────────────────────────────────────
 @app.on_message(~filters.bot, group=-5)
 async def nsfw_guard(client: Client, message: Message):
@@ -244,27 +236,29 @@ async def nsfw_guard(client: Client, message: Message):
         enums.ChatType.SUPERGROUP,
     )
 
-    # ── 1. Text / caption keyword check ─────────────────────────────────
+    # ── 1. Text / caption keyword check ────────────────────────────────
     text = message.text or message.caption or ""
-    if _has_nsfw(text):
-        return await _try_delete(client, message, "18+ / illegal / drug-related content", is_group)
+    if _has_nsfw_text(text):
+        return await _handle_violation(client, message, "18+ / illegal / drug content in text", is_group)
 
-    # ── 2. Stickers — keyword check + visual scan (groups & DMs) ────────
+    # ── 2. Stickers — keyword check + visual scan ───────────────────────
     if message.sticker:
         set_name = (message.sticker.set_name or "").lower()
         emoji    = (message.sticker.emoji    or "").lower()
-        kws = ["nsfw", "adult", "sex", "porn", "nude", "lewd", "hentai",
-               "xxx", "erotic", "18", "drug", "weed"]
-        if any(k in set_name for k in kws) or _has_nsfw(emoji) or _has_nsfw(set_name):
-            return await _try_delete(client, message, "NSFW sticker pack", is_group)
+        kws = [
+            "nsfw", "adult", "sex", "porn", "nude", "lewd", "hentai",
+            "xxx", "erotic", "18", "drug", "weed", "naked", "boob",
+        ]
+        if any(k in set_name for k in kws) or _has_nsfw_text(set_name) or _has_nsfw_text(emoji):
+            return await _handle_violation(client, message, "NSFW sticker pack", is_group)
         file_id = _get_file_id(message)
         if file_id:
             if await _is_visual_nsfw(client, file_id):
-                return await _try_delete(client, message, "18+ sticker", is_group)
+                return await _handle_violation(client, message, "18+ sticker content", is_group)
 
-    # ── 3. Visual scan — photos, videos, animations, documents ───────────
+    # ── 3. Visual scan — photos, videos, animations, documents ──────────
     if message.photo or message.video or message.animation or message.document:
         file_id = _get_file_id(message)
         if file_id:
             if await _is_visual_nsfw(client, file_id):
-                return await _try_delete(client, message, "18+ visual content", is_group)
+                return await _handle_violation(client, message, "18+ visual content", is_group)
