@@ -75,19 +75,26 @@ async def nsfw_guard(client: Client, message: Message):
     if _has_nsfw(text):
         return await _try_delete(message, "18+ / illegal / drug-related content")
 
-    # ── 2. Check stickers ────────────────────────────────────────────────
+    # ── 2. Stickers ──────────────────────────────────────────────────────
     if message.sticker:
-        sticker = message.sticker
-        set_name = (sticker.set_name or "").lower()
-        emoji    = (sticker.emoji or "").lower()
-        nsfw_sticker_keywords = [
-            "nsfw", "adult", "sex", "porn", "nude", "lewd", "hentai",
-            "xxx", "erotic", "18", "drug", "weed",
-        ]
-        if any(k in set_name for k in nsfw_sticker_keywords):
-            return await _try_delete(message, "NSFW sticker pack")
-        if _has_nsfw(emoji) or _has_nsfw(set_name):
-            return await _try_delete(message, "NSFW sticker")
+        is_group = message.chat.type in (
+            enums.ChatType.GROUP,
+            enums.ChatType.SUPERGROUP,
+        )
+        if is_group:
+            return await _try_delete(message, "sticker (not allowed in this group)")
+        else:
+            sticker  = message.sticker
+            set_name = (sticker.set_name or "").lower()
+            emoji    = (sticker.emoji or "").lower()
+            nsfw_sticker_keywords = [
+                "nsfw", "adult", "sex", "porn", "nude", "lewd", "hentai",
+                "xxx", "erotic", "18", "drug", "weed",
+            ]
+            if any(k in set_name for k in nsfw_sticker_keywords):
+                return await _try_delete(message, "NSFW sticker pack")
+            if _has_nsfw(emoji) or _has_nsfw(set_name):
+                return await _try_delete(message, "NSFW sticker")
 
     # ── 3. Check photos / videos / documents by caption ─────────────────
     if message.photo or message.video or message.document or message.animation:
