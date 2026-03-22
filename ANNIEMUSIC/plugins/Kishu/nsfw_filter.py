@@ -36,7 +36,7 @@ _NSFW_EXPOSED = {
     "ANUS_EXPOSED",
     "BUTTOCKS_EXPOSED",
 }
-# Covered/semi-covered body parts (higher threshold to reduce false positives)
+# Covered/semi-covered body parts (lower threshold for better detection)
 _NSFW_COVERED = {
     "FEMALE_GENITALIA_COVERED",
     "MALE_GENITALIA_COVERED",
@@ -44,8 +44,8 @@ _NSFW_COVERED = {
     "BUTTOCKS_COVERED",
 }
 
-_THRESHOLD_EXPOSED = 0.35   # more sensitive for explicit content
-_THRESHOLD_COVERED = 0.60   # stricter for covered/partial content
+_THRESHOLD_EXPOSED = 0.25   # more sensitive — catch more exposed content
+_THRESHOLD_COVERED = 0.45   # lowered — catch covered/partial NSFW too
 
 # In-memory hash cache to avoid re-scanning same files
 _nsfw_hash_cache: dict[str, bool] = {}
@@ -84,6 +84,42 @@ def _has_nsfw_text(text: str) -> bool:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Sticker pack keyword list — covers known NSFW packs + generic patterns
+# ─────────────────────────────────────────────────────────────────────────────
+NSFW_STICKER_KEYWORDS = [
+    # generic explicit
+    "nsfw", "adult", "sex", "porn", "nude", "lewd", "hentai",
+    "xxx", "erotic", "18", "drug", "weed", "naked", "boob",
+    "naughty", "kinky", "seduct", "lingerie", "bikini_hot",
+    "hotgirl", "sexygirl", "sexygif", "onlyfans", "slutty",
+    "bdsm", "fetish", "horny", "pussy", "dick", "cock", "ass",
+    "tits", "nipple", "vagina", "penis", "anal", "blowjob",
+    "strip", "camgirl", "explicit", "orgasm", "masturbat",
+    "intercourse", "erotic", "lust", "horny", "fornication",
+    # known NSFW sticker pack names / substrings
+    "wallgif", "wall_gif", "hotanimegirl", "animegirl18",
+    "nsfwanime", "hentaigif", "lewd_anime", "ecchi", "ecchi_",
+    "_ecchi", "ahegao", "oppai", "pantsu", "fundoshi",
+    "nudeanime", "sexyanime", "nakedgirl", "baregirl",
+    "hotgif", "sexypack", "adultpack", "18pack", "18plus",
+    "adult_sticker", "porn_sticker", "explicit_pack",
+    "nudepack", "nsfwpack", "hotpack", "girlpack",
+    "sexypack", "dirtypack", "wetgirl", "slutpack",
+    "bdsm_pack", "kinky_pack", "lingerie_pack",
+    # Hindi/Urdu NSFW pack names
+    "nangi", "nanga", "chut", "lund", "gaand", "randi",
+    "harami", "chudai", "fucking", "fuck",
+]
+
+
+def _has_nsfw_sticker_name(name: str) -> bool:
+    if not name:
+        return False
+    name_lower = name.lower()
+    return any(kw in name_lower for kw in NSFW_STICKER_KEYWORDS)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # File helpers
 # ─────────────────────────────────────────────────────────────────────────────
 def _best_thumb(thumbs) -> str | None:
@@ -106,6 +142,7 @@ def _get_file_id(message: Message):
     if message.sticker:
         if message.sticker.is_animated or message.sticker.is_video:
             return _best_thumb(message.sticker.thumbs)
+        # Static sticker (WebP) — scan full file
         return message.sticker.file_id
 
     if message.photo:
@@ -141,7 +178,33 @@ def _to_png(path: str) -> str:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Core visual NSFW check (nudenet, fully local)
+# Skin-ratio fallback (catches what nudenet misses in small/stylized images)
+# ─────────────────────────────────────────────────────────────────────────────
+def _skin_ratio(path: str) -> float:
+    try:
+        import numpy as np
+        img = Image.open(path).convert("RGB").resize((200, 200))
+        arr = __import__("numpy").array(img, dtype=__import__("numpy").float32)
+        r, g, b = arr[:, :, 0], arr[:, :, 1], arr[:, :, 2]
+        skin_mask = (
+            (r > 95) & (g > 40) & (b > 20) &
+            (r > g) & (r > b) &
+            ((r - g) > 15) &
+            (r < 240) & (g < 200) & (b < 180)
+        )
+        return float(skin_mask.sum()) / (200 * 200)
+    except Exception:
+        return 0.0
+
+
+def _is_skin_nsfw(path: str) -> bool:
+    ratio = _skin_ratio(path)
+    logger.info(f"[NSFW] Skin ratio: {ratio:.2f}")
+    return ratio > 0.38   # 38% skin pixels → flag
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Core visual NSFW check (nudenet + skin-ratio fallback, fully local)
 # ─────────────────────────────────────────────────────────────────────────────
 async def _is_visual_nsfw(tg_client: Client, file_id: str) -> bool:
     if not _NUDE_OK:
@@ -167,7 +230,7 @@ async def _is_visual_nsfw(tg_client: Client, file_id: str) -> bool:
         # Convert to PNG for consistent processing
         png_path = _to_png(path)
 
-        # Run nudenet
+        # ── nudenet scan ────────────────────────────────────────────────
         detections = _detector.detect(png_path)
         logger.info(f"[NSFW] Detections: {detections}")
 
@@ -179,6 +242,10 @@ async def _is_visual_nsfw(tg_client: Client, file_id: str) -> bool:
             )
             for det in detections
         )
+
+        # ── skin-ratio fallback if nudenet didn't flag ──────────────────
+        if not is_nsfw:
+            is_nsfw = _is_skin_nsfw(png_path)
 
         _nsfw_hash_cache[file_hash] = is_nsfw
         logger.info(f"[NSFW] Result: {'NSFW' if is_nsfw else 'SAFE'}")
@@ -275,21 +342,28 @@ async def nsfw_guard(client: Client, message: Message):
 
     # ── 2. Stickers — keyword check + visual scan ───────────────────────
     if message.sticker:
-        set_name = (message.sticker.set_name or "").lower()
-        emoji    = (message.sticker.emoji    or "").lower()
-        kws = [
-            "nsfw", "adult", "sex", "porn", "nude", "lewd", "hentai",
-            "xxx", "erotic", "18", "drug", "weed", "naked", "boob",
-            "wallgif", "wall_gif", "naughty", "kinky", "seduct",
-            "lingerie", "bikini_hot", "hotgirl", "sexygirl", "sexygif",
-            "onlyfans", "slutty", "bdsm", "fetish", "horny",
-        ]
-        if any(k in set_name for k in kws) or _has_nsfw_text(set_name) or _has_nsfw_text(emoji):
+        set_name = message.sticker.set_name or ""
+        emoji    = message.sticker.emoji    or ""
+
+        # Check pack name and emoji with comprehensive keyword list
+        if (
+            _has_nsfw_sticker_name(set_name)
+            or _has_nsfw_text(set_name)
+            or _has_nsfw_text(emoji)
+        ):
             return await _handle_violation(client, message, "NSFW sticker pack", is_group)
+
+        # Visual scan — always attempt for all sticker types
         file_id = _get_file_id(message)
         if file_id:
             if await _is_visual_nsfw(client, file_id):
                 return await _handle_violation(client, message, "18+ sticker content", is_group)
+
+        # Extra: for video/animated stickers without a scannable thumb, delete if pack name is suspicious
+        if (message.sticker.is_video or message.sticker.is_animated) and not file_id:
+            # No thumbnail available — block if ANY hint of adult pack
+            if any(hint in set_name.lower() for hint in ["gif", "hot", "sexy", "girl", "boy", "anime", "ecchi"]):
+                return await _handle_violation(client, message, "Suspicious animated sticker", is_group)
 
     # ── 3. Visual scan — photos, videos, animations, documents ──────────
     if message.photo or message.video or message.animation or message.document:
