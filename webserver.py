@@ -17,9 +17,10 @@ _trending_cache = {"data": [], "ts": 0}
 _CACHE_TTL = 1800  # 30 min
 
 TRENDING_QUERIES = [
-    ("Bollywood Hits 2025", "ytsearch10:bollywood hits trending 2025"),
-    ("International",       "ytsearch10:top hits 2025 pop"),
-    ("Punjabi",             "ytsearch10:punjabi songs trending 2025"),
+    ("Hindi",          "ytsearch10:hindi songs trending 2025"),
+    ("Punjabi",        "ytsearch10:punjabi songs trending 2025"),
+    ("Bollywood",      "ytsearch10:bollywood hits 2025"),
+    ("International",  "ytsearch10:top hits 2025 pop english"),
 ]
 
 def _fetch_trending():
@@ -133,6 +134,7 @@ def api_status():
         cur = queue[0]
         vid = str(cur.get("vidid", ""))
         thumb = f"https://img.youtube.com/vi/{vid}/mqdefault.jpg" if len(vid) == 11 else ""
+        user_id = cur.get("user_id", 0)
         chats_data.append({
             "chat_id": chat_id,
             "current": {
@@ -141,6 +143,8 @@ def api_status():
                 "played":     cur.get("played", 0),
                 "seconds":    cur.get("seconds", 0),
                 "by":         cur.get("by", "Unknown"),
+                "user_id":    user_id,
+                "tg_link":    f"tg://user?id={user_id}" if user_id else "",
                 "streamtype": cur.get("streamtype", "youtube"),
                 "vidid":      vid,
                 "thumbnail":  thumb,
@@ -330,6 +334,36 @@ def api_download():
             )
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route("/api/botinfo")
+def api_botinfo():
+    """Return bot profile info."""
+    try:
+        from config import BOT_NAME, BOT_USERNAME
+    except Exception:
+        BOT_NAME = "Annie X Music"
+        BOT_USERNAME = "ANNIEXMUSICxBOT"
+    has_pfp = os.path.isfile("ANNIEMUSIC/assets/bot_pfp.png")
+    has_upic = os.path.isfile("ANNIEMUSIC/assets/upic.png")
+    pfp_url = "/api/botpfp" if (has_pfp or has_upic) else None
+    return jsonify({
+        "name":     BOT_NAME,
+        "username": BOT_USERNAME,
+        "pfp":      pfp_url,
+        "bio":      "Advanced Telegram Music Bot — streams songs & videos into voice chats using yt-dlp for high-quality audio.",
+        "features": ["YouTube", "Spotify", "Apple Music", "SoundCloud", "Telegram"],
+    })
+
+@app.route("/api/botpfp")
+def api_botpfp():
+    """Serve bot profile picture."""
+    pfp_path = "ANNIEMUSIC/assets/bot_pfp.png"
+    upic_path = "ANNIEMUSIC/assets/upic.png"
+    if os.path.isfile(pfp_path):
+        return send_file(pfp_path, mimetype="image/png")
+    elif os.path.isfile(upic_path):
+        return send_file(upic_path, mimetype="image/png")
+    return jsonify({"error": "No profile picture"}), 404
 
 @app.route("/api/health")
 def health():
