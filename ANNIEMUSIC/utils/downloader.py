@@ -124,6 +124,39 @@ async def _get_session() -> aiohttp.ClientSession:
         return _session
 
 
+async def download_from_cdn_url(vid: str, stream_url: str, ext: str) -> Optional[str]:
+    """Download audio from a CDN URL to a local file. Fast (~1-3s) and reliable."""
+    out_path = f"{_DOWNLOAD_DIR}/{vid}.{ext}"
+    if os.path.exists(out_path) and os.path.getsize(out_path) > 0:
+        return out_path
+    tmp_path = out_path + ".tmp"
+    try:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "Referer": "https://www.youtube.com/",
+            "Accept": "*/*",
+        }
+        timeout = aiohttp.ClientTimeout(total=60, connect=10)
+        async with aiohttp.ClientSession(timeout=timeout) as sess:
+            async with sess.get(stream_url, headers=headers) as resp:
+                if resp.status not in (200, 206):
+                    return None
+                async with aiofiles.open(tmp_path, "wb") as f:
+                    async for chunk in resp.content.iter_chunked(CHUNK_SIZE):
+                        if chunk:
+                            await f.write(chunk)
+        if os.path.exists(tmp_path) and os.path.getsize(tmp_path) > 0:
+            os.replace(tmp_path, out_path)
+            return out_path
+    except Exception as e:
+        LOGGER(__name__).warning(f"CDN download failed for {vid}: {e}")
+        try:
+            os.remove(tmp_path)
+        except Exception:
+            pass
+    return None
+
+
 async def api_download_song(link: str) -> Optional[str]:
     if not USE_API:
         return None
