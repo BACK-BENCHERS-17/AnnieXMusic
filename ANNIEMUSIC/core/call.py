@@ -309,7 +309,18 @@ class Call:
                 f"[PLAY] chat={chat_id} | file={link} | size={size}B | video={bool(video)}"
             )
 
-        stream = dynamic_media_stream(path=link, video=bool(video))
+        # Auto-convert cached webm to m4a before playing (better VC compatibility)
+        if os.path.exists(link) and link.endswith(".webm"):
+            from ANNIEMUSIC.utils.downloader import _convert_webm_to_m4a, extract_video_id
+            vid = extract_video_id(link)
+            LOGGER(__name__).info(f"[PLAY] Converting cached webm→m4a for better VC compat | {vid}")
+            converted = await _convert_webm_to_m4a(link, vid)
+            if converted:
+                link = converted
+                LOGGER(__name__).info(f"[PLAY] Using converted file: {link}")
+            stream = dynamic_media_stream(path=link, video=bool(video))
+        else:
+            stream = dynamic_media_stream(path=link, video=bool(video))
 
         for attempt in range(3):
             try:
@@ -331,6 +342,13 @@ class Call:
                     f"chat={chat_id} | link={link[:80]} | err={tse}"
                 )
                 if attempt < 2:
+                    # On first retry: if cached webm file exists, delete it so next play re-downloads in m4a
+                    if attempt == 0 and os.path.exists(link) and link.endswith(".webm"):
+                        LOGGER(__name__).warning(f"[PLAY] Deleting bad webm cache: {link}")
+                        try:
+                            os.remove(link)
+                        except Exception:
+                            pass
                     # Leave call cleanly before retry — clears stale NTgCalls state
                     try:
                         await assistant.leave_call(chat_id)

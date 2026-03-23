@@ -105,6 +105,32 @@ async def _get_session() -> aiohttp.ClientSession:
         return _session
 
 
+async def _convert_webm_to_m4a(src: str, vid: str) -> Optional[str]:
+    """Convert a webm/opus file to m4a for reliable NTgCalls VC playback."""
+    out = f"{_DOWNLOAD_DIR}/{vid}.m4a"
+    try:
+        proc = await asyncio.create_subprocess_exec(
+            "ffmpeg", "-y", "-i", src,
+            "-vn", "-c:a", "aac", "-b:a", "128k",
+            "-movflags", "+faststart",
+            out,
+            stdout=asyncio.subprocess.DEVNULL,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        _, stderr = await asyncio.wait_for(proc.communicate(), timeout=60)
+        if proc.returncode == 0 and os.path.exists(out) and os.path.getsize(out) > 0:
+            try:
+                os.remove(src)
+            except Exception:
+                pass
+            LOGGER(__name__).info(f"[CONV] webm→m4a ok: {out}")
+            return out
+        LOGGER(__name__).warning(f"[CONV] webm→m4a failed for {vid}: {stderr.decode()[:200]}")
+    except Exception as e:
+        LOGGER(__name__).warning(f"[CONV] webm→m4a exception for {vid}: {e}")
+    return None
+
+
 async def download_from_cdn_url(vid: str, stream_url: str, ext: str) -> Optional[str]:
     """Download audio from a CDN URL to a local file. Fast (~1-3s) and reliable."""
     out_path = f"{_DOWNLOAD_DIR}/{vid}.{ext}"
@@ -129,6 +155,10 @@ async def download_from_cdn_url(vid: str, stream_url: str, ext: str) -> Optional
                             await f.write(chunk)
         if os.path.exists(tmp_path) and os.path.getsize(tmp_path) > 0:
             os.replace(tmp_path, out_path)
+            if ext == "webm":
+                converted = await _convert_webm_to_m4a(out_path, vid)
+                if converted:
+                    return converted
             return out_path
     except Exception as e:
         LOGGER(__name__).warning(f"CDN download failed for {vid}: {e}")

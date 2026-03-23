@@ -127,12 +127,16 @@ def capture_internal_err(func):
     """
     Handles errors in background/internal async bot functions.
     """
+    from ANNIEMUSIC.logging import LOGGER as _LOGGER
+    _log = _LOGGER("ANNIEMUSIC.errors")
+
     @wraps(func)
     async def wrapper(*args, **kwargs):
         try:
             return await func(*args, **kwargs)
         except Exception as err:
             tb = "".join(traceback.format_exception(*sys.exc_info()))
+            _log.error(f"[{func.__name__}] {type(err).__name__}: {err}\n{tb}")
             extras = {"Function": func.__name__}
             filename = f"internal_error_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
             await handle_trace(err, tb, "Internal Error", filename, extras)
