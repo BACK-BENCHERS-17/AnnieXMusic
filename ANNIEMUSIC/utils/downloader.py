@@ -73,7 +73,7 @@ def _safe_filename(name: str) -> str:
 
 
 def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
-    """Base yt-dlp options — multiple client fallbacks, no cookies needed."""
+    """Base yt-dlp options — tv/embedded clients bypass bot detection on cloud IPs."""
     return {
         "outtmpl": f"{_DOWNLOAD_DIR}/%(id)s.%(ext)s",
         "quiet": True,
@@ -87,9 +87,12 @@ def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
         "source_address": "0.0.0.0",
         "extractor_args": {
             "youtube": {
-                "player_client": ["web_creator", "android_vr", "mweb", "ios"],
+                "player_client": ["tv", "web_embedded", "web_creator", "android_vr"],
                 "skip": ["hls", "translated_subs"],
             }
+        },
+        "http_headers": {
+            "User-Agent": "Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/538.1 (KHTML, like Gecko) Version/6.0 TV Safari/538.1",
         },
     }
 

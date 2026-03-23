@@ -32,9 +32,12 @@ _YDL_AUDIO_OPTS = {
     "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
     "extractor_args": {
         "youtube": {
-            "player_client": ["web_creator", "android_vr", "mweb", "ios"],
+            "player_client": ["tv", "web_embedded", "web_creator", "android_vr"],
             "skip": ["hls", "translated_subs"],
         }
+    },
+    "http_headers": {
+        "User-Agent": "Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/538.1 (KHTML, like Gecko) Version/6.0 TV Safari/538.1",
     },
     "socket_timeout": 15,
     "retries": 3,
@@ -351,9 +354,12 @@ def api_ytdl():
             "no_warnings": True,
             "extractor_args": {
                 "youtube": {
-                    "player_client": ["web_creator", "android_vr", "mweb", "ios"],
+                    "player_client": ["tv", "web_embedded", "web_creator", "android_vr"],
                     "skip": ["hls", "translated_subs"],
                 }
+            },
+            "http_headers": {
+                "User-Agent": "Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/538.1 (KHTML, like Gecko) Version/6.0 TV Safari/538.1",
             },
             "socket_timeout": 30,
             "retries": 3,
