@@ -434,6 +434,53 @@ async def yt_dlp_download(
     return None
 
 
+_SHRUTI_API = "https://shrutibots.site"
+
+
+async def download_from_shruti_api(vid: str) -> Optional[str]:
+    """Download audio via shrutibots.site API — returns clean MP3 file."""
+    out_path = f"{_DOWNLOAD_DIR}/{vid}.mp3"
+    if os.path.exists(out_path) and os.path.getsize(out_path) > 0:
+        return out_path
+    tmp_path = out_path + ".tmp"
+    try:
+        tok_timeout = aiohttp.ClientTimeout(total=10)
+        async with aiohttp.ClientSession(timeout=tok_timeout) as sess:
+            async with sess.get(
+                f"{_SHRUTI_API}/download",
+                params={"url": vid, "type": "audio"},
+            ) as resp:
+                if resp.status != 200:
+                    return None
+                data = await resp.json()
+                token = data.get("download_token")
+                if not token:
+                    return None
+
+            stream_url = f"{_SHRUTI_API}/stream/{vid}?type=audio&token={token}"
+            dl_timeout = aiohttp.ClientTimeout(total=180, connect=15)
+            async with aiohttp.ClientSession(timeout=dl_timeout) as dl_sess:
+                async with dl_sess.get(stream_url, allow_redirects=True) as file_resp:
+                    if file_resp.status not in (200, 206):
+                        return None
+                    async with aiofiles.open(tmp_path, "wb") as f:
+                        async for chunk in file_resp.content.iter_chunked(16384):
+                            if chunk:
+                                await f.write(chunk)
+
+        if os.path.exists(tmp_path) and os.path.getsize(tmp_path) > 1024:
+            os.replace(tmp_path, out_path)
+            LOGGER(__name__).info(f"[SHRUTI] MP3 downloaded: {out_path}")
+            return out_path
+    except Exception as e:
+        LOGGER(__name__).debug(f"[SHRUTI] API failed for {vid}: {e}")
+        try:
+            os.remove(tmp_path)
+        except Exception:
+            pass
+    return None
+
+
 async def download_audio_concurrent(link: str) -> Optional[str]:
     vid = extract_video_id(link)
     cached = file_exists(vid)
@@ -443,7 +490,15 @@ async def download_audio_concurrent(link: str) -> Optional[str]:
     key = f"rac:{link}"
 
     async def run():
-        # 1. Try internal webserver API — get CDN URL, then download to local file
+        # 1. Try shrutibots.site API — fast, returns clean MP3 (best VC format)
+        try:
+            shruti = await download_from_shruti_api(vid)
+            if shruti:
+                return shruti
+        except Exception as e:
+            LOGGER(__name__).debug(f"[SHRUTI] path failed for {vid}: {e}")
+
+        # 2. Try internal webserver API — get CDN URL, then download to local file
         #    Local file gives smooth uninterrupted playback in VC (no CDN latency)
         try:
             cdn = await api_get_stream_url(vid)
@@ -458,7 +513,7 @@ async def download_audio_concurrent(link: str) -> Optional[str]:
         except Exception as e:
             LOGGER(__name__).debug(f"[STREAM] CDN path failed for {vid}: {e}")
 
-        # 2. External API race (only if configured)
+        # 3. External API race (only if configured)
         if USE_API:
             try:
                 yt_task = asyncio.create_task(yt_dlp_download(link, type="audio"))
@@ -485,7 +540,7 @@ async def download_audio_concurrent(link: str) -> Optional[str]:
             except Exception as e:
                 LOGGER(__name__).debug(f"[STREAM] API race failed for {vid}: {e}")
 
-        # 3. Direct yt-dlp download (reliable local-file fallback)
+        # 4. Direct yt-dlp download (reliable local-file fallback)
         LOGGER(__name__).info(f"[STREAM] Falling back to yt-dlp local download for {vid}")
         return await yt_dlp_download(link, type="audio")
 
