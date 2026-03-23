@@ -413,18 +413,20 @@ async def download_audio_concurrent(link: str) -> Optional[str]:
     key = f"rac:{link}"
 
     async def run():
-        # 1. Try internal webserver API — get CDN URL and return it directly
-        #    (no local download needed — PyTgCalls/NTgCalls will stream via FFmpeg)
+        # 1. Try internal webserver API — get CDN URL, then download to local file
+        #    Local file gives smooth uninterrupted playback in VC (no CDN latency)
         try:
             cdn = await api_get_stream_url(vid)
             if cdn:
                 cdn_url, ext = cdn
-                LOGGER(__name__).info(
-                    f"[STREAM] CDN URL ready for {vid} ({ext}) — streaming directly"
-                )
-                return cdn_url  # Return CDN URL directly — no file download
+                local = await download_from_cdn_url(vid, cdn_url, ext)
+                if local:
+                    LOGGER(__name__).info(
+                        f"[STREAM] CDN download ok → local file: {local} ({ext})"
+                    )
+                    return local
         except Exception as e:
-            LOGGER(__name__).debug(f"[STREAM] CDN API failed for {vid}: {e}")
+            LOGGER(__name__).debug(f"[STREAM] CDN path failed for {vid}: {e}")
 
         # 2. External API race (only if configured)
         if USE_API:

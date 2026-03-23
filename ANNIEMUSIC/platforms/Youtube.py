@@ -411,12 +411,6 @@ class YouTubeAPI:
             p = await yt_dlp_download(link, type="video")
             return (p, True) if p else (None, None)
 
-        # ── Audio: try CDN URL first (fast, no download), then local file ──────
+        # ── Audio: CDN fast-download → local file → smooth VC playback ──────────
         p = await download_audio_concurrent(link)
-        if not p:
-            return (None, None)
-        # CDN URL returned directly — stream via FFmpeg (no local file)
-        if p.startswith("http"):
-            return (p, None)
-        # Local file path
-        return (p, True)
+        return (p, True) if p else (None, None)
