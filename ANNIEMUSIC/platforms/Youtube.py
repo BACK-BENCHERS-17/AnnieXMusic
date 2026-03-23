@@ -385,14 +385,13 @@ class YouTubeAPI:
                 return stdout.decode().split("\n")[0], None
             return None, None
 
-        # ── Fast path: download via CDN URL to local file (~2-5s, reliable) ────────
+        # ── Fast path: CDN URL via webserver API (~1-2s, FFmpeg streams it) ─────────
         vid = extract_video_id(link)
         api_result = await api_get_stream_url(vid)
         if api_result:
             stream_url, ext = api_result
-            local_path = await download_from_cdn_url(vid, stream_url, ext)
-            if local_path:
-                return local_path, True
+            if stream_url:
+                return stream_url, None  # None = direct URL, dynamic_media_stream adds CDN headers
 
         # ── Fallback: yt-dlp + cookies (~5-15s) ───────────────────────────
         p = await download_audio_concurrent(link)
