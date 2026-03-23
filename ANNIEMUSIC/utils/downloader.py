@@ -73,7 +73,7 @@ def _safe_filename(name: str) -> str:
 
 
 def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
-    """Base yt-dlp options using android_vr client — no cookies needed on Replit/cloud."""
+    """Base yt-dlp options — multiple client fallbacks, no cookies needed."""
     return {
         "outtmpl": f"{_DOWNLOAD_DIR}/%(id)s.%(ext)s",
         "quiet": True,
@@ -87,7 +87,8 @@ def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
         "source_address": "0.0.0.0",
         "extractor_args": {
             "youtube": {
-                "player_client": ["android_vr"],
+                "player_client": ["web_creator", "android_vr", "mweb", "ios"],
+                "skip": ["hls", "translated_subs"],
             }
         },
     }

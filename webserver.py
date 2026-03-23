@@ -32,7 +32,7 @@ _YDL_AUDIO_OPTS = {
     "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
     "extractor_args": {
         "youtube": {
-            "player_client": ["android_vr"],
+            "player_client": ["web_creator", "android_vr", "mweb", "ios"],
             "skip": ["hls", "translated_subs"],
         }
     },
@@ -351,7 +351,7 @@ def api_ytdl():
             "no_warnings": True,
             "extractor_args": {
                 "youtube": {
-                    "player_client": ["android_vr"],
+                    "player_client": ["web_creator", "android_vr", "mweb", "ios"],
                     "skip": ["hls", "translated_subs"],
                 }
             },

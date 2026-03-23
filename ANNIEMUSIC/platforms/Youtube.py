@@ -29,11 +29,12 @@ _formats_lock = asyncio.Lock()
 
 
 def _cookies_args() -> List[str]:
-    """yt-dlp CLI args using android_vr client — no cookies needed."""
+    """yt-dlp CLI args — multiple client fallbacks, no cookies needed."""
     return [
         "--no-check-certificate",
         "--force-ipv4",
-        "--extractor-arg", "youtube:player_client=android_vr",
+        "--extractor-arg", "youtube:player_client=web_creator,android_vr,mweb,ios",
+        "--extractor-arg", "youtube:skip=hls,translated_subs",
     ]
 
 
@@ -299,7 +300,8 @@ class YouTubeAPI:
             "source_address": "0.0.0.0",
             "extractor_args": {
                 "youtube": {
-                    "player_client": ["android_vr"],
+                    "player_client": ["web_creator", "android_vr", "mweb", "ios"],
+                    "skip": ["hls", "translated_subs"],
                 }
             },
         }
