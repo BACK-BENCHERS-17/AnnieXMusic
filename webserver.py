@@ -10,6 +10,8 @@ import re
 from urllib.parse import urlparse, parse_qs
 from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError as FuturesTimeout
 
+_BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
+
 WEB_DIR = os.path.join(os.path.dirname(__file__), 'ANNIEMUSIC', 'utils', 'web')
 app = Flask(__name__)
 _boot_time = time.time()
@@ -338,6 +340,38 @@ def api_status():
 def api_trending():
     data = get_trending()
     return jsonify({"songs": data, "cached": bool(data)})
+
+@app.route("/api/yturl")
+def api_yturl():
+    """
+    Internal API: return actual stream URL for bot use.
+    Protected by BOT_TOKEN — only the bot (same Railway service) can call this.
+    GET /api/yturl?v=VIDEO_ID&key=BOT_TOKEN
+    """
+    vid = request.args.get("v", "").strip()
+    key = request.args.get("key", "").strip()
+
+    if not vid or len(vid) != 11:
+        return jsonify({"error": "Invalid video id"}), 400
+
+    if _BOT_TOKEN and key != _BOT_TOKEN:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        data = _get_stream_data(vid)
+        if not data or not data.get("url"):
+            return jsonify({"error": "Could not fetch stream URL"}), 500
+        return jsonify({
+            "url":      data["url"],
+            "ext":      data.get("ext", "m4a"),
+            "title":    data["title"],
+            "channel":  data["channel"],
+            "duration": data["duration"],
+            "seconds":  data["seconds"],
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route("/api/stream")
 def api_stream():

@@ -13,7 +13,7 @@ from youtubesearchpython.__future__ import VideosSearch
 
 from ANNIEMUSIC.utils.cookie_handler import COOKIE_PATH
 from ANNIEMUSIC.utils.database import is_on_off
-from ANNIEMUSIC.utils.downloader import download_audio_concurrent, yt_dlp_download
+from ANNIEMUSIC.utils.downloader import api_get_stream_url, download_audio_concurrent, extract_video_id, yt_dlp_download
 from ANNIEMUSIC.utils.errors import capture_internal_err
 from ANNIEMUSIC.utils.formatters import time_to_seconds
 from ANNIEMUSIC.utils.tuning import (
@@ -388,5 +388,13 @@ class YouTubeAPI:
                 return stdout.decode().split("\n")[0], None
             return None, None
 
+        # ── Fast path: internal webserver API (~2s, no file download) ────────
+        vid = extract_video_id(link)
+        api_result = await api_get_stream_url(vid)
+        if api_result:
+            stream_url, _ext = api_result
+            return stream_url, None  # Direct CDN URL → FFmpeg streams instantly
+
+        # ── Fallback: yt-dlp + cookies (~5-15s) ───────────────────────────
         p = await download_audio_concurrent(link)
         return (p, True) if p else (None, None)

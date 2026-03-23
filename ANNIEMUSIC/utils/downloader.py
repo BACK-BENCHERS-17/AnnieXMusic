@@ -2,7 +2,7 @@ import asyncio
 import contextlib
 import os
 import re
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import aiofiles
 import aiohttp
@@ -14,13 +14,42 @@ from ANNIEMUSIC.core.dir import DOWNLOAD_DIR as _DOWNLOAD_DIR, CACHE_DIR
 from ANNIEMUSIC.utils.cookie_handler import COOKIE_PATH
 from ANNIEMUSIC.utils.tuning import CHUNK_SIZE, SEM
 from ANNIEMUSIC.logging import LOGGER
-from config import API_KEY, API_URL
+from config import API_KEY, API_URL, BOT_TOKEN
 
 USE_API: bool = bool(API_URL and API_KEY)
+
+# ── Internal webserver API ─────────────────────────────────────────────────
+_WEB_PORT = int(os.environ.get("PORT") or os.environ.get("WEB_PORT") or 5000)
+_YTURL_ENDPOINT = f"http://localhost:{_WEB_PORT}/api/yturl"
 
 _COOKIES_FILE = str(COOKIE_PATH)
 
 _inflight: Dict[str, asyncio.Future] = {}
+
+
+async def api_get_stream_url(vid: str) -> Optional[Tuple[str, str]]:
+    """
+    Call the internal webserver API to get a stream URL fast (~2s).
+    Returns (url, ext) on success, None on failure.
+    Both the bot and webserver run on the same Railway service → localhost works.
+    """
+    try:
+        params = {"v": vid, "key": BOT_TOKEN or ""}
+        timeout = aiohttp.ClientTimeout(total=8)
+        async with aiohttp.ClientSession(timeout=timeout) as sess:
+            async with sess.get(_YTURL_ENDPOINT, params=params) as resp:
+                if resp.status != 200:
+                    return None
+                data = await resp.json()
+                url = data.get("url", "")
+                ext = data.get("ext", "m4a")
+                if url:
+                    return url, ext
+    except Exception as e:
+        LOGGER(__name__).debug(f"api_get_stream_url failed for {vid}: {e}")
+    return None
+
+
 _inflight_lock = asyncio.Lock()
 
 _session: Optional[aiohttp.ClientSession] = None

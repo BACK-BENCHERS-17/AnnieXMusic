@@ -40,11 +40,22 @@ autoend = {}
 counter = {}
 autoplay_history: dict[int, list] = {}  # per-chat played video IDs history
 
+def _needs_ytdlp(path: str) -> bool:
+    """Check if the path needs yt-dlp processing (YouTube URLs only)."""
+    if not path:
+        return False
+    if os.path.exists(path):
+        return False  # local file → FFmpeg handles directly
+    return "youtube.com" in path or "youtu.be" in path
+
+
 def dynamic_media_stream(path: str, video: bool = False, ffmpeg_params: str = None) -> MediaStream:
-    ytdlp_args = "--js-runtimes node --remote-components ejs:github"
-    if COOKIE_PATH.exists():
-        ytdlp_args += f" --cookies {COOKIE_PATH}"
-    
+    ytdlp_args = None
+    if _needs_ytdlp(path):
+        ytdlp_args = "--js-runtimes node --remote-components ejs:github"
+        if COOKIE_PATH.exists():
+            ytdlp_args += f" --cookies {COOKIE_PATH}"
+
     return MediaStream(
         audio_path=path,
         media_path=path,
