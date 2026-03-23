@@ -11,6 +11,7 @@ from pyrogram.types import (
 )
 
 from ANNIEMUSIC import app, YouTube
+from ANNIEMUSIC.logging import LOGGER
 from config import (
     BANNED_USERS,
     SONG_DOWNLOAD_DURATION,
@@ -172,15 +173,16 @@ async def song_download_cb(client, cq, lang):
             file_path, _ = await YouTube.download(
                 yturl, mystic, songaudio=True, format_id=fmt_id, title=title
             )
-            if not file_path:
-                raise RuntimeError("no audio file")
+            if not file_path or not os.path.exists(file_path):
+                raise RuntimeError("audio download failed or file not found")
             await app.send_chat_action(cq.message.chat.id, ChatAction.UPLOAD_AUDIO)
+            performer = info.get("uploader") or info.get("channel") or "YouTube"
             await cq.edit_message_media(
                 InputMediaAudio(
                     media=file_path,
                     caption=title,
                     title=title,
-                    performer=info.get("uploader"),
+                    performer=performer,
                 )
             )
         else:
@@ -203,7 +205,8 @@ async def song_download_cb(client, cq, lang):
                 )
             )
 
-    except Exception:
+    except Exception as _dl_err:
+        LOGGER(__name__).error(f"song_download_cb error [{stype}|{fmt_id}|{vidid}]: {_dl_err}")
         await mystic.edit_text(lang["song_10"])
     finally:
         if file_path and os.path.exists(file_path):

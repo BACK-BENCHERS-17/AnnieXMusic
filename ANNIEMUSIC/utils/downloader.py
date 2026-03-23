@@ -97,6 +97,16 @@ def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
         "cachedir": str(CACHE_DIR),
         "nocheckcertificate": True,
         "source_address": "0.0.0.0",
+        "user_agent": (
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) "
+            "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 "
+            "Mobile/15E148 Safari/604.1"
+        ),
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["tv", "android"],
+            }
+        },
     }
     cookiefile = _cookiefile_path()
     if cookiefile:
@@ -315,17 +325,35 @@ async def yt_dlp_download(
             opts.update(
                 {
                     "format": f"{format_id}/bestvideo+bestaudio/best",
-                    "outtmpl": f"{_DOWNLOAD_DIR}/{safe_title}.mp4",
+                    "outtmpl": f"{_DOWNLOAD_DIR}/{safe_title}.%(ext)s",
                     "prefer_ffmpeg": True,
                     "merge_output_format": "mp4",
                 }
             )
-            res = await _with_sem(
-                loop.run_in_executor(None, download_with_fallback, link, opts)
+
+            def _do_video_download(lnk, o):
+                try:
+                    with YoutubeDL(o) as ydl:
+                        info = ydl.extract_info(lnk, download=True)
+                        if not info:
+                            return None
+                    # Check for merged mp4 first, then any video format
+                    mp4_path = f"{_DOWNLOAD_DIR}/{safe_title}.mp4"
+                    if os.path.exists(mp4_path) and os.path.getsize(mp4_path) > 0:
+                        return mp4_path
+                    for e in ("mkv", "webm", "mp4"):
+                        p = f"{_DOWNLOAD_DIR}/{safe_title}.{e}"
+                        if os.path.exists(p) and os.path.getsize(p) > 0:
+                            return p
+                except DownloadError as de:
+                    LOGGER(__name__).warning(f"song_video DownloadError: {de}")
+                except Exception as e:
+                    LOGGER(__name__).error(f"song_video error: {e}")
+                return None
+
+            return await _with_sem(
+                loop.run_in_executor(None, _do_video_download, link, opts)
             )
-            if res:
-                return f"{_DOWNLOAD_DIR}/{safe_title}.mp4"
-            return None
 
         return await _dedup(key, run)
 
@@ -337,24 +365,36 @@ async def yt_dlp_download(
             opts = _ytdlp_base_opts()
             opts.update(
                 {
-                    "format": f"{format_id}/bestaudio/best",
+                    "format": f"{format_id}/bestaudio[ext=m4a]/bestaudio/best",
                     "outtmpl": f"{_DOWNLOAD_DIR}/{safe_title}.%(ext)s",
-                    "prefer_ffmpeg": True,
-                    "postprocessors": [
-                        {
-                            "key": "FFmpegExtractAudio",
-                            "preferredcodec": "mp3",
-                            "preferredquality": "192",
-                        }
-                    ],
                 }
             )
+
+            def _do_download(lnk, o):
+                try:
+                    with YoutubeDL(o) as ydl:
+                        info = ydl.extract_info(lnk, download=True)
+                        if not info:
+                            return None
+                        ext = info.get("ext") or "m4a"
+                        out = f"{_DOWNLOAD_DIR}/{safe_title}.{ext}"
+                        if os.path.exists(out) and os.path.getsize(out) > 0:
+                            return out
+                        # yt-dlp may merge to the final filename; scan
+                        for e in ("m4a", "webm", "opus", "ogg", "mp3"):
+                            p = f"{_DOWNLOAD_DIR}/{safe_title}.{e}"
+                            if os.path.exists(p) and os.path.getsize(p) > 0:
+                                return p
+                except DownloadError as de:
+                    LOGGER(__name__).warning(f"song_audio DownloadError: {de}")
+                except Exception as e:
+                    LOGGER(__name__).error(f"song_audio error: {e}")
+                return None
+
             res = await _with_sem(
-                loop.run_in_executor(None, download_with_fallback, link, opts)
+                loop.run_in_executor(None, _do_download, link, opts)
             )
-            if res:
-                return f"{_DOWNLOAD_DIR}/{safe_title}.mp3"
-            return None
+            return res
 
         return await _dedup(key, run)
 
