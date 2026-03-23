@@ -219,11 +219,12 @@ async def start_pm(client, message: Message, _):
 @app.on_message(filters.command(["start"]) & filters.group & ~BANNED_USERS)
 @LanguageStart
 async def start_gp(client, message: Message, _):
-    asyncio.create_task(react_to_command(message))
     out = start_panel(_)
     UP, CPU, RAM, DISK = await bot_sys_stats()
+    user = message.from_user
+    mention = user.mention if user else (message.sender_chat.title if message.sender_chat else "User")
     caption = _["start_1"].format(
-        message.from_user.mention,
+        mention,
         f"<a href='https://t.me/{app.username}'>{app.name}</a>",
         UP, DISK, CPU, RAM,
         _OWNER_LINK
@@ -293,11 +294,16 @@ async def welcome(client, message: Message):
 
                 out = start_panel(_)
                 UP, CPU, RAM, DISK = await bot_sys_stats()
+                adder = message.from_user
+                adder_mention = (
+                    f"<a href='tg://user?id={adder.id}'>{adder.first_name}</a>"
+                    if adder else "User"
+                )
                 try:
                     await message.reply_photo(
                         photo=random.choice(START_IMGS),
                         caption=_["start_1"].format(
-                            f"<a href='tg://user?id={message.from_user.id}'>{message.from_user.first_name}</a>",
+                            adder_mention,
                             f"<a href='https://t.me/{app.username}'>{app.name}</a>",
                             UP, DISK, CPU, RAM,
                             _OWNER_LINK
