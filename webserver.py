@@ -7,6 +7,7 @@ from flask import Flask, jsonify, send_from_directory, request, Response, send_f
 import requests
 import tempfile
 import re
+from urllib.parse import urlparse, parse_qs
 
 WEB_DIR = os.path.join(os.path.dirname(__file__), 'ANNIEMUSIC', 'utils', 'web')
 app = Flask(__name__)
@@ -76,17 +77,30 @@ threading.Thread(target=get_trending, daemon=True).start()
 
 # ── Stream URL cache (avoids double yt-dlp calls) ───────────────
 _stream_cache = {}
-_STREAM_TTL   = 600  # 10 min (YouTube signed URLs last ~6h)
 _stream_lock  = threading.Lock()
 
-def _get_stream_data(vid):
-    """Fetch (or return cached) stream data for a YouTube video ID."""
-    now = time.time()
-    with _stream_lock:
-        cached = _stream_cache.get(vid)
-        if cached and now - cached["ts"] < _STREAM_TTL:
-            return cached
+def _url_expire_ts(url):
+    """Extract YouTube's 'expire' unix timestamp from a signed URL, or None."""
+    try:
+        qs = parse_qs(urlparse(url).query)
+        exp = qs.get("expire", [None])[0]
+        if exp:
+            return int(exp)
+    except Exception:
+        pass
+    return None
 
+def _is_url_valid(data):
+    """Return True if the cached stream URL is still valid (not near expiry)."""
+    exp = _url_expire_ts(data.get("url", ""))
+    if exp:
+        # Treat URL as invalid if it expires within the next 5 minutes
+        return time.time() < exp - 300
+    # Fallback: trust cache for 8 minutes if no expire param found
+    return time.time() - data.get("ts", 0) < 480
+
+def _fetch_stream_data(vid):
+    """Call yt-dlp to get a fresh stream URL for the given video ID."""
     ydl_opts = {
         "quiet": True, "no_warnings": True,
         "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
@@ -107,11 +121,20 @@ def _get_stream_data(vid):
             "duration": _sec_to_min(info.get("duration", 0)),
             "seconds":  info.get("duration", 0),
             "thumb":    f"https://img.youtube.com/vi/{vid}/mqdefault.jpg",
-            "ts":       now,
+            "ts":       time.time(),
         }
         with _stream_lock:
             _stream_cache[vid] = data
         return data
+
+def _get_stream_data(vid, force_refresh=False):
+    """Return cached stream data if still valid, otherwise fetch fresh."""
+    if not force_refresh:
+        with _stream_lock:
+            cached = _stream_cache.get(vid)
+        if cached and _is_url_valid(cached):
+            return cached
+    return _fetch_stream_data(vid)
 
 # ── Routes ──────────────────────────────────────────────────────
 @app.route("/")
@@ -212,6 +235,35 @@ def api_stream():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+def _proxy_audio(vid, force_refresh=False):
+    """
+    Fetch stream data and proxy audio from YouTube.
+    Returns a Flask Response, or raises an exception.
+    If force_refresh=True, bypass cache and fetch a fresh URL.
+    """
+    data = _get_stream_data(vid, force_refresh=force_refresh)
+    if not data:
+        return None, None
+
+    stream_url = data["url"]
+    ext = data.get("ext", "m4a")
+    content_type = "audio/mp4" if ext == "m4a" else f"audio/{ext}"
+
+    range_header = request.headers.get("Range")
+    req_headers = {
+        "User-Agent":      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Accept":          "*/*",
+        "Accept-Encoding": "identity",
+        "Connection":      "keep-alive",
+        "Referer":         "https://www.youtube.com/",
+    }
+    if range_header:
+        req_headers["Range"] = range_header
+
+    upstream = requests.get(stream_url, headers=req_headers, stream=True, timeout=30)
+    return upstream, content_type
+
+
 @app.route("/api/audio")
 def api_audio():
     """Proxy audio stream from YouTube — avoids browser CORS issues."""
@@ -219,27 +271,16 @@ def api_audio():
     if not vid or len(vid) != 11:
         return jsonify({"error": "Invalid video id"}), 400
     try:
-        data = _get_stream_data(vid)
-        if not data:
+        upstream, content_type = _proxy_audio(vid, force_refresh=False)
+        if upstream is None:
             return jsonify({"error": "Could not fetch stream"}), 500
 
-        stream_url = data["url"]
-        ext = data.get("ext", "m4a")
-        content_type = "audio/mp4" if ext == "m4a" else f"audio/{ext}"
-
-        # Forward Range header so seeking works
-        range_header = request.headers.get("Range")
-        req_headers = {
-            "User-Agent":      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-            "Accept":          "*/*",
-            "Accept-Encoding": "identity",
-            "Connection":      "keep-alive",
-            "Referer":         "https://www.youtube.com/",
-        }
-        if range_header:
-            req_headers["Range"] = range_header
-
-        upstream = requests.get(stream_url, headers=req_headers, stream=True, timeout=30)
+        # If YouTube rejects the cached URL (expired), fetch a fresh one and retry once
+        if upstream.status_code in (400, 403, 410):
+            upstream.close()
+            upstream, content_type = _proxy_audio(vid, force_refresh=True)
+            if upstream is None:
+                return jsonify({"error": "Could not refresh stream"}), 500
 
         resp_headers = {
             "Content-Type":  upstream.headers.get("Content-Type", content_type),
