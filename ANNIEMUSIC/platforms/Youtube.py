@@ -11,7 +11,6 @@ from pyrogram.enums import MessageEntityType
 from pyrogram.types import Message
 from youtubesearchpython.__future__ import VideosSearch
 
-from ANNIEMUSIC.utils.cookie_handler import COOKIE_PATH
 from ANNIEMUSIC.utils.database import is_on_off
 from ANNIEMUSIC.utils.downloader import api_get_stream_url, download_audio_concurrent, download_from_cdn_url, extract_video_id, yt_dlp_download
 from ANNIEMUSIC.utils.errors import capture_internal_err
@@ -28,28 +27,13 @@ _formats_cache: Dict[str, Tuple[float, List[Dict], str]] = {}
 _formats_lock = asyncio.Lock()
 
 
-def _cookiefile_path() -> Optional[str]:
-    path = str(COOKIE_PATH)
-    try:
-        if path and os.path.exists(path) and os.path.getsize(path) > 0:
-            return path
-    except Exception:
-        pass
-    return None
-
-
 def _cookies_args() -> List[str]:
-    p = _cookiefile_path()
-    args = ["--cookies", p] if p else []
-    args.extend([
+    """yt-dlp CLI args using android_vr client — no cookies needed."""
+    return [
         "--no-check-certificate",
         "--force-ipv4",
-        "--user-agent",
-        "Mozilla/5.0 (Linux; Android 11; Pixel 5) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36",
-        "--extractor-arg", "youtube:player_client=mweb,tv_embedded,tv,android",
-    ])
-    return args
+        "--extractor-arg", "youtube:player_client=android_vr,tv",
+    ]
 
 
 
@@ -275,22 +259,12 @@ class YouTubeAPI:
             "quiet": True,
             "nocheckcertificate": True,
             "source_address": "0.0.0.0",
-            "user_agent": (
-                "Mozilla/5.0 (Linux; Android 11; Pixel 5) "
-                "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/124.0.0.0 Mobile Safari/537.36"
-            ),
             "extractor_args": {
                 "youtube": {
-                    "player_client": ["mweb", "tv_embedded", "tv", "android"],
+                    "player_client": ["android_vr", "tv"],
                 }
             },
         }
-
-
-        cf = _cookiefile_path()
-        if cf:
-            opts["cookiefile"] = cf
         out: List[Dict] = []
         try:
             with yt_dlp.YoutubeDL(opts) as ydl:

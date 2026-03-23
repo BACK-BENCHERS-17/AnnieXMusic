@@ -11,7 +11,6 @@ from ANNIEMUSIC.core.call import JARVIS
 from ANNIEMUSIC.misc import sudo
 from ANNIEMUSIC.plugins import ALL_MODULES
 from ANNIEMUSIC.utils.database import get_banned_users, get_gbanned
-from ANNIEMUSIC.utils.cookie_handler import fetch_and_store_cookies
 from ANNIEMUSIC.utils.weburl import WEB_URL
 from config import BANNED_USERS
 
@@ -56,12 +55,7 @@ async def init():
         LOGGER(__name__).error("ᴀssɪsᴛᴀɴᴛ sᴇssɪᴏɴ ɴᴏᴛ ғɪʟʟᴇᴅ, ᴘʟᴇᴀsᴇ ғɪʟʟ ᴀ ᴘʏʀᴏɢʀᴀᴍ sᴇssɪᴏɴ...")
         exit()
 
-    # ✅ Try to fetch cookies at startup
-    try:
-        await fetch_and_store_cookies()
-        LOGGER("ANNIEMUSIC").info("ʏᴏᴜᴛᴜʙᴇ ᴄᴏᴏᴋɪᴇs ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ ✅")
-    except Exception as e:
-        LOGGER("ANNIEMUSIC").warning(f"⚠️ᴄᴏᴏᴋɪᴇ ᴇʀʀᴏʀ: {e}")
+    LOGGER("ANNIEMUSIC").info("▶️ Using android_vr API — no cookies needed.")
 
     await sudo()
 

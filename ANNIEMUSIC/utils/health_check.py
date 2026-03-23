@@ -16,16 +16,31 @@ _boot_time = time.time()
 
 WEB_DIR = os.path.join(os.path.dirname(__file__), 'web')
 
-# ── Cookie path ──────────────────────────────────────────────────
-_COOKIE_PATH = os.path.join(os.path.dirname(__file__), '..', 'assets', 'cookies.txt')
+# ── YT-DLP no-cookie options (android_vr works on cloud/Replit without cookies) ──
+_YDL_AUDIO_OPTS = {
+    "quiet": True,
+    "no_warnings": True,
+    "skip_download": True,
+    "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
+    "extractor_args": {
+        "youtube": {
+            "player_client": ["android_vr", "tv"],
+            "skip": ["hls", "translated_subs"],
+        }
+    },
+    "socket_timeout": 15,
+    "retries": 3,
+    "nocheckcertificate": True,
+    "source_address": "0.0.0.0",
+}
 
-def _get_cookiefile():
-    try:
-        if os.path.exists(_COOKIE_PATH) and os.path.getsize(_COOKIE_PATH) > 0:
-            return _COOKIE_PATH
-    except Exception:
-        pass
-    return None
+
+def _sec_to_min(s):
+    if not s:
+        return "0:00"
+    s = int(s)
+    return f"{s // 60}:{s % 60:02d}"
+
 
 def _url_still_valid(data):
     try:
@@ -36,30 +51,13 @@ def _url_still_valid(data):
         pass
     return time.time() - data.get("ts", 0) < 3600
 
-def _fetch_stream_with_cookies(vid):
-    """Fast cookie-based yt-dlp extraction. Format 140 = m4a 128kbps always present → no format negotiation."""
+
+def _fetch_stream(vid):
+    """Fetch YouTube stream URL using android_vr client — no cookies needed."""
+    url_str = f"https://www.youtube.com/watch?v={vid}"
     try:
-        opts = {
-            "quiet": True,
-            "no_warnings": True,
-            "skip_download": True,
-            "format": "140/bestaudio[ext=m4a]/bestaudio/best",
-            "extractor_args": {
-                "youtube": {
-                    "player_client": ["tv", "android"],
-                    "skip": ["hls", "translated_subs"],
-                }
-            },
-            "socket_timeout": 10,
-            "retries": 1,
-            "nocheckcertificate": True,
-            "source_address": "0.0.0.0",
-        }
-        cookiefile = _get_cookiefile()
-        if cookiefile:
-            opts["cookiefile"] = cookiefile
-        with yt_dlp.YoutubeDL(opts) as ydl:
-            info = ydl.extract_info(f"https://www.youtube.com/watch?v={vid}", download=False)
+        with yt_dlp.YoutubeDL(_YDL_AUDIO_OPTS) as ydl:
+            info = ydl.extract_info(url_str, download=False)
         if not info or not info.get("url"):
             return None
         dur = int(info.get("duration", 0))
@@ -76,6 +74,7 @@ def _fetch_stream_with_cookies(vid):
     except Exception:
         return None
 
+
 # ── Trending cache ───────────────────────────────────────────────
 _trending_cache = {"data": [], "ts": 0}
 _CACHE_TTL = 1800
@@ -87,11 +86,6 @@ TRENDING_QUERIES = [
     ("International", "ytsearch10:top hits 2025 pop english"),
 ]
 
-def _sec_to_min(s):
-    if not s:
-        return "0:00"
-    s = int(s)
-    return f"{s // 60}:{s % 60:02d}"
 
 def _fetch_trending():
     results = []
@@ -123,6 +117,7 @@ def _fetch_trending():
             pass
     return results
 
+
 def get_trending():
     now = time.time()
     if now - _trending_cache["ts"] > _CACHE_TTL or not _trending_cache["data"]:
@@ -135,9 +130,11 @@ def get_trending():
             pass
     return _trending_cache["data"]
 
+
 # ── Stream URL cache ─────────────────────────────────────────────
 _stream_cache = {}
 _stream_lock  = threading.Lock()
+
 
 def _get_stream_data(vid, force_refresh=False):
     if not force_refresh:
@@ -145,17 +142,19 @@ def _get_stream_data(vid, force_refresh=False):
             cached = _stream_cache.get(vid)
         if cached and _url_still_valid(cached):
             return cached
-    data = _fetch_stream_with_cookies(vid)
+    data = _fetch_stream(vid)
     if data:
         with _stream_lock:
             _stream_cache[vid] = data
     return data
+
 
 # ── Routes ───────────────────────────────────────────────────────
 
 @app.route('/')
 def index():
     return send_from_directory(WEB_DIR, 'index.html')
+
 
 @app.route('/api/status')
 def api_status():
@@ -226,14 +225,20 @@ def api_status():
         "chats":        chats_data,
     })
 
+
 @app.route('/api/trending')
 def api_trending():
     data = get_trending()
     return jsonify({"songs": data, "cached": bool(data)})
 
+
 @app.route('/api/yturl')
 def api_yturl():
-    """Internal API: bot calls this to get a fast stream URL (~1-3s via Piped/Invidious/yt-dlp race)."""
+    """
+    Internal bot API: returns stream URL for a YouTube video.
+    Uses android_vr client — no cookies required.
+    GET /api/yturl?v=VIDEO_ID&key=BOT_TOKEN
+    """
     vid = request.args.get("v", "").strip()
     key = request.args.get("key", "").strip()
 
@@ -258,6 +263,7 @@ def api_yturl():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @app.route('/api/stream')
 def api_stream():
     vid = request.args.get("v", "").strip()
@@ -277,8 +283,10 @@ def api_stream():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @app.route('/api/audio')
 def api_audio():
+    """Proxy audio stream — fetches from YouTube CDN and streams to browser."""
     vid = request.args.get("v", "").strip()
     if not vid or len(vid) != 11:
         return jsonify({"error": "Invalid video id"}), 400
@@ -289,7 +297,7 @@ def api_audio():
 
         stream_url = data["url"]
         ext = data.get("ext", "m4a")
-        content_type = "audio/mp4" if ext == "m4a" else f"audio/{ext}"
+        content_type = "audio/mp4" if ext in ("m4a", "mp4") else f"audio/{ext}"
 
         range_header = request.headers.get("Range")
         req_headers = {
@@ -303,6 +311,14 @@ def api_audio():
             req_headers["Range"] = range_header
 
         upstream = requests.get(stream_url, headers=req_headers, stream=True, timeout=30)
+
+        if upstream.status_code in (400, 403, 410):
+            upstream.close()
+            data = _get_stream_data(vid, force_refresh=True)
+            if not data:
+                return jsonify({"error": "Could not refresh stream"}), 500
+            stream_url = data["url"]
+            upstream = requests.get(stream_url, headers=req_headers, stream=True, timeout=30)
 
         resp_headers = {
             "Content-Type":  upstream.headers.get("Content-Type", content_type),
@@ -325,6 +341,7 @@ def api_audio():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 @app.route('/api/search')
 def api_search():
@@ -358,6 +375,7 @@ def api_search():
     except Exception as e:
         return jsonify({"error": str(e), "results": []}), 500
 
+
 @app.route('/api/download')
 def api_download():
     vid = request.args.get("v", "").strip()
@@ -371,10 +389,12 @@ def api_download():
             "no_warnings": True,
             "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
             "outtmpl": out_template,
-            "postprocessors": [{
-                "key": "FFmpegExtractAudio",
-                "preferredcodec": "m4a",
-            }],
+            "extractor_args": {
+                "youtube": {
+                    "player_client": ["android_vr", "tv"],
+                }
+            },
+            "nocheckcertificate": True,
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(f"https://www.youtube.com/watch?v={vid}", download=True)
@@ -390,6 +410,7 @@ def api_download():
             return send_file(filepath, mimetype=mime, as_attachment=True, download_name=filename)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 @app.route('/api/botinfo')
 def api_botinfo():
@@ -410,6 +431,7 @@ def api_botinfo():
         "features": ["YouTube", "Spotify", "Apple Music", "SoundCloud", "Telegram"],
     })
 
+
 @app.route('/api/botpfp')
 def api_botpfp():
     assets_dir = os.path.join(os.path.dirname(__file__), '..', 'assets')
@@ -421,16 +443,15 @@ def api_botpfp():
         return send_file(upic_path, mimetype="image/png")
     return jsonify({"error": "No profile picture"}), 404
 
+
 @app.route('/api/health')
 def health_check():
     return jsonify({"status": "alive"}), 200
 
+
 def start_health_server():
     port = int(os.environ.get('PORT', 8080))
-    threading.Thread(
-        target=get_trending,
-        daemon=True,
-    ).start()
+    threading.Thread(target=get_trending, daemon=True).start()
     threading.Thread(
         target=lambda: app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False),
         daemon=True

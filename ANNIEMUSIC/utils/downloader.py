@@ -11,7 +11,6 @@ from yt_dlp import YoutubeDL
 from yt_dlp.utils import DownloadError
 
 from ANNIEMUSIC.core.dir import DOWNLOAD_DIR as _DOWNLOAD_DIR, CACHE_DIR
-from ANNIEMUSIC.utils.cookie_handler import COOKIE_PATH
 from ANNIEMUSIC.utils.tuning import CHUNK_SIZE, SEM
 from ANNIEMUSIC.logging import LOGGER
 from config import API_KEY, API_URL, BOT_TOKEN
@@ -21,8 +20,6 @@ USE_API: bool = bool(API_URL and API_KEY)
 # ── Internal webserver API ─────────────────────────────────────────────────
 _WEB_PORT = int(os.environ.get("PORT") or os.environ.get("WEB_PORT") or 8080)
 _YTURL_ENDPOINT = f"http://localhost:{_WEB_PORT}/api/yturl"
-
-_COOKIES_FILE = str(COOKIE_PATH)
 
 _inflight: Dict[str, asyncio.Future] = {}
 
@@ -62,17 +59,6 @@ def extract_video_id(link: str) -> str:
     return link.split("/")[-1].split("?")[0]
 
 
-def _cookiefile_path() -> Optional[str]:
-    try:
-        if _COOKIES_FILE and os.path.exists(_COOKIES_FILE) and os.path.getsize(
-            _COOKIES_FILE
-        ) > 0:
-            return _COOKIES_FILE
-    except Exception:
-        pass
-    return None
-
-
 def file_exists(video_id: str) -> Optional[str]:
     for ext in ("mp4", "mp3", "m4a", "webm", "mkv"):
         path = f"{_DOWNLOAD_DIR}/{video_id}.{ext}"
@@ -86,7 +72,8 @@ def _safe_filename(name: str) -> str:
 
 
 def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
-    opts: Dict[str, Union[str, int, bool, Dict, List]] = {
+    """Base yt-dlp options using android_vr client — no cookies needed on Replit/cloud."""
+    return {
         "outtmpl": f"{_DOWNLOAD_DIR}/%(id)s.%(ext)s",
         "quiet": True,
         "no_warnings": True,
@@ -97,21 +84,12 @@ def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
         "cachedir": str(CACHE_DIR),
         "nocheckcertificate": True,
         "source_address": "0.0.0.0",
-        "user_agent": (
-            "Mozilla/5.0 (Linux; Android 11; Pixel 5) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/124.0.0.0 Mobile Safari/537.36"
-        ),
         "extractor_args": {
             "youtube": {
-                "player_client": ["mweb", "tv_embedded", "tv", "android"],
+                "player_client": ["android_vr", "tv"],
             }
         },
     }
-    cookiefile = _cookiefile_path()
-    if cookiefile:
-        opts["cookiefile"] = cookiefile
-    return opts
 
 
 async def _get_session() -> aiohttp.ClientSession:

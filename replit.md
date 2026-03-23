@@ -26,8 +26,10 @@ config.py          # Configuration from environment
 - `BOT_TOKEN` - Bot token from @BotFather
 - `STRING_SESSION` - Pyrogram session string for assistant account
 - `MONGO_DB_URI` - MongoDB connection URI
-- `COOKIE_URL` - YouTube cookies URL (batbin.me or pastebin.com)
 - `LOGGER_ID` - Telegram chat ID for logging
+
+## YouTube Streaming (No Cookies Needed)
+Uses yt-dlp with `android_vr` + `ios_downgraded` player clients — works on Replit/cloud without any cookies or COOKIE_URL. The bot's internal API at port 8080 (`/api/yturl`) is used for fast stream URL fetching.
 - `OWNER_ID` - Owner's Telegram user ID
 
 ## Running the Bot
