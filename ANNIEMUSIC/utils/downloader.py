@@ -97,13 +97,6 @@ def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
         "cachedir": str(CACHE_DIR),
         "nocheckcertificate": True,
         "source_address": "0.0.0.0",
-        "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Mobile/15E148 Safari/604.1",
-        "js_runtimes": {"node": {}},
-        "extractor_args": {
-            "youtube": {
-                "player_client": ["tv", "android"],
-            }
-        },
     }
     cookiefile = _cookiefile_path()
     if cookiefile:
@@ -140,6 +133,7 @@ async def download_from_cdn_url(vid: str, stream_url: str, ext: str) -> Optional
         async with aiohttp.ClientSession(timeout=timeout) as sess:
             async with sess.get(stream_url, headers=headers) as resp:
                 if resp.status not in (200, 206):
+                    LOGGER(__name__).warning(f"CDN download bad status for {vid}: {resp.status}")
                     return None
                 async with aiofiles.open(tmp_path, "wb") as f:
                     async for chunk in resp.content.iter_chunked(CHUNK_SIZE):

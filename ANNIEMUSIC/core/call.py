@@ -303,7 +303,7 @@ class Call:
                 break
             except TelegramServerError:
                 if attempt < 2:
-                    await asyncio.sleep(2)
+                    await asyncio.sleep(5)
                     continue
                 raise AssistantErr(_["call_10"])
             except NTgConnectionError:
