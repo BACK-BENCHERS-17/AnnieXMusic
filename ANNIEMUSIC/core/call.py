@@ -40,13 +40,14 @@ autoend = {}
 counter = {}
 autoplay_history: dict[int, list] = {}  # per-chat played video IDs history
 
-_CDN_HEADERS = (
-    "-headers "
-    "'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36\r\n"
-    "Referer: https://www.youtube.com/\r\n"
-    "Origin: https://www.youtube.com\r\n'"
-)
+_CDN_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+    ),
+    "Referer": "https://www.youtube.com/",
+    "Origin": "https://www.youtube.com",
+}
 
 
 def _needs_ytdlp(path: str) -> bool:
@@ -67,32 +68,34 @@ def _is_cdn_url(path: str) -> bool:
 
 def dynamic_media_stream(path: str, video: bool = False, ffmpeg_params: str = None) -> MediaStream:
     ytdlp_args = None
-    cdn_headers = None
+    headers = None
 
     if _needs_ytdlp(path):
         ytdlp_args = "--js-runtimes node"
         if COOKIE_PATH.exists():
             ytdlp_args += f" --cookies {COOKIE_PATH}"
     elif _is_cdn_url(path):
-        cdn_headers = _CDN_HEADERS
-
-    combined_ffmpeg = " ".join(filter(None, [cdn_headers, ffmpeg_params])) or None
+        headers = _CDN_HEADERS
 
     if video:
         return MediaStream(
             media_path=path,
             audio_parameters=AudioQuality.MEDIUM,
             video_parameters=VideoQuality.HD_720p,
+            audio_flags=MediaStream.Flags.AUTO_DETECT,
             video_flags=MediaStream.Flags.AUTO_DETECT,
-            ffmpeg_parameters=combined_ffmpeg,
+            headers=headers,
+            ffmpeg_parameters=ffmpeg_params or None,
             ytdlp_parameters=ytdlp_args,
         )
     else:
         return MediaStream(
-            audio_path=path,
+            media_path=path,
             audio_parameters=AudioQuality.STUDIO,
+            audio_flags=MediaStream.Flags.AUTO_DETECT,
             video_flags=MediaStream.Flags.IGNORE,
-            ffmpeg_parameters=combined_ffmpeg,
+            headers=headers,
+            ffmpeg_parameters=ffmpeg_params or None,
             ytdlp_parameters=ytdlp_args,
         )
 
