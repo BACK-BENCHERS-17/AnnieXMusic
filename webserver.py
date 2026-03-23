@@ -44,30 +44,64 @@ def _is_url_valid(data):
         pass
     return time.time() - data.get("ts", 0) < 3600
 
-def _fetch_stream_with_cookies(vid):
-    """Fast cookie-based yt-dlp extraction. Format 140 = m4a 128kbps, always present → no format negotiation."""
-    try:
-        opts = {
-            "quiet": True,
-            "no_warnings": True,
-            "skip_download": True,
-            "format": "140/bestaudio[ext=m4a]/bestaudio/best",
-            "extractor_args": {
-                "youtube": {
-                    "player_client": ["tv", "android"],
-                    "skip": ["hls", "translated_subs"],
-                }
-            },
-            "socket_timeout": 10,
-            "retries": 1,
-            "nocheckcertificate": True,
-            "source_address": "0.0.0.0",
-        }
-        cookiefile = _get_cookiefile()
-        if cookiefile:
-            opts["cookiefile"] = cookiefile
+def _build_ydl_opts_no_cookie():
+    """yt-dlp options that work WITHOUT cookies — uses mweb/tv_embedded player clients."""
+    return {
+        "quiet": True,
+        "no_warnings": True,
+        "skip_download": True,
+        "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["mweb", "tv_embedded"],
+                "skip": ["hls", "translated_subs"],
+            }
+        },
+        "socket_timeout": 12,
+        "retries": 2,
+        "nocheckcertificate": True,
+        "source_address": "0.0.0.0",
+        "user_agent": (
+            "Mozilla/5.0 (Linux; Android 11; Pixel 5) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/124.0.0.0 Mobile Safari/537.36"
+        ),
+    }
+
+
+def _build_ydl_opts_with_cookie(cookiefile):
+    """yt-dlp options WITH cookies — used as fallback if no-cookie fails."""
+    opts = {
+        "quiet": True,
+        "no_warnings": True,
+        "skip_download": True,
+        "format": "140/bestaudio[ext=m4a]/bestaudio/best",
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["tv", "android"],
+                "skip": ["hls", "translated_subs"],
+            }
+        },
+        "socket_timeout": 12,
+        "retries": 2,
+        "nocheckcertificate": True,
+        "source_address": "0.0.0.0",
+        "cookiefile": cookiefile,
+    }
+    return opts
+
+
+def _fetch_stream_url(vid):
+    """
+    Get YouTube stream URL.
+    Step 1: Try WITHOUT cookies (mweb/tv_embedded — works on Replit).
+    Step 2: Fallback to cookie-based extraction if Step 1 fails.
+    """
+    url_str = f"https://www.youtube.com/watch?v={vid}"
+
+    def _extract(opts):
         with yt_dlp.YoutubeDL(opts) as ydl:
-            info = ydl.extract_info(f"https://www.youtube.com/watch?v={vid}", download=False)
+            info = ydl.extract_info(url_str, download=False)
         if not info or not info.get("url"):
             return None
         dur = int(info.get("duration", 0))
@@ -81,8 +115,31 @@ def _fetch_stream_with_cookies(vid):
             "thumb":    f"https://img.youtube.com/vi/{vid}/mqdefault.jpg",
             "ts":       time.time(),
         }
+
+    # Step 1 — no cookies (works on Replit without any env setup)
+    try:
+        result = _extract(_build_ydl_opts_no_cookie())
+        if result:
+            return result
     except Exception:
-        return None
+        pass
+
+    # Step 2 — with cookies as fallback
+    cookiefile = _get_cookiefile()
+    if cookiefile:
+        try:
+            result = _extract(_build_ydl_opts_with_cookie(cookiefile))
+            if result:
+                return result
+        except Exception:
+            pass
+
+    return None
+
+
+# Keep old name as alias for backward compatibility
+def _fetch_stream_with_cookies(vid):
+    return _fetch_stream_url(vid)
 
 def _get_stream_data(vid, force_refresh=False):
     if not force_refresh:
@@ -569,27 +626,16 @@ def api_botpfp():
     return jsonify({"error": "No profile picture"}), 404
 
 def _fetch_video_via_ytdlp(vid):
-    """Fetch best video+audio stream URL via yt-dlp with cookies for video playback."""
-    try:
-        opts = {
-            "quiet": True, "no_warnings": True,
-            "skip_download": True,
-            "format": "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/best[height<=720][ext=mp4]/best[ext=mp4]/best",
-            "extractor_args": {
-                "youtube": {
-                    "player_client": ["tv", "android"],
-                    "skip": ["hls", "translated_subs"],
-                }
-            },
-            "socket_timeout": 10,
-            "retries": 1,
-            "nocheckcertificate": True,
-        }
-        cookiefile = _get_cookiefile()
-        if cookiefile:
-            opts["cookiefile"] = cookiefile
+    """
+    Fetch best video+audio stream URL.
+    Step 1: Try WITHOUT cookies (mweb/tv_embedded).
+    Step 2: Fallback to cookie-based extraction.
+    """
+    url_str = f"https://www.youtube.com/watch?v={vid}"
+
+    def _try_opts(opts):
         with yt_dlp.YoutubeDL(opts) as ydl:
-            info = ydl.extract_info(f"https://www.youtube.com/watch?v={vid}", download=False)
+            info = ydl.extract_info(url_str, download=False)
         if not info:
             return None
         url = info.get("url") or (info.get("requested_formats") or [{}])[0].get("url")
@@ -606,8 +652,63 @@ def _fetch_video_via_ytdlp(vid):
             "thumb":    f"https://img.youtube.com/vi/{vid}/mqdefault.jpg",
             "ts":       time.time(),
         }
+
+    base_format = "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/best[height<=720][ext=mp4]/best[ext=mp4]/best"
+
+    # Step 1 — no cookies
+    try:
+        opts = {
+            "quiet": True, "no_warnings": True,
+            "skip_download": True,
+            "format": "bestvideo[height<=720][ext=mp4]+bestaudio/bestvideo[height<=720]+bestaudio/best[height<=720]/best",
+            "extractor_args": {
+                "youtube": {
+                    "player_client": ["mweb", "tv_embedded"],
+                    "skip": ["hls", "translated_subs"],
+                }
+            },
+            "socket_timeout": 12,
+            "retries": 2,
+            "nocheckcertificate": True,
+            "source_address": "0.0.0.0",
+            "user_agent": (
+                "Mozilla/5.0 (Linux; Android 11; Pixel 5) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/124.0.0.0 Mobile Safari/537.36"
+            ),
+        }
+        result = _try_opts(opts)
+        if result:
+            return result
     except Exception:
-        return None
+        pass
+
+    # Step 2 — with cookies
+    cookiefile = _get_cookiefile()
+    if cookiefile:
+        try:
+            opts = {
+                "quiet": True, "no_warnings": True,
+                "skip_download": True,
+                "format": base_format,
+                "extractor_args": {
+                    "youtube": {
+                        "player_client": ["tv", "android"],
+                        "skip": ["hls", "translated_subs"],
+                    }
+                },
+                "socket_timeout": 12,
+                "retries": 2,
+                "nocheckcertificate": True,
+                "cookiefile": cookiefile,
+            }
+            result = _try_opts(opts)
+            if result:
+                return result
+        except Exception:
+            pass
+
+    return None
 
 _video_cache = {}
 _video_lock  = threading.Lock()
