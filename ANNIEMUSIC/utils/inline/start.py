@@ -22,25 +22,6 @@ def start_panel(_):
                 icon_custom_emoji_id=5454388756867986435,
             ),
         ],
-        [
-            InlineKeyboardButton(
-                text=_["S_B_7"],
-                url="https://t.me/PGL_B4CHI",
-                style="success",
-            ),
-            InlineKeyboardButton(
-                text=_["S_B_4"],
-                url=config.SUPPORT_CHAT,
-                style="success",
-            ),
-        ],
-        [
-            InlineKeyboardButton(
-                text=_["S_B_3"],
-                callback_data="open_help",
-                style="success",
-            ),
-        ],
     ]
 
     return buttons
