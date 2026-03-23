@@ -743,16 +743,26 @@ async function playSong(song) {
   try {
     const metaP = fetch(`/api/stream?v=${song.id}`).then(r=>r.json()).catch(()=>({}));
 
-    aud.src = `/api/audio?v=${song.id}`;
+    const ts = Date.now();
+    aud.src = `/api/audio?v=${song.id}&_t=${ts}`;
     aud.load();
     aud.loop = repeatOn;
-    aud.play().then(() => {
+    await aud.play().then(() => {
       playing = true;
       setPlayBtns(true);
       startProgTimer();
-    }).catch(() => {
-      toast('❌ Could not play. Try again.');
-      playing = false; setPlayBtns(false);
+    }).catch(async () => {
+      // Auto-retry once with a fresh request (cache-busted)
+      toast('⏳ Retrying…');
+      await new Promise(r => setTimeout(r, 1500));
+      aud.src = `/api/audio?v=${song.id}&_t=${Date.now()}`;
+      aud.load();
+      return aud.play().then(() => {
+        playing = true; setPlayBtns(true); startProgTimer();
+      }).catch(() => {
+        toast('❌ Could not play. Try again.');
+        playing = false; setPlayBtns(false);
+      });
     });
 
     const meta = await metaP;
@@ -762,7 +772,7 @@ async function playSong(song) {
     updateOverlay(curTrack.title, curTrack.channel, curTrack.thumb);
     updateProg(Math.floor(aud.currentTime||0), sec);
     setOverlayBg(curTrack.thumb);
-    toast('▶ '+curTrack.title.slice(0,38));
+    if (playing) toast('▶ '+curTrack.title.slice(0,38));
   } catch(e) {
     toast('❌ Could not load. Try again.');
     playing = false; setPlayBtns(false);
@@ -869,7 +879,18 @@ aud.addEventListener('ended', () => {
   playing = false; setPlayBtns(false); clearInterval(progTimer);
   if (!repeatOn) nextSong();
 });
-aud.addEventListener('error', () => { toast('❌ Stream error'); playing=false; setPlayBtns(false); });
+aud.addEventListener('error', () => {
+  if (!curTrack) return;
+  // Auto-retry once on stream error
+  const vid = curTrack.id;
+  toast('⏳ Reconnecting…');
+  setTimeout(() => {
+    aud.src = `/api/audio?v=${vid}&_t=${Date.now()}`;
+    aud.load();
+    aud.play().then(() => { playing=true; setPlayBtns(true); startProgTimer(); })
+              .catch(() => { toast('❌ Stream error. Try again.'); playing=false; setPlayBtns(false); });
+  }, 2000);
+});
 
 function startProgTimer() {
   clearInterval(progTimer);

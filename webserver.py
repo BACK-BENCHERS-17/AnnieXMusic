@@ -13,6 +13,18 @@ WEB_DIR = os.path.join(os.path.dirname(__file__), 'ANNIEMUSIC', 'utils', 'web')
 app = Flask(__name__)
 _boot_time = time.time()
 
+# ── Cookies helper (defined early so all yt-dlp callers can use it) ─────────
+_COOKIE_PATH = os.path.join(os.path.dirname(__file__), "ANNIEMUSIC", "assets", "cookies.txt")
+
+def _cookie_opts():
+    """Return cookiefile option dict if the cookies file exists and is non-empty."""
+    try:
+        if os.path.isfile(_COOKIE_PATH) and os.path.getsize(_COOKIE_PATH) > 50:
+            return {"cookiefile": _COOKIE_PATH}
+    except Exception:
+        pass
+    return {}
+
 # ── Trending cache ───────────────────────────────────────────────
 _trending_cache = {"data": [], "ts": 0}
 _CACHE_TTL = 1800  # 30 min
@@ -30,6 +42,7 @@ def _fetch_trending():
         "quiet": True, "no_warnings": True,
         "extract_flat": True, "skip_download": True,
         "ignoreerrors": True,
+        **_cookie_opts(),
     }
     for category, query in TRENDING_QUERIES:
         try:
@@ -99,33 +112,53 @@ def _is_url_valid(data):
     # Fallback: trust cache for 8 minutes if no expire param found
     return time.time() - data.get("ts", 0) < 480
 
+# Format attempts in order — try best audio first, fall back to anything streamable
+_FORMAT_ATTEMPTS = [
+    "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
+    "bestaudio/best",
+    "best",
+]
+
 def _fetch_stream_data(vid):
-    """Call yt-dlp to get a fresh stream URL for the given video ID."""
-    ydl_opts = {
-        "quiet": True, "no_warnings": True,
-        "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
+    """Call yt-dlp to get a fresh stream URL for the given video ID (with cookies + retry)."""
+    url = f"https://www.youtube.com/watch?v={vid}"
+    base_opts = {
+        "quiet": True,
+        "no_warnings": True,
         "skip_download": True,
+        **_cookie_opts(),
     }
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(f"https://www.youtube.com/watch?v={vid}", download=False)
-        if not info:
-            return None
-        stream_url = info.get("url", "")
-        if not stream_url:
-            return None
-        data = {
-            "url":      stream_url,
-            "ext":      info.get("ext", "m4a"),
-            "title":    info.get("title", "Unknown"),
-            "channel":  info.get("channel") or info.get("uploader", ""),
-            "duration": _sec_to_min(info.get("duration", 0)),
-            "seconds":  info.get("duration", 0),
-            "thumb":    f"https://img.youtube.com/vi/{vid}/mqdefault.jpg",
-            "ts":       time.time(),
-        }
-        with _stream_lock:
-            _stream_cache[vid] = data
-        return data
+
+    info = None
+    for fmt in _FORMAT_ATTEMPTS:
+        try:
+            opts = {**base_opts, "format": fmt}
+            with yt_dlp.YoutubeDL(opts) as ydl:
+                info = ydl.extract_info(url, download=False)
+            if info and info.get("url"):
+                break
+            info = None
+        except Exception:
+            info = None
+            continue
+
+    if not info or not info.get("url"):
+        return None
+
+    stream_url = info["url"]
+    data = {
+        "url":      stream_url,
+        "ext":      info.get("ext", "m4a"),
+        "title":    info.get("title", "Unknown"),
+        "channel":  info.get("channel") or info.get("uploader", ""),
+        "duration": _sec_to_min(info.get("duration", 0)),
+        "seconds":  info.get("duration", 0),
+        "thumb":    f"https://img.youtube.com/vi/{vid}/mqdefault.jpg",
+        "ts":       time.time(),
+    }
+    with _stream_lock:
+        _stream_cache[vid] = data
+    return data
 
 def _get_stream_data(vid, force_refresh=False):
     """Return cached stream data if still valid, otherwise fetch fresh."""
@@ -314,6 +347,7 @@ def api_search():
             "quiet": True, "no_warnings": True,
             "extract_flat": True, "skip_download": True,
             "ignoreerrors": True,
+            **_cookie_opts(),
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(f"ytsearch8:{q}", download=False)
