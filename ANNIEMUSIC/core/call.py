@@ -329,13 +329,32 @@ class Call:
             except NoActiveGroupCall:
                 raise AssistantErr(_["call_8"])
             except ChatAdminRequired:
-                # If already in call, just skip - no need to raise error for forceplay
-                if chat_id not in self.active_calls:
-                    raise AssistantErr(
-                        "<b>ᴍᴜsɪᴄ ʙᴏᴛ ɴᴇᴇᴅs ᴀᴅᴍɪɴ ᴘᴇʀᴍɪssɪᴏɴs</b>\n\n"
-                        "Pʟᴇᴀsᴇ ᴘʀᴏᴍᴏᴛᴇ ᴍᴇ ᴀs ᴀɴ ᴀᴅᴍɪɴ ɪɴ ᴛʜᴇ ɢʀᴏᴜᴘ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ."
+                if chat_id in self.active_calls:
+                    break
+                # Assistant lacks "Manage Voice Chats" admin — try creating VC via bot account first
+                LOGGER(__name__).warning(
+                    f"[PLAY] ChatAdminRequired — trying to create VC via bot for chat={chat_id}"
+                )
+                try:
+                    import random as _random
+                    from pyrogram.raw import functions as _rf
+                    _peer = await app.resolve_peer(chat_id)
+                    await app.invoke(
+                        _rf.phone.CreateGroupCall(
+                            peer=_peer,
+                            random_id=_random.randint(10000, 9999999),
+                        )
                     )
-                break
+                    await asyncio.sleep(2)
+                    LOGGER(__name__).info(f"[PLAY] VC created via bot. Retrying assistant.play for chat={chat_id}")
+                    await assistant.play(chat_id, stream)
+                    break
+                except Exception as cge:
+                    LOGGER(__name__).error(f"[PLAY] Bot-create VC also failed for chat={chat_id}: {cge}")
+                    raise AssistantErr(
+                        "<b>ᴠᴏɪᴄᴇ ᴄʜᴀᴛ ɴᴏᴛ ᴀᴠᴀɪʟᴀʙʟᴇ</b>\n\n"
+                        "<blockquote>ᴘʟᴇᴀsᴇ sᴛᴀʀᴛ ᴀ ᴠᴏɪᴄᴇ ᴄʜᴀᴛ ɪɴ ᴛʜᴇ ɢʀᴏᴜᴘ ꜰɪʀsᴛ, ᴏʀ ɢɪᴠᴇ ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ <b>Mᴀɴᴀɢᴇ Vᴏɪᴄᴇ Cʜᴀᴛs</b> ᴀᴅᴍɪɴ ᴘᴇʀᴍɪssɪᴏɴ.</blockquote>"
+                    )
             except TelegramServerError as tse:
                 LOGGER(__name__).warning(
                     f"[PLAY] TelegramServerError attempt {attempt+1}/3 | "

@@ -222,20 +222,43 @@ async def start_gp(client, message: Message, _):
     asyncio.create_task(react_to_command(message))
     out = start_panel(_)
     UP, CPU, RAM, DISK = await bot_sys_stats()
+    caption = _["start_1"].format(
+        message.from_user.mention,
+        f"<a href='https://t.me/{app.username}'>{app.name}</a>",
+        UP, DISK, CPU, RAM,
+        _OWNER_LINK
+    )
+    markup = InlineKeyboardMarkup(out)
+    sent = False
     try:
         await message.reply_photo(
             photo=random.choice(START_IMGS),
-            caption=_["start_1"].format(
-                message.from_user.mention,
-                f"<a href='https://t.me/{app.username}'>{app.name}</a>",
-                UP, DISK, CPU, RAM,
-                _OWNER_LINK
-            ),
-            reply_markup=InlineKeyboardMarkup(out),
+            caption=caption,
+            reply_markup=markup,
             has_spoiler=True,
         )
-    except:
+        sent = True
+    except Exception:
         pass
+    if not sent:
+        try:
+            await message.reply_photo(
+                photo=random.choice(START_IMGS),
+                caption=caption,
+                reply_markup=markup,
+            )
+            sent = True
+        except Exception:
+            pass
+    if not sent:
+        try:
+            await message.reply_text(
+                text=caption,
+                reply_markup=markup,
+                disable_web_page_preview=True,
+            )
+        except Exception:
+            pass
     return await add_served_chat(message.chat.id)
 
 
