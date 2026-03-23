@@ -9,6 +9,10 @@ import re
 from urllib.parse import urlparse, parse_qs
 
 _BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
+_DOWNLOAD_DIR = os.path.join(os.path.dirname(__file__), "downloads")
+os.makedirs(_DOWNLOAD_DIR, exist_ok=True)
+_ytdl_locks: dict = {}
+_ytdl_lock_guard = threading.Lock()
 
 WEB_DIR = os.path.join(os.path.dirname(__file__), 'ANNIEMUSIC', 'utils', 'web')
 app = Flask(__name__)
@@ -303,6 +307,73 @@ def api_yturl():
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/ytdl")
+def api_ytdl():
+    """
+    Internal API: download YouTube audio to local MP3 file.
+    Protected by BOT_TOKEN — only the bot (same process) should call this.
+    GET /api/ytdl?v=VIDEO_ID&key=BOT_TOKEN
+    Returns: {"path": "/abs/path/to/VIDEO_ID.mp3"}
+    """
+    vid = request.args.get("v", "").strip()
+    key = request.args.get("key", "").strip()
+
+    if not vid or len(vid) != 11:
+        return jsonify({"error": "Invalid video id"}), 400
+    if _BOT_TOKEN and key != _BOT_TOKEN:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    out_path = os.path.join(_DOWNLOAD_DIR, f"{vid}.mp3")
+    if os.path.exists(out_path) and os.path.getsize(out_path) > 1024:
+        return jsonify({"path": out_path, "cached": True})
+
+    with _ytdl_lock_guard:
+        if vid not in _ytdl_locks:
+            _ytdl_locks[vid] = threading.Lock()
+        vid_lock = _ytdl_locks[vid]
+
+    with vid_lock:
+        if os.path.exists(out_path) and os.path.getsize(out_path) > 1024:
+            return jsonify({"path": out_path, "cached": True})
+
+        tmp_path = out_path + ".tmp"
+        opts = {
+            "format": "bestaudio/best",
+            "postprocessors": [{
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "mp3",
+                "preferredquality": "128",
+            }],
+            "outtmpl": os.path.join(_DOWNLOAD_DIR, f"{vid}.%(ext)s"),
+            "quiet": True,
+            "no_warnings": True,
+            "extractor_args": {
+                "youtube": {
+                    "player_client": ["android_vr"],
+                    "skip": ["hls", "translated_subs"],
+                }
+            },
+            "socket_timeout": 30,
+            "retries": 3,
+            "nocheckcertificate": True,
+        }
+        try:
+            with yt_dlp.YoutubeDL(opts) as ydl:
+                ydl.extract_info(f"https://www.youtube.com/watch?v={vid}", download=True)
+            if os.path.exists(out_path) and os.path.getsize(out_path) > 1024:
+                return jsonify({"path": out_path})
+            return jsonify({"error": "Download produced no file"}), 500
+        except Exception as e:
+            try:
+                os.remove(tmp_path)
+            except Exception:
+                pass
+            return jsonify({"error": str(e)}), 500
+        finally:
+            with _ytdl_lock_guard:
+                _ytdl_locks.pop(vid, None)
 
 
 @app.route("/api/stream")

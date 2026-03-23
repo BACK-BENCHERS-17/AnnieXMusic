@@ -20,6 +20,7 @@ USE_API: bool = bool(API_URL and API_KEY)
 # ── Internal webserver API ─────────────────────────────────────────────────
 _WEB_PORT = int(os.environ.get("PORT") or os.environ.get("WEB_PORT") or 8080)
 _YTURL_ENDPOINT = f"http://localhost:{_WEB_PORT}/api/yturl"
+_YTDL_ENDPOINT = f"http://localhost:{_WEB_PORT}/api/ytdl"
 
 _inflight: Dict[str, asyncio.Future] = {}
 
@@ -434,50 +435,28 @@ async def yt_dlp_download(
     return None
 
 
-_SHRUTI_API = "https://shrutibots.site"
-
-
-async def download_from_shruti_api(vid: str) -> Optional[str]:
-    """Download audio via shrutibots.site API — returns clean MP3 file."""
+async def download_from_own_api(vid: str) -> Optional[str]:
+    """
+    Call our own internal webserver /api/ytdl to download audio as MP3.
+    The webserver uses yt-dlp + ffmpeg to produce a clean MP3 file.
+    """
     out_path = f"{_DOWNLOAD_DIR}/{vid}.mp3"
-    if os.path.exists(out_path) and os.path.getsize(out_path) > 0:
+    if os.path.exists(out_path) and os.path.getsize(out_path) > 1024:
         return out_path
-    tmp_path = out_path + ".tmp"
     try:
-        tok_timeout = aiohttp.ClientTimeout(total=10)
-        async with aiohttp.ClientSession(timeout=tok_timeout) as sess:
-            async with sess.get(
-                f"{_SHRUTI_API}/download",
-                params={"url": vid, "type": "audio"},
-            ) as resp:
+        url = f"{_YTDL_ENDPOINT}?v={vid}&key={BOT_TOKEN}"
+        timeout = aiohttp.ClientTimeout(total=180, connect=5)
+        async with aiohttp.ClientSession(timeout=timeout) as sess:
+            async with sess.get(url) as resp:
                 if resp.status != 200:
                     return None
                 data = await resp.json()
-                token = data.get("download_token")
-                if not token:
-                    return None
-
-            stream_url = f"{_SHRUTI_API}/stream/{vid}?type=audio&token={token}"
-            dl_timeout = aiohttp.ClientTimeout(total=180, connect=15)
-            async with aiohttp.ClientSession(timeout=dl_timeout) as dl_sess:
-                async with dl_sess.get(stream_url, allow_redirects=True) as file_resp:
-                    if file_resp.status not in (200, 206):
-                        return None
-                    async with aiofiles.open(tmp_path, "wb") as f:
-                        async for chunk in file_resp.content.iter_chunked(16384):
-                            if chunk:
-                                await f.write(chunk)
-
-        if os.path.exists(tmp_path) and os.path.getsize(tmp_path) > 1024:
-            os.replace(tmp_path, out_path)
-            LOGGER(__name__).info(f"[SHRUTI] MP3 downloaded: {out_path}")
-            return out_path
+                path = data.get("path")
+                if path and os.path.exists(path) and os.path.getsize(path) > 1024:
+                    LOGGER(__name__).info(f"[YTDL-API] MP3 ready: {path}")
+                    return path
     except Exception as e:
-        LOGGER(__name__).debug(f"[SHRUTI] API failed for {vid}: {e}")
-        try:
-            os.remove(tmp_path)
-        except Exception:
-            pass
+        LOGGER(__name__).debug(f"[YTDL-API] Failed for {vid}: {e}")
     return None
 
 
@@ -490,13 +469,13 @@ async def download_audio_concurrent(link: str) -> Optional[str]:
     key = f"rac:{link}"
 
     async def run():
-        # 1. Try shrutibots.site API — fast, returns clean MP3 (best VC format)
+        # 1. Try our own internal API — downloads clean MP3 via yt-dlp (best VC format)
         try:
-            shruti = await download_from_shruti_api(vid)
-            if shruti:
-                return shruti
+            own = await download_from_own_api(vid)
+            if own:
+                return own
         except Exception as e:
-            LOGGER(__name__).debug(f"[SHRUTI] path failed for {vid}: {e}")
+            LOGGER(__name__).debug(f"[YTDL-API] path failed for {vid}: {e}")
 
         # 2. Try internal webserver API — get CDN URL, then download to local file
         #    Local file gives smooth uninterrupted playback in VC (no CDN latency)
