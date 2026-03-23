@@ -60,9 +60,9 @@ def extract_video_id(link: str) -> str:
 
 
 def file_exists(video_id: str) -> Optional[str]:
-    for ext in ("mp4", "mp3", "m4a", "webm", "mkv"):
+    for ext in ("m4a", "mp3", "mp4", "webm", "mkv", "opus", "ogg", "flac"):
         path = f"{_DOWNLOAD_DIR}/{video_id}.{ext}"
-        if os.path.exists(path):
+        if os.path.exists(path) and os.path.getsize(path) > 0:
             return path
     return None
 
@@ -271,13 +271,13 @@ async def yt_dlp_download(
 
         async def run():
             opts = _ytdlp_base_opts()
-            opts.update({"format": "bestaudio/best"})
+            opts.update({
+                "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
+            })
             res = await _with_sem(
                 loop.run_in_executor(None, download_with_fallback, link, opts)
             )
             if res:
-                # We need to find the file. _download_ytdlp did this differently.
-                # Since we used default outtmpl in _ytdlp_base_opts, id is the filename.
                 vid = extract_video_id(link)
                 return file_exists(vid)
             return None
@@ -410,49 +410,49 @@ async def download_audio_concurrent(link: str) -> Optional[str]:
     if cached:
         return cached
 
-    if not USE_API:
-        return await yt_dlp_download(link, type="audio")
-
     key = f"rac:{link}"
 
     async def run():
-        yt_task = asyncio.create_task(yt_dlp_download(link, type="audio"))
-        api_task = asyncio.create_task(api_download_song(link))
-        
-        done, pending = await asyncio.wait(
-            {yt_task, api_task}, return_when=asyncio.FIRST_COMPLETED
-        )
-        
-        first_res = None
-        first_err = None
-        
-        for t in done:
+        # 1. Try internal webserver API (fast CDN URL → direct download)
+        try:
+            cdn = await api_get_stream_url(vid)
+            if cdn:
+                cdn_url, ext = cdn
+                local = await download_from_cdn_url(vid, cdn_url, ext)
+                if local:
+                    LOGGER(__name__).debug(f"CDN download ok: {vid}.{ext}")
+                    return local
+        except Exception as e:
+            LOGGER(__name__).debug(f"CDN path failed for {vid}: {e}")
+
+        # 2. External API race (only if configured)
+        if USE_API:
             try:
-                res = t.result()
-                if res:
-                    first_res = res
-                    break
+                yt_task = asyncio.create_task(yt_dlp_download(link, type="audio"))
+                api_task = asyncio.create_task(api_download_song(link))
+                done, pending = await asyncio.wait(
+                    {yt_task, api_task}, return_when=asyncio.FIRST_COMPLETED
+                )
+                for t in done:
+                    try:
+                        res = t.result()
+                        if res:
+                            for p in pending:
+                                p.cancel()
+                            return res
+                    except Exception:
+                        pass
+                for p in pending:
+                    try:
+                        res = await p
+                        if res:
+                            return res
+                    except Exception:
+                        pass
             except Exception as e:
-                first_err = e
-        
-        if first_res:
-            for p in pending:
-                p.cancel()
-            return first_res
-            
-        if pending:
-            for p in pending:
-                try:
-                    res = await p
-                    if res:
-                        return res
-                except Exception as e:
-                    if not first_err:
-                        first_err = e
-        
-        if first_err:
-            raise first_err
-            
-        return None
+                LOGGER(__name__).debug(f"API race failed for {vid}: {e}")
+
+        # 3. Direct yt-dlp download (always reliable fallback)
+        return await yt_dlp_download(link, type="audio")
 
     return await _dedup(key, lambda: _with_sem(run()))

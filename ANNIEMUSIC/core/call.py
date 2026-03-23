@@ -76,17 +76,25 @@ def dynamic_media_stream(path: str, video: bool = False, ffmpeg_params: str = No
     elif _is_cdn_url(path):
         cdn_headers = _CDN_HEADERS
 
-    combined_ffmpeg = " ".join(filter(None, [cdn_headers, ffmpeg_params]))
+    combined_ffmpeg = " ".join(filter(None, [cdn_headers, ffmpeg_params])) or None
 
-    return MediaStream(
-        audio_path=path,
-        media_path=path,
-        audio_parameters=AudioQuality.MEDIUM if video else AudioQuality.STUDIO,
-        video_parameters=VideoQuality.HD_720p if video else VideoQuality.SD_360p,
-        video_flags=(MediaStream.Flags.AUTO_DETECT if video else MediaStream.Flags.IGNORE),
-        ffmpeg_parameters=combined_ffmpeg or None,
-        ytdlp_parameters=ytdlp_args,
-    )
+    if video:
+        return MediaStream(
+            media_path=path,
+            audio_parameters=AudioQuality.MEDIUM,
+            video_parameters=VideoQuality.HD_720p,
+            video_flags=MediaStream.Flags.AUTO_DETECT,
+            ffmpeg_parameters=combined_ffmpeg,
+            ytdlp_parameters=ytdlp_args,
+        )
+    else:
+        return MediaStream(
+            audio_path=path,
+            audio_parameters=AudioQuality.STUDIO,
+            video_flags=MediaStream.Flags.IGNORE,
+            ffmpeg_parameters=combined_ffmpeg,
+            ytdlp_parameters=ytdlp_args,
+        )
 
 async def _clear_(chat_id: int) -> None:
     popped = db.pop(chat_id, None)
