@@ -12,7 +12,7 @@ from pyrogram.types import Message
 from youtubesearchpython.__future__ import VideosSearch
 
 from ANNIEMUSIC.utils.database import is_on_off
-from ANNIEMUSIC.utils.downloader import api_get_stream_url, download_audio_concurrent, download_from_cdn_url, extract_video_id, yt_dlp_download
+from ANNIEMUSIC.utils.downloader import download_audio_concurrent, extract_video_id, yt_dlp_download
 from ANNIEMUSIC.utils.errors import capture_internal_err
 from ANNIEMUSIC.utils.formatters import time_to_seconds
 from ANNIEMUSIC.utils.tuning import (
@@ -373,16 +373,6 @@ class YouTubeAPI:
             p = await yt_dlp_download(link, type="video")
             return (p, True) if p else (None, None)
 
-        # ── Fast path: CDN URL via webserver API → download locally ──────────
-        vid = extract_video_id(link)
-        api_result = await api_get_stream_url(vid)
-        if api_result:
-            stream_url, ext = api_result
-            if stream_url:
-                local_path = await download_from_cdn_url(vid, stream_url, ext)
-                if local_path:
-                    return local_path, True
-
-        # ── Fallback: yt-dlp + cookies (~5-15s) ───────────────────────────
+        # ── Download audio via yt-dlp (android_vr client, no cookies) ────────
         p = await download_audio_concurrent(link)
         return (p, True) if p else (None, None)
