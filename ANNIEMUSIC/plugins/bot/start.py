@@ -1,7 +1,10 @@
 import asyncio
+import logging
 import random
 import time
 from pyrogram import filters, enums
+
+LOGGER = logging.getLogger(__name__)
 from pyrogram.enums import ChatType
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 from pyrogram.raw import functions as raw_func, types as raw_types
@@ -219,47 +222,53 @@ async def start_pm(client, message: Message, _):
 @app.on_message(filters.command(["start"]) & filters.group & ~BANNED_USERS)
 @LanguageStart
 async def start_gp(client, message: Message, _):
-    out = start_panel(_)
-    UP, CPU, RAM, DISK = await bot_sys_stats()
-    user = message.from_user
-    mention = user.mention if user else (message.sender_chat.title if message.sender_chat else "User")
-    caption = _["start_1"].format(
-        mention,
-        f"<a href='https://t.me/{app.username}'>{app.name}</a>",
-        UP, DISK, CPU, RAM,
-        _OWNER_LINK
-    )
-    markup = InlineKeyboardMarkup(out)
-    sent = False
     try:
-        await message.reply_photo(
-            photo=random.choice(START_IMGS),
-            caption=caption,
-            reply_markup=markup,
-            has_spoiler=True,
+        out = start_panel(_)
+        UP, CPU, RAM, DISK = await bot_sys_stats()
+        user = message.from_user
+        mention = user.mention if user else (message.sender_chat.title if message.sender_chat else "User")
+        caption = _["start_1"].format(
+            mention,
+            f"<a href='https://t.me/{app.username}'>{app.name}</a>",
+            UP, DISK, CPU, RAM,
+            _OWNER_LINK
         )
-        sent = True
-    except Exception:
-        pass
-    if not sent:
+        markup = InlineKeyboardMarkup(out)
+        sent = False
         try:
             await message.reply_photo(
                 photo=random.choice(START_IMGS),
                 caption=caption,
                 reply_markup=markup,
+                has_spoiler=True,
             )
             sent = True
-        except Exception:
-            pass
-    if not sent:
-        try:
-            await message.reply_text(
-                text=caption,
-                reply_markup=markup,
-                disable_web_page_preview=True,
-            )
-        except Exception:
-            pass
+        except Exception as e1:
+            LOGGER.warning("[start_gp] reply_photo (spoiler) failed: %s", e1)
+        if not sent:
+            try:
+                await message.reply_photo(
+                    photo=random.choice(START_IMGS),
+                    caption=caption,
+                    reply_markup=markup,
+                )
+                sent = True
+            except Exception as e2:
+                LOGGER.warning("[start_gp] reply_photo failed: %s", e2)
+        if not sent:
+            try:
+                await message.reply_text(
+                    text=caption,
+                    reply_markup=markup,
+                    disable_web_page_preview=True,
+                )
+                sent = True
+            except Exception as e3:
+                LOGGER.error("[start_gp] reply_text failed: %s", e3)
+        if not sent:
+            LOGGER.error("[start_gp] All send attempts failed for chat %s", message.chat.id)
+    except Exception as ex:
+        LOGGER.error("[start_gp] Unhandled exception: %s", ex, exc_info=True)
     return await add_served_chat(message.chat.id)
 
 
