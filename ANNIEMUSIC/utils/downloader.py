@@ -19,7 +19,7 @@ from config import API_KEY, API_URL, BOT_TOKEN
 USE_API: bool = bool(API_URL and API_KEY)
 
 # ── Internal webserver API ─────────────────────────────────────────────────
-_WEB_PORT = int(os.environ.get("PORT") or os.environ.get("WEB_PORT") or 5000)
+_WEB_PORT = int(os.environ.get("WEB_PORT") or 5000)
 _YTURL_ENDPOINT = f"http://localhost:{_WEB_PORT}/api/yturl"
 
 _COOKIES_FILE = str(COOKIE_PATH)
@@ -74,7 +74,7 @@ def _cookiefile_path() -> Optional[str]:
 
 
 def file_exists(video_id: str) -> Optional[str]:
-    for ext in ("mp3", "m4a", "webm"):
+    for ext in ("mp4", "mp3", "m4a", "webm", "mkv"):
         path = f"{_DOWNLOAD_DIR}/{video_id}.{ext}"
         if os.path.exists(path):
             return path
@@ -262,7 +262,13 @@ async def yt_dlp_download(
                 # Fallback to best
                 if "format" in opts:
                     if type == "song_video":
-                        opts["format"] = "bestvideo+bestaudio/best"
+                        opts["format"] = "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=720]+bestaudio/best"
+                        opts["prefer_ffmpeg"] = True
+                        opts["merge_output_format"] = "mp4"
+                    elif type == "video":
+                        opts["format"] = "bestvideo[height<=720]+bestaudio/best[height<=720]/best"
+                        opts["prefer_ffmpeg"] = True
+                        opts["merge_output_format"] = "mp4"
                     elif type == "song_audio":
                         opts["format"] = "bestaudio/best"
                     else:
@@ -305,7 +311,11 @@ async def yt_dlp_download(
 
         async def run():
             opts = _ytdlp_base_opts()
-            opts.update({"format": "best[height<=?720][width<=?1280]/best"})
+            opts.update({
+                "format": "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=720]+bestaudio/best[height<=720][vcodec!=none][acodec!=none]/best[height<=720]/best",
+                "prefer_ffmpeg": True,
+                "merge_output_format": "mp4",
+            })
             res = await _with_sem(
                 loop.run_in_executor(None, download_with_fallback, link, opts)
             )
@@ -324,10 +334,11 @@ async def yt_dlp_download(
             opts = _ytdlp_base_opts()
             opts.update(
                 {
-                    "format": f"{format_id}/bestvideo+bestaudio/best",
+                    "format": f"{format_id}+bestaudio[ext=m4a]/{format_id}+bestaudio/bestvideo[height<=720]+bestaudio[ext=m4a]/bestvideo[height<=720]+bestaudio/best[height<=720]/best",
                     "outtmpl": f"{_DOWNLOAD_DIR}/{safe_title}.%(ext)s",
                     "prefer_ffmpeg": True,
                     "merge_output_format": "mp4",
+                    "postprocessors": [{"key": "FFmpegVideoConvertor", "preferedformat": "mp4"}],
                 }
             )
 
@@ -341,12 +352,26 @@ async def yt_dlp_download(
                     mp4_path = f"{_DOWNLOAD_DIR}/{safe_title}.mp4"
                     if os.path.exists(mp4_path) and os.path.getsize(mp4_path) > 0:
                         return mp4_path
-                    for e in ("mkv", "webm", "mp4"):
+                    for e in ("mkv", "webm", "mp4", "mov"):
                         p = f"{_DOWNLOAD_DIR}/{safe_title}.{e}"
                         if os.path.exists(p) and os.path.getsize(p) > 0:
                             return p
                 except DownloadError as de:
                     LOGGER(__name__).warning(f"song_video DownloadError: {de}")
+                    # Try fallback with bestvideo+bestaudio only
+                    try:
+                        o["format"] = "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=720]+bestaudio/best"
+                        with YoutubeDL(o) as ydl:
+                            ydl.extract_info(lnk, download=True)
+                        mp4_path = f"{_DOWNLOAD_DIR}/{safe_title}.mp4"
+                        if os.path.exists(mp4_path) and os.path.getsize(mp4_path) > 0:
+                            return mp4_path
+                        for e in ("mkv", "webm", "mp4", "mov"):
+                            p = f"{_DOWNLOAD_DIR}/{safe_title}.{e}"
+                            if os.path.exists(p) and os.path.getsize(p) > 0:
+                                return p
+                    except Exception as fe:
+                        LOGGER(__name__).error(f"song_video fallback error: {fe}")
                 except Exception as e:
                     LOGGER(__name__).error(f"song_video error: {e}")
                 return None
