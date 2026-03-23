@@ -33,6 +33,7 @@ PLAYLIST_FETCH_LIMIT = int(getenv("PLAYLIST_FETCH_LIMIT", "30"))
 API_URL = getenv("API_URL")        # optional
 API_KEY = getenv("API_KEY")        # optional
 DEEP_API = getenv("DEEP_API")      # optional
+YOUTUBE_API_KEY = getenv("YOUTUBE_API_KEY", "")  # YouTube Data API v3 key (optional but recommended for fast search)
 
 # ── Web Player (Mini App) ──────────────────────────────────────────────────────
 # Auto-detected from RAILWAY_PUBLIC_DOMAIN / REPLIT_DEV_DOMAIN.

@@ -445,12 +445,97 @@ def api_related():
     except Exception as e:
         return jsonify({"results": [], "error": str(e)}), 500
 
+def _search_via_ytapi(q: str, max_results: int = 15):
+    """
+    Fast YouTube search using Data API v3 (sync wrapper for Flask).
+    Falls back to yt-dlp if API key is not set.
+    """
+    api_key = os.environ.get("YOUTUBE_API_KEY", "").strip()
+    if not api_key:
+        return None
+
+    import urllib.request
+    import urllib.parse
+    import json as _json
+
+    try:
+        search_params = urllib.parse.urlencode({
+            "key": api_key,
+            "q": q,
+            "part": "snippet",
+            "type": "video",
+            "maxResults": min(max_results, 50),
+            "videoCategoryId": "10",
+        })
+        with urllib.request.urlopen(
+            f"https://www.googleapis.com/youtube/v3/search?{search_params}", timeout=6
+        ) as r:
+            data = _json.loads(r.read())
+
+        items = data.get("items", [])
+        if not items:
+            return []
+
+        video_ids = [item["id"]["videoId"] for item in items if item.get("id", {}).get("videoId")]
+        if not video_ids:
+            return []
+
+        detail_params = urllib.parse.urlencode({
+            "key": api_key,
+            "id": ",".join(video_ids),
+            "part": "contentDetails,snippet",
+        })
+        with urllib.request.urlopen(
+            f"https://www.googleapis.com/youtube/v3/videos?{detail_params}", timeout=6
+        ) as r:
+            detail_data = _json.loads(r.read())
+
+        def iso_to_sec(d):
+            import re as _re
+            m = _re.match(r"PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?", d or "")
+            if not m:
+                return 0
+            return int(m.group(1) or 0)*3600 + int(m.group(2) or 0)*60 + int(m.group(3) or 0)
+
+        detail_map = {}
+        for v in detail_data.get("items", []):
+            secs = iso_to_sec(v.get("contentDetails", {}).get("duration", ""))
+            detail_map[v["id"]] = secs
+
+        results = []
+        for item in items:
+            vid = item.get("id", {}).get("videoId", "")
+            if not vid:
+                continue
+            snippet = item.get("snippet", {})
+            secs = detail_map.get(vid, 0)
+            thumb = (
+                snippet.get("thumbnails", {}).get("medium", {}).get("url")
+                or f"https://img.youtube.com/vi/{vid}/mqdefault.jpg"
+            )
+            results.append({
+                "id":       vid,
+                "title":    snippet.get("title", "Unknown"),
+                "channel":  snippet.get("channelTitle", ""),
+                "duration": _sec_to_min(secs),
+                "thumb":    thumb,
+            })
+        return results
+
+    except Exception:
+        return None
+
+
 @app.route("/api/search")
 def api_search():
     q = request.args.get("q", "").strip()
     if not q:
         return jsonify({"results": []})
     try:
+        api_results = _search_via_ytapi(q, max_results=15)
+        if api_results is not None:
+            return jsonify({"results": api_results, "source": "youtube_api_v3"})
+
         ydl_opts = {
             "quiet": True, "no_warnings": True,
             "extract_flat": True, "skip_download": True,
@@ -473,7 +558,7 @@ def api_search():
                     "duration": e.get("duration_string") or _sec_to_min(e.get("duration", 0)),
                     "thumb":    f"https://img.youtube.com/vi/{vid}/mqdefault.jpg",
                 })
-        return jsonify({"results": results})
+        return jsonify({"results": results, "source": "ytdlp"})
     except Exception as e:
         return jsonify({"error": str(e), "results": []}), 500
 

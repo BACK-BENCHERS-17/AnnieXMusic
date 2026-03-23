@@ -30,7 +30,14 @@ config.py          # Configuration from environment
 
 ## YouTube Streaming (No Cookies Needed)
 Uses yt-dlp with `android_vr` + `ios_downgraded` player clients — works on Replit/cloud without any cookies or COOKIE_URL. The bot's internal API at port 8080 (`/api/yturl`) is used for fast stream URL fetching.
-- `OWNER_ID` - Owner's Telegram user ID
+
+## YouTube Data API v3 (Fast Search)
+When `YOUTUBE_API_KEY` is set, search is powered by YouTube Data API v3 (~200ms) instead of yt-dlp search (~2-5s). Stream URL fetching still uses yt-dlp.
+- Get a free API key: https://console.cloud.google.com → Enable "YouTube Data API v3"
+- Free quota: 10,000 units/day (each search = 100 units = ~100 searches/day)
+- Files: `ANNIEMUSIC/utils/yt_api.py` (async helper), `webserver.py` (`/api/search` endpoint)
+- Fallback: If key is missing or quota exceeded, falls back to youtubesearchpython / yt-dlp automatically
+- `OWNER_ID` - Owner's Telegram user ID (Required Secret)
 
 ## Running the Bot
 The bot runs as a console workflow:

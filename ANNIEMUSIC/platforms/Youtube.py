@@ -20,6 +20,7 @@ from ANNIEMUSIC.utils.tuning import (
     YOUTUBE_META_MAX,
     YOUTUBE_META_TTL,
 )
+from ANNIEMUSIC.utils.yt_api import yt_api_search, yt_api_video_details, is_api_available
 
 _cache: Dict[str, Tuple[float, List[Dict]]] = {}
 _cache_lock = asyncio.Lock()
@@ -62,15 +63,52 @@ async def cached_youtube_search(query: str) -> List[Dict]:
             _cache.pop(key, None)
         if len(_cache) > YOUTUBE_META_MAX:
             _cache.clear()
-    try:
-        data = await VideosSearch(query, limit=1).next()
-        result = data.get("result", [])
-    except Exception:
-        result = []
+
+    result = []
+
+    if is_api_available():
+        try:
+            api_results = await yt_api_search(query, max_results=5)
+            if api_results:
+                result = _normalize_api_results(api_results)
+        except Exception:
+            pass
+
+    if not result:
+        try:
+            data = await VideosSearch(query, limit=1).next()
+            result = data.get("result", [])
+        except Exception:
+            result = []
+
     if result:
         async with _cache_lock:
             _cache[key] = (now, result)
     return result
+
+
+def _normalize_api_results(api_results: List[Dict]) -> List[Dict]:
+    """Convert YouTube API v3 results into youtubesearchpython-compatible format."""
+    normalized = []
+    for r in api_results:
+        dur_sec = r.get("duration_sec", 0)
+        dur_str = r.get("duration", "0:00")
+        parts = dur_str.split(":")
+        if len(parts) == 2:
+            yt_dur = f"{parts[0]}:{parts[1]}"
+        else:
+            yt_dur = dur_str
+        normalized.append({
+            "id": r.get("id", ""),
+            "title": r.get("title", "Unknown"),
+            "duration": yt_dur,
+            "thumbnails": [{"url": r.get("thumb", "")}],
+            "channel": {"name": r.get("channel", "")},
+            "link": r.get("url", f"https://www.youtube.com/watch?v={r.get('id','')}"),
+            "thumbnail": r.get("thumb", ""),
+            "viewCount": {"short": ""},
+        })
+    return normalized
 
 
 class YouTubeAPI:
