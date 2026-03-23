@@ -378,12 +378,29 @@ class Call:
                         if len(_hist) > 25:
                             _hist.pop(0)
 
-                        # Build a varied search query each call
+                        # Keywords that identify compilations/jukeboxes — skip them
+                        _ap_skip_kw = {
+                            "jukebox", "playlist", "non stop", "nonstop",
+                            "mashup", "part 1", "part 2", "part-1", "part-2",
+                            "vol.", "vol ", "top 10", "top 20", "top 50",
+                            "best of", "hits of", "collection", "compilation",
+                            "audio jukebox", "video jukebox", "full album",
+                            "all songs", "back to back", "evergreen",
+                            "jhankar", "ringtone",
+                        }
+
+                        def _is_single_song(title: str, dur_secs: int) -> bool:
+                            tl = title.lower()
+                            for kw in _ap_skip_kw:
+                                if kw in tl:
+                                    return False
+                            return 60 <= dur_secs <= 600  # 1–10 minutes
+
+                        # Build individual-song focused queries
                         _suffixes = [
-                            "best songs", "top hits", "audio jukebox",
-                            "hit songs", "songs collection", "popular songs",
-                            "playlist", "new songs", "full songs",
-                            "superhit", "evergreen hits", "blockbuster songs",
+                            "new song", "latest song", "official video",
+                            "new hindi song", "hit song", "official audio",
+                            "song 2025", "new release", "latest hit",
                         ]
                         _words = [w for w in last_title.split() if len(w) > 3]
                         _base = _random.choice(_words) if _words else (
@@ -394,7 +411,7 @@ class Call:
                         for _attempt in range(3):
                             _query = f"{_base} {_random.choice(_suffixes)}"
                             try:
-                                _res = await VideosSearch(_query, limit=10).next()
+                                _res = await VideosSearch(_query, limit=15).next()
                                 all_candidates += (_res.get("result") or [])
                             except Exception:
                                 pass
@@ -410,20 +427,28 @@ class Call:
 
                         _random.shuffle(unique_candidates)
 
+                        # Prefer individual songs (≤10 min, no compilation keywords)
                         chosen = None
+                        fallback = None
                         for item in unique_candidates:
                             vid = item.get("id", "")
                             dur_raw = item.get("duration") or ""
-                            # Skip if in history
+                            ititle  = item.get("title", "")
                             if not vid or vid in _hist or not dur_raw:
                                 continue
                             try:
-                                if _tts(dur_raw) <= _cfg.DURATION_LIMIT:
-                                    chosen = item
-                                    break
+                                dur_s = _tts(dur_raw)
                             except Exception:
+                                dur_s = 0
+                            if dur_s > _cfg.DURATION_LIMIT:
+                                continue
+                            if _is_single_song(ititle, dur_s):
                                 chosen = item
                                 break
+                            elif fallback is None:
+                                fallback = item
+                        if not chosen:
+                            chosen = fallback
 
                         if chosen:
                             ap_vidid   = chosen.get("id")
