@@ -5,7 +5,6 @@ import psutil
 import yt_dlp
 from flask import Flask, jsonify, send_from_directory, request, Response, send_file
 import requests
-import tempfile
 import re
 from urllib.parse import urlparse, parse_qs
 from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError as FuturesTimeout
@@ -496,41 +495,54 @@ def api_search():
 
 @app.route("/api/download")
 def api_download():
-    """Download audio file via yt-dlp and send to browser."""
+    """Download audio by proxying stream with Content-Disposition (fast, no temp file)."""
     vid = request.args.get("v", "").strip()
     if not vid or len(vid) != 11:
         return jsonify({"error": "Invalid video id"}), 400
     try:
-        tmp_dir = tempfile.mkdtemp()
-        out_template = os.path.join(tmp_dir, "%(title)s.%(ext)s")
-        ydl_opts = {
-            "quiet": True,
-            "no_warnings": True,
-            "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
-            "outtmpl": out_template,
-            "postprocessors": [{
-                "key": "FFmpegExtractAudio",
-                "preferredcodec": "m4a",
-            }],
+        data = _get_stream_data(vid)
+        if not data or not data.get("url"):
+            return jsonify({"error": "Could not fetch stream"}), 500
+
+        stream_url = data["url"]
+        ext = data.get("ext", "m4a")
+        title = data.get("title", vid)
+        safe_title = re.sub(r'[^\w\s\-\.]', '_', title)[:80].strip()
+        filename = f"{safe_title}.{ext}"
+        mime = "audio/mp4" if ext in ("m4a", "mp4") else f"audio/{ext}"
+
+        req_headers = {
+            "User-Agent":      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "Accept":          "*/*",
+            "Accept-Encoding": "identity",
+            "Connection":      "keep-alive",
+            "Referer":         "https://www.youtube.com/",
         }
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(f"https://www.youtube.com/watch?v={vid}", download=True)
-            title = info.get("title", vid)
-            # Find the downloaded file
-            safe_title = re.sub(r'[^\w\s\-\.]', '', title)[:80]
-            files = [f for f in os.listdir(tmp_dir) if os.path.isfile(os.path.join(tmp_dir, f))]
-            if not files:
-                return jsonify({"error": "Download failed"}), 500
-            filepath = os.path.join(tmp_dir, files[0])
-            ext = os.path.splitext(files[0])[1].lstrip('.')
-            mime = "audio/mp4" if ext in ("m4a", "mp4") else f"audio/{ext}"
-            filename = f"{safe_title}.{ext}"
-            return send_file(
-                filepath,
-                mimetype=mime,
-                as_attachment=True,
-                download_name=filename,
-            )
+        upstream = requests.get(stream_url, headers=req_headers, stream=True, timeout=30)
+
+        # If expired, refresh once
+        if upstream.status_code in (400, 403, 410):
+            upstream.close()
+            data = _get_stream_data(vid, force_refresh=True)
+            if not data or not data.get("url"):
+                return jsonify({"error": "Could not refresh stream"}), 500
+            stream_url = data["url"]
+            upstream = requests.get(stream_url, headers=req_headers, stream=True, timeout=30)
+
+        resp_headers = {
+            "Content-Type":        upstream.headers.get("Content-Type", mime),
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Cache-Control":       "no-cache",
+        }
+        if "Content-Length" in upstream.headers:
+            resp_headers["Content-Length"] = upstream.headers["Content-Length"]
+
+        def generate():
+            for chunk in upstream.iter_content(chunk_size=65536):
+                if chunk:
+                    yield chunk
+
+        return Response(generate(), status=200, headers=resp_headers)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -564,9 +576,111 @@ def api_botpfp():
         return send_file(upic_path, mimetype="image/png")
     return jsonify({"error": "No profile picture"}), 404
 
+def _fetch_video_via_ytdlp(vid):
+    """Fetch best video+audio stream URL via yt-dlp for video playback."""
+    try:
+        opts = {
+            "quiet": True, "no_warnings": True,
+            "skip_download": True,
+            "format": "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/best[height<=720][ext=mp4]/best[ext=mp4]/best",
+            "merge_output_format": "mp4",
+            "extractor_args": {"youtube": {"skip": ["hls", "translated_subs"]}},
+            "socket_timeout": 15,
+            "retries": 1,
+        }
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            info = ydl.extract_info(f"https://www.youtube.com/watch?v={vid}", download=False)
+        if not info:
+            return None
+        url = info.get("url") or (info.get("requested_formats") or [{}])[0].get("url")
+        if not url:
+            return None
+        dur = int(info.get("duration", 0))
+        return {
+            "url":      url,
+            "ext":      "mp4",
+            "title":    info.get("title", "Unknown"),
+            "channel":  info.get("channel") or info.get("uploader", ""),
+            "duration": _sec_to_min(dur),
+            "seconds":  dur,
+            "thumb":    f"https://img.youtube.com/vi/{vid}/mqdefault.jpg",
+            "ts":       time.time(),
+        }
+    except Exception:
+        return None
+
+_video_cache = {}
+_video_lock  = threading.Lock()
+
+def _get_video_data(vid, force_refresh=False):
+    if not force_refresh:
+        with _video_lock:
+            cached = _video_cache.get(vid)
+        if cached and _is_url_valid(cached):
+            return cached
+    data = _fetch_video_via_ytdlp(vid)
+    if data:
+        with _video_lock:
+            _video_cache[vid] = data
+    return data
+
+@app.route("/api/video")
+def api_video():
+    """Proxy video stream from YouTube for web player."""
+    vid = request.args.get("v", "").strip()
+    if not vid or len(vid) != 11:
+        return jsonify({"error": "Invalid video id"}), 400
+    try:
+        data = _get_video_data(vid)
+        if not data or not data.get("url"):
+            return jsonify({"error": "Could not fetch video stream"}), 500
+
+        stream_url = data["url"]
+        range_header = request.headers.get("Range")
+        req_headers = {
+            "User-Agent":      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "Accept":          "*/*",
+            "Accept-Encoding": "identity",
+            "Connection":      "keep-alive",
+            "Referer":         "https://www.youtube.com/",
+        }
+        if range_header:
+            req_headers["Range"] = range_header
+
+        upstream = requests.get(stream_url, headers=req_headers, stream=True, timeout=30)
+
+        if upstream.status_code in (400, 403, 410):
+            upstream.close()
+            data = _get_video_data(vid, force_refresh=True)
+            if not data or not data.get("url"):
+                return jsonify({"error": "Could not refresh video stream"}), 500
+            stream_url = data["url"]
+            upstream = requests.get(stream_url, headers=req_headers, stream=True, timeout=30)
+
+        resp_headers = {
+            "Content-Type":  upstream.headers.get("Content-Type", "video/mp4"),
+            "Accept-Ranges": "bytes",
+            "Cache-Control": "no-cache",
+        }
+        if "Content-Length" in upstream.headers:
+            resp_headers["Content-Length"] = upstream.headers["Content-Length"]
+        if "Content-Range" in upstream.headers:
+            resp_headers["Content-Range"] = upstream.headers["Content-Range"]
+
+        status_code = upstream.status_code
+
+        def generate():
+            for chunk in upstream.iter_content(chunk_size=65536):
+                if chunk:
+                    yield chunk
+
+        return Response(generate(), status=status_code, headers=resp_headers)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route("/api/health")
 def health():
-    return jsonify({"status": "alive"}), 200
+    return jsonify({"status": "running"}), 200
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT") or os.environ.get("WEB_PORT") or 5000)

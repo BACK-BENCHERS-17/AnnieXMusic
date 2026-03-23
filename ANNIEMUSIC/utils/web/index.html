@@ -447,6 +447,10 @@ img{display:block}
             <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5z"/></svg>
             Download
           </button>
+          <button class="ov-action" onclick="playCurrentVideo()">
+            <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+            Video
+          </button>
           <button class="ov-action" onclick="toggleLike()">
             <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
             Like
@@ -469,6 +473,16 @@ img{display:block}
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 <audio id="aud" preload="none"></audio>
+
+<!-- Video Player Modal -->
+<div id="videoModal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.95);flex-direction:column;align-items:center;justify-content:center;">
+  <div style="position:relative;width:100%;max-width:520px;padding:0 12px;">
+    <button onclick="closeVideo()" style="position:absolute;top:-40px;right:12px;background:rgba(255,255,255,0.12);border:none;color:#fff;font-size:20px;width:36px;height:36px;border-radius:50%;cursor:pointer;z-index:10;">✕</button>
+    <div id="vidTitle" style="color:#fff;font-size:14px;font-weight:700;margin-bottom:8px;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+    <video id="vid" preload="none" controls playsinline style="width:100%;border-radius:14px;background:#000;max-height:60vh;display:block;"></video>
+    <div id="vidStatus" style="color:#a0a0b8;font-size:12px;text-align:center;margin-top:8px;">Loading video...</div>
+  </div>
+</div>
 
 <script>
 // ── Telegram WebApp ────────────────────────────────────────────
@@ -978,6 +992,53 @@ ov.addEventListener('touchend', e => {
   const dy = e.changedTouches[0].clientY - touchStartY;
   ov.style.transform = '';
   if (dy > 90) closeOverlay();
+});
+
+// ── Video Player ──────────────────────────────────────────────
+const vidEl = document.getElementById('vid');
+const videoModal = document.getElementById('videoModal');
+
+function playCurrentVideo() {
+  if (!curTrack) return;
+  openVideoPlayer(curTrack.id, curTrack.title);
+}
+
+function openVideoPlayer(vid, title) {
+  videoModal.style.display = 'flex';
+  document.getElementById('vidTitle').textContent = title || vid;
+  document.getElementById('vidStatus').textContent = 'Loading video...';
+  const ts = Date.now();
+  vidEl.src = `/api/video?v=${vid}&_t=${ts}`;
+  vidEl.load();
+  vidEl.play().then(() => {
+    document.getElementById('vidStatus').textContent = '▶ Playing';
+  }).catch(() => {
+    document.getElementById('vidStatus').textContent = '⏳ Tap play to start';
+  });
+  aud.pause();
+  playing = false;
+  setPlayBtns(false);
+  clearInterval(progTimer);
+}
+
+function closeVideo() {
+  vidEl.pause();
+  vidEl.src = '';
+  videoModal.style.display = 'none';
+}
+
+videoModal.addEventListener('click', function(e) {
+  if (e.target === videoModal) closeVideo();
+});
+
+vidEl.addEventListener('error', function() {
+  document.getElementById('vidStatus').textContent = '❌ Video failed to load. Try again.';
+});
+vidEl.addEventListener('playing', function() {
+  document.getElementById('vidStatus').textContent = '▶ Playing';
+});
+vidEl.addEventListener('waiting', function() {
+  document.getElementById('vidStatus').textContent = '⏳ Buffering...';
 });
 
 // ── Helpers ───────────────────────────────────────────────────
