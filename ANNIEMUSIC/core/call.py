@@ -296,6 +296,19 @@ class Call:
         assistant = await group_assistant(self, chat_id)
         lang = await get_lang(chat_id)
         _ = get_string(lang)
+
+        # Log what we're streaming for debugging
+        is_url = link.startswith("http")
+        if is_url:
+            LOGGER(__name__).info(
+                f"[PLAY] chat={chat_id} | CDN URL stream | video={bool(video)}"
+            )
+        else:
+            size = os.path.getsize(link) if os.path.exists(link) else -1
+            LOGGER(__name__).info(
+                f"[PLAY] chat={chat_id} | file={link} | size={size}B | video={bool(video)}"
+            )
+
         stream = dynamic_media_stream(path=link, video=bool(video))
 
         for attempt in range(3):
@@ -312,18 +325,31 @@ class Call:
                         "Pʟᴇᴀsᴇ ᴘʀᴏᴍᴏᴛᴇ ᴍᴇ ᴀs ᴀɴ ᴀᴅᴍɪɴ ɪɴ ᴛʜᴇ ɢʀᴏᴜᴘ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ."
                     )
                 break
-            except TelegramServerError:
+            except TelegramServerError as tse:
+                LOGGER(__name__).warning(
+                    f"[PLAY] TelegramServerError attempt {attempt+1}/3 | "
+                    f"chat={chat_id} | link={link[:80]} | err={tse}"
+                )
                 if attempt < 2:
-                    await asyncio.sleep(5)
+                    # Leave call cleanly before retry — clears stale NTgCalls state
+                    try:
+                        await assistant.leave_call(chat_id)
+                    except Exception:
+                        pass
+                    await asyncio.sleep(3)
                     continue
                 raise AssistantErr(_["call_10"])
             except NTgConnectionError:
+                LOGGER(__name__).warning(
+                    f"[PLAY] NTgConnectionError | chat={chat_id} — leaving and retrying"
+                )
                 try:
                     await assistant.leave_call(chat_id)
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(2)
                     await assistant.play(chat_id, stream)
                     break
-                except Exception:
+                except Exception as e:
+                    LOGGER(__name__).error(f"[PLAY] NTgConnectionError retry failed: {e}")
                     pass
             except FloodWait as fw:
                 wait_sec = fw.value + 3
@@ -342,6 +368,7 @@ class Call:
                     "<blockquote>ᴘʟᴇᴀsᴇ ᴀᴅᴅ ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.</blockquote>"
                 )
             except Exception as e:
+                LOGGER(__name__).error(f"[PLAY] Unexpected error | chat={chat_id} | {type(e).__name__}: {e}")
                 raise AssistantErr(
                     f"ᴜɴᴀʙʟᴇ ᴛᴏ ᴊᴏɪɴ ᴛʜᴇ ɢʀᴏᴜᴘ ᴄᴀʟʟ.\nRᴇᴀsᴏɴ: {e}"
                 )

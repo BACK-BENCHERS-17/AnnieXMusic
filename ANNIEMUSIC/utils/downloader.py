@@ -413,17 +413,18 @@ async def download_audio_concurrent(link: str) -> Optional[str]:
     key = f"rac:{link}"
 
     async def run():
-        # 1. Try internal webserver API (fast CDN URL → direct download)
+        # 1. Try internal webserver API — get CDN URL and return it directly
+        #    (no local download needed — PyTgCalls/NTgCalls will stream via FFmpeg)
         try:
             cdn = await api_get_stream_url(vid)
             if cdn:
                 cdn_url, ext = cdn
-                local = await download_from_cdn_url(vid, cdn_url, ext)
-                if local:
-                    LOGGER(__name__).debug(f"CDN download ok: {vid}.{ext}")
-                    return local
+                LOGGER(__name__).info(
+                    f"[STREAM] CDN URL ready for {vid} ({ext}) — streaming directly"
+                )
+                return cdn_url  # Return CDN URL directly — no file download
         except Exception as e:
-            LOGGER(__name__).debug(f"CDN path failed for {vid}: {e}")
+            LOGGER(__name__).debug(f"[STREAM] CDN API failed for {vid}: {e}")
 
         # 2. External API race (only if configured)
         if USE_API:
@@ -450,9 +451,10 @@ async def download_audio_concurrent(link: str) -> Optional[str]:
                     except Exception:
                         pass
             except Exception as e:
-                LOGGER(__name__).debug(f"API race failed for {vid}: {e}")
+                LOGGER(__name__).debug(f"[STREAM] API race failed for {vid}: {e}")
 
-        # 3. Direct yt-dlp download (always reliable fallback)
+        # 3. Direct yt-dlp download (reliable local-file fallback)
+        LOGGER(__name__).info(f"[STREAM] Falling back to yt-dlp local download for {vid}")
         return await yt_dlp_download(link, type="audio")
 
     return await _dedup(key, lambda: _with_sem(run()))
