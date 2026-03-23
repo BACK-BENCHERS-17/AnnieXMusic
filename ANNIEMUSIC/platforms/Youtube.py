@@ -32,7 +32,7 @@ def _cookies_args() -> List[str]:
     return [
         "--no-check-certificate",
         "--force-ipv4",
-        "--extractor-arg", "youtube:player_client=android_vr,tv",
+        "--extractor-arg", "youtube:player_client=android_vr",
     ]
 
 
@@ -261,7 +261,7 @@ class YouTubeAPI:
             "source_address": "0.0.0.0",
             "extractor_args": {
                 "youtube": {
-                    "player_client": ["android_vr", "tv"],
+                    "player_client": ["android_vr"],
                 }
             },
         }

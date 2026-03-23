@@ -28,7 +28,7 @@ _YDL_AUDIO_OPTS = {
     "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
     "extractor_args": {
         "youtube": {
-            "player_client": ["android_vr", "tv"],
+            "player_client": ["android_vr"],
             "skip": ["hls", "translated_subs"],
         }
     },
@@ -570,7 +570,7 @@ def _fetch_video_via_ytdlp(vid):
             "format": "bestvideo[height<=720][ext=mp4]+bestaudio/bestvideo[height<=720]+bestaudio/best[height<=720]/best",
             "extractor_args": {
                 "youtube": {
-                    "player_client": ["android_vr", "tv"],
+                    "player_client": ["android_vr"],
                     "skip": ["hls", "translated_subs"],
                 }
             },

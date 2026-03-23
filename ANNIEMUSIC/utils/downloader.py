@@ -86,7 +86,7 @@ def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
         "source_address": "0.0.0.0",
         "extractor_args": {
             "youtube": {
-                "player_client": ["android_vr", "tv"],
+                "player_client": ["android_vr"],
             }
         },
     }

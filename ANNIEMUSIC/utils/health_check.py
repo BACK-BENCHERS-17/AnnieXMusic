@@ -24,7 +24,7 @@ _YDL_AUDIO_OPTS = {
     "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
     "extractor_args": {
         "youtube": {
-            "player_client": ["android_vr", "tv"],
+            "player_client": ["android_vr"],
             "skip": ["hls", "translated_subs"],
         }
     },
@@ -391,7 +391,7 @@ def api_download():
             "outtmpl": out_template,
             "extractor_args": {
                 "youtube": {
-                    "player_client": ["android_vr", "tv"],
+                    "player_client": ["android_vr"],
                 }
             },
             "nocheckcertificate": True,
