@@ -33,7 +33,9 @@ def resolve_raw_cookie_url(url: str) -> str:
 @capture_internal_err
 async def fetch_and_store_cookies():
     if not COOKIE_URL:
-        raise EnvironmentError("⚠️ ᴄᴏᴏᴋɪᴇ_ᴜʀʟ ɴᴏᴛ sᴇᴛ ɪɴ ᴇɴᴠ.")
+        if COOKIE_PATH.exists() and COOKIE_PATH.stat().st_size > 100:
+            return
+        raise EnvironmentError("⚠️ ᴄᴏᴏᴋɪᴇs.ᴛxᴛ ɴᴏᴛ ꜰᴏᴜɴᴅ ɪɴ ʙᴏᴛ. ᴘʟᴇᴀsᴇ ᴀᴅᴅ ᴄᴏᴏᴋɪᴇs.ᴛxᴛ ᴏʀ sᴇᴛ COOKIE_URL.")
 
     raw_url = resolve_raw_cookie_url(COOKIE_URL)
 
