@@ -112,7 +112,12 @@ async def get_assistant(chat_id: int) -> str:
 
 async def set_calls_assistant(chat_id):
     from ANNIEMUSIC.core.userbot import assistants
+    from ANNIEMUSIC.utils.exceptions import AssistantErr
 
+    if not assistants:
+        raise AssistantErr(
+            "No assistant accounts are active. Please add at least one session string (STRING1–STRING5) to use voice chat features."
+        )
     ran_assistant = random.choice(assistants)
     assistantdict[chat_id] = ran_assistant
     await assdb.update_one(
@@ -125,7 +130,12 @@ async def set_calls_assistant(chat_id):
 
 async def group_assistant(self, chat_id: int) -> int:
     from ANNIEMUSIC.core.userbot import assistants
+    from ANNIEMUSIC.utils.exceptions import AssistantErr
 
+    if not assistants:
+        raise AssistantErr(
+            "No assistant accounts are active. Please add at least one session string (STRING1–STRING5) to use voice chat features."
+        )
     assistant = assistantdict.get(chat_id)
     if not assistant:
         dbassistant = await assdb.find_one({"chat_id": chat_id})
