@@ -8,24 +8,203 @@ import requests
 import tempfile
 import re
 from urllib.parse import urlparse, parse_qs
+from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError as FuturesTimeout
 
 WEB_DIR = os.path.join(os.path.dirname(__file__), 'ANNIEMUSIC', 'utils', 'web')
 app = Flask(__name__)
 _boot_time = time.time()
 
-# ── Cookies helper (defined early so all yt-dlp callers can use it) ─────────
-_COOKIE_PATH = os.path.join(os.path.dirname(__file__), "ANNIEMUSIC", "assets", "cookies.txt")
+def _sec_to_min(s):
+    if not s:
+        return "0:00"
+    s = int(s)
+    return f"{s // 60}:{s % 60:02d}"
 
-def _cookie_opts():
-    """Return cookiefile option dict if the cookies file exists and is non-empty."""
+# ── Piped API instances (tried in order, fastest & no cookies needed) ────────
+_PIPED_INSTANCES = [
+    "https://pipedapi.kavin.rocks",
+    "https://api.piped.privacydev.net",
+    "https://piped-api.garudalinux.org",
+    "https://api.piped.projectsegfau.lt",
+    "https://watchapi.whatever.social",
+]
+
+# ── Invidious API instances (second fallback) ─────────────────────────────────
+_INVIDIOUS_INSTANCES = [
+    "https://invidious.io.lol",
+    "https://invidious.nerdvpn.de",
+    "https://yt.artemislena.eu",
+    "https://invidious.privacydev.net",
+    "https://vid.puffyan.us",
+]
+
+_API_TIMEOUT = 5  # seconds per instance
+
+def _best_audio_from_piped(streams):
+    """Pick highest-bitrate m4a stream, fallback to any audio stream."""
+    if not streams:
+        return None, None
+    m4a = [s for s in streams if "mp4" in s.get("mimeType", "") or "m4a" in s.get("mimeType", "")]
+    pool = m4a if m4a else streams
+    best = max(pool, key=lambda s: s.get("bitrate", 0))
+    ext = "m4a" if "mp4" in best.get("mimeType", "") else "webm"
+    return best.get("url"), ext
+
+def _fetch_via_piped(vid):
+    """Try each Piped instance to get a stream URL. Returns data dict or None."""
+    for base in _PIPED_INSTANCES:
+        try:
+            r = requests.get(f"{base}/streams/{vid}", timeout=_API_TIMEOUT)
+            if r.status_code != 200:
+                continue
+            d = r.json()
+            stream_url, ext = _best_audio_from_piped(d.get("audioStreams", []))
+            if not stream_url:
+                continue
+            dur = int(d.get("duration", 0))
+            return {
+                "url":      stream_url,
+                "ext":      ext,
+                "title":    d.get("title", "Unknown"),
+                "channel":  d.get("uploader", ""),
+                "duration": _sec_to_min(dur),
+                "seconds":  dur,
+                "thumb":    f"https://img.youtube.com/vi/{vid}/mqdefault.jpg",
+                "ts":       time.time(),
+            }
+        except Exception:
+            continue
+    return None
+
+def _best_audio_from_invidious(formats):
+    """Pick best audio adaptive format from Invidious."""
+    audio = [f for f in formats if f.get("type", "").startswith("audio")]
+    if not audio:
+        return None, None
+    m4a = [f for f in audio if "mp4" in f.get("type", "") or f.get("container") == "m4a"]
+    pool = m4a if m4a else audio
+    best = max(pool, key=lambda f: int(f.get("bitrate", 0)))
+    ext = "m4a" if "mp4" in best.get("type", "") else "webm"
+    return best.get("url"), ext
+
+def _fetch_via_invidious(vid):
+    """Try each Invidious instance. Returns data dict or None."""
+    for base in _INVIDIOUS_INSTANCES:
+        try:
+            r = requests.get(
+                f"{base}/api/v1/videos/{vid}",
+                params={"fields": "adaptiveFormats,title,author,lengthSeconds"},
+                timeout=_API_TIMEOUT,
+            )
+            if r.status_code != 200:
+                continue
+            d = r.json()
+            stream_url, ext = _best_audio_from_invidious(d.get("adaptiveFormats", []))
+            if not stream_url:
+                continue
+            dur = int(d.get("lengthSeconds", 0))
+            return {
+                "url":      stream_url,
+                "ext":      ext,
+                "title":    d.get("title", "Unknown"),
+                "channel":  d.get("author", ""),
+                "duration": _sec_to_min(dur),
+                "seconds":  dur,
+                "thumb":    f"https://img.youtube.com/vi/{vid}/mqdefault.jpg",
+                "ts":       time.time(),
+            }
+        except Exception:
+            continue
+    return None
+
+def _fetch_via_ytdlp(vid):
+    """yt-dlp extraction — no cookies, optimised for speed (~3s)."""
     try:
-        if os.path.isfile(_COOKIE_PATH) and os.path.getsize(_COOKIE_PATH) > 50:
-            return {"cookiefile": _COOKIE_PATH}
+        opts = {
+            "quiet": True, "no_warnings": True,
+            "skip_download": True,
+            # format 140 = m4a 128kbps, always present → no format negotiation needed
+            "format": "140/bestaudio[ext=m4a]/bestaudio/best",
+            "extractor_args": {"youtube": {"skip": ["hls", "dash", "translated_subs"]}},
+            "socket_timeout": 12,
+            "retries": 1,
+        }
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            info = ydl.extract_info(f"https://www.youtube.com/watch?v={vid}", download=False)
+        if not info or not info.get("url"):
+            return None
+        dur = int(info.get("duration", 0))
+        return {
+            "url":      info["url"],
+            "ext":      info.get("ext", "m4a"),
+            "title":    info.get("title", "Unknown"),
+            "channel":  info.get("channel") or info.get("uploader", ""),
+            "duration": _sec_to_min(dur),
+            "seconds":  dur,
+            "thumb":    f"https://img.youtube.com/vi/{vid}/mqdefault.jpg",
+            "ts":       time.time(),
+        }
     except Exception:
-        pass
-    return {}
+        return None
 
-# ── Trending cache ───────────────────────────────────────────────
+# ── Stream cache ─────────────────────────────────────────────────────────────
+_stream_cache = {}
+_stream_lock  = threading.Lock()
+
+def _url_expire_ts(url):
+    try:
+        exp = parse_qs(urlparse(url).query).get("expire", [None])[0]
+        return int(exp) if exp else None
+    except Exception:
+        return None
+
+def _is_url_valid(data):
+    exp = _url_expire_ts(data.get("url", ""))
+    if exp:
+        return time.time() < exp - 300   # expire 5 min early
+    return time.time() - data.get("ts", 0) < 3600  # 1-hour fallback for API URLs
+
+def _fetch_stream_data(vid):
+    """
+    Race Piped, Invidious, and yt-dlp in parallel.
+    Returns the first successful result without waiting for the rest.
+    Fastest source wins — Piped < 1s when available, yt-dlp ~3s reliable fallback.
+    """
+    executor = ThreadPoolExecutor(max_workers=3)
+    futures = [
+        executor.submit(_fetch_via_piped, vid),
+        executor.submit(_fetch_via_invidious, vid),
+        executor.submit(_fetch_via_ytdlp, vid),
+    ]
+    data = None
+    try:
+        for future in as_completed(futures, timeout=20):
+            try:
+                result = future.result()
+                if result:
+                    data = result
+                    break
+            except Exception:
+                continue
+    except FuturesTimeout:
+        pass
+    finally:
+        # Shutdown without waiting — remaining tasks finish in background
+        executor.shutdown(wait=False)
+    if data:
+        with _stream_lock:
+            _stream_cache[vid] = data
+    return data
+
+def _get_stream_data(vid, force_refresh=False):
+    if not force_refresh:
+        with _stream_lock:
+            cached = _stream_cache.get(vid)
+        if cached and _is_url_valid(cached):
+            return cached
+    return _fetch_stream_data(vid)
+
+# ── Trending cache ───────────────────────────────────────────────────────────
 _trending_cache = {"data": [], "ts": 0}
 _CACHE_TTL = 1800  # 30 min
 
@@ -42,7 +221,6 @@ def _fetch_trending():
         "quiet": True, "no_warnings": True,
         "extract_flat": True, "skip_download": True,
         "ignoreerrors": True,
-        **_cookie_opts(),
     }
     for category, query in TRENDING_QUERIES:
         try:
@@ -79,95 +257,8 @@ def get_trending():
             pass
     return _trending_cache["data"]
 
-def _sec_to_min(s):
-    if not s:
-        return "0:00"
-    s = int(s)
-    return f"{s // 60}:{s % 60:02d}"
-
 # Start trending prefetch in background on startup
 threading.Thread(target=get_trending, daemon=True).start()
-
-# ── Stream URL cache (avoids double yt-dlp calls) ───────────────
-_stream_cache = {}
-_stream_lock  = threading.Lock()
-
-def _url_expire_ts(url):
-    """Extract YouTube's 'expire' unix timestamp from a signed URL, or None."""
-    try:
-        qs = parse_qs(urlparse(url).query)
-        exp = qs.get("expire", [None])[0]
-        if exp:
-            return int(exp)
-    except Exception:
-        pass
-    return None
-
-def _is_url_valid(data):
-    """Return True if the cached stream URL is still valid (not near expiry)."""
-    exp = _url_expire_ts(data.get("url", ""))
-    if exp:
-        # Treat URL as invalid if it expires within the next 5 minutes
-        return time.time() < exp - 300
-    # Fallback: trust cache for 8 minutes if no expire param found
-    return time.time() - data.get("ts", 0) < 480
-
-# Format attempts in order — try best audio first, fall back to anything streamable
-_FORMAT_ATTEMPTS = [
-    "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
-    "bestaudio/best",
-    "best",
-]
-
-def _fetch_stream_data(vid):
-    """Call yt-dlp to get a fresh stream URL for the given video ID (with cookies + retry)."""
-    url = f"https://www.youtube.com/watch?v={vid}"
-    base_opts = {
-        "quiet": True,
-        "no_warnings": True,
-        "skip_download": True,
-        **_cookie_opts(),
-    }
-
-    info = None
-    for fmt in _FORMAT_ATTEMPTS:
-        try:
-            opts = {**base_opts, "format": fmt}
-            with yt_dlp.YoutubeDL(opts) as ydl:
-                info = ydl.extract_info(url, download=False)
-            if info and info.get("url"):
-                break
-            info = None
-        except Exception:
-            info = None
-            continue
-
-    if not info or not info.get("url"):
-        return None
-
-    stream_url = info["url"]
-    data = {
-        "url":      stream_url,
-        "ext":      info.get("ext", "m4a"),
-        "title":    info.get("title", "Unknown"),
-        "channel":  info.get("channel") or info.get("uploader", ""),
-        "duration": _sec_to_min(info.get("duration", 0)),
-        "seconds":  info.get("duration", 0),
-        "thumb":    f"https://img.youtube.com/vi/{vid}/mqdefault.jpg",
-        "ts":       time.time(),
-    }
-    with _stream_lock:
-        _stream_cache[vid] = data
-    return data
-
-def _get_stream_data(vid, force_refresh=False):
-    """Return cached stream data if still valid, otherwise fetch fresh."""
-    if not force_refresh:
-        with _stream_lock:
-            cached = _stream_cache.get(vid)
-        if cached and _is_url_valid(cached):
-            return cached
-    return _fetch_stream_data(vid)
 
 # ── Routes ──────────────────────────────────────────────────────
 @app.route("/")
@@ -347,7 +438,6 @@ def api_search():
             "quiet": True, "no_warnings": True,
             "extract_flat": True, "skip_download": True,
             "ignoreerrors": True,
-            **_cookie_opts(),
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(f"ytsearch8:{q}", download=False)
