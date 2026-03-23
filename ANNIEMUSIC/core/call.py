@@ -349,13 +349,47 @@ class Call:
                             os.remove(link)
                         except Exception:
                             pass
-                    # Leave call cleanly before retry — clears stale NTgCalls state
+                    # Leave call cleanly + clear stale peer/connection cache
                     try:
                         await assistant.leave_call(chat_id)
                     except Exception:
                         pass
-                    await asyncio.sleep(3)
+                    # Clear stale peer cache so next attempt gets a fresh peer lookup
+                    try:
+                        assistant._cache_user_peer.pop(chat_id, None)
+                        assistant._wait_connect.pop(chat_id, None)
+                    except Exception:
+                        pass
+                    wait_sec = 5 if attempt == 0 else 10
+                    LOGGER(__name__).info(f"[PLAY] Waiting {wait_sec}s before retry {attempt+2}/3")
+                    await asyncio.sleep(wait_sec)
                     continue
+                # All retries failed — try VC reset as last resort
+                LOGGER(__name__).warning(f"[PLAY] All retries failed. Attempting VC reset for chat={chat_id}")
+                try:
+                    await assistant.leave_call(chat_id, close=True)
+                    await asyncio.sleep(3)
+                    # Recreate voice chat via raw API
+                    import random as _random
+                    from pyrogram.raw import functions as _rf, types as _rt
+                    _peer = await app.resolve_peer(chat_id)
+                    await app.invoke(
+                        _rf.phone.CreateGroupCall(
+                            peer=_peer,
+                            random_id=_random.randint(10000, 9999999),
+                        )
+                    )
+                    await asyncio.sleep(3)
+                    LOGGER(__name__).info(f"[PLAY] VC reset done. Final play attempt for chat={chat_id}")
+                    await assistant.play(chat_id, stream)
+                    self.active_calls.add(chat_id)
+                    await add_active_chat(chat_id)
+                    await music_on(chat_id)
+                    if video:
+                        await add_active_video_chat(chat_id)
+                    return
+                except Exception as reset_err:
+                    LOGGER(__name__).error(f"[PLAY] VC reset failed for chat={chat_id}: {reset_err}")
                 raise AssistantErr(_["call_10"])
             except NTgConnectionError:
                 LOGGER(__name__).warning(
