@@ -88,8 +88,8 @@ STATS_VID_URL = "https://telegra.ph/file/e2ab6106ace2e95862372.mp4"
 TELEGRAM_AUDIO_URL = "https://files.catbox.moe/qcydig.png"
 TELEGRAM_VIDEO_URL = "https://files.catbox.moe/bgjn01.png"
 STREAM_IMG_URL = "https://files.catbox.moe/452e1q.png"
-SOUNCLOUD_IMG_URL = "https://files.catbox.moe/zhymxl.jpg"
-YOUTUBE_IMG_URL = "https://files.catbox.moe/veykzq.jpg"
+SOUNCLOUD_IMG_URL = "https://files.catbox.moe/jy98lm.jpg"
+YOUTUBE_IMG_URL = "https://files.catbox.moe/bzo99y.jpg"
 SPOTIFY_ARTIST_IMG_URL = SPOTIFY_ALBUM_IMG_URL = SPOTIFY_PLAYLIST_IMG_URL = YOUTUBE_IMG_URL
 
 # ── Helpers ────────────────────────────────────────────────────────────────────

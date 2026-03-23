@@ -43,15 +43,6 @@ def start_panel(_):
         ],
     ]
 
-    if WEB_URL:
-        buttons.append([
-            InlineKeyboardButton(
-                text="🎵 ᴀɴɴɪᴇ",
-                web_app=WebAppInfo(url=WEB_URL),
-                style="primary",
-            )
-        ])
-
     return buttons
 
 
