@@ -40,6 +40,15 @@ autoend = {}
 counter = {}
 autoplay_history: dict[int, list] = {}  # per-chat played video IDs history
 
+_CDN_HEADERS = (
+    "-headers "
+    "'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36\r\n"
+    "Referer: https://www.youtube.com/\r\n"
+    "Origin: https://www.youtube.com\r\n'"
+)
+
+
 def _needs_ytdlp(path: str) -> bool:
     """Check if the path needs yt-dlp processing (YouTube URLs only)."""
     if not path:
@@ -49,12 +58,25 @@ def _needs_ytdlp(path: str) -> bool:
     return "youtube.com" in path or "youtu.be" in path
 
 
+def _is_cdn_url(path: str) -> bool:
+    """Check if the path is a direct CDN/remote URL (not local, not YouTube)."""
+    if not path or os.path.exists(path):
+        return False
+    return path.startswith("http") and not _needs_ytdlp(path)
+
+
 def dynamic_media_stream(path: str, video: bool = False, ffmpeg_params: str = None) -> MediaStream:
     ytdlp_args = None
+    cdn_headers = None
+
     if _needs_ytdlp(path):
-        ytdlp_args = "--js-runtimes node --remote-components ejs:github"
+        ytdlp_args = "--js-runtimes node"
         if COOKIE_PATH.exists():
             ytdlp_args += f" --cookies {COOKIE_PATH}"
+    elif _is_cdn_url(path):
+        cdn_headers = _CDN_HEADERS
+
+    combined_ffmpeg = " ".join(filter(None, [cdn_headers, ffmpeg_params]))
 
     return MediaStream(
         audio_path=path,
@@ -62,7 +84,7 @@ def dynamic_media_stream(path: str, video: bool = False, ffmpeg_params: str = No
         audio_parameters=AudioQuality.MEDIUM if video else AudioQuality.STUDIO,
         video_parameters=VideoQuality.HD_720p if video else VideoQuality.SD_360p,
         video_flags=(MediaStream.Flags.AUTO_DETECT if video else MediaStream.Flags.IGNORE),
-        ffmpeg_parameters=ffmpeg_params,
+        ffmpeg_parameters=combined_ffmpeg or None,
         ytdlp_parameters=ytdlp_args,
     )
 
