@@ -158,18 +158,29 @@ img{display:block}
 .feat-title{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
 .feat-artist{font-size:10px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* ── Grid ── */
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0 18px 4px}
-.card{background:var(--s2);border-radius:var(--radius);padding:12px;cursor:pointer;transition:background 0.15s;position:relative;overflow:hidden;border:1px solid var(--border2)}
-.card:active{background:var(--s3)}
-.card-art{width:100%;aspect-ratio:1;border-radius:10px;background:var(--s3);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:10px;position:relative}
-.card-art img{width:100%;height:100%;object-fit:cover}
-.card-play{position:absolute;bottom:6px;right:6px;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 4px 14px rgba(168,85,247,0.6);opacity:0;transform:translateY(6px);transition:all 0.2s}
-.card:hover .card-play,.card:active .card-play{opacity:1;transform:translateY(0)}
-.card.now-playing .card-art::after{content:'▶';position:absolute;inset:0;background:rgba(168,85,247,0.5);display:flex;align-items:center;justify-content:center;font-size:28px;border-radius:10px}
-.card-title{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
-.card-artist{font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.card-dur{font-size:10px;color:var(--text3);margin-top:4px}
+/* ── Song List (Spotify style) ── */
+.slist{padding:0 18px 4px}
+.slist-row{display:flex;align-items:center;gap:12px;padding:10px 0;cursor:pointer;border-bottom:1px solid var(--border2);transition:background 0.1s;border-radius:0}
+.slist-row:last-child{border-bottom:none}
+.slist-row:active{background:rgba(255,255,255,0.04)}
+.slist-num{width:22px;font-size:12px;color:var(--text3);text-align:center;flex-shrink:0;font-weight:600}
+.slist-num.playing-ind{color:var(--acc)}
+.slist-art{width:50px;height:50px;border-radius:8px;background:var(--s3);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;position:relative}
+.slist-art img{width:100%;height:100%;object-fit:cover}
+.slist-art.playing::after{content:'▶';position:absolute;inset:0;background:rgba(168,85,247,0.6);display:flex;align-items:center;justify-content:center;font-size:18px;border-radius:8px}
+.slist-info{flex:1;min-width:0}
+.slist-title{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.slist-title.playing{color:var(--acc)}
+.slist-artist{font-size:12px;color:var(--text2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slist-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.slist-dur{font-size:12px;color:var(--text3);min-width:32px;text-align:right}
+
+/* ── Popular Searches ── */
+.pop-searches{padding:12px 18px}
+.pop-label{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:12px}
+.pop-chips{display:flex;flex-wrap:wrap;gap:8px}
+.pop-chip{padding:7px 16px;border-radius:100px;background:var(--s2);border:1px solid var(--border2);font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;transition:all 0.15s}
+.pop-chip:active{background:var(--s3);color:var(--acc)}
 
 /* ── Liked Tab ── */
 .liked-head{padding:48px 18px 16px;display:flex;align-items:center;gap:14px}
@@ -288,11 +299,10 @@ img{display:block}
       <div class="section-head mt16">
         <div class="section-title" id="sectionTitle">Trending Now</div>
       </div>
-      <div class="grid" id="songGrid">
-        <div class="skel-card"><div class="skel skel-thumb"></div><div class="skel skel-text"></div><div class="skel skel-text-sm"></div></div>
-        <div class="skel-card"><div class="skel skel-thumb"></div><div class="skel skel-text"></div><div class="skel skel-text-sm"></div></div>
-        <div class="skel-card"><div class="skel skel-thumb"></div><div class="skel skel-text"></div><div class="skel skel-text-sm"></div></div>
-        <div class="skel-card"><div class="skel skel-thumb"></div><div class="skel skel-text"></div><div class="skel skel-text-sm"></div></div>
+      <div class="slist" id="songGrid">
+        <div class="slist-row" style="pointer-events:none"><div class="slist-art"><div class="skel" style="width:50px;height:50px;border-radius:8px"></div></div><div class="slist-info"><div class="skel skel-text" style="width:70%"></div><div class="skel skel-text" style="width:40%;margin-top:6px;height:10px"></div></div></div>
+        <div class="slist-row" style="pointer-events:none"><div class="slist-art"><div class="skel" style="width:50px;height:50px;border-radius:8px"></div></div><div class="slist-info"><div class="skel skel-text" style="width:80%"></div><div class="skel skel-text" style="width:50%;margin-top:6px;height:10px"></div></div></div>
+        <div class="slist-row" style="pointer-events:none"><div class="slist-art"><div class="skel" style="width:50px;height:50px;border-radius:8px"></div></div><div class="slist-info"><div class="skel skel-text" style="width:60%"></div><div class="skel skel-text" style="width:35%;margin-top:6px;height:10px"></div></div></div>
       </div>
     </div>
 
@@ -308,7 +318,21 @@ img{display:block}
         </div>
       </div>
       <div id="searchResults">
-        <div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">Find your music</div><div class="empty-sub">Search for songs, artists<br/>or anything you love</div></div>
+        <div class="pop-searches">
+          <div class="pop-label">Popular Searches</div>
+          <div class="pop-chips">
+            <span class="pop-chip" onclick="quickSearch('Arijit Singh hits')">Arijit Singh</span>
+            <span class="pop-chip" onclick="quickSearch('trending hindi songs 2025')">Trending Hindi</span>
+            <span class="pop-chip" onclick="quickSearch('Punjabi hits 2025')">Punjabi Hits</span>
+            <span class="pop-chip" onclick="quickSearch('Bollywood romantic songs')">Bollywood</span>
+            <span class="pop-chip" onclick="quickSearch('AP Dhillon songs')">AP Dhillon</span>
+            <span class="pop-chip" onclick="quickSearch('Lo-fi chill beats')">Lo-Fi</span>
+            <span class="pop-chip" onclick="quickSearch('Diljit Dosanjh')">Diljit Dosanjh</span>
+            <span class="pop-chip" onclick="quickSearch('old hindi songs 90s')">90s Classics</span>
+            <span class="pop-chip" onclick="quickSearch('Shreya Ghoshal songs')">Shreya Ghoshal</span>
+            <span class="pop-chip" onclick="quickSearch('English pop 2025')">English Pop</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -619,37 +643,69 @@ function filterCat(cat, btn) {
 function renderGrid(songs) {
   const g = document.getElementById('songGrid');
   if (!songs.length) {
-    g.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">😕</div><div class="empty-text">No songs found</div></div>';
+    g.innerHTML = '<div class="empty"><div class="empty-icon">😕</div><div class="empty-text">No songs found</div></div>';
     return;
   }
-  g.innerHTML = songs.map((s,i) => `
-    <div class="card ${curTrack&&curTrack.id===s.id?'now-playing':''}" id="card-${s.id}" onclick='playSong(${JSON.stringify(s)})'>
-      <div class="card-art">
+  g.innerHTML = songs.map((s,i) => {
+    const isPlaying = curTrack && curTrack.id === s.id;
+    return `<div class="slist-row${isPlaying?' now-playing':''}" id="srow-${s.id}" onclick='playSong(${JSON.stringify(s)})'>
+      <div class="slist-num${isPlaying?' playing-ind':''}">${isPlaying ? '♫' : i+1}</div>
+      <div class="slist-art${isPlaying?' playing':''}">
         <img src="${s.thumb}" alt="" loading="lazy" onerror="this.style.display='none'"/>
-        <div class="card-play">▶</div>
       </div>
-      <div class="card-title">${esc(s.title)}</div>
-      <div class="card-artist">${esc(s.channel||'')}</div>
-      <div class="card-dur">${s.duration||''}</div>
-    </div>`).join('');
+      <div class="slist-info">
+        <div class="slist-title${isPlaying?' playing':''}">${esc(s.title)}</div>
+        <div class="slist-artist">${esc(s.channel||'')}</div>
+      </div>
+      <div class="slist-right">
+        <span class="slist-dur">${s.duration||''}</span>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 // ── Search ────────────────────────────────────────────────────
 let _searchTimer;
+const _POP_SEARCHES_HTML = `<div class="pop-searches">
+  <div class="pop-label">Popular Searches</div>
+  <div class="pop-chips">
+    <span class="pop-chip" onclick="quickSearch('Arijit Singh hits')">Arijit Singh</span>
+    <span class="pop-chip" onclick="quickSearch('trending hindi songs 2025')">Trending Hindi</span>
+    <span class="pop-chip" onclick="quickSearch('Punjabi hits 2025')">Punjabi Hits</span>
+    <span class="pop-chip" onclick="quickSearch('Bollywood romantic songs')">Bollywood</span>
+    <span class="pop-chip" onclick="quickSearch('AP Dhillon songs')">AP Dhillon</span>
+    <span class="pop-chip" onclick="quickSearch('Lo-fi chill beats')">Lo-Fi</span>
+    <span class="pop-chip" onclick="quickSearch('Diljit Dosanjh')">Diljit Dosanjh</span>
+    <span class="pop-chip" onclick="quickSearch('old hindi songs 90s')">90s Classics</span>
+    <span class="pop-chip" onclick="quickSearch('Shreya Ghoshal songs')">Shreya Ghoshal</span>
+    <span class="pop-chip" onclick="quickSearch('English pop 2025')">English Pop</span>
+  </div>
+</div>`;
+
 function onSearchInput(q) {
   const clear = document.getElementById('searchClear');
   clear.style.display = q ? 'block' : 'none';
   clearTimeout(_searchTimer);
   if (!q.trim()) {
-    document.getElementById('searchResults').innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">Find your music</div><div class="empty-sub">Search for songs, artists<br/>or anything you love</div></div>`;
+    document.getElementById('searchResults').innerHTML = _POP_SEARCHES_HTML;
     return;
   }
   _searchTimer = setTimeout(() => doSearch(q), 480);
 }
 
+function quickSearch(q) {
+  const inp = document.getElementById('searchInput');
+  inp.value = q;
+  document.getElementById('searchClear').style.display = 'block';
+  doSearch(q);
+}
+
 function clearSearch() {
   const inp = document.getElementById('searchInput');
-  inp.value = ''; onSearchInput(''); inp.focus();
+  inp.value = '';
+  document.getElementById('searchClear').style.display = 'none';
+  document.getElementById('searchResults').innerHTML = _POP_SEARCHES_HTML;
+  inp.focus();
 }
 
 async function doSearch(q) {
@@ -664,10 +720,15 @@ async function doSearch(q) {
       el.innerHTML = `<div class="empty"><div class="empty-icon">😕</div><div class="empty-text">No results</div><div class="empty-sub">Try different keywords</div></div>`;
       return;
     }
-    el.innerHTML = `<div class="result-list">${results.map(s=>`
+    // Add search results to allSongs for next/autoplay
+    allSongs = results;
+    el.innerHTML = `<div class="result-list">${results.map((s,i)=>`
       <div class="result-row" onclick='playSong(${JSON.stringify(s)})'>
         <div class="result-art"><img src="${s.thumb}" alt="" loading="lazy" onerror="this.style.display='none'"/></div>
-        <div class="result-info"><div class="result-title">${esc(s.title)}</div><div class="result-artist">${esc(s.channel||'')} · ${s.duration||''}</div></div>
+        <div class="result-info">
+          <div class="result-title">${esc(s.title)}</div>
+          <div class="result-artist">${esc(s.channel||'')} · <span style="color:var(--text3)">${s.duration||''}</span></div>
+        </div>
         <button class="result-dl" title="Download" onclick="event.stopPropagation();dlSong('${s.id}','${esc(s.title)}')">⬇</button>
       </div>`).join('')}</div>`;
   } catch { el.innerHTML = `<div class="empty"><div class="empty-icon">❌</div><div class="empty-text">Search failed</div></div>`; }
@@ -842,7 +903,7 @@ function prevSong() {
   else { aud.currentTime = 0; }
 }
 
-function nextSong() {
+async function nextSong() {
   if (shuffleOn && allSongs.length > 1) {
     let idx; do { idx = Math.floor(Math.random() * allSongs.length); } while (allSongs[idx]?.id === curTrack?.id && allSongs.length > 1);
     playSong(allSongs[idx]); return;
@@ -850,7 +911,24 @@ function nextSong() {
   if (curTrack && allSongs.length) {
     const idx = allSongs.findIndex(s => s.id === curTrack.id);
     if (idx !== -1 && idx + 1 < allSongs.length) { playSong(allSongs[idx+1]); return; }
-    if (allSongs.length) { playSong(allSongs[0]); return; }
+    // End of list — fetch related songs (web autoplay like Spotify Radio)
+    if (curTrack) {
+      toast('🎵 Loading more songs…', 3000);
+      try {
+        const r = await fetch(`/api/related?v=${curTrack.id}`);
+        const d = await r.json();
+        if (d.results && d.results.length) {
+          allSongs = [...allSongs, ...d.results.filter(s => !allSongs.find(a => a.id === s.id))];
+          renderGrid(allSongs);
+          const nextIdx = allSongs.findIndex(s => s.id === curTrack.id);
+          if (nextIdx !== -1 && nextIdx + 1 < allSongs.length) {
+            playSong(allSongs[nextIdx + 1]); return;
+          }
+        }
+      } catch {}
+      // fallback: loop to first
+      playSong(allSongs[0]); return;
+    }
   }
   if (histIdx < history.length-1) { histIdx++; playSong(history[histIdx]); }
   else toast('🎵 No next song');
@@ -936,10 +1014,27 @@ function setOverlayBg(thumb) {
 }
 
 function updateCardHighlight() {
-  document.querySelectorAll('.card.now-playing').forEach(c => c.classList.remove('now-playing'));
+  document.querySelectorAll('.slist-row.now-playing').forEach(r => {
+    r.classList.remove('now-playing');
+    const num = r.querySelector('.slist-num');
+    const art = r.querySelector('.slist-art');
+    const title = r.querySelector('.slist-title');
+    if (num) { num.classList.remove('playing-ind'); num.textContent = num.dataset.idx || ''; }
+    if (art) art.classList.remove('playing');
+    if (title) title.classList.remove('playing');
+  });
   if (curTrack) {
-    const el = document.getElementById('card-'+curTrack.id);
-    if (el) el.classList.add('now-playing');
+    const el = document.getElementById('srow-'+curTrack.id);
+    if (el) {
+      el.classList.add('now-playing');
+      const num = el.querySelector('.slist-num');
+      const art = el.querySelector('.slist-art');
+      const title = el.querySelector('.slist-title');
+      if (num) { num.classList.add('playing-ind'); num.textContent = '♫'; }
+      if (art) art.classList.add('playing');
+      if (title) title.classList.add('playing');
+      el.scrollIntoView({behavior:'smooth', block:'nearest'});
+    }
   }
 }
 

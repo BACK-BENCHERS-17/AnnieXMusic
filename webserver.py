@@ -210,10 +210,10 @@ _trending_cache = {"data": [], "ts": 0}
 _CACHE_TTL = 1800  # 30 min
 
 TRENDING_QUERIES = [
-    ("Hindi",          "ytsearch10:hindi songs trending 2025"),
-    ("Punjabi",        "ytsearch10:punjabi songs trending 2025"),
-    ("Bollywood",      "ytsearch10:bollywood hits 2025"),
-    ("International",  "ytsearch10:top hits 2025 pop english"),
+    ("Hindi",          "ytsearch20:hindi songs trending 2025"),
+    ("Punjabi",        "ytsearch20:punjabi songs trending 2025"),
+    ("Bollywood",      "ytsearch20:bollywood hits 2025"),
+    ("International",  "ytsearch20:top hits 2025 pop english"),
 ]
 
 def _fetch_trending():
@@ -461,6 +461,49 @@ def api_audio():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/api/related")
+def api_related():
+    """Return related songs for a given video ID (used for web autoplay)."""
+    vid = request.args.get("v", "").strip()
+    if not vid or len(vid) != 11:
+        return jsonify({"results": []}), 400
+    try:
+        # Get current song info first for a smarter query
+        with _stream_lock:
+            cached = _stream_cache.get(vid)
+        title = cached.get("title", "") if cached else ""
+        words = [w for w in title.split() if len(w) > 3] if title else []
+        base = words[0] if words else "hindi songs"
+        import random
+        suffixes = ["best songs", "hit songs", "top songs", "playlist", "popular songs", "superhit songs"]
+        query = f"{base} {random.choice(suffixes)} 2025"
+
+        ydl_opts = {
+            "quiet": True, "no_warnings": True,
+            "extract_flat": True, "skip_download": True,
+            "ignoreerrors": True,
+        }
+        results = []
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(f"ytsearch15:{query}", download=False)
+            entries = info.get("entries", []) if info else []
+            for e in (entries or []):
+                if not e:
+                    continue
+                eid = e.get("id") or ""
+                if not eid or len(eid) != 11 or eid == vid:
+                    continue
+                results.append({
+                    "id":       eid,
+                    "title":    e.get("title", "Unknown"),
+                    "channel":  e.get("channel") or e.get("uploader", ""),
+                    "duration": e.get("duration_string") or _sec_to_min(e.get("duration", 0)),
+                    "thumb":    f"https://img.youtube.com/vi/{eid}/mqdefault.jpg",
+                })
+        return jsonify({"results": results})
+    except Exception as e:
+        return jsonify({"results": [], "error": str(e)}), 500
+
 @app.route("/api/search")
 def api_search():
     q = request.args.get("q", "").strip()
@@ -473,7 +516,7 @@ def api_search():
             "ignoreerrors": True,
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(f"ytsearch8:{q}", download=False)
+            info = ydl.extract_info(f"ytsearch15:{q}", download=False)
             entries = info.get("entries", []) if info else []
             results = []
             for e in (entries or []):
