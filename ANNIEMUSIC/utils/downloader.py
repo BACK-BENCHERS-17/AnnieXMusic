@@ -19,7 +19,7 @@ from config import API_KEY, API_URL, BOT_TOKEN
 USE_API: bool = bool(API_URL and API_KEY)
 
 # ── Internal webserver API ─────────────────────────────────────────────────
-_WEB_PORT = int(os.environ.get("WEB_PORT") or 5000)
+_WEB_PORT = int(os.environ.get("PORT") or os.environ.get("WEB_PORT") or 8080)
 _YTURL_ENDPOINT = f"http://localhost:{_WEB_PORT}/api/yturl"
 
 _COOKIES_FILE = str(COOKIE_PATH)
