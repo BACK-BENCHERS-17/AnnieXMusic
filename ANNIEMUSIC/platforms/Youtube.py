@@ -44,6 +44,10 @@ def _cookies_args() -> List[str]:
     args.extend([
         "--no-check-certificate",
         "--force-ipv4",
+        "--user-agent",
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) "
+        "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Mobile/15E148 Safari/604.1",
+        "--extractor-arg", "youtube:player_client=tv,android",
     ])
     return args
 
@@ -373,17 +377,24 @@ class YouTubeAPI:
             if await is_on_off(1):
                 p = await yt_dlp_download(link, type="video")
                 return (p, True) if p else (None, None)
-            stdout, _ = await _exec_proc(
+            # Try to get a single combined CDN URL (video+audio together)
+            stdout, stderr = await _exec_proc(
                 "yt-dlp",
                 *(_cookies_args()),
                 "-g",
                 "-f",
-                "best[height<=?720][width<=?1280]",
+                "best[height<=?720][width<=?1280][vcodec!=none][acodec!=none]"
+                "/best[height<=?720][width<=?1280]/best",
                 link,
             )
             if stdout:
-                return stdout.decode().split("\n")[0], None
-            return None, None
+                lines = [l.strip() for l in stdout.decode().splitlines() if l.strip()]
+                if len(lines) == 1:
+                    # Single combined stream — use it directly
+                    return lines[0], None
+            # CDN URL not available or separate streams — download locally
+            p = await yt_dlp_download(link, type="video")
+            return (p, True) if p else (None, None)
 
         # ── Fast path: CDN URL via webserver API (~1-2s, FFmpeg streams it) ─────────
         vid = extract_video_id(link)
