@@ -210,41 +210,91 @@ _trending_cache = {"data": [], "ts": 0}
 _CACHE_TTL = 1800  # 30 min
 
 TRENDING_QUERIES = [
-    ("Hindi",          "ytsearch20:hindi songs trending 2025"),
-    ("Punjabi",        "ytsearch20:punjabi songs trending 2025"),
-    ("Bollywood",      "ytsearch20:bollywood hits 2025"),
-    ("International",  "ytsearch20:top hits 2025 pop english"),
+    ("Hindi", [
+        "ytsearch30:new hindi song 2025",
+        "ytsearch20:hindi latest song 2025",
+    ]),
+    ("Punjabi", [
+        "ytsearch30:new punjabi song 2025",
+        "ytsearch20:punjabi latest song 2025",
+    ]),
+    ("Bollywood", [
+        "ytsearch30:bollywood new song 2025",
+        "ytsearch20:bollywood hit song 2025",
+    ]),
+    ("International", [
+        "ytsearch30:new english song 2025",
+        "ytsearch20:top pop song 2025",
+    ]),
 ]
 
+# Keywords that identify non-individual songs (compilations/jukeboxes/playlists)
+_SKIP_KEYWORDS = {
+    "jukebox", "playlist", "non stop", "nonstop", "mashup",
+    "part 1", "part 2", "part-1", "part-2", "vol.", "vol ",
+    "top 10", "top 20", "top 50", "top 100",
+    "best of", "hits of", "collection", "compilation",
+    "audio jukebox", "video jukebox", "full album", "all songs",
+    "back to back", "back2back", "evergreen", "jhankar",
+}
+_MAX_DURATION_SEC = 600   # 10 minutes — individual songs
+_MIN_DURATION_SEC = 60    # 1 minute  — skip short clips
+
+def _is_individual_song(title: str, duration_sec: int) -> bool:
+    """Return True if this looks like an individual song (not a compilation)."""
+    tl = title.lower()
+    for kw in _SKIP_KEYWORDS:
+        if kw in tl:
+            return False
+    return _MIN_DURATION_SEC <= duration_sec <= _MAX_DURATION_SEC
+
 def _fetch_trending():
-    results = []
+    seen_ids = set()
+    short_results = []   # individual songs ≤ 10 min
+    long_results  = []   # longer / unfiltered fallback
+
     ydl_opts = {
         "quiet": True, "no_warnings": True,
         "extract_flat": True, "skip_download": True,
         "ignoreerrors": True,
     }
-    for category, query in TRENDING_QUERIES:
-        try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(query, download=False)
-                entries = info.get("entries", []) if info else []
-                for e in entries:
-                    if not e:
-                        continue
-                    vid = e.get("id") or e.get("url", "")
-                    if not vid or len(vid) != 11:
-                        continue
-                    results.append({
-                        "id":       vid,
-                        "title":    e.get("title", "Unknown"),
-                        "channel":  e.get("channel") or e.get("uploader", ""),
-                        "duration": e.get("duration_string") or _sec_to_min(e.get("duration", 0)),
-                        "thumb":    f"https://img.youtube.com/vi/{vid}/mqdefault.jpg",
-                        "category": category,
-                    })
-        except Exception:
-            pass
-    return results
+
+    for category, queries in TRENDING_QUERIES:
+        for query in queries:
+            try:
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    info = ydl.extract_info(query, download=False)
+                    entries = info.get("entries", []) if info else []
+                    for e in (entries or []):
+                        if not e:
+                            continue
+                        vid = e.get("id") or ""
+                        if not vid or len(vid) != 11 or vid in seen_ids:
+                            continue
+                        seen_ids.add(vid)
+                        title   = e.get("title", "Unknown")
+                        dur_sec = int(e.get("duration") or 0)
+                        dur_str = e.get("duration_string") or _sec_to_min(dur_sec)
+                        entry = {
+                            "id":       vid,
+                            "title":    title,
+                            "channel":  e.get("channel") or e.get("uploader", ""),
+                            "duration": dur_str,
+                            "thumb":    f"https://img.youtube.com/vi/{vid}/mqdefault.jpg",
+                            "category": category,
+                        }
+                        if _is_individual_song(title, dur_sec):
+                            short_results.append(entry)
+                        else:
+                            long_results.append(entry)
+            except Exception:
+                pass
+
+    # Prefer short/individual songs; use long ones only as backfill
+    combined = short_results
+    if len(combined) < 40:
+        combined = combined + long_results
+    return combined
 
 def get_trending():
     now = time.time()
@@ -483,9 +533,9 @@ def api_related():
             "extract_flat": True, "skip_download": True,
             "ignoreerrors": True,
         }
-        results = []
+        short_r, long_r = [], []
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(f"ytsearch15:{query}", download=False)
+            info = ydl.extract_info(f"ytsearch20:{query}", download=False)
             entries = info.get("entries", []) if info else []
             for e in (entries or []):
                 if not e:
@@ -493,13 +543,21 @@ def api_related():
                 eid = e.get("id") or ""
                 if not eid or len(eid) != 11 or eid == vid:
                     continue
-                results.append({
+                etitle  = e.get("title", "Unknown")
+                edur    = int(e.get("duration") or 0)
+                edur_s  = e.get("duration_string") or _sec_to_min(edur)
+                entry = {
                     "id":       eid,
-                    "title":    e.get("title", "Unknown"),
+                    "title":    etitle,
                     "channel":  e.get("channel") or e.get("uploader", ""),
-                    "duration": e.get("duration_string") or _sec_to_min(e.get("duration", 0)),
+                    "duration": edur_s,
                     "thumb":    f"https://img.youtube.com/vi/{eid}/mqdefault.jpg",
-                })
+                }
+                if _is_individual_song(etitle, edur):
+                    short_r.append(entry)
+                else:
+                    long_r.append(entry)
+        results = short_r if short_r else long_r
         return jsonify({"results": results})
     except Exception as e:
         return jsonify({"results": [], "error": str(e)}), 500
