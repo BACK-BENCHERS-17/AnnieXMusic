@@ -277,7 +277,7 @@ async def _handle_violation(client: Client, message: Message, reason: str):
             "⛔ <b>Content Removed</b>\n\n"
             f"🚫 Reason: <b>{reason}</b>\n\n"
             "This group enforces a strict <b>No NSFW / No Illegal / No Drug</b> policy.\n"
-            "Use <code>/contentguard off</code> to disable this filter."
+            "Use <code>/nsfw off</code> to disable this filter."
             "</blockquote>\n"
             "<i>This notice will be deleted in 8 seconds.</i>",
             parse_mode=ParseMode.HTML,

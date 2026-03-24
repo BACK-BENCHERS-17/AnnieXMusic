@@ -51,7 +51,7 @@ async def _delete_and_warn(message: Message, reason: str):
 
 
 @app.on_message(
-    filters.command(["contentguard", "cguard"]) & filters.group
+    filters.command(["nsfw"]) & filters.group
 )
 async def content_guard_cmd(client, message: Message):
     if not message.from_user:
@@ -69,32 +69,32 @@ async def content_guard_cmd(client, message: Message):
         enabled = await is_content_guard_on(message.chat.id)
         status = "✅ ON" if enabled else "❌ OFF"
         return await message.reply_text(
-            f"<b>🛡️ Content Guard - {status}</b>\n\n"
+            f"<b>🛡️ NSFW Filter - {status}</b>\n\n"
             "<b>Usage:</b>\n"
-            "<code>/contentguard on</code>  — Protect ON\n"
-            "<code>/contentguard off</code> — Protect OFF\n\n"
+            "<code>/nsfw on</code>  — Filter ON karo\n"
+            "<code>/nsfw off</code> — Filter OFF karo\n\n"
             "<b>Kya protect karta hai:</b>\n"
             "• 18+ images automatic delete\n"
-            "• Drugs / explicit content images delete\n"
-            "• Bad keywords wale stickers delete\n"
-            "• Bad keywords wale songs/videos play block"
+            "• Explicit / drugs wale keywords delete\n"
+            "• NSFW sticker packs delete\n"
+            "• NSFW thumbnail wale songs block"
         )
 
     if args[1].lower() == "on":
         await content_guard_on(message.chat.id)
         await message.reply_text(
-            "<b>🛡️ Content Guard: ✅ ON</b>\n\n"
+            "<b>🛡️ NSFW Filter: ✅ ON</b>\n\n"
             "Ab is group mein:\n"
-            "• 18+ aur drugs wali images auto-delete hongi\n"
-            "• Bad stickers bhi pakde jayenge\n"
-            "• Bad keywords wale songs play nahi honge\n\n"
+            "• 18+ aur explicit images auto-delete hongi\n"
+            "• NSFW stickers bhi pakde jayenge\n"
+            "• Explicit keywords wale messages delete honge\n\n"
             "<i>Group safe hai! 🔒</i>"
         )
     else:
         await content_guard_off(message.chat.id)
         await message.reply_text(
-            "<b>🛡️ Content Guard: ❌ OFF</b>\n\n"
-            "Content filtering disable ho gaya."
+            "<b>🛡️ NSFW Filter: ❌ OFF</b>\n\n"
+            "NSFW filtering disable ho gaya."
         )
 
 
