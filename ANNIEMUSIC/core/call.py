@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from typing import Union
 
 from ntgcalls import TelegramServerError, ConnectionError as NTgConnectionError
-from pyrogram import Client
 from pyrogram.errors import FloodWait, ChatAdminRequired, ChannelInvalid
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pytgcalls import PyTgCalls
@@ -110,32 +109,21 @@ async def _clear_(chat_id: int) -> None:
 
 class Call:
     def __init__(self):
-        self.userbot1 = Client(
-            "AnnieXAssis1", config.API_ID, config.API_HASH, session_string=config.STRING1
-        ) if config.STRING1 else None
-        self.one = PyTgCalls(self.userbot1) if self.userbot1 else None
-
-        self.userbot2 = Client(
-            "AnnieXAssis2", config.API_ID, config.API_HASH, session_string=config.STRING2
-        ) if config.STRING2 else None
-        self.two = PyTgCalls(self.userbot2) if self.userbot2 else None
-
-        self.userbot3 = Client(
-            "AnnieXAssis3", config.API_ID, config.API_HASH, session_string=config.STRING3
-        ) if config.STRING3 else None
-        self.three = PyTgCalls(self.userbot3) if self.userbot3 else None
-
-        self.userbot4 = Client(
-            "AnnieXAssis4", config.API_ID, config.API_HASH, session_string=config.STRING4
-        ) if config.STRING4 else None
-        self.four = PyTgCalls(self.userbot4) if self.userbot4 else None
-
-        self.userbot5 = Client(
-            "AnnieXAssis5", config.API_ID, config.API_HASH, session_string=config.STRING5
-        ) if config.STRING5 else None
-        self.five = PyTgCalls(self.userbot5) if self.userbot5 else None
-
+        self.one = None
+        self.two = None
+        self.three = None
+        self.four = None
+        self.five = None
         self.active_calls: set[int] = set()
+
+    def setup_clients(self, userbot) -> None:
+        """Initialize PyTgCalls using the shared Userbot Pyrogram clients.
+        This avoids AUTH_KEY_DUPLICATED by reusing a single connection per session."""
+        self.one = PyTgCalls(userbot.one) if userbot.one else None
+        self.two = PyTgCalls(userbot.two) if userbot.two else None
+        self.three = PyTgCalls(userbot.three) if userbot.three else None
+        self.four = PyTgCalls(userbot.four) if userbot.four else None
+        self.five = PyTgCalls(userbot.five) if userbot.five else None
 
 
     @capture_internal_err
@@ -927,26 +915,35 @@ class Call:
 
     async def start(self) -> None:
         LOGGER(__name__).info("Starting PyTgCalls Clients...")
+        from pyrogram.errors import AuthKeyDuplicated, AuthKeyUnregistered
+
         async def start_client(client, index):
+            if client is None:
+                return
             try:
                 await client.start()
             except FloodWait as e:
                 LOGGER(__name__).warning(f"FloodWait in Call {index}. Waiting {e.value}s...")
                 await asyncio.sleep(e.value)
                 await client.start()
+            except AuthKeyDuplicated:
+                LOGGER(__name__).error(
+                    f"Client {index} in Call: AUTH_KEY_DUPLICATED — session already in use. "
+                    f"Generate a new session string for STRING{index}."
+                )
+            except AuthKeyUnregistered:
+                LOGGER(__name__).error(
+                    f"Client {index} in Call: AuthKeyUnregistered — session is invalid/expired. "
+                    f"Generate a new session string for STRING{index}."
+                )
             except Exception as e:
                 LOGGER(__name__).error(f"Failed to start Client {index} in Call: {e}")
 
-        if config.STRING1:
-            await start_client(self.one, 1)
-        if config.STRING2:
-            await start_client(self.two, 2)
-        if config.STRING3:
-            await start_client(self.three, 3)
-        if config.STRING4:
-            await start_client(self.four, 4)
-        if config.STRING5:
-            await start_client(self.five, 5)
+        await start_client(self.one, 1)
+        await start_client(self.two, 2)
+        await start_client(self.three, 3)
+        await start_client(self.four, 4)
+        await start_client(self.five, 5)
 
     @capture_internal_err
     async def ping(self) -> str:

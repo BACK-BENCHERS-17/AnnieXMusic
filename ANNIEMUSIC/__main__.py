@@ -79,8 +79,9 @@ async def init():
 
     LOGGER("ANNIEMUSIC.plugins").info("ᴀɴɴɪᴇ's ᴍᴏᴅᴜʟᴇs ʟᴏᴀᴅᴇᴅ...")
 
-    await userbot.start()
+    JARVIS.setup_clients(userbot)
     await JARVIS.start()
+    await userbot.post_start()
 
     try:
         await JARVIS.stream_call("http://docs.evostream.com/sample_content/assets/sintel1m720p.mp4")
