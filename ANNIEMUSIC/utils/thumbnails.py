@@ -1,3 +1,4 @@
+import asyncio
 import os
 import re
 import aiofiles
@@ -78,50 +79,18 @@ def _rounded(img, w, h, r):
     return img
 
 
-async def get_thumb(videoid: str) -> str:
-    cache_path = os.path.join(CACHE_DIR, f"{videoid}_v30.png")
-    if os.path.exists(cache_path):
-        return cache_path
-
-    # ── Fetch metadata ──────────────────────────────────────────────────
-    try:
-        results_data = await VideosSearch(
-            f"https://www.youtube.com/watch?v={videoid}", limit=1
-        ).next()
-        data      = (results_data.get("result") or [{}])[0]
-        title     = re.sub(r"\W+", " ", data.get("title", "Unsupported Title")).title()
-        thumbnail = (data.get("thumbnails") or [{}])[0].get("url") or YOUTUBE_IMG_URL
-        duration  = data.get("duration")
-        views     = (data.get("viewCount") or {}).get("short") or "Unknown"
-    except Exception:
-        title, thumbnail, duration, views = "Unsupported Title", YOUTUBE_IMG_URL, None, "Unknown"
-
-    if _title_is_nsfw(title):
-        return YOUTUBE_IMG_URL
-
-    is_live      = not duration or str(duration).strip().lower() in {"", "live", "live now"}
-    duration_txt = "LIVE" if is_live else (duration or "—")
-
-    # ── Download ────────────────────────────────────────────────────────
-    thumb_path = os.path.join(CACHE_DIR, f"raw_{videoid}.png")
-    downloaded = False
-    try:
-        async with aiohttp.ClientSession() as sess:
-            async with sess.get(thumbnail) as resp:
-                if resp.status == 200:
-                    async with aiofiles.open(thumb_path, "wb") as f:
-                        await f.write(await resp.read())
-                    downloaded = True
-    except Exception:
-        pass
-
-    if not downloaded:
-        return YOUTUBE_IMG_URL
-
+def _build_thumb_sync(
+    raw_path: str,
+    cache_path: str,
+    title: str,
+    duration_txt: str,
+    views: str,
+) -> str:
+    """Heavy PIL processing — runs in a thread executor to avoid blocking the event loop."""
     fonts = _load_fonts()
-    ft, fm, fc, fs, fb = fonts  # title, meta, credit, small, badge
+    ft, fm, fc, fs, fb = fonts
 
-    raw = Image.open(thumb_path).convert("RGBA")
+    raw = Image.open(raw_path).convert("RGBA")
 
     # ══════════════════════════════════════════════════════════════════════
     # 1. CINEMATIC BACKGROUND — extreme blur + very dark
@@ -299,9 +268,60 @@ async def get_thumb(videoid: str) -> str:
 
     # ── Cleanup ─────────────────────────────────────────────────────────
     try:
-        os.remove(thumb_path)
+        os.remove(raw_path)
     except OSError:
         pass
 
     bg.convert("RGB").save(cache_path)
     return cache_path
+
+
+async def get_thumb(videoid: str) -> str:
+    cache_path = os.path.join(CACHE_DIR, f"{videoid}_v30.png")
+    if os.path.exists(cache_path):
+        return cache_path
+
+    # ── Fetch metadata ──────────────────────────────────────────────────
+    try:
+        results_data = await VideosSearch(
+            f"https://www.youtube.com/watch?v={videoid}", limit=1
+        ).next()
+        data      = (results_data.get("result") or [{}])[0]
+        title     = re.sub(r"\W+", " ", data.get("title", "Unsupported Title")).title()
+        thumbnail = (data.get("thumbnails") or [{}])[0].get("url") or YOUTUBE_IMG_URL
+        duration  = data.get("duration")
+        views     = (data.get("viewCount") or {}).get("short") or "Unknown"
+    except Exception:
+        title, thumbnail, duration, views = "Unsupported Title", YOUTUBE_IMG_URL, None, "Unknown"
+
+    if _title_is_nsfw(title):
+        return YOUTUBE_IMG_URL
+
+    is_live      = not duration or str(duration).strip().lower() in {"", "live", "live now"}
+    duration_txt = "LIVE" if is_live else (duration or "—")
+
+    # ── Download thumbnail ───────────────────────────────────────────────
+    raw_path = os.path.join(CACHE_DIR, f"raw_{videoid}.png")
+    downloaded = False
+    try:
+        async with aiohttp.ClientSession() as sess:
+            async with sess.get(thumbnail) as resp:
+                if resp.status == 200:
+                    async with aiofiles.open(raw_path, "wb") as f:
+                        await f.write(await resp.read())
+                    downloaded = True
+    except Exception:
+        pass
+
+    if not downloaded:
+        return YOUTUBE_IMG_URL
+
+    # ── Heavy PIL processing in thread (non-blocking) ────────────────────
+    loop = asyncio.get_event_loop()
+    try:
+        result = await loop.run_in_executor(
+            None, _build_thumb_sync, raw_path, cache_path, title, duration_txt, views
+        )
+        return result or YOUTUBE_IMG_URL
+    except Exception:
+        return YOUTUBE_IMG_URL

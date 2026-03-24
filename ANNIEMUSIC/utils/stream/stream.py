@@ -1,3 +1,4 @@
+import asyncio
 import os
 from random import randint
 from typing import Union
@@ -203,7 +204,8 @@ async def stream(
 
                 # ── NSFW thumbnail check (always on, respects whitelist) ─
                 _wl_p = NSFW_WHITELIST.get(original_chat_id, set())
-                if vidid not in _wl_p and is_thumb_nsfw_local(img):
+                _nsfw_p = vidid not in _wl_p and await asyncio.get_event_loop().run_in_executor(None, is_thumb_nsfw_local, img)
+                if _nsfw_p:
                     await _stop_and_block(_, chat_id, original_chat_id, title, vidid, user_name, user_id)
                     continue
 
@@ -308,7 +310,8 @@ async def stream(
             img = await get_thumb(vidid)
 
             # ── NSFW thumbnail check (always on, respects whitelist) ─────
-            if vidid not in _wl and is_thumb_nsfw_local(img):
+            _nsfw_yt = vidid not in _wl and await asyncio.get_event_loop().run_in_executor(None, is_thumb_nsfw_local, img)
+            if _nsfw_yt:
                 return await _stop_and_block(_, chat_id, original_chat_id, title, vidid, user_name, user_id)
 
             button = stream_markup(_, chat_id)
@@ -503,7 +506,8 @@ async def stream(
             img = await get_thumb(vidid)
 
             # ── NSFW thumbnail check (always on, respects whitelist) ─────
-            if vidid not in _wl and is_thumb_nsfw_local(img):
+            _nsfw_live = vidid not in _wl and await asyncio.get_event_loop().run_in_executor(None, is_thumb_nsfw_local, img)
+            if _nsfw_live:
                 return await _stop_and_block(_, chat_id, original_chat_id, title, vidid, user_name, user_id)
 
             button = stream_markup(_, chat_id)
