@@ -235,21 +235,21 @@ async def _is_visual_nsfw(tg_client: Client, file_id: str) -> bool:
 # ─────────────────────────────────────────────────────────────────────────────
 _GROUP_ALERT = (
     "<blockquote>"
-    "<emoji id=\"5467370399671745298\">⛔</emoji> <b>ᴄᴏɴᴛᴇɴᴛ ʀᴇᴍᴏᴠᴇᴅ</b>\n\n"
-    "<emoji id=\"5465665476971471368\">🚫</emoji> <b>Reason :</b> {reason}\n\n"
-    "<emoji id=\"5467399791429127538\">🛡</emoji> This group has <b>NSFW / Illegal / Drug</b> content protection enabled.\n"
-    "<emoji id=\"5445284980978621387\">ℹ️</emoji> Use <code>/nsfw off</code> to disable."
+    "⛔ <b>ᴄᴏɴᴛᴇɴᴛ ʀᴇᴍᴏᴠᴇᴅ</b>\n\n"
+    "🚫 <b>Reason :</b> {reason}\n\n"
+    "🛡 This group has <b>NSFW / Illegal / Drug</b> content protection enabled.\n"
+    "ℹ️ Use <code>/nsfw off</code> to disable."
     "</blockquote>\n"
-    "<i><emoji id=\"5451882561279007458\">⏳</emoji> This notice will be deleted in 8 seconds.</i>"
+    "<i>⏳ This notice will be deleted in 8 seconds.</i>"
 )
 
 _DM_ALERT = (
     "<blockquote>"
-    "<emoji id=\"5467370399671745298\">⛔</emoji> <b>ᴄᴏɴᴛᴇɴᴛ ᴘᴏʟɪᴄʏ ᴠɪᴏʟᴀᴛɪᴏɴ</b>\n\n"
-    "<emoji id=\"5465665476971471368\">🚫</emoji> <b>Reason :</b> {reason}\n\n"
-    "<emoji id=\"5467399791429127538\">🛡</emoji> This bot does <b>not</b> allow NSFW, explicit, illegal, or drug-related content."
+    "⛔ <b>ᴄᴏɴᴛᴇɴᴛ ᴘᴏʟɪᴄʏ ᴠɪᴏʟᴀᴛɪᴏɴ</b>\n\n"
+    "🚫 <b>Reason :</b> {reason}\n\n"
+    "🛡 This bot does <b>not</b> allow NSFW, explicit, illegal, or drug-related content."
     "</blockquote>\n"
-    "<i><emoji id=\"5451882561279007458\">⏳</emoji> This warning will be deleted in 10 seconds.</i>"
+    "<i>⏳ This warning will be deleted in 10 seconds.</i>"
 )
 
 

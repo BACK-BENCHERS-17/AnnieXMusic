@@ -41,11 +41,11 @@ async def _delete_and_warn(message: Message, reason: str):
     try:
         warning = await message.reply_text(
             "<blockquote>"
-            "<emoji id=\"5467370399671745298\">⛔</emoji> <b>ᴄᴏɴᴛᴇɴᴛ ʀᴇᴍᴏᴠᴇᴅ</b>\n\n"
-            f"<emoji id=\"5465665476971471368\">🚫</emoji> <b>Reason :</b> {reason}\n\n"
-            "<emoji id=\"5467399791429127538\">🛡</emoji> <b>NSFW Filter</b> is active in this group."
+            "⛔ <b>ᴄᴏɴᴛᴇɴᴛ ʀᴇᴍᴏᴠᴇᴅ</b>\n\n"
+            f"🚫 <b>Reason :</b> {reason}\n\n"
+            "🛡 <b>NSFW Filter</b> is active in this group."
             "</blockquote>\n"
-            "<i><emoji id=\"5451882561279007458\">⏳</emoji> Deleting in 8 seconds...</i>",
+            "<i>⏳ Deleting in 8 seconds...</i>",
             parse_mode=ParseMode.HTML,
         )
         await asyncio.sleep(8)
@@ -61,7 +61,7 @@ async def content_guard_cmd(client, message: Message):
     if not message.from_user:
         return await message.reply_text(
             "<blockquote>"
-            "<emoji id=\"5465665476971471368\">🚫</emoji> <b>ᴀɴᴏɴʏᴍᴏᴜs ᴀᴄᴄᴇss ᴅᴇɴɪᴇᴅ</b>\n\n"
+            "🚫 <b>ᴀɴᴏɴʏᴍᴏᴜs ᴀᴄᴄᴇss ᴅᴇɴɪᴇᴅ</b>\n\n"
             "Anonymous admins cannot use this command."
             "</blockquote>",
             parse_mode=ParseMode.HTML,
@@ -70,7 +70,7 @@ async def content_guard_cmd(client, message: Message):
     if not await _is_admin(client, message.chat.id, message.from_user.id):
         return await message.reply_text(
             "<blockquote>"
-            "<emoji id=\"5465665476971471368\">🚫</emoji> <b>ᴀᴄᴄᴇss ᴅᴇɴɪᴇᴅ</b>\n\n"
+            "🚫 <b>ᴀᴄᴄᴇss ᴅᴇɴɪᴇᴅ</b>\n\n"
             "Only group admins can use this command."
             "</blockquote>",
             parse_mode=ParseMode.HTML,
@@ -79,19 +79,19 @@ async def content_guard_cmd(client, message: Message):
     args = message.command
     if len(args) < 2 or args[1].lower() not in ("on", "off"):
         enabled = await is_content_guard_on(message.chat.id)
-        status_icon = "<emoji id=\"5368324170671202286\">✅</emoji> ᴏɴ" if enabled else "<emoji id=\"5465665476971471368\">🚫</emoji> ᴏꜰꜰ"
+        status_icon = "✅ ᴏɴ" if enabled else "🚫 ᴏꜰꜰ"
         return await message.reply_text(
             "<blockquote>"
-            f"<emoji id=\"5467399791429127538\">🛡</emoji> <b>ɴsꜰᴡ ꜰɪʟᴛᴇʀ</b> — {status_icon}\n\n"
-            "<emoji id=\"5445284980978621387\">ℹ️</emoji> <b>Usage :</b>\n"
+            f"🛡 <b>ɴsꜰᴡ ꜰɪʟᴛᴇʀ</b> — {status_icon}\n\n"
+            "ℹ️ <b>Usage :</b>\n"
             "  <code>/nsfw on</code>  — Enable filter\n"
             "  <code>/nsfw off</code> — Disable filter\n\n"
-            "<emoji id=\"5467399791429127538\">🛡</emoji> <b>What it protects :</b>\n"
+            "🛡 <b>What it protects :</b>\n"
             "  • 18+ images auto-deleted\n"
             "  • Explicit keywords in messages deleted\n"
             "  • NSFW sticker packs blocked\n"
             "  • NSFW song thumbnails blocked\n\n"
-            "<emoji id=\"5445284980978621387\">ℹ️</emoji> Filter is <b>ON by default</b> in all groups."
+            "ℹ️ Filter is <b>ON by default</b> in all groups."
             "</blockquote>",
             parse_mode=ParseMode.HTML,
         )
@@ -100,12 +100,12 @@ async def content_guard_cmd(client, message: Message):
         await content_guard_on(message.chat.id)
         await message.reply_text(
             "<blockquote>"
-            "<emoji id=\"5368324170671202286\">✅</emoji> <b>ɴsꜰᴡ ꜰɪʟᴛᴇʀ : ᴇɴᴀʙʟᴇᴅ</b>\n\n"
-            "<emoji id=\"5467399791429127538\">🛡</emoji> This group is now protected:\n"
-            "  • 18+ & explicit images → auto-deleted\n"
+            "✅ <b>ɴsꜰᴡ ꜰɪʟᴛᴇʀ : ᴇɴᴀʙʟᴇᴅ</b>\n\n"
+            "🛡 This group is now protected:\n"
+            "  • 18+ &amp; explicit images → auto-deleted\n"
             "  • NSFW stickers → blocked\n"
             "  • Explicit keywords → removed\n\n"
-            "<emoji id=\"5368324170671202286\">✅</emoji> <i>Group is safe! 🔒</i>"
+            "✅ <i>Group is safe! 🔒</i>"
             "</blockquote>",
             parse_mode=ParseMode.HTML,
         )
@@ -113,7 +113,7 @@ async def content_guard_cmd(client, message: Message):
         await content_guard_off(message.chat.id)
         await message.reply_text(
             "<blockquote>"
-            "<emoji id=\"5465665476971471368\">🚫</emoji> <b>ɴsꜰᴡ ꜰɪʟᴛᴇʀ : ᴅɪsᴀʙʟᴇᴅ</b>\n\n"
+            "🚫 <b>ɴsꜰᴡ ꜰɪʟᴛᴇʀ : ᴅɪsᴀʙʟᴇᴅ</b>\n\n"
             "NSFW filtering has been turned off for this group.\n"
             "Use <code>/nsfw on</code> to re-enable."
             "</blockquote>",
