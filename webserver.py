@@ -334,13 +334,51 @@ def api_yturl():
         return jsonify({"error": str(e)}), 500
 
 
+def _file_exists_any(vid):
+    """Return path if any audio file exists for this video id."""
+    for ext in ("m4a", "mp3", "webm", "opus", "ogg", "flac"):
+        p = os.path.join(_DOWNLOAD_DIR, f"{vid}.{ext}")
+        if os.path.exists(p) and os.path.getsize(p) > 1024:
+            return p
+    return None
+
+
+def _cdn_download_sync(vid, stream_url, ext):
+    """Synchronously download audio from CDN URL. Returns file path or None."""
+    out_path = os.path.join(_DOWNLOAD_DIR, f"{vid}.{ext}")
+    if os.path.exists(out_path) and os.path.getsize(out_path) > 1024:
+        return out_path
+    tmp_path = out_path + ".tmp"
+    try:
+        headers = get_cdn_headers()
+        with requests.get(stream_url, headers=headers, stream=True, timeout=90) as resp:
+            if resp.status_code not in (200, 206):
+                return None
+            with open(tmp_path, "wb") as f:
+                for chunk in resp.iter_content(chunk_size=65536):
+                    if chunk:
+                        f.write(chunk)
+        if os.path.exists(tmp_path) and os.path.getsize(tmp_path) > 1024:
+            os.replace(tmp_path, out_path)
+            return out_path
+    except Exception as e:
+        try:
+            os.remove(tmp_path)
+        except Exception:
+            pass
+    return None
+
+
 @app.route("/api/ytdl")
 def api_ytdl():
     """
-    Internal API: download YouTube audio to local MP3 file.
+    Internal API: download YouTube audio to local file (fast path first).
     Protected by internal random key — only the bot (same process) should call this.
     GET /api/ytdl?v=VIDEO_ID&key=INTERNAL_KEY
-    Returns: {"path": "/abs/path/to/VIDEO_ID.mp3"}
+    Returns: {"path": "/abs/path/to/VIDEO_ID.<ext>"}
+
+    Fast path: smart_extract_url → CDN download (no ffmpeg, ~1-3s)
+    Slow path: yt-dlp full download + ffmpeg MP3 (fallback only)
     """
     vid = request.args.get("v", "").strip()
     key = request.args.get("key", "").strip()
@@ -350,9 +388,10 @@ def api_ytdl():
     if key != _INTERNAL_KEY:
         return jsonify({"error": "Unauthorized"}), 401
 
-    out_path = os.path.join(_DOWNLOAD_DIR, f"{vid}.mp3")
-    if os.path.exists(out_path) and os.path.getsize(out_path) > 1024:
-        return jsonify({"path": out_path, "cached": True})
+    # ── Check any existing file first ────────────────────────────────────────
+    existing = _file_exists_any(vid)
+    if existing:
+        return jsonify({"path": existing, "cached": True})
 
     with _ytdl_lock_guard:
         if vid not in _ytdl_locks:
@@ -360,9 +399,23 @@ def api_ytdl():
         vid_lock = _ytdl_locks[vid]
 
     with vid_lock:
-        if os.path.exists(out_path) and os.path.getsize(out_path) > 1024:
-            return jsonify({"path": out_path, "cached": True})
+        existing = _file_exists_any(vid)
+        if existing:
+            return jsonify({"path": existing, "cached": True})
 
+        # ── Fast path: stream URL → CDN download (no ffmpeg needed) ─────────
+        try:
+            stream_data = _get_stream_data(vid)
+            if stream_data and stream_data.get("url"):
+                ext = stream_data.get("ext", "m4a")
+                path = _cdn_download_sync(vid, stream_data["url"], ext)
+                if path:
+                    return jsonify({"path": path, "method": "cdn"})
+        except Exception as e:
+            pass  # fall through to slow path
+
+        # ── Slow path: yt-dlp + ffmpeg MP3 (fallback) ───────────────────────
+        out_path = os.path.join(_DOWNLOAD_DIR, f"{vid}.mp3")
         tmp_path = out_path + ".tmp"
         opts = {
             "format": "bestaudio/best",
@@ -390,8 +443,9 @@ def api_ytdl():
         try:
             with yt_dlp.YoutubeDL(opts) as ydl:
                 ydl.extract_info(f"https://www.youtube.com/watch?v={vid}", download=True)
-            if os.path.exists(out_path) and os.path.getsize(out_path) > 1024:
-                return jsonify({"path": out_path})
+            existing = _file_exists_any(vid)
+            if existing:
+                return jsonify({"path": existing, "method": "ytdlp"})
             return jsonify({"error": "Download produced no file"}), 500
         except Exception as e:
             try:

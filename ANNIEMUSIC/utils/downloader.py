@@ -382,9 +382,9 @@ async def download_audio_concurrent(link: str) -> Optional[str]:
 
     Method chain (fastest to most robust):
     1. File cache — instant if already downloaded
-    2. SmartYTDL URL extract → CDN download (fast ~3-5s, uses adaptive client)
-    3. SmartYTDL direct download (yt-dlp handles everything internally)
-    4. Internal webserver /api/ytdl (MP3 via ffmpeg)
+    2. Internal /api/yturl → CDN download (uses stream cache = near-instant on cache hit)
+    3. SmartYTDL URL extract → CDN download (fresh probe if not cached)
+    4. SmartYTDL direct download (yt-dlp handles everything internally)
     5. External API race (if configured)
     """
     vid = extract_video_id(link)
@@ -397,8 +397,22 @@ async def download_audio_concurrent(link: str) -> Optional[str]:
     async def run():
         loop = asyncio.get_running_loop()
 
-        # ── Method 1: SmartYTDL URL extract → CDN download ─────────────────
-        # Smart: tries cached best client first, then parallel-probes all others
+        # ── Method 1: Internal /api/yturl → CDN download ───────────────────
+        # Uses webserver stream cache — instant if URL was recently fetched
+        try:
+            result = await api_get_stream_url(vid)
+            if result:
+                cdn_url, ext = result
+                local = await download_from_cdn_url(vid, cdn_url, ext)
+                if local:
+                    LOGGER(__name__).info(f"[OWN-API] CDN download ok: {local}")
+                    return local
+                LOGGER(__name__).info(f"[OWN-API] CDN blocked, falling through for {vid}")
+        except Exception as e:
+            LOGGER(__name__).debug(f"[OWN-API] yturl failed for {vid}: {e}")
+
+        # ── Method 2: SmartYTDL URL extract → CDN download ─────────────────
+        # Fresh probe using adaptive multi-client engine
         try:
             info = await loop.run_in_executor(None, smart_extract_url, vid)
             if info:
@@ -410,12 +424,11 @@ async def download_audio_concurrent(link: str) -> Optional[str]:
                         f"[SMART] CDN download ok via {info['client']}: {local}"
                     )
                     return local
-                # URL extracted but CDN blocked — fall through to direct download
                 LOGGER(__name__).info(f"[SMART] CDN blocked, trying direct download for {vid}")
         except Exception as e:
             LOGGER(__name__).debug(f"[SMART] URL extract failed for {vid}: {e}")
 
-        # ── Method 2: SmartYTDL direct download ────────────────────────────
+        # ── Method 3: SmartYTDL direct download ────────────────────────────
         # yt-dlp handles auth, rate limits, n-param decoding internally
         try:
             fmt = "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best"
@@ -425,14 +438,6 @@ async def download_audio_concurrent(link: str) -> Optional[str]:
                 return path
         except Exception as e:
             LOGGER(__name__).debug(f"[SMART] Direct download failed for {vid}: {e}")
-
-        # ── Method 3: Internal webserver /api/ytdl (MP3 via ffmpeg) ────────
-        try:
-            own = await download_from_own_api(vid)
-            if own:
-                return own
-        except Exception as e:
-            LOGGER(__name__).debug(f"[YTDL-API] Failed for {vid}: {e}")
 
         # ── Method 4: External API race (only if configured) ────────────────
         if USE_API:
