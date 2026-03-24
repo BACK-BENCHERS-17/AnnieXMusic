@@ -3,7 +3,7 @@ import io
 from concurrent.futures import ThreadPoolExecutor
 
 from pyrogram import filters
-from pyrogram.enums import ChatMemberStatus
+from pyrogram.enums import ChatMemberStatus, ParseMode
 from pyrogram.types import Message
 
 from ANNIEMUSIC import app
@@ -40,9 +40,13 @@ async def _delete_and_warn(message: Message, reason: str):
         return
     try:
         warning = await message.reply_text(
-            f"🚫 <b>Message delete kar diya gaya!</b>\n"
-            f"{reason}\n"
-            f"<i>Content Guard active hai is group mein. 🛡️</i>"
+            "<blockquote>"
+            "<emoji id=\"5467370399671745298\">⛔</emoji> <b>ᴄᴏɴᴛᴇɴᴛ ʀᴇᴍᴏᴠᴇᴅ</b>\n\n"
+            f"<emoji id=\"5465665476971471368\">🚫</emoji> <b>Reason :</b> {reason}\n\n"
+            "<emoji id=\"5467399791429127538\">🛡</emoji> <b>NSFW Filter</b> is active in this group."
+            "</blockquote>\n"
+            "<i><emoji id=\"5451882561279007458\">⏳</emoji> Deleting in 8 seconds...</i>",
+            parse_mode=ParseMode.HTML,
         )
         await asyncio.sleep(8)
         await warning.delete()
@@ -56,45 +60,64 @@ async def _delete_and_warn(message: Message, reason: str):
 async def content_guard_cmd(client, message: Message):
     if not message.from_user:
         return await message.reply_text(
-            "<b>❌ Anonymous admins ye command use nahi kar sakte.</b>"
+            "<blockquote>"
+            "<emoji id=\"5465665476971471368\">🚫</emoji> <b>ᴀɴᴏɴʏᴍᴏᴜs ᴀᴄᴄᴇss ᴅᴇɴɪᴇᴅ</b>\n\n"
+            "Anonymous admins cannot use this command."
+            "</blockquote>",
+            parse_mode=ParseMode.HTML,
         )
 
     if not await _is_admin(client, message.chat.id, message.from_user.id):
         return await message.reply_text(
-            "<b>❌ Sirf group admins hi ye command use kar sakte hain.</b>"
+            "<blockquote>"
+            "<emoji id=\"5465665476971471368\">🚫</emoji> <b>ᴀᴄᴄᴇss ᴅᴇɴɪᴇᴅ</b>\n\n"
+            "Only group admins can use this command."
+            "</blockquote>",
+            parse_mode=ParseMode.HTML,
         )
 
     args = message.command
     if len(args) < 2 or args[1].lower() not in ("on", "off"):
         enabled = await is_content_guard_on(message.chat.id)
-        status = "✅ ON" if enabled else "❌ OFF"
+        status_icon = "<emoji id=\"5368324170671202286\">✅</emoji> ᴏɴ" if enabled else "<emoji id=\"5465665476971471368\">🚫</emoji> ᴏꜰꜰ"
         return await message.reply_text(
-            f"<b>🛡️ NSFW Filter - {status}</b>\n\n"
-            "<b>Usage:</b>\n"
-            "<code>/nsfw on</code>  — Filter ON karo\n"
-            "<code>/nsfw off</code> — Filter OFF karo\n\n"
-            "<b>Kya protect karta hai:</b>\n"
-            "• 18+ images automatic delete\n"
-            "• Explicit / drugs wale keywords delete\n"
-            "• NSFW sticker packs delete\n"
-            "• NSFW thumbnail wale songs block"
+            "<blockquote>"
+            f"<emoji id=\"5467399791429127538\">🛡</emoji> <b>ɴsꜰᴡ ꜰɪʟᴛᴇʀ</b> — {status_icon}\n\n"
+            "<emoji id=\"5445284980978621387\">ℹ️</emoji> <b>Usage :</b>\n"
+            "  <code>/nsfw on</code>  — Enable filter\n"
+            "  <code>/nsfw off</code> — Disable filter\n\n"
+            "<emoji id=\"5467399791429127538\">🛡</emoji> <b>What it protects :</b>\n"
+            "  • 18+ images auto-deleted\n"
+            "  • Explicit keywords in messages deleted\n"
+            "  • NSFW sticker packs blocked\n"
+            "  • NSFW song thumbnails blocked\n\n"
+            "<emoji id=\"5445284980978621387\">ℹ️</emoji> Filter is <b>ON by default</b> in all groups."
+            "</blockquote>",
+            parse_mode=ParseMode.HTML,
         )
 
     if args[1].lower() == "on":
         await content_guard_on(message.chat.id)
         await message.reply_text(
-            "<b>🛡️ NSFW Filter: ✅ ON</b>\n\n"
-            "Ab is group mein:\n"
-            "• 18+ aur explicit images auto-delete hongi\n"
-            "• NSFW stickers bhi pakde jayenge\n"
-            "• Explicit keywords wale messages delete honge\n\n"
-            "<i>Group safe hai! 🔒</i>"
+            "<blockquote>"
+            "<emoji id=\"5368324170671202286\">✅</emoji> <b>ɴsꜰᴡ ꜰɪʟᴛᴇʀ : ᴇɴᴀʙʟᴇᴅ</b>\n\n"
+            "<emoji id=\"5467399791429127538\">🛡</emoji> This group is now protected:\n"
+            "  • 18+ & explicit images → auto-deleted\n"
+            "  • NSFW stickers → blocked\n"
+            "  • Explicit keywords → removed\n\n"
+            "<emoji id=\"5368324170671202286\">✅</emoji> <i>Group is safe! 🔒</i>"
+            "</blockquote>",
+            parse_mode=ParseMode.HTML,
         )
     else:
         await content_guard_off(message.chat.id)
         await message.reply_text(
-            "<b>🛡️ NSFW Filter: ❌ OFF</b>\n\n"
-            "NSFW filtering disable ho gaya."
+            "<blockquote>"
+            "<emoji id=\"5465665476971471368\">🚫</emoji> <b>ɴsꜰᴡ ꜰɪʟᴛᴇʀ : ᴅɪsᴀʙʟᴇᴅ</b>\n\n"
+            "NSFW filtering has been turned off for this group.\n"
+            "Use <code>/nsfw on</code> to re-enable."
+            "</blockquote>",
+            parse_mode=ParseMode.HTML,
         )
 
 
@@ -118,7 +141,7 @@ async def check_media(client, message: Message):
         if bad_word:
             await _delete_and_warn(
                 message,
-                f"Caption mein inappropriate content mila: <code>{bad_word}</code>"
+                f"Explicit keyword in caption: <code>{bad_word}</code>",
             )
             return
 
@@ -131,7 +154,7 @@ async def check_media(client, message: Message):
         if bad_word:
             await _delete_and_warn(
                 message,
-                f"Inappropriate sticker pack detect hua: <code>{bad_word}</code>"
+                f"NSFW sticker pack detected: <code>{bad_word}</code>",
             )
         return
 
@@ -149,5 +172,5 @@ async def check_media(client, message: Message):
         if is_nsfw:
             await _delete_and_warn(
                 message,
-                "18+ ya explicit content detect hua (skin analysis)."
+                "18+ / explicit visual content detected.",
             )

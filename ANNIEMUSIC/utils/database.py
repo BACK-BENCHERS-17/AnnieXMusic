@@ -698,16 +698,35 @@ async def autoplay_off(chat_id: int):
     )
 
 
-content_guard_cache = {}
+_nsfw_disabled_cache: dict[int, bool] = {}
+
+
+async def is_nsfw_disabled(chat_id: int) -> bool:
+    """Returns True if NSFW filter is explicitly disabled for this chat."""
+    if chat_id in _nsfw_disabled_cache:
+        return _nsfw_disabled_cache[chat_id]
+    result = await contentguarddb.find_one({"chat_id": chat_id})
+    disabled = result.get("disabled", False) if result else False
+    _nsfw_disabled_cache[chat_id] = disabled
+    return disabled
 
 
 async def is_content_guard_on(chat_id: int) -> bool:
-    return True
+    """Returns True if NSFW filter is active (ON by default, unless explicitly disabled)."""
+    return not await is_nsfw_disabled(chat_id)
 
 
 async def content_guard_on(chat_id: int):
-    pass
+    """Re-enable NSFW filter (remove from disabled list)."""
+    _nsfw_disabled_cache[chat_id] = False
+    await contentguarddb.delete_one({"chat_id": chat_id})
 
 
 async def content_guard_off(chat_id: int):
-    pass
+    """Disable NSFW filter for this chat."""
+    _nsfw_disabled_cache[chat_id] = True
+    await contentguarddb.update_one(
+        {"chat_id": chat_id},
+        {"$set": {"chat_id": chat_id, "disabled": True}},
+        upsert=True,
+    )

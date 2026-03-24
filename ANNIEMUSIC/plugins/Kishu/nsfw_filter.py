@@ -28,7 +28,6 @@ except Exception as e:
     _NUDE_OK = False
     logger.error(f"NudeDetector failed to load: {e}")
 
-# Classes that trigger NSFW — exposed body parts
 _NSFW_EXPOSED = {
     "FEMALE_GENITALIA_EXPOSED",
     "MALE_GENITALIA_EXPOSED",
@@ -36,7 +35,6 @@ _NSFW_EXPOSED = {
     "ANUS_EXPOSED",
     "BUTTOCKS_EXPOSED",
 }
-# Covered/semi-covered body parts (higher threshold to avoid false positives)
 _NSFW_COVERED = {
     "FEMALE_GENITALIA_COVERED",
     "MALE_GENITALIA_COVERED",
@@ -47,32 +45,25 @@ _NSFW_COVERED = {
 _THRESHOLD_EXPOSED = 0.50
 _THRESHOLD_COVERED = 0.75
 
-# In-memory hash cache to avoid re-scanning same files
 _nsfw_hash_cache: dict[str, bool] = {}
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Keyword filter — only clearly explicit / illegal terms (no false positives)
+# Keywords — only clearly explicit / illegal
 # ─────────────────────────────────────────────────────────────────────────────
 NSFW_KEYWORDS = [
-    # Explicit sexual
     "nude", "naked", "porn", "pornography", "xxx", "hentai",
     "blowjob", "handjob", "masturbat", "orgasm", "erotic",
     "nudes", "nsfw", "onlyfans", "camgirl", "cam girl", "sexting",
     "intercourse", "18+", "x-rated", "adult content", "lewd",
     "pedophil", "child abuse",
-    # Body parts (explicit)
     "vagina", "penis", "nipple", "nipples", "pussy",
     "boobs", "boob", "tits", "tit",
-    # Drugs (hard)
     "cocaine", "heroin", "methamphetamine", "mdma", "ecstasy",
     "opium", "hashish", "ketamine", "narcotics", "drug dealer",
-    # Illegal
     "darkweb", "dark web", "traffick",
-    # Hindi/Urdu explicit
     "chut", "lund", "gaand", "randi", "madarchod", "behenchod",
     "bhosdike", "lawda", "lauda", "chutiya", "gandu",
-    "nangi", "nanga", "nangai",
-    "bhosad", "harami",
+    "nangi", "nanga", "nangai", "bhosad", "harami",
 ]
 
 NSFW_PATTERN = re.compile(
@@ -84,9 +75,6 @@ def _has_nsfw_text(text: str) -> bool:
     return bool(NSFW_PATTERN.search(text)) if text else False
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Sticker pack keyword list
-# ─────────────────────────────────────────────────────────────────────────────
 NSFW_STICKER_KEYWORDS = [
     "nsfw", "porn", "hentai", "nude", "lewd", "xxx",
     "naked", "boobs", "pussy", "vagina", "penis",
@@ -140,26 +128,21 @@ def _get_file_id(message: Message):
         if message.document.mime_type not in ("image/png", "image/jpeg", "image/webp"):
             return None
         return message.document.file_id
-
     if message.sticker:
         if message.sticker.is_animated or message.sticker.is_video:
             return _best_thumb(message.sticker.thumbs)
         return message.sticker.file_id
-
     if message.photo:
         return message.photo.file_id
-
     if message.animation:
         return _best_thumb(message.animation.thumbs)
-
     if message.video:
         return _best_thumb(message.video.thumbs)
-
     return None
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Public helper — check a LOCAL image file for NSFW (used by stream.py)
+# Public helper — check a LOCAL image file (used by stream.py)
 # ─────────────────────────────────────────────────────────────────────────────
 def is_thumb_nsfw_local(img_path: str) -> bool:
     if not _NUDE_OK or not img_path or not os.path.exists(img_path):
@@ -170,11 +153,8 @@ def is_thumb_nsfw_local(img_path: str) -> bool:
         detections = _detector.detect(png_path)
         logger.info(f"[NSFW-THUMB] Detections for {img_path}: {detections}")
         return any(
-            (
-                det.get("class") in _NSFW_EXPOSED and det.get("score", 0) >= _THRESHOLD_EXPOSED
-            ) or (
-                det.get("class") in _NSFW_COVERED and det.get("score", 0) >= _THRESHOLD_COVERED
-            )
+            (det.get("class") in _NSFW_EXPOSED and det.get("score", 0) >= _THRESHOLD_EXPOSED)
+            or (det.get("class") in _NSFW_COVERED and det.get("score", 0) >= _THRESHOLD_COVERED)
             for det in detections
         )
     except Exception:
@@ -212,43 +192,32 @@ def _to_png(path: str) -> str:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Core visual NSFW check (nudenet, fully local)
+# Core visual NSFW check
 # ─────────────────────────────────────────────────────────────────────────────
 async def _is_visual_nsfw(tg_client: Client, file_id: str) -> bool:
     if not _NUDE_OK:
         return False
-
     path = None
     png_path = None
     try:
         path = await tg_client.download_media(file_id)
         if not path or not os.path.exists(path):
             return False
-
         logger.info(f"[NSFW] Downloaded: {path} ({os.path.getsize(path)} bytes)")
-
         file_hash = _file_hash(path)
         if file_hash in _nsfw_hash_cache:
-            logger.info(f"[NSFW] Cache hit: {_nsfw_hash_cache[file_hash]}")
             return _nsfw_hash_cache[file_hash]
-
         png_path = _to_png(path)
         detections = _detector.detect(png_path)
         logger.info(f"[NSFW] Detections: {detections}")
-
         is_nsfw = any(
-            (
-                det.get("class") in _NSFW_EXPOSED and det.get("score", 0) >= _THRESHOLD_EXPOSED
-            ) or (
-                det.get("class") in _NSFW_COVERED and det.get("score", 0) >= _THRESHOLD_COVERED
-            )
+            (det.get("class") in _NSFW_EXPOSED and det.get("score", 0) >= _THRESHOLD_EXPOSED)
+            or (det.get("class") in _NSFW_COVERED and det.get("score", 0) >= _THRESHOLD_COVERED)
             for det in detections
         )
-
         _nsfw_hash_cache[file_hash] = is_nsfw
         logger.info(f"[NSFW] Result: {'NSFW' if is_nsfw else 'SAFE'}")
         return is_nsfw
-
     except Exception:
         logger.error(f"[NSFW] Visual scan error:\n{traceback.format_exc()}")
         return False
@@ -262,41 +231,75 @@ async def _is_visual_nsfw(tg_client: Client, file_id: str) -> bool:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Delete / warn handler
+# Violation handler — group: delete + alert | DM: warn only
 # ─────────────────────────────────────────────────────────────────────────────
-async def _handle_violation(client: Client, message: Message, reason: str):
-    try:
-        await message.delete()
-        logger.info(f"[NSFW] Deleted message. Reason: {reason}")
-    except Exception as e:
-        logger.warning(f"[NSFW] Could not delete message: {e}")
-        return
-    try:
-        alert = await message.chat.send_message(
-            "<blockquote>"
-            "⛔ <b>Content Removed</b>\n\n"
-            f"🚫 Reason: <b>{reason}</b>\n\n"
-            "This group enforces a strict <b>No NSFW / No Illegal / No Drug</b> policy.\n"
-            "Use <code>/nsfw off</code> to disable this filter."
-            "</blockquote>\n"
-            "<i>This notice will be deleted in 8 seconds.</i>",
-            parse_mode=ParseMode.HTML,
-        )
-        await asyncio.sleep(8)
-        await alert.delete()
-    except Exception:
-        pass
+_GROUP_ALERT = (
+    "<blockquote>"
+    "<emoji id=\"5467370399671745298\">⛔</emoji> <b>ᴄᴏɴᴛᴇɴᴛ ʀᴇᴍᴏᴠᴇᴅ</b>\n\n"
+    "<emoji id=\"5465665476971471368\">🚫</emoji> <b>Reason :</b> {reason}\n\n"
+    "<emoji id=\"5467399791429127538\">🛡</emoji> This group has <b>NSFW / Illegal / Drug</b> content protection enabled.\n"
+    "<emoji id=\"5445284980978621387\">ℹ️</emoji> Use <code>/nsfw off</code> to disable."
+    "</blockquote>\n"
+    "<i><emoji id=\"5451882561279007458\">⏳</emoji> This notice will be deleted in 8 seconds.</i>"
+)
+
+_DM_ALERT = (
+    "<blockquote>"
+    "<emoji id=\"5467370399671745298\">⛔</emoji> <b>ᴄᴏɴᴛᴇɴᴛ ᴘᴏʟɪᴄʏ ᴠɪᴏʟᴀᴛɪᴏɴ</b>\n\n"
+    "<emoji id=\"5465665476971471368\">🚫</emoji> <b>Reason :</b> {reason}\n\n"
+    "<emoji id=\"5467399791429127538\">🛡</emoji> This bot does <b>not</b> allow NSFW, explicit, illegal, or drug-related content."
+    "</blockquote>\n"
+    "<i><emoji id=\"5451882561279007458\">⏳</emoji> This warning will be deleted in 10 seconds.</i>"
+)
+
+
+async def _handle_violation(client: Client, message: Message, reason: str, is_group: bool):
+    if is_group:
+        try:
+            await message.delete()
+            logger.info(f"[NSFW] Deleted group message. Reason: {reason}")
+        except Exception as e:
+            logger.warning(f"[NSFW] Could not delete: {e}")
+            return
+        try:
+            alert = await message.chat.send_message(
+                _GROUP_ALERT.format(reason=reason),
+                parse_mode=ParseMode.HTML,
+            )
+            await asyncio.sleep(8)
+            await alert.delete()
+        except Exception:
+            pass
+    else:
+        try:
+            warn = await message.reply(
+                _DM_ALERT.format(reason=reason),
+                parse_mode=ParseMode.HTML,
+            )
+            await asyncio.sleep(10)
+            await warn.delete()
+        except Exception:
+            pass
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Main handler — groups only, respects /contentguard toggle
+# Main handler — groups + DMs, ON by default, skip only if explicitly disabled
 # ─────────────────────────────────────────────────────────────────────────────
-@app.on_message(~filters.bot & filters.group, group=-5)
+@app.on_message(~filters.bot, group=-5)
 async def nsfw_guard(client: Client, message: Message):
     if not message or not message.chat:
         return
 
-    # Only run if content guard is enabled for this group
+    is_group = message.chat.type in (
+        enums.ChatType.GROUP,
+        enums.ChatType.SUPERGROUP,
+    )
+    is_private = message.chat.type == enums.ChatType.PRIVATE
+
+    if not is_group and not is_private:
+        return
+
+    # Skip if explicitly disabled for this chat
     try:
         if not await is_content_guard_on(message.chat.id):
             return
@@ -306,36 +309,30 @@ async def nsfw_guard(client: Client, message: Message):
     # ── 1. Text / caption keyword check ─────────────────────────────────
     text = message.text or message.caption or ""
     if _has_nsfw_text(text):
-        return await _handle_violation(client, message, "18+ / illegal / drug content in text")
+        return await _handle_violation(client, message, "Explicit / illegal content in text", is_group)
 
-    # ── 2. Stickers — keyword check + visual scan ────────────────────────
+    # ── 2. Stickers ───────────────────────────────────────────────────────
     if message.sticker:
         set_name = message.sticker.set_name or ""
         emoji    = message.sticker.emoji    or ""
-
         if (
             _has_nsfw_sticker_name(set_name)
             or _has_nsfw_text(set_name)
             or _has_nsfw_text(emoji)
         ):
-            return await _handle_violation(client, message, "NSFW sticker pack")
-
+            return await _handle_violation(client, message, "NSFW sticker pack", is_group)
         file_id = _get_file_id(message)
         if file_id:
             if await _is_visual_nsfw(client, file_id):
-                return await _handle_violation(client, message, "18+ sticker content")
-
+                return await _handle_violation(client, message, "18+ sticker content", is_group)
         if (message.sticker.is_video or message.sticker.is_animated) and not file_id:
-            explicit_only = [
-                "nsfw", "porn", "xxx", "hentai", "nude",
-                "naked", "lewd", "ecchi", "ahegao",
-            ]
+            explicit_only = ["nsfw", "porn", "xxx", "hentai", "nude", "naked", "lewd", "ecchi", "ahegao"]
             if any(hint in set_name.lower() for hint in explicit_only):
-                return await _handle_violation(client, message, "Explicit animated sticker")
+                return await _handle_violation(client, message, "Explicit animated sticker", is_group)
 
-    # ── 3. Visual scan — photos, videos, animations, documents ───────────
+    # ── 3. Photos, videos, animations, documents ─────────────────────────
     if message.photo or message.video or message.animation or message.document:
         file_id = _get_file_id(message)
         if file_id:
             if await _is_visual_nsfw(client, file_id):
-                return await _handle_violation(client, message, "18+ visual content")
+                return await _handle_violation(client, message, "18+ visual content", is_group)
