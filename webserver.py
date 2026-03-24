@@ -14,6 +14,12 @@ os.makedirs(_DOWNLOAD_DIR, exist_ok=True)
 _ytdl_locks: dict = {}
 _ytdl_lock_guard = threading.Lock()
 
+# ── Local audio file cache (fallback when stream URL extraction fails) ─────────
+_local_file_cache: dict = {}   # vid -> file_path
+_local_file_lock = threading.Lock()
+_local_dl_locks: dict = {}     # vid -> Lock (prevent duplicate downloads)
+_local_dl_lock_guard = threading.Lock()
+
 WEB_DIR = os.path.join(os.path.dirname(__file__), 'ANNIEMUSIC', 'utils', 'web')
 app = Flask(__name__)
 _boot_time = time.time()
@@ -82,6 +88,62 @@ def _fetch_stream_url(vid):
 
 def _fetch_stream_with_cookies(vid):
     return _fetch_stream_url(vid)
+
+def _download_audio_local(vid):
+    """
+    Download audio to disk and return file path.
+    Used as fallback when stream URL extraction fails (e.g. Railway bot detection).
+    Thread-safe: concurrent requests for the same vid wait for a single download.
+    """
+    with _local_file_lock:
+        cached = _local_file_cache.get(vid)
+    if cached and os.path.exists(cached):
+        return cached
+
+    # Per-video lock so duplicate requests don't trigger duplicate downloads
+    with _local_dl_lock_guard:
+        if vid not in _local_dl_locks:
+            _local_dl_locks[vid] = threading.Lock()
+        vid_lock = _local_dl_locks[vid]
+
+    with vid_lock:
+        # Double-check after acquiring lock
+        with _local_file_lock:
+            cached = _local_file_cache.get(vid)
+        if cached and os.path.exists(cached):
+            return cached
+
+        opts = {
+            "quiet": True,
+            "no_warnings": True,
+            "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
+            "outtmpl": os.path.join(_DOWNLOAD_DIR, f"{vid}.%(ext)s"),
+            "extractor_args": {
+                "youtube": {
+                    "player_client": ["android_vr", "tv", "web_embedded", "web_creator"],
+                    "skip": ["hls", "translated_subs"],
+                }
+            },
+            "http_headers": {
+                "User-Agent": "Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/538.1 (KHTML, like Gecko) Version/6.0 TV Safari/538.1",
+            },
+            "socket_timeout": 30,
+            "retries": 3,
+            "nocheckcertificate": True,
+        }
+        try:
+            with yt_dlp.YoutubeDL(opts) as ydl:
+                ydl.extract_info(f"https://www.youtube.com/watch?v={vid}", download=True)
+        except Exception:
+            pass
+
+        for ext in ["m4a", "webm", "opus", "mp3"]:
+            p = os.path.join(_DOWNLOAD_DIR, f"{vid}.{ext}")
+            if os.path.exists(p) and os.path.getsize(p) > 0:
+                with _local_file_lock:
+                    _local_file_cache[vid] = p
+                return p
+    return None
 
 def _get_stream_data(vid, force_refresh=False):
     if not force_refresh:
@@ -390,15 +452,30 @@ def api_stream():
         return jsonify({"error": "Invalid video id"}), 400
     try:
         data = _get_stream_data(vid)
-        if not data:
-            return jsonify({"error": "Could not fetch stream"}), 500
-        return jsonify({
-            "title":    data["title"],
-            "channel":  data["channel"],
-            "duration": data["duration"],
-            "seconds":  data["seconds"],
-            "thumb":    data["thumb"],
-        })
+        if data:
+            return jsonify({
+                "title":    data["title"],
+                "channel":  data["channel"],
+                "duration": data["duration"],
+                "seconds":  data["seconds"],
+                "thumb":    data["thumb"],
+            })
+        # Fallback: use YouTube oEmbed (no bot detection, gives title + thumb)
+        try:
+            oe = requests.get(
+                f"https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v={vid}&format=json",
+                timeout=8,
+            ).json()
+            return jsonify({
+                "title":    oe.get("title", vid),
+                "channel":  oe.get("author_name", ""),
+                "duration": "0:00",
+                "seconds":  0,
+                "thumb":    f"https://img.youtube.com/vi/{vid}/mqdefault.jpg",
+            })
+        except Exception:
+            pass
+        return jsonify({"error": "Could not fetch stream"}), 500
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -439,34 +516,43 @@ def api_audio():
         return jsonify({"error": "Invalid video id"}), 400
     try:
         upstream, content_type = _proxy_audio(vid, force_refresh=False)
-        if upstream is None:
-            return jsonify({"error": "Could not fetch stream"}), 500
 
-        # If YouTube rejects the cached URL (expired), fetch a fresh one and retry once
-        if upstream.status_code in (400, 403, 410):
+        # If stream URL extraction failed or YouTube rejected URL, try refresh once
+        if upstream is not None and upstream.status_code in (400, 403, 410):
             upstream.close()
             upstream, content_type = _proxy_audio(vid, force_refresh=True)
-            if upstream is None:
-                return jsonify({"error": "Could not refresh stream"}), 500
 
-        resp_headers = {
-            "Content-Type":  upstream.headers.get("Content-Type", content_type),
-            "Accept-Ranges": "bytes",
-            "Cache-Control": "no-cache",
-        }
-        if "Content-Length" in upstream.headers:
-            resp_headers["Content-Length"] = upstream.headers["Content-Length"]
-        if "Content-Range" in upstream.headers:
-            resp_headers["Content-Range"] = upstream.headers["Content-Range"]
+        # If stream URL proxy works, serve it directly
+        if upstream is not None and upstream.status_code not in (400, 403, 410, 500):
+            resp_headers = {
+                "Content-Type":  upstream.headers.get("Content-Type", content_type),
+                "Accept-Ranges": "bytes",
+                "Cache-Control": "no-cache",
+            }
+            if "Content-Length" in upstream.headers:
+                resp_headers["Content-Length"] = upstream.headers["Content-Length"]
+            if "Content-Range" in upstream.headers:
+                resp_headers["Content-Range"] = upstream.headers["Content-Range"]
+            status_code = upstream.status_code
+            def generate():
+                for chunk in upstream.iter_content(chunk_size=65536):
+                    if chunk:
+                        yield chunk
+            return Response(generate(), status=status_code, headers=resp_headers)
 
-        status_code = upstream.status_code
-
-        def generate():
-            for chunk in upstream.iter_content(chunk_size=65536):
-                if chunk:
-                    yield chunk
-
-        return Response(generate(), status=status_code, headers=resp_headers)
+        # Fallback: download audio locally and serve from disk
+        # (handles Railway/cloud IPs blocked by YouTube bot detection)
+        if upstream is not None:
+            try:
+                upstream.close()
+            except Exception:
+                pass
+        file_path = _download_audio_local(vid)
+        if file_path is None:
+            return jsonify({"error": "Could not fetch audio"}), 500
+        ext = os.path.splitext(file_path)[1].lstrip(".")
+        mime = "audio/mp4" if ext == "m4a" else f"audio/{ext}"
+        return send_file(file_path, mimetype=mime, conditional=True)
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
