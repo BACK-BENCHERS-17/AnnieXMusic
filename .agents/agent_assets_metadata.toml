@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "MSMDopjaVwu-ySLeL0NBh"
+uri = "file://railway_cookies_b64.txt"
+type = "text"
+title = "Railway YOUTUBE_COOKIES_B64 Value"
