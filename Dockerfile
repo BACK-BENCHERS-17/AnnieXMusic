@@ -33,9 +33,6 @@ RUN apt-get update && \
     apt-get install -y nodejs && \
     rm -rf /var/lib/apt/lists/*
 
-# Install yt-dlp JavaScript solver (EJS) — fixes signature + n-parameter solving
-RUN npm install -g "@yt-dlp/ejs"
-
 # Copy requirements and install
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
