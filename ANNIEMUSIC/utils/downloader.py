@@ -1,5 +1,4 @@
 import asyncio
-import contextlib
 import os
 import re
 from typing import Dict, List, Optional, Tuple, Union
@@ -12,6 +11,12 @@ from yt_dlp.utils import DownloadError
 
 from ANNIEMUSIC.core.dir import DOWNLOAD_DIR as _DOWNLOAD_DIR, CACHE_DIR
 from ANNIEMUSIC.utils.tuning import CHUNK_SIZE, SEM
+from ANNIEMUSIC.utils.ytdl_smart import (
+    get_base_ytdlp_opts,
+    get_cdn_headers,
+    smart_download,
+    smart_extract_url,
+)
 from ANNIEMUSIC.logging import LOGGER
 from config import API_KEY, API_URL, BOT_TOKEN
 
@@ -20,34 +25,9 @@ USE_API: bool = bool(API_URL and API_KEY)
 # ── Internal webserver API ─────────────────────────────────────────────────
 _WEB_PORT = int(os.environ.get("PORT") or os.environ.get("WEB_PORT") or 8080)
 _YTURL_ENDPOINT = f"http://localhost:{_WEB_PORT}/api/yturl"
-_YTDL_ENDPOINT = f"http://localhost:{_WEB_PORT}/api/ytdl"
+_YTDL_ENDPOINT  = f"http://localhost:{_WEB_PORT}/api/ytdl"
 
 _inflight: Dict[str, asyncio.Future] = {}
-
-
-async def api_get_stream_url(vid: str) -> Optional[Tuple[str, str]]:
-    """
-    Call the internal webserver API to get a stream URL fast (~2s).
-    Returns (url, ext) on success, None on failure.
-    Both the bot and webserver run on the same Railway service → localhost works.
-    """
-    try:
-        params = {"v": vid, "key": BOT_TOKEN or ""}
-        timeout = aiohttp.ClientTimeout(total=8)
-        async with aiohttp.ClientSession(timeout=timeout) as sess:
-            async with sess.get(_YTURL_ENDPOINT, params=params) as resp:
-                if resp.status != 200:
-                    return None
-                data = await resp.json()
-                url = data.get("url", "")
-                ext = data.get("ext", "m4a")
-                if url:
-                    return url, ext
-    except Exception as e:
-        LOGGER(__name__).debug(f"api_get_stream_url failed for {vid}: {e}")
-    return None
-
-
 _inflight_lock = asyncio.Lock()
 
 _session: Optional[aiohttp.ClientSession] = None
@@ -72,29 +52,14 @@ def _safe_filename(name: str) -> str:
     return re.sub(r'[\\/*?:"<>|]+', "_", (name or "").strip())[:200]
 
 
-def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
-    """Base yt-dlp options — ios client works best on cloud IPs (Railway/Replit)."""
-    return {
-        "outtmpl": f"{_DOWNLOAD_DIR}/%(id)s.%(ext)s",
-        "quiet": True,
-        "no_warnings": True,
-        "noplaylist": True,
-        "overwrites": True,
-        "continuedl": True,
-        "noprogress": True,
-        "cachedir": str(CACHE_DIR),
-        "nocheckcertificate": True,
-        "source_address": "0.0.0.0",
-        "extractor_args": {
-            "youtube": {
-                "player_client": ["ios", "mweb", "android_vr"],
-                "skip": ["hls", "translated_subs"],
-            }
-        },
-        "http_headers": {
-            "User-Agent": "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)",
-        },
-    }
+def _ytdlp_base_opts() -> Dict:
+    """
+    Returns yt-dlp base options using the current best-known working client.
+    Powered by SmartYTDL — automatically adapts when YouTube changes its detection.
+    """
+    opts = get_base_ytdlp_opts(_DOWNLOAD_DIR)
+    opts["cachedir"] = str(CACHE_DIR)
+    return opts
 
 
 async def _get_session() -> aiohttp.ClientSession:
@@ -137,29 +102,24 @@ async def _convert_webm_to_m4a(src: str, vid: str) -> Optional[str]:
 
 
 async def download_from_cdn_url(vid: str, stream_url: str, ext: str) -> Optional[str]:
-    """Download audio from a CDN URL to a local file. Fast (~1-3s) and reliable."""
+    """Download audio from a CDN URL to a local file using matching client headers."""
     out_path = f"{_DOWNLOAD_DIR}/{vid}.{ext}"
     if os.path.exists(out_path) and os.path.getsize(out_path) > 0:
         return out_path
     tmp_path = out_path + ".tmp"
     try:
-        headers = {
-            "User-Agent": "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)",
-            "Referer": "https://www.youtube.com/",
-            "Accept": "*/*",
-            "Origin": "https://www.youtube.com",
-        }
-        timeout = aiohttp.ClientTimeout(total=60, connect=10)
+        headers = get_cdn_headers()
+        timeout = aiohttp.ClientTimeout(total=90, connect=10)
         async with aiohttp.ClientSession(timeout=timeout) as sess:
             async with sess.get(stream_url, headers=headers) as resp:
                 if resp.status not in (200, 206):
-                    LOGGER(__name__).warning(f"CDN download bad status for {vid}: {resp.status}")
+                    LOGGER(__name__).warning(f"[CDN] Bad status {resp.status} for {vid}")
                     return None
                 async with aiofiles.open(tmp_path, "wb") as f:
                     async for chunk in resp.content.iter_chunked(CHUNK_SIZE):
                         if chunk:
                             await f.write(chunk)
-        if os.path.exists(tmp_path) and os.path.getsize(tmp_path) > 0:
+        if os.path.exists(tmp_path) and os.path.getsize(tmp_path) > 1024:
             os.replace(tmp_path, out_path)
             if ext == "webm":
                 converted = await _convert_webm_to_m4a(out_path, vid)
@@ -167,11 +127,33 @@ async def download_from_cdn_url(vid: str, stream_url: str, ext: str) -> Optional
                     return converted
             return out_path
     except Exception as e:
-        LOGGER(__name__).warning(f"CDN download failed for {vid}: {e}")
+        LOGGER(__name__).warning(f"[CDN] Download failed for {vid}: {e}")
         try:
             os.remove(tmp_path)
         except Exception:
             pass
+    return None
+
+
+async def api_get_stream_url(vid: str) -> Optional[Tuple[str, str]]:
+    """
+    Call the internal webserver API to get a stream URL.
+    Returns (url, ext) on success, None on failure.
+    """
+    try:
+        params = {"v": vid, "key": BOT_TOKEN or ""}
+        timeout = aiohttp.ClientTimeout(total=10)
+        async with aiohttp.ClientSession(timeout=timeout) as sess:
+            async with sess.get(_YTURL_ENDPOINT, params=params) as resp:
+                if resp.status != 200:
+                    return None
+                data = await resp.json()
+                url = data.get("url", "")
+                ext = data.get("ext", "m4a")
+                if url:
+                    return url, ext
+    except Exception as e:
+        LOGGER(__name__).debug(f"api_get_stream_url failed for {vid}: {e}")
     return None
 
 
@@ -209,33 +191,6 @@ async def api_download_song(link: str) -> Optional[str]:
         return None
 
 
-def _download_ytdlp(link: str, opts: Dict) -> Optional[str]:
-    try:
-        with YoutubeDL(opts) as ydl:
-            try:
-                info = ydl.extract_info(link, download=False)
-            except DownloadError as e:
-                if "Requested format is not available" in str(e):
-                    opts["format"] = "best"
-                    info = ydl.extract_info(link, download=False)
-                else:
-                    raise e
-            
-            if not info:
-                return None
-            
-            ext = info.get("ext") or "webm"
-            vid = info.get("id")
-            path = f"{_DOWNLOAD_DIR}/{vid}.{ext}"
-            if os.path.exists(path):
-                return path
-            ydl.download([link])
-            return path
-    except Exception as e:
-        LOGGER(__name__).error(f"Download failed for {link}: {e}")
-        return None
-
-
 async def _with_sem(coro):
     async with SEM:
         return await coro
@@ -264,59 +219,35 @@ async def yt_dlp_download(
     link: str, type: str, format_id: str = None, title: str = None
 ) -> Optional[str]:
     loop = asyncio.get_running_loop()
+    vid = extract_video_id(link)
 
-    def download_with_fallback(link, opts):
+    def _do_smart_download(link, fmt, out_path_prefix=None):
+        """
+        Use SmartYTDL for robust multi-client download.
+        Tries cached best client first, then probes all others if needed.
+        """
+        result = smart_download(vid, _DOWNLOAD_DIR, fmt)
+        if result:
+            return result
+        # Last resort: try the yt-dlp base opts as well (includes top 3 clients)
+        opts = _ytdlp_base_opts()
+        opts["format"] = fmt
+        if out_path_prefix:
+            opts["outtmpl"] = f"{_DOWNLOAD_DIR}/{out_path_prefix}.%(ext)s"
         try:
             with YoutubeDL(opts) as ydl:
                 ydl.download([link])
-                return True
-        except DownloadError as e:
-            if "Requested format is not available" in str(e):
-                LOGGER(__name__).warning(f"Requested format {format_id} not available, falling back to best.")
-                # Fallback to best
-                if "format" in opts:
-                    if type == "song_video":
-                        opts["format"] = "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=720]+bestaudio/best"
-                        opts["prefer_ffmpeg"] = True
-                        opts["merge_output_format"] = "mp4"
-                    elif type == "video":
-                        opts["format"] = "bestvideo[height<=720]+bestaudio/best[height<=720]/best"
-                        opts["prefer_ffmpeg"] = True
-                        opts["merge_output_format"] = "mp4"
-                    elif type == "song_audio":
-                        opts["format"] = "bestaudio/best"
-                    else:
-                        opts["format"] = "best"
-                
-                try:
-                    with YoutubeDL(opts) as ydl:
-                        ydl.download([link])
-                        return True
-                except Exception as e2:
-                    LOGGER(__name__).error(f"Fallback download failed: {e2}")
-                    return False
-            else:
-                LOGGER(__name__).error(f"Download failed: {e}")
-                return False
         except Exception as e:
-            LOGGER(__name__).error(f"Unexpected download error: {e}")
-            return False
+            LOGGER(__name__).error(f"[DL] Final fallback failed for {vid}: {e}")
+        return file_exists(vid)
 
     if type == "audio":
         key = f"a:{link}"
 
         async def run():
-            opts = _ytdlp_base_opts()
-            opts.update({
-                "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
-            })
-            res = await _with_sem(
-                loop.run_in_executor(None, download_with_fallback, link, opts)
-            )
-            if res:
-                vid = extract_video_id(link)
-                return file_exists(vid)
-            return None
+            fmt = "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best"
+            res = await _with_sem(loop.run_in_executor(None, _do_smart_download, link, fmt))
+            return res
 
         return await _dedup(key, run)
 
@@ -324,19 +255,31 @@ async def yt_dlp_download(
         key = f"v:{link}"
 
         async def run():
-            opts = _ytdlp_base_opts()
-            opts.update({
-                "format": "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=720]+bestaudio/best[height<=720][vcodec!=none][acodec!=none]/best[height<=720]/best",
-                "prefer_ffmpeg": True,
-                "merge_output_format": "mp4",
-            })
-            res = await _with_sem(
-                loop.run_in_executor(None, download_with_fallback, link, opts)
-            )
-            if res:
-                vid = extract_video_id(link)
+            fmt = "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=720]+bestaudio/best[height<=720]/best"
+
+            def _do():
+                opts = _ytdlp_base_opts()
+                opts.update({
+                    "format": fmt,
+                    "prefer_ffmpeg": True,
+                    "merge_output_format": "mp4",
+                })
+                try:
+                    with YoutubeDL(opts) as ydl:
+                        ydl.download([link])
+                except DownloadError as e:
+                    if "Requested format is not available" in str(e):
+                        opts["format"] = "bestvideo+bestaudio/best"
+                        try:
+                            with YoutubeDL(opts) as ydl:
+                                ydl.download([link])
+                        except Exception:
+                            pass
+                except Exception as e:
+                    LOGGER(__name__).error(f"[DL] video error for {vid}: {e}")
                 return file_exists(vid)
-            return None
+
+            return await _with_sem(loop.run_in_executor(None, _do))
 
         return await _dedup(key, run)
 
@@ -345,54 +288,36 @@ async def yt_dlp_download(
         key = f"sv:{link}:{format_id}:{safe_title}"
 
         async def run():
-            opts = _ytdlp_base_opts()
-            opts.update(
-                {
-                    "format": f"{format_id}+bestaudio[ext=m4a]/{format_id}+bestaudio/bestvideo[height<=720]+bestaudio[ext=m4a]/bestvideo[height<=720]+bestaudio/best[height<=720]/best",
+            def _do():
+                fmt = f"{format_id}+bestaudio[ext=m4a]/{format_id}+bestaudio/bestvideo[height<=720]+bestaudio/best"
+                opts = _ytdlp_base_opts()
+                opts.update({
+                    "format": fmt,
                     "outtmpl": f"{_DOWNLOAD_DIR}/{safe_title}.%(ext)s",
                     "prefer_ffmpeg": True,
                     "merge_output_format": "mp4",
                     "postprocessors": [{"key": "FFmpegVideoConvertor", "preferedformat": "mp4"}],
-                }
-            )
-
-            def _do_video_download(lnk, o):
+                })
                 try:
-                    with YoutubeDL(o) as ydl:
-                        info = ydl.extract_info(lnk, download=True)
-                        if not info:
-                            return None
-                    # Check for merged mp4 first, then any video format
-                    mp4_path = f"{_DOWNLOAD_DIR}/{safe_title}.mp4"
-                    if os.path.exists(mp4_path) and os.path.getsize(mp4_path) > 0:
-                        return mp4_path
-                    for e in ("mkv", "webm", "mp4", "mov"):
-                        p = f"{_DOWNLOAD_DIR}/{safe_title}.{e}"
-                        if os.path.exists(p) and os.path.getsize(p) > 0:
-                            return p
+                    with YoutubeDL(opts) as ydl:
+                        ydl.extract_info(link, download=True)
                 except DownloadError as de:
-                    LOGGER(__name__).warning(f"song_video DownloadError: {de}")
-                    # Try fallback with bestvideo+bestaudio only
                     try:
-                        o["format"] = "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=720]+bestaudio/best"
-                        with YoutubeDL(o) as ydl:
-                            ydl.extract_info(lnk, download=True)
-                        mp4_path = f"{_DOWNLOAD_DIR}/{safe_title}.mp4"
-                        if os.path.exists(mp4_path) and os.path.getsize(mp4_path) > 0:
-                            return mp4_path
-                        for e in ("mkv", "webm", "mp4", "mov"):
-                            p = f"{_DOWNLOAD_DIR}/{safe_title}.{e}"
-                            if os.path.exists(p) and os.path.getsize(p) > 0:
-                                return p
+                        opts["format"] = "bestvideo[height<=720]+bestaudio/best"
+                        with YoutubeDL(opts) as ydl:
+                            ydl.extract_info(link, download=True)
                     except Exception as fe:
-                        LOGGER(__name__).error(f"song_video fallback error: {fe}")
+                        LOGGER(__name__).error(f"[DL] song_video fallback: {fe}")
                 except Exception as e:
-                    LOGGER(__name__).error(f"song_video error: {e}")
+                    LOGGER(__name__).error(f"[DL] song_video: {e}")
+
+                for ext in ("mp4", "mkv", "webm", "mov"):
+                    p = f"{_DOWNLOAD_DIR}/{safe_title}.{ext}"
+                    if os.path.exists(p) and os.path.getsize(p) > 0:
+                        return p
                 return None
 
-            return await _with_sem(
-                loop.run_in_executor(None, _do_video_download, link, opts)
-            )
+            return await _with_sem(loop.run_in_executor(None, _do))
 
         return await _dedup(key, run)
 
@@ -401,39 +326,27 @@ async def yt_dlp_download(
         key = f"sa:{link}:{format_id}:{safe_title}"
 
         async def run():
-            opts = _ytdlp_base_opts()
-            opts.update(
-                {
+            def _do():
+                opts = _ytdlp_base_opts()
+                opts.update({
                     "format": f"{format_id}/bestaudio[ext=m4a]/bestaudio/best",
                     "outtmpl": f"{_DOWNLOAD_DIR}/{safe_title}.%(ext)s",
-                }
-            )
-
-            def _do_download(lnk, o):
+                })
                 try:
-                    with YoutubeDL(o) as ydl:
-                        info = ydl.extract_info(lnk, download=True)
-                        if not info:
-                            return None
-                        ext = info.get("ext") or "m4a"
-                        out = f"{_DOWNLOAD_DIR}/{safe_title}.{ext}"
-                        if os.path.exists(out) and os.path.getsize(out) > 0:
-                            return out
-                        # yt-dlp may merge to the final filename; scan
-                        for e in ("m4a", "webm", "opus", "ogg", "mp3"):
-                            p = f"{_DOWNLOAD_DIR}/{safe_title}.{e}"
-                            if os.path.exists(p) and os.path.getsize(p) > 0:
-                                return p
+                    with YoutubeDL(opts) as ydl:
+                        ydl.extract_info(link, download=True)
                 except DownloadError as de:
-                    LOGGER(__name__).warning(f"song_audio DownloadError: {de}")
+                    LOGGER(__name__).warning(f"[DL] song_audio DownloadError: {de}")
                 except Exception as e:
-                    LOGGER(__name__).error(f"song_audio error: {e}")
+                    LOGGER(__name__).error(f"[DL] song_audio error: {e}")
+
+                for ext in ("m4a", "webm", "opus", "ogg", "mp3"):
+                    p = f"{_DOWNLOAD_DIR}/{safe_title}.{ext}"
+                    if os.path.exists(p) and os.path.getsize(p) > 0:
+                        return p
                 return None
 
-            res = await _with_sem(
-                loop.run_in_executor(None, _do_download, link, opts)
-            )
-            return res
+            return await _with_sem(loop.run_in_executor(None, _do))
 
         return await _dedup(key, run)
 
@@ -441,10 +354,7 @@ async def yt_dlp_download(
 
 
 async def download_from_own_api(vid: str) -> Optional[str]:
-    """
-    Call our own internal webserver /api/ytdl to download audio as MP3.
-    The webserver uses yt-dlp + ffmpeg to produce a clean MP3 file.
-    """
+    """Call internal webserver /api/ytdl to download audio as MP3."""
     out_path = f"{_DOWNLOAD_DIR}/{vid}.mp3"
     if os.path.exists(out_path) and os.path.getsize(out_path) > 1024:
         return out_path
@@ -466,6 +376,16 @@ async def download_from_own_api(vid: str) -> Optional[str]:
 
 
 async def download_audio_concurrent(link: str) -> Optional[str]:
+    """
+    Main audio download function — permanent multi-method approach.
+
+    Method chain (fastest to most robust):
+    1. File cache — instant if already downloaded
+    2. SmartYTDL URL extract → CDN download (fast ~3-5s, uses adaptive client)
+    3. SmartYTDL direct download (yt-dlp handles everything internally)
+    4. Internal webserver /api/ytdl (MP3 via ffmpeg)
+    5. External API race (if configured)
+    """
     vid = extract_video_id(link)
     cached = file_exists(vid)
     if cached:
@@ -474,30 +394,46 @@ async def download_audio_concurrent(link: str) -> Optional[str]:
     key = f"rac:{link}"
 
     async def run():
-        # 1. Try our own internal API — downloads clean MP3 via yt-dlp (best VC format)
+        loop = asyncio.get_running_loop()
+
+        # ── Method 1: SmartYTDL URL extract → CDN download ─────────────────
+        # Smart: tries cached best client first, then parallel-probes all others
+        try:
+            info = await loop.run_in_executor(None, smart_extract_url, vid)
+            if info:
+                cdn_url = info["url"]
+                ext = info["ext"]
+                local = await download_from_cdn_url(vid, cdn_url, ext)
+                if local:
+                    LOGGER(__name__).info(
+                        f"[SMART] CDN download ok via {info['client']}: {local}"
+                    )
+                    return local
+                # URL extracted but CDN blocked — fall through to direct download
+                LOGGER(__name__).info(f"[SMART] CDN blocked, trying direct download for {vid}")
+        except Exception as e:
+            LOGGER(__name__).debug(f"[SMART] URL extract failed for {vid}: {e}")
+
+        # ── Method 2: SmartYTDL direct download ────────────────────────────
+        # yt-dlp handles auth, rate limits, n-param decoding internally
+        try:
+            fmt = "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best"
+            path = await _with_sem(loop.run_in_executor(None, smart_download, vid, _DOWNLOAD_DIR, fmt))
+            if path:
+                LOGGER(__name__).info(f"[SMART] Direct download ok: {path}")
+                return path
+        except Exception as e:
+            LOGGER(__name__).debug(f"[SMART] Direct download failed for {vid}: {e}")
+
+        # ── Method 3: Internal webserver /api/ytdl (MP3 via ffmpeg) ────────
         try:
             own = await download_from_own_api(vid)
             if own:
                 return own
         except Exception as e:
-            LOGGER(__name__).debug(f"[YTDL-API] path failed for {vid}: {e}")
+            LOGGER(__name__).debug(f"[YTDL-API] Failed for {vid}: {e}")
 
-        # 2. Try internal webserver API — get CDN URL, then download to local file
-        #    Local file gives smooth uninterrupted playback in VC (no CDN latency)
-        try:
-            cdn = await api_get_stream_url(vid)
-            if cdn:
-                cdn_url, ext = cdn
-                local = await download_from_cdn_url(vid, cdn_url, ext)
-                if local:
-                    LOGGER(__name__).info(
-                        f"[STREAM] CDN download ok → local file: {local} ({ext})"
-                    )
-                    return local
-        except Exception as e:
-            LOGGER(__name__).debug(f"[STREAM] CDN path failed for {vid}: {e}")
-
-        # 3. External API race (only if configured)
+        # ── Method 4: External API race (only if configured) ────────────────
         if USE_API:
             try:
                 yt_task = asyncio.create_task(yt_dlp_download(link, type="audio"))
@@ -522,10 +458,9 @@ async def download_audio_concurrent(link: str) -> Optional[str]:
                     except Exception:
                         pass
             except Exception as e:
-                LOGGER(__name__).debug(f"[STREAM] API race failed for {vid}: {e}")
+                LOGGER(__name__).debug(f"[API-RACE] Failed for {vid}: {e}")
 
-        # 4. Direct yt-dlp download (reliable local-file fallback)
-        LOGGER(__name__).info(f"[STREAM] Falling back to yt-dlp local download for {vid}")
-        return await yt_dlp_download(link, type="audio")
+        LOGGER(__name__).error(f"[DL] All methods failed for {vid}")
+        return None
 
     return await _dedup(key, lambda: _with_sem(run()))

@@ -1,4 +1,5 @@
 import os
+import sys
 import re
 import time
 import tempfile
@@ -8,6 +9,12 @@ import yt_dlp
 import requests
 from urllib.parse import urlparse, parse_qs
 from flask import Flask, jsonify, send_from_directory, request, Response, send_file
+
+# ── SmartYTDL import ──────────────────────────────────────────────────────────
+_repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+if _repo_root not in sys.path:
+    sys.path.insert(0, _repo_root)
+from ANNIEMUSIC.utils.ytdl_smart import smart_extract_url, smart_download
 
 app = Flask(__name__)
 
@@ -19,27 +26,6 @@ _DOWNLOAD_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'downloads')
 os.makedirs(_DOWNLOAD_DIR, exist_ok=True)
 _ytdl_locks: dict = {}
 _ytdl_lock_guard = threading.Lock()
-
-# ── YT-DLP no-cookie options (android_vr works on cloud/Replit without cookies) ──
-_YDL_AUDIO_OPTS = {
-    "quiet": True,
-    "no_warnings": True,
-    "skip_download": True,
-    "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
-    "extractor_args": {
-        "youtube": {
-            "player_client": ["ios", "mweb", "android_vr"],
-            "skip": ["hls", "translated_subs"],
-        }
-    },
-    "http_headers": {
-        "User-Agent": "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)",
-    },
-    "socket_timeout": 15,
-    "retries": 3,
-    "nocheckcertificate": True,
-    "source_address": "0.0.0.0",
-}
 
 
 def _sec_to_min(s):
@@ -60,26 +46,24 @@ def _url_still_valid(data):
 
 
 def _fetch_stream(vid):
-    """Fetch YouTube stream URL using android_vr client — no cookies needed."""
-    url_str = f"https://www.youtube.com/watch?v={vid}"
-    try:
-        with yt_dlp.YoutubeDL(_YDL_AUDIO_OPTS) as ydl:
-            info = ydl.extract_info(url_str, download=False)
-        if not info or not info.get("url"):
-            return None
-        dur = int(info.get("duration", 0))
-        return {
-            "url":      info["url"],
-            "ext":      info.get("ext", "m4a"),
-            "title":    info.get("title", "Unknown"),
-            "channel":  info.get("channel") or info.get("uploader", ""),
-            "duration": _sec_to_min(dur),
-            "seconds":  dur,
-            "thumb":    f"https://img.youtube.com/vi/{vid}/mqdefault.jpg",
-            "ts":       time.time(),
-        }
-    except Exception:
+    """
+    Fetch YouTube stream URL using SmartYTDL — adaptive, permanent bypass.
+    Tries cached best client first, then parallel-probes all known clients.
+    """
+    info = smart_extract_url(vid)
+    if not info:
         return None
+    dur = info.get("duration", 0)
+    return {
+        "url":      info["url"],
+        "ext":      info.get("ext", "m4a"),
+        "title":    info.get("title", "Unknown"),
+        "channel":  info.get("channel", ""),
+        "duration": _sec_to_min(dur),
+        "seconds":  dur,
+        "thumb":    f"https://img.youtube.com/vi/{vid}/mqdefault.jpg",
+        "ts":       time.time(),
+    }
 
 
 # ── Trending cache ───────────────────────────────────────────────
@@ -390,34 +374,18 @@ def api_download():
         return jsonify({"error": "Invalid video id"}), 400
     try:
         tmp_dir = tempfile.mkdtemp()
-        out_template = os.path.join(tmp_dir, "%(title)s.%(ext)s")
-        ydl_opts = {
-            "quiet": True,
-            "no_warnings": True,
-            "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
-            "outtmpl": out_template,
-            "extractor_args": {
-                "youtube": {
-                    "player_client": ["ios", "mweb", "android_vr"],
-                }
-            },
-            "http_headers": {
-                "User-Agent": "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)",
-            },
-            "nocheckcertificate": True,
-        }
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(f"https://www.youtube.com/watch?v={vid}", download=True)
-            title = info.get("title", vid)
-            safe_title = re.sub(r'[^\w\s\-\.]', '', title)[:80]
-            files = [f for f in os.listdir(tmp_dir) if os.path.isfile(os.path.join(tmp_dir, f))]
-            if not files:
-                return jsonify({"error": "Download failed"}), 500
-            filepath = os.path.join(tmp_dir, files[0])
-            ext = os.path.splitext(files[0])[1].lstrip('.')
-            mime = "audio/mp4" if ext in ("m4a", "mp4") else f"audio/{ext}"
-            filename = f"{safe_title}.{ext}"
-            return send_file(filepath, mimetype=mime, as_attachment=True, download_name=filename)
+        fmt = "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best"
+        path = smart_download(vid, tmp_dir, fmt)
+        if not path:
+            return jsonify({"error": "Download failed — all methods exhausted"}), 500
+        ext = os.path.splitext(path)[1].lstrip('.')
+        mime = "audio/mp4" if ext in ("m4a", "mp4") else f"audio/{ext}"
+        # Try to get a nice filename from the stream info
+        info = smart_extract_url(vid)
+        title = (info.get("title", vid) if info else vid)
+        safe_title = re.sub(r'[^\w\s\-\.]', '', title)[:80]
+        filename = f"{safe_title}.{ext}"
+        return send_file(path, mimetype=mime, as_attachment=True, download_name=filename)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -451,35 +419,13 @@ def api_ytdl():
         if os.path.exists(out_path) and os.path.getsize(out_path) > 1024:
             return jsonify({"path": out_path, "cached": True})
 
-        opts = {
-            "format": "bestaudio/best",
-            "postprocessors": [{
-                "key": "FFmpegExtractAudio",
-                "preferredcodec": "mp3",
-                "preferredquality": "128",
-            }],
-            "outtmpl": os.path.join(_DOWNLOAD_DIR, f"{vid}.%(ext)s"),
-            "quiet": True,
-            "no_warnings": True,
-            "extractor_args": {
-                "youtube": {
-                    "player_client": ["ios", "mweb", "android_vr"],
-                    "skip": ["hls", "translated_subs"],
-                }
-            },
-            "http_headers": {
-                "User-Agent": "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)",
-            },
-            "socket_timeout": 30,
-            "retries": 3,
-            "nocheckcertificate": True,
-        }
+        # Use SmartYTDL — tries all clients, returns first success
+        fmt = "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best"
         try:
-            with yt_dlp.YoutubeDL(opts) as ydl:
-                ydl.extract_info(f"https://www.youtube.com/watch?v={vid}", download=True)
-            if os.path.exists(out_path) and os.path.getsize(out_path) > 1024:
-                return jsonify({"path": out_path})
-            return jsonify({"error": "Download produced no file"}), 500
+            path = smart_download(vid, _DOWNLOAD_DIR, fmt)
+            if path:
+                return jsonify({"path": path})
+            return jsonify({"error": "All download methods failed"}), 500
         except Exception as e:
             return jsonify({"error": str(e)}), 500
         finally:

@@ -1,6 +1,7 @@
 import os
 import time
 import threading
+import sys
 import psutil
 import yt_dlp
 from flask import Flask, jsonify, send_from_directory, request, Response, send_file
@@ -8,16 +9,22 @@ import requests
 import re
 from urllib.parse import urlparse, parse_qs
 
+# ── SmartYTDL import (add repo root to path if needed) ───────────────────────
+_repo_root = os.path.dirname(os.path.abspath(__file__))
+if _repo_root not in sys.path:
+    sys.path.insert(0, _repo_root)
+from ANNIEMUSIC.utils.ytdl_smart import smart_extract_url, smart_download, get_stream_opts, get_cdn_headers
+
 _BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
 _DOWNLOAD_DIR = os.path.join(os.path.dirname(__file__), "downloads")
 os.makedirs(_DOWNLOAD_DIR, exist_ok=True)
 _ytdl_locks: dict = {}
 _ytdl_lock_guard = threading.Lock()
 
-# ── Local audio file cache (fallback when stream URL extraction fails) ─────────
-_local_file_cache: dict = {}   # vid -> file_path
+# ── Local audio file cache ────────────────────────────────────────────────────
+_local_file_cache: dict = {}
 _local_file_lock = threading.Lock()
-_local_dl_locks: dict = {}     # vid -> Lock (prevent duplicate downloads)
+_local_dl_locks: dict = {}
 _local_dl_lock_guard = threading.Lock()
 
 WEB_DIR = os.path.join(os.path.dirname(__file__), 'ANNIEMUSIC', 'utils', 'web')
@@ -29,27 +36,6 @@ def _sec_to_min(s):
         return "0:00"
     s = int(s)
     return f"{s // 60}:{s % 60:02d}"
-
-# ── YT-DLP no-cookie options (ios client works best on cloud IPs) ─────────
-_YDL_AUDIO_OPTS = {
-    "quiet": True,
-    "no_warnings": True,
-    "skip_download": True,
-    "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
-    "extractor_args": {
-        "youtube": {
-            "player_client": ["ios", "mweb", "android_vr"],
-            "skip": ["hls", "translated_subs"],
-        }
-    },
-    "http_headers": {
-        "User-Agent": "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)",
-    },
-    "socket_timeout": 15,
-    "retries": 3,
-    "nocheckcertificate": True,
-    "source_address": "0.0.0.0",
-}
 
 # ── Stream cache ─────────────────────────────────────────────────────────────
 _stream_cache = {}
@@ -65,84 +51,57 @@ def _is_url_valid(data):
     return time.time() - data.get("ts", 0) < 3600
 
 def _fetch_stream_url(vid):
-    """Fetch YouTube audio stream URL using android_vr — no cookies needed."""
-    url_str = f"https://www.youtube.com/watch?v={vid}"
-    try:
-        with yt_dlp.YoutubeDL(_YDL_AUDIO_OPTS) as ydl:
-            info = ydl.extract_info(url_str, download=False)
-        if not info or not info.get("url"):
-            return None
-        dur = int(info.get("duration", 0))
-        return {
-            "url":      info["url"],
-            "ext":      info.get("ext", "m4a"),
-            "title":    info.get("title", "Unknown"),
-            "channel":  info.get("channel") or info.get("uploader", ""),
-            "duration": _sec_to_min(dur),
-            "seconds":  dur,
-            "thumb":    f"https://img.youtube.com/vi/{vid}/mqdefault.jpg",
-            "ts":       time.time(),
-        }
-    except Exception:
+    """
+    Fetch YouTube audio stream URL using SmartYTDL.
+    Tries the cached best client first, then probes all clients in parallel.
+    Permanently adapts to YouTube's anti-bot changes.
+    """
+    info = smart_extract_url(vid)
+    if not info:
         return None
+    dur = info.get("duration", 0)
+    return {
+        "url":      info["url"],
+        "ext":      info.get("ext", "m4a"),
+        "title":    info.get("title", "Unknown"),
+        "channel":  info.get("channel", ""),
+        "duration": _sec_to_min(dur),
+        "seconds":  dur,
+        "thumb":    f"https://img.youtube.com/vi/{vid}/mqdefault.jpg",
+        "ts":       time.time(),
+    }
 
 def _fetch_stream_with_cookies(vid):
     return _fetch_stream_url(vid)
 
 def _download_audio_local(vid):
     """
-    Download audio to disk and return file path.
-    Used as fallback when stream URL extraction fails (e.g. Railway bot detection).
-    Thread-safe: concurrent requests for the same vid wait for a single download.
+    Download audio to disk using SmartYTDL.
+    Tries cached best client first, then probes all clients if needed.
+    Thread-safe with per-video locking.
     """
     with _local_file_lock:
         cached = _local_file_cache.get(vid)
     if cached and os.path.exists(cached):
         return cached
 
-    # Per-video lock so duplicate requests don't trigger duplicate downloads
     with _local_dl_lock_guard:
         if vid not in _local_dl_locks:
             _local_dl_locks[vid] = threading.Lock()
         vid_lock = _local_dl_locks[vid]
 
     with vid_lock:
-        # Double-check after acquiring lock
         with _local_file_lock:
             cached = _local_file_cache.get(vid)
         if cached and os.path.exists(cached):
             return cached
 
-        opts = {
-            "quiet": True,
-            "no_warnings": True,
-            "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
-            "outtmpl": os.path.join(_DOWNLOAD_DIR, f"{vid}.%(ext)s"),
-            "extractor_args": {
-                "youtube": {
-                    "player_client": ["ios", "mweb", "android_vr"],
-                    "skip": ["hls", "translated_subs"],
-                }
-            },
-            "http_headers": {
-                "User-Agent": "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)",
-            },
-            "socket_timeout": 30,
-            "retries": 3,
-            "nocheckcertificate": True,
-        }
-        try:
-            with yt_dlp.YoutubeDL(opts) as ydl:
-                ydl.extract_info(f"https://www.youtube.com/watch?v={vid}", download=True)
-        except Exception:
-            pass
-
-        for ext in ["m4a", "webm", "opus", "mp3"]:
-            p = os.path.join(_DOWNLOAD_DIR, f"{vid}.{ext}")
-            if os.path.exists(p) and os.path.getsize(p) > 0:
-                with _local_file_lock:
-                    _local_file_cache[vid] = p
-                return p
+        fmt = "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best"
+        path = smart_download(vid, _DOWNLOAD_DIR, fmt)
+        if path:
+            with _local_file_lock:
+                _local_file_cache[vid] = path
+            return path
     return None
 
 def _get_stream_data(vid, force_refresh=False):
