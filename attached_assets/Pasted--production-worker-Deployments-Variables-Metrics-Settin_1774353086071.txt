@@ -1,0 +1,152 @@
+
+
+production
+
+
+
+worker
+Deployments
+Variables
+Metrics
+Settings
+annie.up.railway.app
+us-west2
+1 Replica
+
+
+
+
+History
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+worker
+
+Active
+Mar 24, 2026, 5:14 PM
+DetailsBuildDeployHTTPNetwork Flow
+    Found existing installation: yt-dlp 2026.3.21.233500.dev0
+Successfully installed yt-dlp-2026.3.17
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[notice] A new release of pip is available: 25.0.1 -> 26.0.1
+[notice] To update, run: pip install --upgrade pip
+Removing cache dir /root/.cache/yt-dlp ..
+[24-Mar-26 11:45:49 - INFO] - ANNIEMUSIC.core.mongo - Connecting to your Mongo Database...
+[24-Mar-26 11:45:49 - INFO] - ANNIEMUSIC.core.mongo - Connected to your Mongo Database.
+[24-Mar-26 11:45:49 - INFO] - ANNIEMUSIC.core.dir - Directories Updated.
+[24-Mar-26 11:45:50 - INFO] - ANNIEMUSIC.core.git - Initialized new Git repository.
+[24-Mar-26 11:45:50 - INFO] - ANNIEMUSIC.core.git - Successfully updated from upstream repository.
+[24-Mar-26 11:45:50 - INFO] - ANNIEMUSIC.misc - ᴅᴀᴛᴀʙᴀsᴇ ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ💗
+[24-Mar-26 11:45:50 - INFO] - ANNIEMUSIC.core.bot - Bot client initialized.
+ * Serving Flask app 'ANNIEMUSIC.utils.health_check'
+ * Debug mode: off
+[24-Mar-26 11:45:51 - INFO] - werkzeug - WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://10.138.153.127:8080
+[24-Mar-26 11:45:51 - INFO] - werkzeug - Press CTRL+C to quit
+[24-Mar-26 11:45:51 - INFO] - ANNIEMUSIC - ▶️ Using android_embed client — no PO token needed, verified 2026.
+[24-Mar-26 11:45:53 - INFO] - ANNIEMUSIC.misc - sᴜᴅᴏ ᴜsᴇʀs ᴅᴏɴᴇ..
+[24-Mar-26 11:46:02 - INFO] - ANNIEMUSIC.core.bot - ✅ Start message sent to log channel (-1003455370306)
+[24-Mar-26 11:46:02 - INFO] - ANNIEMUSIC.core.bot - ✅ Music Bot started as ˹𝐀ɴɴɪᴇ ꭙ 𝐌ᴜsɪᴄ˼ ♪ [ ᴇʟɪᴛᴇ ] (@ANNIEXMUSICxBOT)
+[24-Mar-26 11:46:04 - INFO] - ANNIEMUSIC.core.bot - ✅ Bot profile picture saved as bot_pfp.png.
+[24-Mar-26 11:46:04 - INFO] - ANNIEMUSIC - ✅ Menu button set → https://annie.up.railway.app
+[24-Mar-26 11:46:05 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - NudeDetector loaded successfully.
+[24-Mar-26 11:46:05 - INFO] - ANNIEMUSIC.plugins - ᴀɴɴɪᴇ's ᴍᴏᴅᴜʟᴇs ʟᴏᴀᴅᴇᴅ...
+[24-Mar-26 11:46:05 - INFO] - ANNIEMUSIC.core.userbot - Starting Annie's Assistants...
+[24-Mar-26 11:46:07 - INFO] - ANNIEMUSIC.core.userbot - Assistant 1 Started as 𝚸‌ 𝚲 𝐑 𝚱 𝚬 𝐑 !!
+[24-Mar-26 11:46:09 - INFO] - ANNIEMUSIC.core.userbot - Assistant 2 Started as ㅤ-𐌁 Λ ᥴ Ҝ ㅤ𐌁 ꫀ 𐌽 𐌂 ͱ꧊፝֟ ꫀ ᰻⃪᱂ ร
+[24-Mar-26 11:46:09 - INFO] - ANNIEMUSIC.core.call - Starting PyTgCalls Clients...
+PyTgCalls v2.2.11 powered by NTgCalls v2.1.0, Copyright (C) 2021-2026 Laky-64 <https://github.com/Laky-64>
+Licensed under the terms of the GNU Lesser General Public License v3 or later (LGPLv3+)
+[24-Mar-26 11:46:22 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/sticker_2026-03-24_11-46-22_7620787171173118976.webp (12258 bytes)
+[24-Mar-26 11:46:22 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: [{'class': 'FACE_FEMALE', 'score': 0.5692204236984253, 'box': [87, 157, 276, 246]}]
+[24-Mar-26 11:46:22 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 11:46:23 - INFO] - ANNIEMUSIC - Annie Music Robot Started Successfully...
+[24-Mar-26 11:46:23 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/sticker_2026-03-24_11-46-23_7620787177158075392.webp (12258 bytes)
+[24-Mar-26 11:46:35 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/thumbnail_2026-03-24_11-46-35_7620787226969951232.jpg (7032 bytes)
+[24-Mar-26 11:46:35 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: [{'class': 'FACE_FEMALE', 'score': 0.8636001348495483, 'box': [16, 73, 178, 176]}]
+[24-Mar-26 11:46:35 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 11:48:10 - INFO] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] Using cookies from YOUTUBE_COOKIES_B64 env var
+[24-Mar-26 11:48:10 - INFO] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] Using cookie file: /tmp/youtube_cookies.txt
+ERROR: [youtube] SfEk5W3zH98: Failed to extract any player response; please report this issue on  https://github.com/yt-dlp/yt-dlp/issues?q= , filling out the appropriate issue template. Confirm you are on the latest version using  yt-dlp -U
+ERROR: [youtube] SfEk5W3zH98: Failed to extract any player response; please report this issue on  https://github.com/yt-dlp/yt-dlp/issues?q= , filling out the appropriate issue template. Confirm you are on the latest version using  yt-dlp -U
+[24-Mar-26 11:48:12 - INFO] - werkzeug - 100.64.0.2 - - [24/Mar/2026 11:48:12] "GET /api/status HTTP/1.1" 200 -
+ERROR: [youtube] SfEk5W3zH98: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] SfEk5W3zH98: Requested format is not available. Use --list-formats for a list of available formats
+[24-Mar-26 11:48:13 - INFO] - werkzeug - 100.64.0.2 - - [24/Mar/2026 11:48:13] "GET /favicon.ico HTTP/1.1" 404 -
+ERROR: [youtube] SfEk5W3zH98: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] SfEk5W3zH98: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] SfEk5W3zH98: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] SfEk5W3zH98: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] SfEk5W3zH98: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] SfEk5W3zH98: Requested format is not available. Use --list-formats for a list of available formats
+[24-Mar-26 11:48:14 - WARNING] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] All yt-dlp clients failed for SfEk5W3zH98, trying Invidious
+[24-Mar-26 11:48:18 - WARNING] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] Invidious failed for SfEk5W3zH98, trying Piped.video
+[24-Mar-26 11:48:21 - ERROR] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] ALL methods failed for SfEk5W3zH98
+ERROR: [youtube] SfEk5W3zH98: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] SfEk5W3zH98: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] SfEk5W3zH98: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] SfEk5W3zH98: Failed to extract any player response; please report this issue on  https://github.com/yt-dlp/yt-dlp/issues?q= , filling out the appropriate issue template. Confirm you are on the latest version using  yt-dlp -U
+ERROR: [youtube] SfEk5W3zH98: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] SfEk5W3zH98: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] SfEk5W3zH98: Failed to extract any player response; please report this issue on  https://github.com/yt-dlp/yt-dlp/issues?q= , filling out the appropriate issue template. Confirm you are on the latest version using  yt-dlp -U
+ERROR: [youtube] SfEk5W3zH98: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] SfEk5W3zH98: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] SfEk5W3zH98: Requested format is not available. Use --list-formats for a list of available formats
+[24-Mar-26 11:48:43 - WARNING] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] All yt-dlp clients failed for SfEk5W3zH98, trying Invidious download
+[24-Mar-26 11:48:43 - INFO] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] Using cookie file: /tmp/youtube_cookies.txt
+ERROR: [youtube] hHuG7FIKgtc: Failed to extract any player response; please report this issue on  https://github.com/yt-dlp/yt-dlp/issues?q= , filling out the appropriate issue template. Confirm you are on the latest version using  yt-dlp -U
+ERROR: [youtube] hHuG7FIKgtc: Failed to extract any player response; please report this issue on  https://github.com/yt-dlp/yt-dlp/issues?q= , filling out the appropriate issue template. Confirm you are on the latest version using  yt-dlp -U
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+[24-Mar-26 11:48:47 - WARNING] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] All yt-dlp clients failed for hHuG7FIKgtc, trying Invidious
+[24-Mar-26 11:48:47 - WARNING] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] Invidious failed, trying Piped.video download for SfEk5W3zH98
+[24-Mar-26 11:48:49 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/sticker_2026-03-24_11-48-48_7620787801468640256.webp (12258 bytes)
+[24-Mar-26 11:48:50 - ERROR] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] ALL download methods failed for SfEk5W3zH98
+[24-Mar-26 11:48:51 - WARNING] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] Invidious failed for hHuG7FIKgtc, trying Piped.video
+ERROR: [youtube] SfEk5W3zH98: Requested format is not available. Use --list-formats for a list of available formats
+[24-Mar-26 11:48:53 - ERROR] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] ALL methods failed for hHuG7FIKgtc
+ERROR: [youtube] SfEk5W3zH98: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] SfEk5W3zH98: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] SfEk5W3zH98: Failed to extract any player response; please report this issue on  https://github.com/yt-dlp/yt-dlp/issues?q= , filling out the appropriate issue template. Confirm you are on the latest version using  yt-dlp -U
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] SfEk5W3zH98: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] SfEk5W3zH98: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] hHuG7FIKgtc: Failed to extract any player response; please report this issue on  https://github.com/yt-dlp/yt-dlp/issues?q= , filling out the appropriate issue template. Confirm you are on the latest version using  yt-dlp -U
+ERROR: [youtube] SfEk5W3zH98: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] SfEk5W3zH98: Requested format is not available. Use --list-formats for a list of available formats
+[24-Mar-26 11:49:11 - WARNING] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] All yt-dlp clients failed for SfEk5W3zH98, trying Invidious download
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+[24-Mar-26 11:49:16 - WARNING] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] Invidious failed, trying Piped.video download for SfEk5W3zH98
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+[24-Mar-26 11:49:17 - WARNING] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] All yt-dlp clients failed for hHuG7FIKgtc, trying Invidious download
+[24-Mar-26 11:49:19 - ERROR] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] ALL download methods failed for SfEk5W3zH98
+[24-Mar-26 11:49:19 - INFO] - werkzeug - 127.0.0.1 - - [24/Mar/2026 11:49:19] "GET /api/ytdl?v=SfEk5W3zH98&key=zoC_Q0uDtdMFluHAprmg3uwZl7g9wckXrGnLzEYlg3I HTTP/1.1" 500 -
