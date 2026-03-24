@@ -1,12 +1,13 @@
 """
-SmartYTDL — Permanent YouTube bypass using yt-dlp + Node.js JS runtime.
+SmartYTDL — Permanent YouTube bypass using yt-dlp (2026 edition).
 
 BYPASS LAYERS (tried in order):
-  1.  yt-dlp with Node.js js_runtime — solves n-param + signature challenges
-  2.  Multiple YouTube player clients raced in PARALLEL
-  3.  Invidious public API (fallback, auto-discovers working instances)
-  4.  Cookie support — set YOUTUBE_COOKIES_B64 env var (base64 cookies.txt)
-  5.  Proxy support  — set YTDL_PROXY env var (socks5://... or http://...)
+  1. android_vr client  — YouTube's default jsless client, no PO token, no cookies
+  2. web_safari client  — Requires Node.js for signature solving (also default)
+  3. ios / android / mweb / web_creator / web — additional fallback clients
+  4. Invidious public API (last resort — multiple instances)
+  5. Cookie support  — set YOUTUBE_COOKIES_B64 env var (base64 cookies.txt)
+  6. Proxy support   — set YTDL_PROXY env var (socks5://... or http://...)
 """
 
 import base64
@@ -23,7 +24,7 @@ import yt_dlp
 
 _log = logging.getLogger(__name__)
 
-# ── Node.js path detection ───────────────────────────────────────────────────────
+# ── Node.js path detection ────────────────────────────────────────────────────
 def _find_node() -> Optional[str]:
     path = shutil.which("node")
     if path:
@@ -31,7 +32,6 @@ def _find_node() -> Optional[str]:
     for p in ["/usr/bin/node", "/usr/local/bin/node", "/opt/homebrew/bin/node"]:
         if os.path.isfile(p):
             return p
-    # NixOS paths
     nix_dirs = [d for d in (os.environ.get("PATH", "").split(":")) if "nodejs" in d or "node" in d.lower()]
     for d in nix_dirs:
         candidate = os.path.join(d, "node")
@@ -44,16 +44,16 @@ _NODE_PATH = _find_node()
 if _NODE_PATH:
     _log.info(f"[SmartYTDL] Node.js found: {_NODE_PATH}")
 else:
-    _log.warning("[SmartYTDL] Node.js NOT found — signature solving may fail")
+    _log.warning("[SmartYTDL] Node.js NOT found — web_safari client may fail, android_vr will still work")
 
 
 def _js_runtimes() -> Dict:
     if _NODE_PATH:
         return {"node": {"path": _NODE_PATH}}
-    return {"node": {}}
+    return {}
 
 
-# ── Proxy ───────────────────────────────────────────────────────────────────────
+# ── Proxy ─────────────────────────────────────────────────────────────────────
 _PROXY = (
     os.environ.get("YTDL_PROXY")
     or os.environ.get("HTTPS_PROXY")
@@ -61,33 +61,66 @@ _PROXY = (
     or ""
 )
 
-# ── YouTube player clients ───────────────────────────────────────────────────────
+# ── YouTube player clients (2026 verified working order) ──────────────────────
+# Sources:
+#   _DEFAULT_CLIENTS      = ['android_vr', 'web_safari']  (yt-dlp 2026.03.17)
+#   _DEFAULT_JSLESS_CLIENTS = ['android_vr']
+#   tv_embedded / ios_downgraded removed Jan 2026 — DO NOT USE
 ALL_CLIENTS: List[str] = [
-    "tv",              # Smart TV — reliable with Node.js solver
-    "web",             # Desktop web — works with n-param solving
-    "tv_embedded",     # TV embedded player
-    "web_embedded",    # Embedded web
-    "web_creator",     # YouTube Studio — fewer restrictions
-    "mweb",            # Mobile web
-    "ios",             # iPhone app
+    "android_vr",    # PRIMARY — jsless, no PO token, works on cloud IPs
+    "web_safari",    # SECONDARY — needs Node.js for signature, but reliable
+    "ios",           # Good fallback — iPhone app UA
+    "android",       # Android app client
+    "mweb",          # Mobile web
+    "web_creator",   # YouTube Studio — fewer restrictions
+    "web",           # Desktop web (needs Node.js)
+    "tv",            # Smart TV (may need PO token on some videos)
 ]
 
 _CLIENT_UA: Dict[str, str] = {
-    "tv":            "Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/538.1 (KHTML, like Gecko) Version/6.0 TV Safari/538.1",
-    "web":           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.6367.118 Safari/537.36",
-    "tv_embedded":   "Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/538.1 (KHTML, like Gecko) SamsungBrowser/3.0 TV Safari/538.1",
-    "web_embedded":  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.6367.118 Safari/537.36",
-    "web_creator":   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.6367.118 Safari/537.36",
-    "mweb":          "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36",
-    "ios":           "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)",
+    "android_vr": (
+        "Mozilla/5.0 (Linux; Android 14; Oculus Quest 3) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) OculusBrowser/35.0.0 "
+        "VR SamsungBrowser/4.0 Chrome/124.0.6367.118 Mobile Safari/537.36"
+    ),
+    "web_safari": (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4_1) "
+        "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15"
+    ),
+    "ios": "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)",
+    "android": (
+        "com.google.android.youtube/19.29.37 (Linux; U; Android 14; "
+        "en_US; Pixel 8; Build/AP2A.240805.005; Cronet/113.0.5672.24)"
+    ),
+    "mweb": (
+        "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36"
+    ),
+    "web_creator": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/124.0.6367.118 Safari/537.36"
+    ),
+    "web": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/124.0.6367.118 Safari/537.36"
+    ),
+    "tv": (
+        "Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/538.1 "
+        "(KHTML, like Gecko) Version/6.0 TV Safari/538.1"
+    ),
 }
-_DEFAULT_UA = _CLIENT_UA["tv"]
+_DEFAULT_UA = _CLIENT_UA["android_vr"]
 
-# ── Invidious instances (fallback pool) ─────────────────────────────────────────
+# Clients that work WITHOUT a JS runtime (Node.js not needed)
+_JSLESS_CLIENTS = {"android_vr", "ios", "android", "mweb"}
+
+# ── Invidious instances (fallback pool) ───────────────────────────────────────
 _INVIDIOUS_INSTANCES = [
     "https://invidious.io.lol",
     "https://yewtu.be",
     "https://invidious.fdn.fr",
+    "https://inv.nadeko.net",
+    "https://invidious.privacyredirect.com",
     "https://inv.ggtyler.dev",
     "https://invidious.perennialte.ch",
     "https://invidious.private.coffee",
@@ -96,10 +129,9 @@ _INVIDIOUS_INSTANCES = [
     "https://invidious.darkness.services",
     "https://yt.artemislena.eu",
     "https://invidious.nerdvpn.de",
-    "https://invidious.asir.dev",
 ]
 
-# ── Instance failure tracking ────────────────────────────────────────────────────
+# ── Instance failure tracking ─────────────────────────────────────────────────
 _inst_lock = threading.Lock()
 _inst_failed: Dict[str, float] = {}
 _INST_FAIL_TTL = 600
@@ -119,7 +151,7 @@ def _fail_instance(inst: str):
         _inst_failed[inst] = time.time()
 
 
-# ── Cookie support ───────────────────────────────────────────────────────────────
+# ── Cookie support ────────────────────────────────────────────────────────────
 _cookie_cache: Optional[str] = None
 _cookie_ts: float = 0.0
 _COOKIE_TTL = 120
@@ -134,7 +166,6 @@ def _find_cookie_file() -> Optional[str]:
 
     _cookie_ts = now
 
-    # Priority 1: env var (base64 encoded)
     b64 = os.environ.get("YOUTUBE_COOKIES_B64", "").strip()
     if b64:
         tmp = "/tmp/youtube_cookies.txt"
@@ -148,7 +179,6 @@ def _find_cookie_file() -> Optional[str]:
         except Exception as e:
             _log.warning(f"[SmartYTDL] YOUTUBE_COOKIES_B64 decode failed: {e}")
 
-    # Priority 2: local files
     for path in [
         os.path.join(os.path.dirname(__file__), "..", "..", "youtube_cookies.txt"),
         os.path.join(os.path.dirname(__file__), "..", "..", "cookies.txt"),
@@ -165,11 +195,11 @@ def _find_cookie_file() -> Optional[str]:
     return None
 
 
-# ── Client registry ──────────────────────────────────────────────────────────────
+# ── Client registry ───────────────────────────────────────────────────────────
 class _ClientRegistry:
     def __init__(self):
         self._lock = threading.Lock()
-        self._best: Optional[str] = "tv"
+        self._best: Optional[str] = "android_vr"   # 2026 default — jsless, no PO token
         self._best_ts: float = 0.0
         self._failed: Dict[str, float] = {}
         self._FAIL_TTL = 900
@@ -199,11 +229,18 @@ class _ClientRegistry:
             best = self._best
             failed = {c for c, t in self._failed.items() if now - t < self._FAIL_TTL}
         result = []
-        if best:
-            result.append(best)
+        # Jsless clients always go first — they don't need Node.js
         for c in ALL_CLIENTS:
-            if c not in result and c not in failed:
+            if c in _JSLESS_CLIENTS and c not in failed:
+                if c == best:
+                    result.insert(0, c)
+                else:
+                    result.append(c)
+        # Then JS-dependent clients
+        for c in ALL_CLIENTS:
+            if c not in _JSLESS_CLIENTS and c not in result and c not in failed:
                 result.append(c)
+        # Finally failed ones as last resort
         for c in ALL_CLIENTS:
             if c not in result:
                 result.append(c)
@@ -213,9 +250,12 @@ class _ClientRegistry:
 _registry = _ClientRegistry()
 
 
-# ── yt-dlp option builder ────────────────────────────────────────────────────────
+# ── yt-dlp option builder ─────────────────────────────────────────────────────
 def _opts(client: str, cookie_file: Optional[str] = None) -> Dict:
     ua = _CLIENT_UA.get(client, _DEFAULT_UA)
+    needs_js = client not in _JSLESS_CLIENTS
+    runtimes = _js_runtimes() if needs_js and _NODE_PATH else {}
+
     o: Dict = {
         "quiet":              True,
         "no_warnings":        True,
@@ -223,7 +263,6 @@ def _opts(client: str, cookie_file: Optional[str] = None) -> Dict:
         "source_address":     "0.0.0.0",
         "socket_timeout":     20,
         "retries":            1,
-        "js_runtimes":        _js_runtimes(),
         "extractor_args": {
             "youtube": {
                 "player_client": [client],
@@ -232,6 +271,8 @@ def _opts(client: str, cookie_file: Optional[str] = None) -> Dict:
         },
         "http_headers": {"User-Agent": ua},
     }
+    if runtimes:
+        o["js_runtimes"] = runtimes
     if cookie_file:
         o["cookiefile"] = cookie_file
     if _PROXY:
@@ -239,7 +280,7 @@ def _opts(client: str, cookie_file: Optional[str] = None) -> Dict:
     return o
 
 
-# ── Per-client extract/download ──────────────────────────────────────────────────
+# ── Per-client extract/download ───────────────────────────────────────────────
 _AUDIO_FMT = "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best"
 
 
@@ -288,7 +329,7 @@ def _client_download(vid: str, client: str, out_dir: str,
     return None
 
 
-# ── Race helper — first thread to put a result wins ─────────────────────────────
+# ── Race helper — first thread to put a result wins ───────────────────────────
 def _race(targets, timeout: float = 22.0) -> Optional[any]:
     result_q: queue.Queue = queue.Queue()
     active = [0]
@@ -331,7 +372,7 @@ def _race(targets, timeout: float = 22.0) -> Optional[any]:
             return None
 
 
-# ── Invidious fallback ───────────────────────────────────────────────────────────
+# ── Invidious fallback ────────────────────────────────────────────────────────
 def _invidious_extract(vid: str) -> Optional[Dict]:
     import urllib.request, json
     for inst in _alive_instances(_INVIDIOUS_INSTANCES):
@@ -406,30 +447,29 @@ def _invidious_download(vid: str, out_dir: str) -> Optional[str]:
     return None
 
 
-# ── Public API ───────────────────────────────────────────────────────────────────
+# ── Public API ────────────────────────────────────────────────────────────────
 def smart_extract_url(vid: str) -> Optional[Dict]:
     """
     Extract YouTube stream URL.
-    Uses Node.js js_runtime for signature/n-param solving.
-    Falls back to Invidious if yt-dlp fails.
+    Priority: android_vr (jsless) → web_safari → ios → android → others → Invidious
+    No cookies required for primary clients.
     """
     cookie_file = _find_cookie_file()
-    if cookie_file:
-        _log.info(f"[SmartYTDL] Using cookie file: {cookie_file}")
 
-    # Fast path — cached best client
+    # Fast path — try cached best client first (avoids full race on repeated plays)
     best = _registry.get_best()
     if best:
         res = _client_extract(vid, best, cookie_file)
         if res:
             _registry.mark_ok(best)
+            _log.info(f"[SmartYTDL] Fast-path client='{best}' for {vid}")
             return res
         _registry.mark_failed(best)
         _log.info(f"[SmartYTDL] Cached '{best}' failed for {vid}, racing all")
 
-    # Race all clients in parallel — first success wins
+    # Race all clients — jsless ones (android_vr, ios, android, mweb) launch first
     clients = _registry.ordered_clients()
-    _log.info(f"[SmartYTDL] Racing {len(clients)} clients for {vid}")
+    _log.info(f"[SmartYTDL] Racing {len(clients)} clients for {vid} | order: {clients[:4]}")
 
     targets = [
         (lambda c: lambda: _client_extract(vid, c, cookie_file))(c)
@@ -456,7 +496,8 @@ def smart_download(vid: str, out_dir: str,
                    fmt: str = _AUDIO_FMT) -> Optional[str]:
     """
     Download YouTube audio.
-    Tries cached best client first, then races all clients, then Invidious.
+    Priority: android_vr → web_safari → ios → android → others → Invidious
+    No cookies required for primary clients.
     """
     cookie_file = _find_cookie_file()
 
@@ -490,12 +531,30 @@ def smart_download(vid: str, out_dir: str,
     return None
 
 
-# ── Helpers used by the rest of the codebase ────────────────────────────────────
-def get_base_ytdlp_opts(out_dir: str) -> Dict:
-    best = _registry.get_best() or "tv"
+# ── Helpers used by the rest of the codebase ──────────────────────────────────
+def get_cdn_headers() -> Dict:
+    """Return HTTP headers suitable for downloading from a YouTube CDN URL."""
+    best = _registry.get_best() or "android_vr"
     ua = _CLIENT_UA.get(best, _DEFAULT_UA)
+    return {
+        "User-Agent": ua,
+        "Accept": "*/*",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Encoding": "identity",
+        "Referer": "https://www.youtube.com/",
+        "Origin": "https://www.youtube.com",
+    }
+
+
+def get_base_ytdlp_opts(out_dir: str) -> Dict:
+    best = _registry.get_best() or "android_vr"
+    ua = _CLIENT_UA.get(best, _DEFAULT_UA)
+    # Use top 3 clients from ordered list; prefer jsless ones
     candidates = _registry.ordered_clients()[:3]
     cookie_file = _find_cookie_file()
+    needs_js = any(c not in _JSLESS_CLIENTS for c in candidates)
+    runtimes = _js_runtimes() if needs_js and _NODE_PATH else {}
+
     o = {
         "outtmpl":            os.path.join(out_dir, "%(id)s.%(ext)s"),
         "quiet":              True,
@@ -508,7 +567,6 @@ def get_base_ytdlp_opts(out_dir: str) -> Dict:
         "source_address":     "0.0.0.0",
         "socket_timeout":     30,
         "retries":            3,
-        "js_runtimes":        _js_runtimes(),
         "extractor_args": {
             "youtube": {
                 "player_client": candidates,
@@ -517,6 +575,8 @@ def get_base_ytdlp_opts(out_dir: str) -> Dict:
         },
         "http_headers": {"User-Agent": ua},
     }
+    if runtimes:
+        o["js_runtimes"] = runtimes
     if cookie_file:
         o["cookiefile"] = cookie_file
     if _PROXY:
@@ -524,25 +584,14 @@ def get_base_ytdlp_opts(out_dir: str) -> Dict:
     return o
 
 
-def get_cdn_headers() -> Dict:
-    """Return HTTP headers suitable for downloading from a YouTube CDN URL."""
-    best = _registry.get_best() or "tv"
-    ua = _CLIENT_UA.get(best, _DEFAULT_UA)
-    return {
-        "User-Agent": ua,
-        "Accept": "*/*",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Referer": "https://www.youtube.com/",
-        "Origin": "https://www.youtube.com",
-    }
-
-
 def get_stream_opts() -> Dict:
-    best = _registry.get_best() or "tv"
+    best = _registry.get_best() or "android_vr"
     ua = _CLIENT_UA.get(best, _DEFAULT_UA)
     candidates = _registry.ordered_clients()[:3]
     cookie_file = _find_cookie_file()
+    needs_js = any(c not in _JSLESS_CLIENTS for c in candidates)
+    runtimes = _js_runtimes() if needs_js and _NODE_PATH else {}
+
     o = {
         "quiet":              True,
         "no_warnings":        True,
@@ -552,7 +601,6 @@ def get_stream_opts() -> Dict:
         "source_address":     "0.0.0.0",
         "socket_timeout":     20,
         "retries":            2,
-        "js_runtimes":        _js_runtimes(),
         "extractor_args": {
             "youtube": {
                 "player_client": candidates,
@@ -561,6 +609,8 @@ def get_stream_opts() -> Dict:
         },
         "http_headers": {"User-Agent": ua},
     }
+    if runtimes:
+        o["js_runtimes"] = runtimes
     if cookie_file:
         o["cookiefile"] = cookie_file
     if _PROXY:
