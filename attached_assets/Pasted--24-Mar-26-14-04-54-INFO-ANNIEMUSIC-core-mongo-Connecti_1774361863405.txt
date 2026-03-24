@@ -1,0 +1,243 @@
+[24-Mar-26 14:04:54 - INFO] - ANNIEMUSIC.core.mongo - Connecting to your Mongo Database...
+[24-Mar-26 14:04:54 - INFO] - ANNIEMUSIC.core.mongo - Connected to your Mongo Database.
+[24-Mar-26 14:04:54 - INFO] - ANNIEMUSIC.core.dir - Directories Updated.
+[24-Mar-26 14:04:54 - INFO] - ANNIEMUSIC.core.git - Initialized new Git repository.
+[24-Mar-26 14:04:54 - INFO] - ANNIEMUSIC.core.git - Successfully updated from upstream repository.
+[24-Mar-26 14:04:54 - INFO] - ANNIEMUSIC.misc - á´…á´€á´›á´€Ê™á´€sá´‡ ÊŸá´á´€á´…á´‡á´… sá´œá´„á´„á´‡ssÒ“á´œÊŸÊŸÊðŸ’—
+[24-Mar-26 14:04:54 - INFO] - ANNIEMUSIC.core.bot - Bot client initialized.
+[24-Mar-26 14:04:55 - INFO] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] Node.js found: /usr/bin/node
+[24-Mar-26 14:04:56 - INFO] - ANNIEMUSIC - â–¶ï¸ Using android_embed client â€” no PO token needed, verified 2026.
+[24-Mar-26 14:04:56 - INFO] - werkzeug - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://10.240.176.202:8080
+[24-Mar-26 14:04:56 - INFO] - werkzeug - [33mPress CTRL+C to quit[0m
+[24-Mar-26 14:04:58 - INFO] - ANNIEMUSIC.misc - sá´œá´…á´ á´œsá´‡Ê€s á´…á´É´á´‡..
+[24-Mar-26 14:05:06 - INFO] - ANNIEMUSIC.core.bot - âœ… Start message sent to log channel (-1003455370306)
+[24-Mar-26 14:05:06 - INFO] - ANNIEMUSIC.core.bot - âœ… Music Bot started as Ë¹ð€É´É´Éªá´‡ ê­™ ðŒá´œsÉªá´„Ë¼ â™ª [ á´‡ÊŸÉªá´›á´‡ ] (@ANNIEXMUSICxBOT)
+[24-Mar-26 14:05:08 - INFO] - ANNIEMUSIC.core.bot - âœ… Bot profile picture saved as bot_pfp.png.
+[24-Mar-26 14:05:09 - INFO] - ANNIEMUSIC - âœ… Menu button set â†’ https://annie.up.railway.app
+[24-Mar-26 14:05:09 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - NudeDetector loaded successfully.
+[24-Mar-26 14:05:09 - INFO] - ANNIEMUSIC.plugins - á´€É´É´Éªá´‡'s á´á´á´…á´œÊŸá´‡s ÊŸá´á´€á´…á´‡á´…...
+[24-Mar-26 14:05:09 - INFO] - ANNIEMUSIC.core.userbot - Starting Annie's Assistants...
+[24-Mar-26 14:05:11 - INFO] - ANNIEMUSIC.core.userbot - Assistant 1 Started as ðš¸â€Œ ðš² ð‘ ðš± ðš¬ ð‘ !!
+[24-Mar-26 14:05:13 - INFO] - ANNIEMUSIC.core.userbot - Assistant 2 Started as ã…¤-ðŒ Î› á¥´ Òœ ã…¤ðŒ ê«€ ðŒ½ ðŒ‚ Í±ê§ŠáÖŸ ê«€ á°»âƒªá±‚ à¸£
+[24-Mar-26 14:05:13 - INFO] - ANNIEMUSIC.core.call - Starting PyTgCalls Clients...
+[24-Mar-26 14:05:15 - INFO] - werkzeug - 100.64.0.2 - - [24/Mar/2026 14:05:15] "GET / HTTP/1.1" 200 -
+[24-Mar-26 14:05:16 - INFO] - werkzeug - 100.64.0.2 - - [24/Mar/2026 14:05:16] "GET /api/trending HTTP/1.1" 200 -
+[24-Mar-26 14:05:16 - INFO] - werkzeug - 100.64.0.2 - - [24/Mar/2026 14:05:16] "GET /api/status HTTP/1.1" 200 -
+[24-Mar-26 14:05:16 - INFO] - werkzeug - 100.64.0.2 - - [24/Mar/2026 14:05:16] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+[24-Mar-26 14:05:28 - INFO] - ANNIEMUSIC - Annie Music Robot Started Successfully...
+[24-Mar-26 14:05:50 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/thumbnail_2026-03-24_14-05-50_7620823110908279808.jpg (6724 bytes)
+[24-Mar-26 14:05:50 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: [{'class': 'FACE_FEMALE', 'score': 0.8188124895095825, 'box': [102, 114, 155, 161]}]
+[24-Mar-26 14:05:50 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 14:05:58 - ERROR] - pyrogram.dispatcher - Unexpected exception raised in MessageHandler:
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/methods/advanced/resolve_peer.py", line 67, in resolve_peer
+    return await self.storage.get_peer_by_id(peer_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/storage/sqlite_storage.py", line 363, in get_peer_by_id
+    raise KeyError(f"ID not found: {peer_id}")
+KeyError: 'ID not found: 8151337557'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/methods/advanced/resolve_peer.py", line 103, in resolve_peer
+    return await self.storage.get_peer_by_id(peer_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/storage/sqlite_storage.py", line 363, in get_peer_by_id
+    raise KeyError(f"ID not found: {peer_id}")
+KeyError: 'ID not found: 8151337557'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/app/ANNIEMUSIC/utils/decorators/play.py", line 141, in wrapper
+    member = await app.get_chat_member(chat_id, userbot.id)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/methods/chats/get_chat_member.py", line 56, in get_chat_member
+    user = await self.resolve_peer(user_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/methods/advanced/resolve_peer.py", line 105, in resolve_peer
+    raise PeerIdInvalid from e
+pyrogram.errors.exceptions.bad_request_400.PeerIdInvalid: Telegram says: [400 PEER_ID_INVALID] - The peer id being used is invalid or not known yet. Make sure you meet the peer before interacting with it. 
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/ANNIEMUSIC/utils/decorators/play.py", line 193, in wrapper
+    await userbot.join_chat(invitelink)
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/methods/chats/join_chat.py", line 58, in join_chat
+    chat = await self.invoke(
+           ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/methods/advanced/invoke.py", line 107, in invoke
+    r = await session.invoke(
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.InviteHashExpired: Telegram says: [400 INVITE_HASH_EXPIRED] - The invite link is no longer valid. (caused by "messages.ImportChatInvite")
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/dispatcher.py", line 383, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/app/ANNIEMUSIC/utils/decorators/play.py", line 217, in wrapper
+    await userbot.join_chat(invitelink)
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/methods/chats/join_chat.py", line 58, in join_chat
+    chat = await self.invoke(
+           ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/methods/advanced/invoke.py", line 107, in invoke
+    r = await session.invoke(
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserAlreadyParticipant: Telegram says: [400 USER_ALREADY_PARTICIPANT] - The user is already a participant of this chat. (caused by "messages.ImportChatInvite")
+[24-Mar-26 14:06:55 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/thumbnail_2026-03-24_14-06-54_7620823389491560448.jpg (8146 bytes)
+[24-Mar-26 14:06:55 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: [{'class': 'FACE_FEMALE', 'score': 0.8652002811431885, 'box': [71, 81, 108, 94]}]
+[24-Mar-26 14:06:55 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 14:07:50 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/thumbnail_2026-03-24_14-07-50_7620823627774328832.jpg (8754 bytes)
+[24-Mar-26 14:07:50 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: [{'class': 'FACE_FEMALE', 'score': 0.2686723470687866, 'box': [21, 36, 293, 202]}]
+[24-Mar-26 14:07:50 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 14:07:57 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/thumbnail_2026-03-24_14-07-57_7620823656126005248.jpg (8514 bytes)
+[24-Mar-26 14:07:57 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: [{'class': 'FACE_FEMALE', 'score': 0.8229987621307373, 'box': [103, 87, 137, 147]}, {'class': 'ARMPITS_EXPOSED', 'score': 0.5182868838310242, 'box': [54, 288, 39, 31]}, {'class': 'ARMPITS_EXPOSED', 'score': 0.4334830343723297, 'box': [226, 268, 42, 51]}]
+[24-Mar-26 14:07:57 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 14:08:00 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/sticker_2026-03-24_14-07-56_7620823653233640448.webp (24774 bytes)
+[24-Mar-26 14:08:01 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: [{'class': 'FACE_FEMALE', 'score': 0.4129236936569214, 'box': [60, 6, 448, 431]}]
+[24-Mar-26 14:08:01 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 14:08:12 - INFO] - werkzeug - 100.64.0.3 - - [24/Mar/2026 14:08:12] "[36mGET / HTTP/1.1[0m" 304 -
+[24-Mar-26 14:08:13 - INFO] - werkzeug - 100.64.0.3 - - [24/Mar/2026 14:08:13] "GET /api/trending HTTP/1.1" 200 -
+[24-Mar-26 14:08:13 - INFO] - werkzeug - 100.64.0.3 - - [24/Mar/2026 14:08:13] "GET /api/status HTTP/1.1" 200 -
+[24-Mar-26 14:08:13 - INFO] - werkzeug - 100.64.0.3 - - [24/Mar/2026 14:08:13] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+[24-Mar-26 14:09:03 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/thumbnail_2026-03-24_14-09-03_7620823941515153408.jpg (11830 bytes)
+[24-Mar-26 14:09:03 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: []
+[24-Mar-26 14:09:03 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 14:09:08 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/thumbnail_2026-03-24_14-09-08_7620823962198690816.jpg (9668 bytes)
+[24-Mar-26 14:09:08 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: []
+[24-Mar-26 14:09:08 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 14:10:12 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/thumbnail_2026-03-24_14-10-12_7620824238282620928.jpg (12364 bytes)
+[24-Mar-26 14:10:12 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: []
+[24-Mar-26 14:10:12 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 14:10:53 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/thumbnail_2026-03-24_14-10-53_7620824413891152896.jpg (13646 bytes)
+[24-Mar-26 14:10:53 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: [{'class': 'FACE_FEMALE', 'score': 0.8407894372940063, 'box': [118, 133, 116, 100]}]
+[24-Mar-26 14:10:53 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 14:10:59 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/thumbnail_2026-03-24_14-10-55_7620824421143047168.jpg (10192 bytes)
+[24-Mar-26 14:10:59 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: [{'class': 'FACE_FEMALE', 'score': 0.7810742259025574, 'box': [48, 93, 97, 92]}]
+[24-Mar-26 14:10:59 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 14:11:34 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/thumbnail_2026-03-24_14-11-34_7620824590965024768.jpg (5654 bytes)
+[24-Mar-26 14:11:34 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: [{'class': 'FACE_FEMALE', 'score': 0.42337745428085327, 'box': [164, 48, 96, 96]}]
+[24-Mar-26 14:11:34 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 14:11:54 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/thumbnail_2026-03-24_14-11-54_7620824676146443264.jpg (8146 bytes)
+[24-Mar-26 14:11:58 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/thumbnail_2026-03-24_14-11-58_7620824691265633280.jpg (20500 bytes)
+[24-Mar-26 14:11:58 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: [{'class': 'FEET_COVERED', 'score': 0.2741461992263794, 'box': [132, 290, 43, 29]}]
+[24-Mar-26 14:11:58 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 14:12:12 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/thumbnail_2026-03-24_14-12-12_7620824751220647936.jpg (12680 bytes)
+[24-Mar-26 14:12:12 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: []
+[24-Mar-26 14:12:12 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 14:12:20 - INFO] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] Using cookies from YOUTUBE_COOKIES_B64 env var
+[24-Mar-26 14:12:20 - INFO] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] Racing 8 clients for _iktURk0X-A | order: ['android_vr', 'ios', 'android', 'mweb']
+[24-Mar-26 14:12:21 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/thumbnail_2026-03-24_14-12-21_7620824792356553728.jpg (4022 bytes)
+[24-Mar-26 14:12:21 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: []
+[24-Mar-26 14:12:21 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 14:12:23 - INFO] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] client='web_safari' won for _iktURk0X-A
+[24-Mar-26 14:12:23 - WARNING] - ANNIEMUSIC.utils.downloader - [CDN] Bad status 403 for _iktURk0X-A
+[24-Mar-26 14:12:23 - INFO] - ANNIEMUSIC.utils.downloader - [SMART] CDN blocked, trying direct download for _iktURk0X-A
+[24-Mar-26 14:12:26 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/thumbnail_2026-03-24_14-12-26_7620824814368410624.jpg (14340 bytes)
+[24-Mar-26 14:12:26 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: [{'class': 'FACE_FEMALE', 'score': 0.36447685956954956, 'box': [113, 71, 57, 54]}]
+[24-Mar-26 14:12:26 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 14:12:36 - INFO] - ANNIEMUSIC.utils.downloader - [SMART] Direct download ok: /app/downloads/_iktURk0X-A.mp4
+[24-Mar-26 14:12:36 - INFO] - ANNIEMUSIC.core.call - [PLAY] chat=-1003257925027 | file=/app/downloads/_iktURk0X-A.mp4 | size=14777588B | video=False
+[24-Mar-26 14:12:39 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW-THUMB] Detections for /app/cache/_iktURk0X-A_v30.png: []
+[24-Mar-26 14:12:41 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/thumbnail_2026-03-24_14-12-39_7620824871357987840.jpg (15046 bytes)
+[24-Mar-26 14:12:41 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: [{'class': 'FACE_FEMALE', 'score': 0.8577149510383606, 'box': [126, 35, 93, 91]}, {'class': 'FEMALE_BREAST_COVERED', 'score': 0.4571535289287567, 'box': [106, 197, 99, 63]}]
+[24-Mar-26 14:12:41 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 14:12:41 - ERROR] - pyrogram.dispatcher - Unexpected exception raised in MessageHandler:
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/methods/advanced/resolve_peer.py", line 67, in resolve_peer
+    return await self.storage.get_peer_by_id(peer_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/storage/sqlite_storage.py", line 363, in get_peer_by_id
+    raise KeyError(f"ID not found: {peer_id}")
+KeyError: 'ID not found: 8151337557'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/methods/advanced/resolve_peer.py", line 103, in resolve_peer
+    return await self.storage.get_peer_by_id(peer_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/storage/sqlite_storage.py", line 363, in get_peer_by_id
+    raise KeyError(f"ID not found: {peer_id}")
+KeyError: 'ID not found: 8151337557'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/app/ANNIEMUSIC/utils/decorators/play.py", line 141, in wrapper
+    member = await app.get_chat_member(chat_id, userbot.id)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/methods/chats/get_chat_member.py", line 56, in get_chat_member
+    user = await self.resolve_peer(user_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/methods/advanced/resolve_peer.py", line 105, in resolve_peer
+    raise PeerIdInvalid from e
+pyrogram.errors.exceptions.bad_request_400.PeerIdInvalid: Telegram says: [400 PEER_ID_INVALID] - The peer id being used is invalid or not known yet. Make sure you meet the peer before interacting with it. 
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/ANNIEMUSIC/utils/decorators/play.py", line 193, in wrapper
+    await userbot.join_chat(invitelink)
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/methods/chats/join_chat.py", line 58, in join_chat
+    chat = await self.invoke(
+           ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/methods/advanced/invoke.py", line 107, in invoke
+    r = await session.invoke(
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.InviteHashExpired: Telegram says: [400 INVITE_HASH_EXPIRED] - The invite link is no longer valid. (caused by "messages.ImportChatInvite")
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/dispatcher.py", line 383, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/app/ANNIEMUSIC/utils/decorators/play.py", line 217, in wrapper
+    await userbot.join_chat(invitelink)
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/methods/chats/join_chat.py", line 58, in join_chat
+    chat = await self.invoke(
+           ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/methods/advanced/invoke.py", line 107, in invoke
+    r = await session.invoke(
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.UserAlreadyParticipant: Telegram says: [400 USER_ALREADY_PARTICIPANT] - The user is already a participant of this chat. (caused by "messages.ImportChatInvite")
+[24-Mar-26 14:12:52 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/sticker_2026-03-24_14-12-52_7620824923169306624.webp (17436 bytes)
+[24-Mar-26 14:12:52 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: [{'class': 'FACE_FEMALE', 'score': 0.49039018154144287, 'box': [57, 135, 343, 286]}]
+[24-Mar-26 14:12:52 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 14:12:55 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/sticker_2026-03-24_14-12-55_7620824938527833088.webp (7714 bytes)
+[24-Mar-26 14:12:55 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: []
+[24-Mar-26 14:12:55 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
