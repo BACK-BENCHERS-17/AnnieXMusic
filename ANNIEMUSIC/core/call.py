@@ -322,12 +322,45 @@ class Call:
         else:
             stream = dynamic_media_stream(path=link, video=bool(video))
 
+        # ── Pre-warm: resolve peer on the assistant's internal Pyrogram client ──
+        # After bot restart, the PyTgCalls client hasn't cached this chat's peer.
+        # Resolving it now prevents PeerIdInvalid on the first play attempt.
+        try:
+            _pyrogram_client = getattr(assistant, '_app', None) or getattr(assistant, 'mtproto_client', None)
+            if _pyrogram_client:
+                await _pyrogram_client.resolve_peer(chat_id)
+                LOGGER(__name__).info(f"[PLAY] Peer pre-warmed for chat={chat_id}")
+        except Exception as _pw_err:
+            LOGGER(__name__).debug(f"[PLAY] Peer pre-warm skipped: {_pw_err}")
+
         for attempt in range(3):
             try:
                 await assistant.play(chat_id, stream)
                 break
             except NoActiveGroupCall:
-                raise AssistantErr(_["call_8"])
+                # No VC open — try creating one via bot account, same as ChatAdminRequired path
+                LOGGER(__name__).warning(
+                    f"[PLAY] NoActiveGroupCall — trying to create VC via bot for chat={chat_id}"
+                )
+                if chat_id in self.active_calls:
+                    break
+                try:
+                    import random as _random
+                    from pyrogram.raw import functions as _rf
+                    _peer = await app.resolve_peer(chat_id)
+                    await app.invoke(
+                        _rf.phone.CreateGroupCall(
+                            peer=_peer,
+                            random_id=_random.randint(10000, 9999999),
+                        )
+                    )
+                    await asyncio.sleep(2)
+                    LOGGER(__name__).info(f"[PLAY] VC created. Retrying play for chat={chat_id}")
+                    await assistant.play(chat_id, stream)
+                    break
+                except Exception as nag_err:
+                    LOGGER(__name__).error(f"[PLAY] VC create after NoActiveGroupCall failed: {nag_err}")
+                    raise AssistantErr(_["call_8"])
             except ChatAdminRequired:
                 if chat_id in self.active_calls:
                     break
@@ -439,7 +472,19 @@ class Call:
                     "<blockquote>ᴘʟᴇᴀsᴇ ᴀᴅᴅ ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.</blockquote>"
                 )
             except Exception as e:
-                LOGGER(__name__).error(f"[PLAY] Unexpected error | chat={chat_id} | {type(e).__name__}: {e}")
+                LOGGER(__name__).warning(
+                    f"[PLAY] Unexpected error attempt {attempt+1}/3 | chat={chat_id} | {type(e).__name__}: {e}"
+                )
+                if attempt < 2:
+                    # Retry unknown errors — often peer-resolution or transient Telegram issues
+                    try:
+                        await assistant.leave_call(chat_id)
+                    except Exception:
+                        pass
+                    wait_sec = 3 if attempt == 0 else 5
+                    LOGGER(__name__).info(f"[PLAY] Retrying in {wait_sec}s for chat={chat_id}")
+                    await asyncio.sleep(wait_sec)
+                    continue
                 raise AssistantErr(
                     f"ᴜɴᴀʙʟᴇ ᴛᴏ ᴊᴏɪɴ ᴛʜᴇ ɢʀᴏᴜᴘ ᴄᴀʟʟ.\nRᴇᴀsᴏɴ: {e}"
                 )
