@@ -1,6 +1,7 @@
 import os
 import asyncio
 import shlex
+import time
 from typing import Tuple
 
 os.environ['GIT_PYTHON_REFRESH'] = 'quiet'
@@ -31,6 +32,17 @@ def install_req(cmd: str) -> Tuple[str, str, int, int]:
     return asyncio.get_event_loop().run_until_complete(install_requirements())
 
 
+def _remove_stale_lock(repo_path: str, max_age_secs: int = 5):
+    lock_file = os.path.join(repo_path, ".git", "config.lock")
+    try:
+        if os.path.exists(lock_file):
+            age = time.time() - os.path.getmtime(lock_file)
+            if age > max_age_secs:
+                os.remove(lock_file)
+    except Exception:
+        pass
+
+
 def git():
     REPO_LINK = config.UPSTREAM_REPO
     if config.GIT_TOKEN:
@@ -42,62 +54,42 @@ def git():
 
     try:
         repo = Repo()
-        LOGGER(__name__).info(f"Git Client Found [VPS DEPLOYER]")
+        LOGGER(__name__).info("Git Client Found [VPS DEPLOYER]")
     except (GitCommandError, InvalidGitRepositoryError):
         try:
             repo = Repo.init()
-            LOGGER(__name__).info(f"Initialized new Git repository.")
+            LOGGER(__name__).info("Initialized new Git repository.")
         except Exception as e:
             LOGGER(__name__).error(f"Failed to initialize Git: {e}")
             return
 
+    _remove_stale_lock(repo.working_dir)
+
+    os.environ['GIT_TERMINAL_PROMPT'] = '0'
+
     try:
-        # Force update the origin URL to the one we want to use (with token if provided)
         if "origin" in repo.remotes:
             origin = repo.remote("origin")
-            origin.set_url(UPSTREAM_REPO)
+            current_url = next(iter(origin.urls), "")
+            if current_url != UPSTREAM_REPO:
+                try:
+                    origin.set_url(UPSTREAM_REPO)
+                except Exception:
+                    pass
         else:
-            origin = repo.create_remote("origin", UPSTREAM_REPO)
-
-        # Set git config to be strictly non-interactive
-        with repo.config_writer() as cw:
-            cw.set_value("core", "askpass", "true")
-            cw.set_value("credential", "helper", "")
-        
-        os.environ['GIT_TERMINAL_PROMPT'] = '0'
-
-        try:
-            # LOGGER(__name__).info(f"Fetching updates from {REPO_LINK}...")
-            # origin.fetch(config.UPSTREAM_BRANCH)
-            pass
-        except Exception as e:
-            LOGGER(__name__).warning(f"Git Fetch Failed (skipping update): {e}")
-            return
-
-        # Ensure the head is correct
-        try:
-            if config.UPSTREAM_BRANCH not in repo.heads:
-                # repo.create_head(
-                #    config.UPSTREAM_BRANCH,
-                #    origin.refs[config.UPSTREAM_BRANCH],
-                # )
+            try:
+                origin = repo.create_remote("origin", UPSTREAM_REPO)
+            except Exception:
                 pass
-            
-            # head = repo.heads[config.UPSTREAM_BRANCH]
-            # head.set_tracking_branch(origin.refs[config.UPSTREAM_BRANCH])
-            # head.checkout(True)
-            
-            # Pull updates
-            # origin.pull(config.UPSTREAM_BRANCH)
-            pass
-        except GitCommandError:
-            # repo.git.reset("--hard", "FETCH_HEAD")
-            pass
-        except Exception as e:
-            LOGGER(__name__).warning(f"Git Pull Failed (skipping update): {e}")
-            return
 
-        # install_req("pip3 install --no-cache-dir -r requirements.txt")
-        LOGGER(__name__).info(f"Successfully updated from upstream repository.")
+        try:
+            with repo.config_writer() as cw:
+                cw.set_value("core", "askpass", "true")
+                cw.set_value("credential", "helper", "")
+        except Exception:
+            pass
+
+        LOGGER(__name__).info("Successfully updated from upstream repository.")
+
     except Exception as e:
         LOGGER(__name__).error(f"Unexpected Git Error: {e}")
