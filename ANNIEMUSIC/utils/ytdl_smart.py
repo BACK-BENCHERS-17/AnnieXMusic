@@ -524,6 +524,20 @@ def get_base_ytdlp_opts(out_dir: str) -> Dict:
     return o
 
 
+def get_cdn_headers() -> Dict:
+    """Return HTTP headers suitable for downloading from a YouTube CDN URL."""
+    best = _registry.get_best() or "tv"
+    ua = _CLIENT_UA.get(best, _DEFAULT_UA)
+    return {
+        "User-Agent": ua,
+        "Accept": "*/*",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Referer": "https://www.youtube.com/",
+        "Origin": "https://www.youtube.com",
+    }
+
+
 def get_stream_opts() -> Dict:
     best = _registry.get_best() or "tv"
     ua = _CLIENT_UA.get(best, _DEFAULT_UA)
