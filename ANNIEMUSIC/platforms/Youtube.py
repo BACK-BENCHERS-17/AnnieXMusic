@@ -29,13 +29,13 @@ _formats_lock = asyncio.Lock()
 
 
 def _cookies_args() -> List[str]:
-    """yt-dlp CLI args — tv/embedded clients bypass bot detection on cloud IPs."""
+    """yt-dlp CLI args — ios client works best on cloud IPs (Railway/Replit)."""
     return [
         "--no-check-certificate",
         "--force-ipv4",
-        "--extractor-arg", "youtube:player_client=tv,web_embedded,web_creator,android_vr",
+        "--extractor-arg", "youtube:player_client=ios,mweb,android_vr",
         "--extractor-arg", "youtube:skip=hls,translated_subs",
-        "--add-header", "User-Agent:Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/538.1 (KHTML, like Gecko) Version/6.0 TV Safari/538.1",
+        "--add-header", "User-Agent:com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)",
     ]
 
 

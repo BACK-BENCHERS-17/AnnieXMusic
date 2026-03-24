@@ -30,7 +30,7 @@ def _sec_to_min(s):
     s = int(s)
     return f"{s // 60}:{s % 60:02d}"
 
-# ── YT-DLP no-cookie options (android_vr works best on cloud/Replit) ─────────
+# ── YT-DLP no-cookie options (ios client works best on cloud IPs) ─────────
 _YDL_AUDIO_OPTS = {
     "quiet": True,
     "no_warnings": True,
@@ -38,12 +38,12 @@ _YDL_AUDIO_OPTS = {
     "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
     "extractor_args": {
         "youtube": {
-            "player_client": ["tv", "web_embedded", "web_creator", "android_vr"],
+            "player_client": ["ios", "mweb", "android_vr"],
             "skip": ["hls", "translated_subs"],
         }
     },
     "http_headers": {
-        "User-Agent": "Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/538.1 (KHTML, like Gecko) Version/6.0 TV Safari/538.1",
+        "User-Agent": "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)",
     },
     "socket_timeout": 15,
     "retries": 3,
@@ -120,12 +120,12 @@ def _download_audio_local(vid):
             "outtmpl": os.path.join(_DOWNLOAD_DIR, f"{vid}.%(ext)s"),
             "extractor_args": {
                 "youtube": {
-                    "player_client": ["android_vr", "tv", "web_embedded", "web_creator"],
+                    "player_client": ["ios", "mweb", "android_vr"],
                     "skip": ["hls", "translated_subs"],
                 }
             },
             "http_headers": {
-                "User-Agent": "Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/538.1 (KHTML, like Gecko) Version/6.0 TV Safari/538.1",
+                "User-Agent": "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)",
             },
             "socket_timeout": 30,
             "retries": 3,

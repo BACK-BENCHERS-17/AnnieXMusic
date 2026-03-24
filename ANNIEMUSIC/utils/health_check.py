@@ -28,9 +28,12 @@ _YDL_AUDIO_OPTS = {
     "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
     "extractor_args": {
         "youtube": {
-            "player_client": ["android_vr"],
+            "player_client": ["ios", "mweb", "android_vr"],
             "skip": ["hls", "translated_subs"],
         }
+    },
+    "http_headers": {
+        "User-Agent": "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)",
     },
     "socket_timeout": 15,
     "retries": 3,
@@ -395,8 +398,11 @@ def api_download():
             "outtmpl": out_template,
             "extractor_args": {
                 "youtube": {
-                    "player_client": ["android_vr"],
+                    "player_client": ["ios", "mweb", "android_vr"],
                 }
+            },
+            "http_headers": {
+                "User-Agent": "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)",
             },
             "nocheckcertificate": True,
         }
@@ -457,9 +463,12 @@ def api_ytdl():
             "no_warnings": True,
             "extractor_args": {
                 "youtube": {
-                    "player_client": ["android_vr"],
+                    "player_client": ["ios", "mweb", "android_vr"],
                     "skip": ["hls", "translated_subs"],
                 }
+            },
+            "http_headers": {
+                "User-Agent": "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)",
             },
             "socket_timeout": 30,
             "retries": 3,

@@ -73,7 +73,7 @@ def _safe_filename(name: str) -> str:
 
 
 def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
-    """Base yt-dlp options — tv/embedded clients bypass bot detection on cloud IPs."""
+    """Base yt-dlp options — ios client works best on cloud IPs (Railway/Replit)."""
     return {
         "outtmpl": f"{_DOWNLOAD_DIR}/%(id)s.%(ext)s",
         "quiet": True,
@@ -87,12 +87,12 @@ def _ytdlp_base_opts() -> Dict[str, Union[str, int, bool, Dict, List]]:
         "source_address": "0.0.0.0",
         "extractor_args": {
             "youtube": {
-                "player_client": ["tv", "web_embedded", "web_creator", "android_vr"],
+                "player_client": ["ios", "mweb", "android_vr"],
                 "skip": ["hls", "translated_subs"],
             }
         },
         "http_headers": {
-            "User-Agent": "Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/538.1 (KHTML, like Gecko) Version/6.0 TV Safari/538.1",
+            "User-Agent": "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)",
         },
     }
 
@@ -144,9 +144,10 @@ async def download_from_cdn_url(vid: str, stream_url: str, ext: str) -> Optional
     tmp_path = out_path + ".tmp"
     try:
         headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "User-Agent": "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)",
             "Referer": "https://www.youtube.com/",
             "Accept": "*/*",
+            "Origin": "https://www.youtube.com",
         }
         timeout = aiohttp.ClientTimeout(total=60, connect=10)
         async with aiohttp.ClientSession(timeout=timeout) as sess:
