@@ -1,14 +1,12 @@
 """
-SmartYTDL — Permanent, auto-healing YouTube bypass for cloud servers.
+SmartYTDL — Permanent YouTube bypass using yt-dlp + Node.js JS runtime.
 
 BYPASS LAYERS (tried in order):
-  1.  10 YouTube player clients raced in PARALLEL — fastest winner returned
-  2.  Invidious public API  — proxies YouTube, no IP restrictions
-  3.  Piped.video API       — second YouTube proxy network
-  4.  Cookie support        — set YOUTUBE_COOKIES_B64 env var (base64 cookies.txt)
-  5.  Proxy support         — set YTDL_PROXY env var (socks5://... or http://...)
-
-Speed fix: All clients race simultaneously — first to succeed wins immediately.
+  1.  yt-dlp with Node.js js_runtime — solves n-param + signature challenges
+  2.  Multiple YouTube player clients raced in PARALLEL
+  3.  Invidious public API (fallback, auto-discovers working instances)
+  4.  Cookie support — set YOUTUBE_COOKIES_B64 env var (base64 cookies.txt)
+  5.  Proxy support  — set YTDL_PROXY env var (socks5://... or http://...)
 """
 
 import base64
@@ -16,12 +14,44 @@ import logging
 import os
 import queue
 import random
+import shutil
+import subprocess
 import threading
 import time
 from typing import Dict, List, Optional
 import yt_dlp
 
 _log = logging.getLogger(__name__)
+
+# ── Node.js path detection ───────────────────────────────────────────────────────
+def _find_node() -> Optional[str]:
+    path = shutil.which("node")
+    if path:
+        return path
+    for p in ["/usr/bin/node", "/usr/local/bin/node", "/opt/homebrew/bin/node"]:
+        if os.path.isfile(p):
+            return p
+    # NixOS paths
+    nix_dirs = [d for d in (os.environ.get("PATH", "").split(":")) if "nodejs" in d or "node" in d.lower()]
+    for d in nix_dirs:
+        candidate = os.path.join(d, "node")
+        if os.path.isfile(candidate):
+            return candidate
+    return None
+
+
+_NODE_PATH = _find_node()
+if _NODE_PATH:
+    _log.info(f"[SmartYTDL] Node.js found: {_NODE_PATH}")
+else:
+    _log.warning("[SmartYTDL] Node.js NOT found — signature solving may fail")
+
+
+def _js_runtimes() -> Dict:
+    if _NODE_PATH:
+        return {"node": {"path": _NODE_PATH}}
+    return {"node": {}}
+
 
 # ── Proxy ───────────────────────────────────────────────────────────────────────
 _PROXY = (
@@ -32,59 +62,41 @@ _PROXY = (
 )
 
 # ── YouTube player clients ───────────────────────────────────────────────────────
-# Ordered: most reliable on cloud IPs first.
 ALL_CLIENTS: List[str] = [
-    "tv_embedded",     # TV embedded — very reliable, no PO token
-    "android_embed",   # Android embedded — reliable, no PO token
-    "android_music",   # YouTube Music — no PO token
-    "android_vr",      # Android VR — no PO token
-    "tv",              # Smart TV — no PO token
+    "tv",              # Smart TV — reliable with Node.js solver
+    "web",             # Desktop web — works with n-param solving
+    "tv_embedded",     # TV embedded player
+    "web_embedded",    # Embedded web
     "web_creator",     # YouTube Studio — fewer restrictions
     "mweb",            # Mobile web
-    "ios",             # iPhone
-    "web_embedded",    # Embedded web
-    "web",             # Desktop web
+    "ios",             # iPhone app
 ]
 
 _CLIENT_UA: Dict[str, str] = {
-    "tv_embedded":   "Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/538.1 (KHTML, like Gecko) SamsungBrowser/3.0 TV Safari/538.1",
-    "android_embed": "com.google.android.youtube/19.29.37 (Linux; U; Android 14; en_US; Pixel 8; Build/UQ1A.240105.004;) gzip",
-    "android_music": "com.google.android.apps.youtube.music/7.11.52 (Linux; U; Android 14) gzip",
-    "android_vr":    "com.google.android.apps.youtube.vr.oculus/1.57.29 (Linux; U; Android 10; Quest) gzip",
     "tv":            "Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/538.1 (KHTML, like Gecko) Version/6.0 TV Safari/538.1",
+    "web":           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.6367.118 Safari/537.36",
+    "tv_embedded":   "Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/538.1 (KHTML, like Gecko) SamsungBrowser/3.0 TV Safari/538.1",
+    "web_embedded":  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.6367.118 Safari/537.36",
     "web_creator":   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.6367.118 Safari/537.36",
     "mweb":          "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36",
     "ios":           "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)",
-    "web_embedded":  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.6367.118 Safari/537.36",
-    "web":           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.6367.118 Safari/537.36",
 }
-_DEFAULT_UA = _CLIENT_UA["tv_embedded"]
+_DEFAULT_UA = _CLIENT_UA["tv"]
 
-# ── Invidious instances ──────────────────────────────────────────────────────────
+# ── Invidious instances (fallback pool) ─────────────────────────────────────────
 _INVIDIOUS_INSTANCES = [
-    "https://iv.ggtyler.dev",
-    "https://invidious.protokolla.fi",
-    "https://inv.in.projectsegfau.lt",
-    "https://invidious.perennialte.ch",
+    "https://invidious.io.lol",
     "https://yewtu.be",
-    "https://inv.nadeko.net",
-    "https://invidious.nerdvpn.de",
-    "https://invidious.slipfox.xyz",
-    "https://invidious.privacydev.net",
-    "https://invidious.lunar.icu",
-    "https://yt.cdaut.de",
     "https://invidious.fdn.fr",
-]
-
-# ── Piped instances ──────────────────────────────────────────────────────────────
-_PIPED_INSTANCES = [
-    "https://pipedapi.in.projectsegfau.lt",
-    "https://pipedapi.adminforge.de",
-    "https://pipedapi.kavin.rocks",
-    "https://pipedapi.tokhmi.xyz",
-    "https://pipedapi.moomoo.me",
-    "https://piped-api.garudalinux.org",
-    "https://api.piped.yt",
+    "https://inv.ggtyler.dev",
+    "https://invidious.perennialte.ch",
+    "https://invidious.private.coffee",
+    "https://invidious.0011.lt",
+    "https://vid.priv.au",
+    "https://invidious.darkness.services",
+    "https://yt.artemislena.eu",
+    "https://invidious.nerdvpn.de",
+    "https://invidious.asir.dev",
 ]
 
 # ── Instance failure tracking ────────────────────────────────────────────────────
@@ -157,7 +169,7 @@ def _find_cookie_file() -> Optional[str]:
 class _ClientRegistry:
     def __init__(self):
         self._lock = threading.Lock()
-        self._best: Optional[str] = "tv_embedded"
+        self._best: Optional[str] = "tv"
         self._best_ts: float = 0.0
         self._failed: Dict[str, float] = {}
         self._FAIL_TTL = 900
@@ -211,6 +223,7 @@ def _opts(client: str, cookie_file: Optional[str] = None) -> Dict:
         "source_address":     "0.0.0.0",
         "socket_timeout":     20,
         "retries":            1,
+        "js_runtimes":        _js_runtimes(),
         "extractor_args": {
             "youtube": {
                 "player_client": [client],
@@ -277,12 +290,7 @@ def _client_download(vid: str, client: str, out_dir: str,
 
 # ── Race helper — first thread to put a result wins ─────────────────────────────
 def _race(targets, timeout: float = 22.0) -> Optional[any]:
-    """
-    Run `targets` (list of callables, no args) concurrently in threads.
-    Returns the first non-None result, or None if all fail within timeout.
-    """
     result_q: queue.Queue = queue.Queue()
-    stop_evt = threading.Event()
     active = [0]
     lock = threading.Lock()
 
@@ -298,7 +306,7 @@ def _race(targets, timeout: float = 22.0) -> Optional[any]:
             if res is not None:
                 result_q.put(res)
             elif remaining == 0:
-                result_q.put(None)  # all done, signal end
+                result_q.put(None)
 
     with lock:
         active[0] = len(targets)
@@ -316,7 +324,6 @@ def _race(targets, timeout: float = 22.0) -> Optional[any]:
             item = result_q.get(timeout=remaining_time)
             if item is not None:
                 return item
-            # Got None — check if all workers finished
             with lock:
                 if active[0] == 0:
                     return None
@@ -338,7 +345,11 @@ def _invidious_extract(vid: str) -> Optional[Dict]:
                 if r.status != 200:
                     _fail_instance(inst)
                     continue
-                data = json.loads(r.read())
+                body = r.read()
+                if not body or body[:1] not in (b'{', b'['):
+                    _fail_instance(inst)
+                    continue
+                data = json.loads(body)
 
             best_url, best_br = None, 0
             for fmt in data.get("adaptiveFormats", []):
@@ -371,7 +382,7 @@ def _invidious_download(vid: str, out_dir: str) -> Optional[str]:
     info = _invidious_extract(vid)
     if not info:
         return None
-    out = os.path.join(out_dir, f"{vid}.m4a")
+    out = os.path.join(out_dir, f"{vid}.webm")
     try:
         req = urllib.request.Request(info["url"], headers={
             "User-Agent": "Mozilla/5.0 (compatible; Annie/2.0)",
@@ -395,75 +406,12 @@ def _invidious_download(vid: str, out_dir: str) -> Optional[str]:
     return None
 
 
-# ── Piped fallback ───────────────────────────────────────────────────────────────
-def _piped_extract(vid: str) -> Optional[Dict]:
-    import urllib.request, json
-    for inst in _alive_instances(_PIPED_INSTANCES):
-        try:
-            req = urllib.request.Request(f"{inst}/streams/{vid}", headers={
-                "User-Agent": "Mozilla/5.0 (compatible; Annie/2.0)",
-                "Accept": "application/json",
-            })
-            with urllib.request.urlopen(req, timeout=8) as r:
-                if r.status != 200:
-                    _fail_instance(inst)
-                    continue
-                data = json.loads(r.read())
-
-            best_url, best_br = None, 0
-            for s in data.get("audioStreams", []):
-                br = int(s.get("bitrate", 0))
-                if br > best_br:
-                    best_br, best_url = br, s.get("url")
-
-            if best_url:
-                _log.info(f"[SmartYTDL] Piped OK {inst} for {vid}")
-                return {"url": best_url, "ext": "m4a",
-                        "title": data.get("title", "Unknown"),
-                        "channel": data.get("uploader", ""),
-                        "duration": int(data.get("duration") or 0),
-                        "client": f"piped:{inst}"}
-        except Exception as e:
-            _log.debug(f"[SmartYTDL] Piped {inst} failed: {e}")
-            _fail_instance(inst)
-    return None
-
-
-def _piped_download(vid: str, out_dir: str) -> Optional[str]:
-    import urllib.request
-    info = _piped_extract(vid)
-    if not info:
-        return None
-    out = os.path.join(out_dir, f"{vid}.m4a")
-    try:
-        req = urllib.request.Request(info["url"], headers={
-            "User-Agent": "Mozilla/5.0 (compatible; Annie/2.0)",
-            "Referer": "https://piped.video/",
-        })
-        with urllib.request.urlopen(req, timeout=90) as r, open(out, "wb") as f:
-            while True:
-                chunk = r.read(65536)
-                if not chunk:
-                    break
-                f.write(chunk)
-        if os.path.exists(out) and os.path.getsize(out) > 1024:
-            _log.info(f"[SmartYTDL] Piped download ok: {out}")
-            return out
-    except Exception as e:
-        _log.debug(f"[SmartYTDL] Piped stream download failed: {e}")
-    try:
-        os.remove(out)
-    except Exception:
-        pass
-    return None
-
-
 # ── Public API ───────────────────────────────────────────────────────────────────
 def smart_extract_url(vid: str) -> Optional[Dict]:
     """
     Extract YouTube stream URL.
-    All clients race simultaneously — first winner returned instantly.
-    Fallback: Invidious → Piped.
+    Uses Node.js js_runtime for signature/n-param solving.
+    Falls back to Invidious if yt-dlp fails.
     """
     cookie_file = _find_cookie_file()
     if cookie_file:
@@ -487,23 +435,16 @@ def smart_extract_url(vid: str) -> Optional[Dict]:
         (lambda c: lambda: _client_extract(vid, c, cookie_file))(c)
         for c in clients
     ]
-    winner = _race(targets, timeout=25.0)
+    winner = _race(targets, timeout=30.0)
 
     if winner:
         _registry.mark_ok(winner["client"])
         _log.info(f"[SmartYTDL] client='{winner['client']}' won for {vid}")
         return winner
 
-    _log.warning(f"[SmartYTDL] All clients failed for {vid} → Invidious")
-
     # Invidious fallback
+    _log.warning(f"[SmartYTDL] All yt-dlp clients failed for {vid} → Invidious")
     res = _invidious_extract(vid)
-    if res:
-        return res
-
-    # Piped fallback
-    _log.warning(f"[SmartYTDL] Invidious failed for {vid} → Piped")
-    res = _piped_extract(vid)
     if res:
         return res
 
@@ -515,8 +456,7 @@ def smart_download(vid: str, out_dir: str,
                    fmt: str = _AUDIO_FMT) -> Optional[str]:
     """
     Download YouTube audio.
-    Tries cached best client first, then races all clients,
-    then Invidious, then Piped.
+    Tries cached best client first, then races all clients, then Invidious.
     """
     cookie_file = _find_cookie_file()
 
@@ -540,15 +480,9 @@ def smart_download(vid: str, out_dir: str,
         _log.info(f"[SmartYTDL] Download won for {vid}: {winner_path}")
         return winner_path
 
-    # Invidious download
-    _log.warning(f"[SmartYTDL] All clients failed download for {vid} → Invidious")
+    # Invidious fallback
+    _log.warning(f"[SmartYTDL] All yt-dlp clients failed download for {vid} → Invidious")
     p = _invidious_download(vid, out_dir)
-    if p:
-        return p
-
-    # Piped download
-    _log.warning(f"[SmartYTDL] Invidious failed download for {vid} → Piped")
-    p = _piped_download(vid, out_dir)
     if p:
         return p
 
@@ -558,7 +492,7 @@ def smart_download(vid: str, out_dir: str,
 
 # ── Helpers used by the rest of the codebase ────────────────────────────────────
 def get_base_ytdlp_opts(out_dir: str) -> Dict:
-    best = _registry.get_best() or "tv_embedded"
+    best = _registry.get_best() or "tv"
     ua = _CLIENT_UA.get(best, _DEFAULT_UA)
     candidates = _registry.ordered_clients()[:3]
     cookie_file = _find_cookie_file()
@@ -574,6 +508,7 @@ def get_base_ytdlp_opts(out_dir: str) -> Dict:
         "source_address":     "0.0.0.0",
         "socket_timeout":     30,
         "retries":            3,
+        "js_runtimes":        _js_runtimes(),
         "extractor_args": {
             "youtube": {
                 "player_client": candidates,
@@ -590,7 +525,7 @@ def get_base_ytdlp_opts(out_dir: str) -> Dict:
 
 
 def get_stream_opts() -> Dict:
-    best = _registry.get_best() or "tv_embedded"
+    best = _registry.get_best() or "tv"
     ua = _CLIENT_UA.get(best, _DEFAULT_UA)
     candidates = _registry.ordered_clients()[:3]
     cookie_file = _find_cookie_file()
@@ -603,6 +538,7 @@ def get_stream_opts() -> Dict:
         "source_address":     "0.0.0.0",
         "socket_timeout":     20,
         "retries":            2,
+        "js_runtimes":        _js_runtimes(),
         "extractor_args": {
             "youtube": {
                 "player_client": candidates,
@@ -616,14 +552,3 @@ def get_stream_opts() -> Dict:
     if _PROXY:
         o["proxy"] = _PROXY
     return o
-
-
-def get_cdn_headers() -> Dict:
-    best = _registry.get_best() or "tv_embedded"
-    ua = _CLIENT_UA.get(best, _DEFAULT_UA)
-    return {
-        "User-Agent": ua,
-        "Referer":    "https://www.youtube.com/",
-        "Accept":     "*/*",
-        "Origin":     "https://www.youtube.com",
-    }
