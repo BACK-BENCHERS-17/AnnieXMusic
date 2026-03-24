@@ -14,8 +14,9 @@ _repo_root = os.path.dirname(os.path.abspath(__file__))
 if _repo_root not in sys.path:
     sys.path.insert(0, _repo_root)
 from ANNIEMUSIC.utils.ytdl_smart import smart_extract_url, smart_download, get_stream_opts, get_cdn_headers
+from ANNIEMUSIC.utils.internal_secret import get_secret
 
-_BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
+_INTERNAL_KEY = get_secret()   # random per-process, never logged
 _DOWNLOAD_DIR = os.path.join(os.path.dirname(__file__), "downloads")
 os.makedirs(_DOWNLOAD_DIR, exist_ok=True)
 _ytdl_locks: dict = {}
@@ -305,8 +306,8 @@ def api_trending():
 def api_yturl():
     """
     Internal API: return actual stream URL for bot use.
-    Protected by BOT_TOKEN — only the bot (same Railway service) can call this.
-    GET /api/yturl?v=VIDEO_ID&key=BOT_TOKEN
+    Protected by internal random key — only the bot (same Railway service) can call this.
+    GET /api/yturl?v=VIDEO_ID&key=INTERNAL_KEY
     """
     vid = request.args.get("v", "").strip()
     key = request.args.get("key", "").strip()
@@ -314,7 +315,7 @@ def api_yturl():
     if not vid or len(vid) != 11:
         return jsonify({"error": "Invalid video id"}), 400
 
-    if _BOT_TOKEN and key != _BOT_TOKEN:
+    if key != _INTERNAL_KEY:
         return jsonify({"error": "Unauthorized"}), 401
 
     try:
@@ -337,8 +338,8 @@ def api_yturl():
 def api_ytdl():
     """
     Internal API: download YouTube audio to local MP3 file.
-    Protected by BOT_TOKEN — only the bot (same process) should call this.
-    GET /api/ytdl?v=VIDEO_ID&key=BOT_TOKEN
+    Protected by internal random key — only the bot (same process) should call this.
+    GET /api/ytdl?v=VIDEO_ID&key=INTERNAL_KEY
     Returns: {"path": "/abs/path/to/VIDEO_ID.mp3"}
     """
     vid = request.args.get("v", "").strip()
@@ -346,7 +347,7 @@ def api_ytdl():
 
     if not vid or len(vid) != 11:
         return jsonify({"error": "Invalid video id"}), 400
-    if _BOT_TOKEN and key != _BOT_TOKEN:
+    if key != _INTERNAL_KEY:
         return jsonify({"error": "Unauthorized"}), 401
 
     out_path = os.path.join(_DOWNLOAD_DIR, f"{vid}.mp3")

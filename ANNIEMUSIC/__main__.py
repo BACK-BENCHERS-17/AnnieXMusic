@@ -55,7 +55,7 @@ async def init():
         LOGGER(__name__).error("ᴀssɪsᴛᴀɴᴛ sᴇssɪᴏɴ ɴᴏᴛ ғɪʟʟᴇᴅ, ᴘʟᴇᴀsᴇ ғɪʟʟ ᴀ ᴘʏʀᴏɢʀᴀᴍ sᴇssɪᴏɴ...")
         exit()
 
-    LOGGER("ANNIEMUSIC").info("▶️ Using ios/mweb client — optimized for cloud IPs.")
+    LOGGER("ANNIEMUSIC").info("▶️ Using android_embed client — no PO token needed, verified 2026.")
 
     await sudo()
 

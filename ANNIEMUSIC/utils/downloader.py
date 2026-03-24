@@ -18,7 +18,8 @@ from ANNIEMUSIC.utils.ytdl_smart import (
     smart_extract_url,
 )
 from ANNIEMUSIC.logging import LOGGER
-from config import API_KEY, API_URL, BOT_TOKEN
+from ANNIEMUSIC.utils.internal_secret import get_secret
+from config import API_KEY, API_URL
 
 USE_API: bool = bool(API_URL and API_KEY)
 
@@ -141,7 +142,7 @@ async def api_get_stream_url(vid: str) -> Optional[Tuple[str, str]]:
     Returns (url, ext) on success, None on failure.
     """
     try:
-        params = {"v": vid, "key": BOT_TOKEN or ""}
+        params = {"v": vid, "key": get_secret()}
         timeout = aiohttp.ClientTimeout(total=10)
         async with aiohttp.ClientSession(timeout=timeout) as sess:
             async with sess.get(_YTURL_ENDPOINT, params=params) as resp:
@@ -359,7 +360,7 @@ async def download_from_own_api(vid: str) -> Optional[str]:
     if os.path.exists(out_path) and os.path.getsize(out_path) > 1024:
         return out_path
     try:
-        url = f"{_YTDL_ENDPOINT}?v={vid}&key={BOT_TOKEN}"
+        url = f"{_YTDL_ENDPOINT}?v={vid}&key={get_secret()}"
         timeout = aiohttp.ClientTimeout(total=180, connect=5)
         async with aiohttp.ClientSession(timeout=timeout) as sess:
             async with sess.get(url) as resp:

@@ -1,0 +1,78 @@
+[24-Mar-26 10:40:47 - INFO] - ANNIEMUSIC.core.mongo - Connecting to your Mongo Database...
+[24-Mar-26 10:40:47 - INFO] - ANNIEMUSIC.core.mongo - Connected to your Mongo Database.
+[24-Mar-26 10:40:47 - INFO] - ANNIEMUSIC.core.dir - Directories Updated.
+[24-Mar-26 10:40:47 - INFO] - ANNIEMUSIC.core.git - Initialized new Git repository.
+[24-Mar-26 10:40:47 - INFO] - ANNIEMUSIC.core.git - Successfully updated from upstream repository.
+[24-Mar-26 10:40:47 - INFO] - ANNIEMUSIC.misc - ᴅᴀᴛᴀʙᴀsᴇ ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ💗
+[24-Mar-26 10:40:47 - INFO] - ANNIEMUSIC.core.bot - Bot client initialized.
+[24-Mar-26 10:40:48 - INFO] - ANNIEMUSIC - ▶️ Using ios/mweb client — optimized for cloud IPs.
+[24-Mar-26 10:40:48 - INFO] - werkzeug - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://10.217.101.72:8080
+[24-Mar-26 10:40:48 - INFO] - werkzeug - [33mPress CTRL+C to quit[0m
+[24-Mar-26 10:40:51 - INFO] - ANNIEMUSIC.misc - sᴜᴅᴏ ᴜsᴇʀs ᴅᴏɴᴇ..
+[24-Mar-26 10:40:59 - INFO] - ANNIEMUSIC.core.bot - ✅ Start message sent to log channel (-1003455370306)
+[24-Mar-26 10:40:59 - INFO] - ANNIEMUSIC.core.bot - ✅ Music Bot started as ˹𝐀ɴɴɪᴇ ꭙ 𝐌ᴜsɪᴄ˼ ♪ [ ᴇʟɪᴛᴇ ] (@ANNIEXMUSICxBOT)
+[24-Mar-26 10:41:02 - INFO] - ANNIEMUSIC.core.bot - ✅ Bot profile picture saved as bot_pfp.png.
+[24-Mar-26 10:41:02 - INFO] - ANNIEMUSIC - ✅ Menu button set → https://annie.up.railway.app
+[24-Mar-26 10:41:03 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - NudeDetector loaded successfully.
+[24-Mar-26 10:41:04 - INFO] - ANNIEMUSIC.plugins - ᴀɴɴɪᴇ's ᴍᴏᴅᴜʟᴇs ʟᴏᴀᴅᴇᴅ...
+[24-Mar-26 10:41:04 - INFO] - ANNIEMUSIC.core.userbot - Starting Annie's Assistants...
+[24-Mar-26 10:41:05 - INFO] - ANNIEMUSIC.core.userbot - Assistant 1 Started as 𝚸‌ 𝚲 𝐑 𝚱 𝚬 𝐑 !!
+[24-Mar-26 10:41:09 - INFO] - ANNIEMUSIC.core.userbot - Assistant 2 Started as ㅤ-𐌁 Λ ᥴ Ҝ ㅤ𐌁 ꫀ 𐌽 𐌂 ͱ꧊፝֟ ꫀ ᰻⃪᱂ ร
+[24-Mar-26 10:41:09 - INFO] - ANNIEMUSIC.core.call - Starting PyTgCalls Clients...
+[24-Mar-26 10:41:10 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/sticker_2026-03-24_10-41-10_7620770369739795456.webp (34898 bytes)
+[24-Mar-26 10:41:10 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: [{'class': 'BUTTOCKS_EXPOSED', 'score': 0.36373549699783325, 'box': [23, 15, 485, 495]}]
+[24-Mar-26 10:41:10 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 10:41:20 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/thumbnail_2026-03-24_10-41-20_7620770413972401152.jpg (3916 bytes)
+[24-Mar-26 10:41:20 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: []
+[24-Mar-26 10:41:20 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 10:41:24 - INFO] - ANNIEMUSIC - Annie Music Robot Started Successfully...
+[24-Mar-26 10:41:33 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/sticker_2026-03-24_10-41-33_7620770467940510720.webp (8344 bytes)
+[24-Mar-26 10:41:33 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: []
+[24-Mar-26 10:41:33 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 10:41:39 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/sticker_2026-03-24_10-41-38_7620770492267902976.webp (15898 bytes)
+[24-Mar-26 10:41:39 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: [{'class': 'FACE_FEMALE', 'score': 0.8534388542175293, 'box': [0, 0, 422, 377]}, {'class': 'FEMALE_GENITALIA_EXPOSED', 'score': 0.38835203647613525, 'box': [130, 244, 139, 90]}]
+[24-Mar-26 10:41:39 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 10:41:41 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/thumbnail_2026-03-24_10-41-41_7620770503067001856.jpg (8788 bytes)
+[24-Mar-26 10:41:41 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: [{'class': 'FACE_FEMALE', 'score': 0.36514371633529663, 'box': [50, 110, 133, 116]}]
+[24-Mar-26 10:41:41 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 10:41:42 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/thumbnail_2026-03-24_10-41-42_7620770506779498496.jpg (8788 bytes)
+[24-Mar-26 10:41:46 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/sticker_2026-03-24_10-41-45_7620770522962265088.webp (15898 bytes)
+[24-Mar-26 10:42:02 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/thumbnail_2026-03-24_10-41-59_7620770580458212352.jpg (3690 bytes)
+[24-Mar-26 10:42:02 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: []
+[24-Mar-26 10:42:02 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 10:42:08 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/sticker_2026-03-24_10-42-07_7620770616271856640.webp (12744 bytes)
+[24-Mar-26 10:42:08 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: [{'class': 'FACE_FEMALE', 'score': 0.5067093968391418, 'box': [172, 108, 189, 175]}]
+[24-Mar-26 10:42:08 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 10:42:08 - WARNING] - ANNIEMUSIC.utils.downloader - [CDN] Bad status 403 for hHuG7FIKgtc
+[24-Mar-26 10:42:08 - INFO] - ANNIEMUSIC.utils.downloader - [SMART] CDN blocked, trying direct download for hHuG7FIKgtc
+[24-Mar-26 10:42:12 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/thumbnail_2026-03-24_10-42-12_7620770635102837760.jpg (3608 bytes)
+[24-Mar-26 10:42:12 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: []
+[24-Mar-26 10:42:12 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 10:42:29 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/sticker_2026-03-24_10-42-29_7620770708453636096.webp (24474 bytes)
+[24-Mar-26 10:42:29 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: []
+[24-Mar-26 10:42:29 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 10:42:32 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/thumbnail_2026-03-24_10-42-31_7620770720228713472.jpg (28822 bytes)
+[24-Mar-26 10:42:33 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: [{'class': 'FACE_FEMALE', 'score': 0.8005409836769104, 'box': [105, 45, 68, 57]}, {'class': 'FEET_COVERED', 'score': 0.3884490132331848, 'box': [82, 272, 61, 47]}]
+[24-Mar-26 10:42:33 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 10:42:37 - WARNING] - ANNIEMUSIC.utils.downloader - [CDN] Bad status 403 for NDJ-1FK1c_k
+[24-Mar-26 10:42:37 - INFO] - ANNIEMUSIC.utils.downloader - [SMART] CDN blocked, trying direct download for NDJ-1FK1c_k
+[24-Mar-26 10:42:37 - WARNING] - ANNIEMUSIC.utils.downloader - [CDN] Bad status 403 for N2cPyl83tkQ
+[24-Mar-26 10:42:37 - INFO] - ANNIEMUSIC.utils.downloader - [SMART] CDN blocked, trying direct download for N2cPyl83tkQ
+[24-Mar-26 10:42:39 - INFO] - werkzeug - 127.0.0.1 - - [24/Mar/2026 10:42:39] "[35m[1mGET /api/ytdl?v=hHuG7FIKgtc&key=7692397903:AAGaOGN7zhSXmElXEAMtlsBLOxlacK-v658 HTTP/1.1[0m" 500 -
+[24-Mar-26 10:42:39 - ERROR] - ANNIEMUSIC.utils.downloader - [DL] All methods failed for hHuG7FIKgtc
+[24-Mar-26 10:43:04 - INFO] - werkzeug - 127.0.0.1 - - [24/Mar/2026 10:43:04] "[35m[1mGET /api/ytdl?v=N2cPyl83tkQ&key=7692397903:AAGaOGN7zhSXmElXEAMtlsBLOxlacK-v658 HTTP/1.1[0m" 500 -
+[24-Mar-26 10:43:04 - ERROR] - ANNIEMUSIC.utils.downloader - [DL] All methods failed for N2cPyl83tkQ
+[24-Mar-26 10:43:05 - INFO] - werkzeug - 127.0.0.1 - - [24/Mar/2026 10:43:05] "[35m[1mGET /api/ytdl?v=NDJ-1FK1c_k&key=7692397903:AAGaOGN7zhSXmElXEAMtlsBLOxlacK-v658 HTTP/1.1[0m" 500 -
+[24-Mar-26 10:43:05 - ERROR] - ANNIEMUSIC.utils.downloader - [DL] All methods failed for NDJ-1FK1c_k
+[24-Mar-26 10:43:15 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/thumbnail_2026-03-24_10-43-15_7620770906948741120.jpg (8604 bytes)
+[24-Mar-26 10:43:15 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: [{'class': 'FACE_FEMALE', 'score': 0.846985399723053, 'box': [91, 128, 143, 116]}]
+[24-Mar-26 10:43:15 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 10:43:18 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/sticker_2026-03-24_10-43-18_7620770920517660672.webp (15072 bytes)
+[24-Mar-26 10:43:18 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: []
+[24-Mar-26 10:43:18 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
+[24-Mar-26 10:43:22 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Downloaded: /app/downloads/thumbnail_2026-03-24_10-43-22_7620770935498930176.jpg (4382 bytes)
+[24-Mar-26 10:43:22 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Detections: []
+[24-Mar-26 10:43:22 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW] Result: SAFE
