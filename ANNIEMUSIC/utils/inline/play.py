@@ -21,7 +21,6 @@ def _webapp_btn():
             text="ᴀɴɴɪᴇ ᴘʟᴀʏᴇʀ",
             url="https://t.me/ANNIEXMUSICxBOT/annie",
             style="primary",
-            icon_custom_emoji_id=5041975203853239332,
         )
     ]]
 

@@ -188,9 +188,16 @@ def PlayWrapper(command):
                             "https://t.me/+", "https://t.me/joinchat/"
                         )
 
-                    myu = await message.reply_text(_["call_4"].format(app.mention))
+                    myu = None
                     try:
                         await userbot.join_chat(invitelink)
+                        # Actually joined - show and immediately delete status message
+                        try:
+                            myu = await message.reply_text(_["call_4"].format(app.mention))
+                            await myu.delete()
+                            myu = None
+                        except Exception:
+                            pass
                     except InviteHashExpired:
                         if chat_id in links:
                             del links[chat_id]
@@ -215,8 +222,8 @@ def PlayWrapper(command):
                             return await message.reply_text(
                                 _["call_3"].format(app.mention, type(e).__name__)
                             )
-                        await myu.edit(_["call_5"].format(app.mention))
                     except UserAlreadyParticipant:
+                        # Already in group - just cache silently, no message
                         pass
                     except FloodWait as fw:
                         await asyncio.sleep(fw.value)
@@ -228,6 +235,12 @@ def PlayWrapper(command):
                         return await message.reply_text(
                             _["call_3"].format(app.mention, type(e).__name__)
                         )
+                    finally:
+                        if myu:
+                            try:
+                                await myu.delete()
+                            except Exception:
+                                pass
 
                     links[chat_id] = invitelink
                     assistant_in_chat[chat_id] = userbot.id
