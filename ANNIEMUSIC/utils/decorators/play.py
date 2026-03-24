@@ -30,6 +30,9 @@ from ANNIEMUSIC.utils.inline import botplaylist_markup
 # Cache for invite links per chat
 links = {}
 
+# Cache for chats where assistant is already a member
+assistant_in_chat = {}
+
 
 def PlayWrapper(command):
     async def wrapper(client, message):
@@ -130,42 +133,67 @@ def PlayWrapper(command):
                     "ɴᴏ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ɪs ᴄᴏɴɴᴇᴄᴛᴇᴅ.\n"
                     "ᴘʟᴇᴀsᴇ ᴀᴅᴅ ᴀɴ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ."
                 )
-            try:
-                try:
-                    member = await app.get_chat_member(chat_id, userbot.id)
-                except ChatAdminRequired:
-                    return await message.reply_text(_["call_1"])
 
-                if member.status in (
-                    ChatMemberStatus.BANNED,
-                    ChatMemberStatus.RESTRICTED,
-                ):
-                    return await message.reply_text(
-                        _["call_2"].format(
-                            app.mention, userbot.id, userbot.name, userbot.username
-                        ),
-                        reply_markup=InlineKeyboardMarkup(
-                            [
+            # Skip member check if assistant is already confirmed in this chat
+            if assistant_in_chat.get(chat_id) != userbot.id:
+                try:
+                    try:
+                        member = await app.get_chat_member(chat_id, userbot.id)
+                    except ChatAdminRequired:
+                        return await message.reply_text(_["call_1"])
+
+                    if member.status in (
+                        ChatMemberStatus.BANNED,
+                        ChatMemberStatus.RESTRICTED,
+                    ):
+                        # Remove from cache if banned/restricted
+                        assistant_in_chat.pop(chat_id, None)
+                        return await message.reply_text(
+                            _["call_2"].format(
+                                app.mention, userbot.id, userbot.name, userbot.username
+                            ),
+                            reply_markup=InlineKeyboardMarkup(
                                 [
-                                    InlineKeyboardButton(
-                                        text="๏ 𝗨ɴʙᴀɴ 𝗔ssɪsᴛᴀɴᴛ ๏",
-                                        callback_data="unban_assistant",
-                                    )
+                                    [
+                                        InlineKeyboardButton(
+                                            text="๏ 𝗨ɴʙᴀɴ 𝗔ssɪsᴛᴀɴᴛ ๏",
+                                            callback_data="unban_assistant",
+                                        )
+                                    ]
                                 ]
-                            ]
-                        ),
-                    )
-            except (UserNotParticipant, PeerIdInvalid):
-                if chat_id in links:
-                    invitelink = links[chat_id]
-                else:
-                    if message.chat.username:
-                        invitelink = message.chat.username
-                        try:
-                            await userbot.resolve_peer(invitelink)
-                        except Exception:
-                            pass
+                            ),
+                        )
+
+                    # Assistant is already in the group - cache it and skip join
+                    assistant_in_chat[chat_id] = userbot.id
+
+                except (UserNotParticipant, PeerIdInvalid):
+                    if chat_id in links:
+                        invitelink = links[chat_id]
                     else:
+                        if message.chat.username:
+                            invitelink = message.chat.username
+                        else:
+                            try:
+                                invitelink = await app.export_chat_invite_link(chat_id)
+                            except ChatAdminRequired:
+                                return await message.reply_text(_["call_1"])
+                            except Exception as e:
+                                return await message.reply_text(
+                                    _["call_3"].format(app.mention, type(e).__name__)
+                                )
+
+                    if invitelink.startswith("https://t.me/+"):
+                        invitelink = invitelink.replace(
+                            "https://t.me/+", "https://t.me/joinchat/"
+                        )
+
+                    myu = await message.reply_text(_["call_4"].format(app.mention))
+                    try:
+                        await userbot.join_chat(invitelink)
+                    except InviteHashExpired:
+                        if chat_id in links:
+                            del links[chat_id]
                         try:
                             invitelink = await app.export_chat_invite_link(chat_id)
                         except ChatAdminRequired:
@@ -174,64 +202,35 @@ def PlayWrapper(command):
                             return await message.reply_text(
                                 _["call_3"].format(app.mention, type(e).__name__)
                             )
-
-                if invitelink.startswith("https://t.me/+"):
-                    invitelink = invitelink.replace(
-                        "https://t.me/+", "https://t.me/joinchat/"
-                    )
-
-                myu = await message.reply_text(_["call_4"].format(app.mention))
-                try:
-                    await asyncio.sleep(1)
-                    await userbot.join_chat(invitelink)
-                except InviteHashExpired:
-                    # Remove expired invite link from the cache.
-                    if chat_id in links:
-                        del links[chat_id]
-                    # Generate a new invite link.
-                    try:
-                        invitelink = await app.export_chat_invite_link(chat_id)
-                    except ChatAdminRequired:
-                        return await message.reply_text(_["call_1"])
-                    except Exception as e:
-                        return await message.reply_text(
-                            _["call_3"].format(app.mention, type(e).__name__)
-                        )
-                    if invitelink.startswith("https://t.me/+"):
-                        invitelink = invitelink.replace(
-                            "https://t.me/+", "https://t.me/joinchat/"
-                        )
-                    # Update the cache.
-                    links[chat_id] = invitelink
-                    await userbot.join_chat(invitelink)
-                except InviteRequestSent:
-                    try:
-                        await app.approve_chat_join_request(chat_id, userbot.id)
-                    except Exception as e:
-                        return await message.reply_text(
-                            _["call_3"].format(app.mention, type(e).__name__)
-                        )
-                    await asyncio.sleep(3)
-                    await myu.edit(_["call_5"].format(app.mention))
-                except UserAlreadyParticipant:
-                    pass
-                except FloodWait as fw:
-                    await asyncio.sleep(fw.value + 5)
-                    try:
+                        if invitelink.startswith("https://t.me/+"):
+                            invitelink = invitelink.replace(
+                                "https://t.me/+", "https://t.me/joinchat/"
+                            )
+                        links[chat_id] = invitelink
                         await userbot.join_chat(invitelink)
-                    except Exception:
+                    except InviteRequestSent:
+                        try:
+                            await app.approve_chat_join_request(chat_id, userbot.id)
+                        except Exception as e:
+                            return await message.reply_text(
+                                _["call_3"].format(app.mention, type(e).__name__)
+                            )
+                        await myu.edit(_["call_5"].format(app.mention))
+                    except UserAlreadyParticipant:
                         pass
-                except Exception as e:
-                    return await message.reply_text(
-                        _["call_3"].format(app.mention, type(e).__name__)
-                    )
+                    except FloodWait as fw:
+                        await asyncio.sleep(fw.value)
+                        try:
+                            await userbot.join_chat(invitelink)
+                        except Exception:
+                            pass
+                    except Exception as e:
+                        return await message.reply_text(
+                            _["call_3"].format(app.mention, type(e).__name__)
+                        )
 
-                links[chat_id] = invitelink
-
-                try:
-                    await userbot.resolve_peer(chat_id)
-                except Exception:
-                    pass
+                    links[chat_id] = invitelink
+                    assistant_in_chat[chat_id] = userbot.id
 
         return await command(
             client, message, _, chat_id, video, channel, playmode, url, fplay
