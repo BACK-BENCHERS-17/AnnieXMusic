@@ -15,14 +15,23 @@ from config import BANNED_USERS, PING_IMG_URL
 @language
 async def ping_com(client, message: Message, _):
     start = datetime.now()
-    response = await message.reply_photo(
-        photo=PING_IMG_URL,
-        caption=_["ping_1"].format(app.mention),
-    )
-    pytgping = await JARVIS.ping()
-    UP, CPU, RAM, DISK = await bot_sys_stats()
-    resp = (datetime.now() - start).microseconds / 1000
-    await response.edit_text(
-        _["ping_2"].format(resp, app.mention, UP, RAM, CPU, DISK, pytgping),
-        reply_markup=supp_markup(_),
-    )
+    try:
+        response = await message.reply_photo(
+            photo=PING_IMG_URL,
+            caption=_["ping_1"].format(app.mention),
+        )
+        pytgping = await JARVIS.ping()
+        UP, CPU, RAM, DISK = await bot_sys_stats()
+        resp = (datetime.now() - start).microseconds / 1000
+        await response.edit_caption(
+            caption=_["ping_2"].format(resp, app.mention, UP, RAM, CPU, DISK, pytgping),
+            reply_markup=supp_markup(_),
+        )
+    except Exception:
+        pytgping = await JARVIS.ping()
+        UP, CPU, RAM, DISK = await bot_sys_stats()
+        resp = (datetime.now() - start).microseconds / 1000
+        await message.reply_text(
+            _["ping_2"].format(resp, app.mention, UP, RAM, CPU, DISK, pytgping),
+            reply_markup=supp_markup(_),
+        )

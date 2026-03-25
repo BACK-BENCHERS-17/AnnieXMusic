@@ -24,7 +24,7 @@ async def send_msg_invert_preview(
         entities = parsed.get("entities", [])
 
         peer = await client.resolve_peer(chat_id)
-        raw_markup = reply_markup.write(client) if reply_markup else None
+        raw_markup = await reply_markup.write(client) if reply_markup else None
 
         reply_to = None
         if reply_to_message_id:

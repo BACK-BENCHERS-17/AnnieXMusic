@@ -1,0 +1,111 @@
+
+
+production
+
+
+
+worker
+Deployments
+Variables
+Metrics
+Settings
+annie.up.railway.app
+us-west2
+1 Replica
+
+
+
+
+
+
+
+
+
+
+
+
+History
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+worker
+
+Active
+Mar 25, 2026, 7:23 PM
+DetailsBuildDeployHTTPNetwork Flow
+You reached the start of the range
+Mar 25, 2026, 7:23 PM
+Starting Container
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[notice] A new release of pip is available: 25.0.1 -> 26.0.1
+[notice] To update, run: pip install --upgrade pip
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[notice] A new release of pip is available: 25.0.1 -> 26.0.1
+[notice] To update, run: pip install --upgrade pip
+Removing cache dir /root/.cache/yt-dlp ..
+[25-Mar-26 13:54:20 - INFO] - ANNIEMUSIC.core.mongo - Connecting to your Mongo Database...
+[25-Mar-26 13:54:20 - INFO] - ANNIEMUSIC.core.mongo - Connected to your Mongo Database.
+[25-Mar-26 13:54:20 - INFO] - ANNIEMUSIC.core.dir - Directories Updated.
+[25-Mar-26 13:54:20 - INFO] - ANNIEMUSIC.core.git - Initialized new Git repository.
+[25-Mar-26 13:54:20 - INFO] - ANNIEMUSIC.core.bot - Bot client initialized.
+[25-Mar-26 13:54:20 - INFO] - ANNIEMUSIC.core.git - Successfully updated from upstream repository.
+[25-Mar-26 13:54:20 - INFO] - ANNIEMUSIC.misc - ᴅᴀᴛᴀʙᴀsᴇ ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ💗
+[25-Mar-26 13:54:21 - INFO] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] Node.js found: /usr/bin/node
+[25-Mar-26 13:54:21 - INFO] - ANNIEMUSIC - ▶️ Using android_embed client — no PO token needed, verified 2026.
+ * Serving Flask app 'ANNIEMUSIC.utils.health_check'
+ * Debug mode: off
+[25-Mar-26 13:54:21 - INFO] - werkzeug - WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://10.177.74.226:8080
+[25-Mar-26 13:54:21 - INFO] - werkzeug - Press CTRL+C to quit
+[25-Mar-26 13:54:23 - INFO] - ANNIEMUSIC.misc - sᴜᴅᴏ ᴜsᴇʀs ᴅᴏɴᴇ..
+[25-Mar-26 13:54:32 - INFO] - ANNIEMUSIC.core.bot - ✅ Start message sent to log channel (-1003455370306)
+[25-Mar-26 13:54:34 - INFO] - ANNIEMUSIC.core.bot - ✅ Music Bot started as ˹𝐀ɴɴɪᴇ ꭙ 𝐌ᴜsɪᴄ˼ ♪ [ ᴇʟɪᴛᴇ ] (@ANNIEXMUSICxBOT)
+[25-Mar-26 13:54:35 - INFO] - ANNIEMUSIC.core.bot - ✅ Bot profile picture saved as bot_pfp.png.
+[25-Mar-26 13:54:36 - INFO] - ANNIEMUSIC - ✅ Menu button set → https://annie.up.railway.app
+[25-Mar-26 13:54:36 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - NudeDetector loaded successfully.
+[25-Mar-26 13:54:36 - WARNING] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - pytesseract not available — OCR-based image text scan disabled.
+[25-Mar-26 13:54:37 - INFO] - ANNIEMUSIC.plugins - ᴀɴɴɪᴇ's ᴍᴏᴅᴜʟᴇs ʟᴏᴀᴅᴇᴅ...
+[25-Mar-26 13:54:37 - INFO] - ANNIEMUSIC.core.call - Starting PyTgCalls Clients...
+PyTgCalls v2.2.11 powered by NTgCalls v2.1.0, Copyright (C) 2021-2026 Laky-64 <https://github.com/Laky-64>
+Licensed under the terms of the GNU Lesser General Public License v3 or later (LGPLv3+)
+[25-Mar-26 13:54:39 - INFO] - ANNIEMUSIC.core.userbot - Setting up Annie's Assistants (post PyTgCalls start)...
+[25-Mar-26 13:54:40 - INFO] - ANNIEMUSIC.core.userbot - Assistant 2 Started as ㅤ-𐌁 Λ ᥴ Ҝ ㅤ𐌁 ꫀ 𐌽 𐌂 ͱ꧊፝֟ ꫀ ᰻⃪᱂ ร
+[25-Mar-26 13:54:51 - INFO] - ANNIEMUSIC - Annie Music Robot Started Successfully...
+[25-Mar-26 13:55:20 - INFO] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] Using cookies from YOUTUBE_COOKIES_B64 env var
+[25-Mar-26 13:55:20 - INFO] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] Racing 8 clients for hHuG7FIKgtc | order: ['android_vr', 'ios', 'android', 'mweb']
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+[25-Mar-26 13:55:25 - INFO] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] client='tv' won for hHuG7FIKgtc
+[25-Mar-26 13:55:25 - INFO] - werkzeug - 127.0.0.1 - - [25/Mar/2026 13:55:25] "GET /api/yturl?v=hHuG7FIKgtc&key=BCE0hbQvTrjG4Szh6SUiA3LlSfyfpkW6D7W4EcbaCzs HTTP/1.1" 200 -
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+[25-Mar-26 13:55:26 - INFO] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] Download won for hHuG7FIKgtc: /app/downloads/hHuG7FIKgtc.mp4
+[25-Mar-26 13:55:26 - INFO] - ANNIEMUSIC.utils.downloader - [SMART] Direct download ok: /app/downloads/hHuG7FIKgtc.mp4
+[25-Mar-26 13:55:26 - INFO] - ANNIEMUSIC.core.call - [PLAY] chat=-1003862964494 | file=/app/downloads/hHuG7FIKgtc.mp4 | size=14894593B | video=False
+[25-Mar-26 13:55:26 - INFO] - ANNIEMUSIC.core.call - [PLAY] Peer pre-warmed for chat=-1003862964494
+[25-Mar-26 13:55:28 - INFO] - ANNIEMUSIC.plugins.Kishu.nsfw_filter - [NSFW-THUMB] Detections for /app/cache/hHuG7FIKgtc_v30.png: []
+/app/ANNIEMUSIC/utils/stream/stream.py:50: RuntimeWarning: coroutine 'InlineKeyboardMarkup.write' was never awaited
+  return await send_msg_invert_preview(
+RuntimeWarning: Enable tracemalloc to get the object allocation traceback
