@@ -668,18 +668,10 @@ class Call:
                                         "<emoji id='5211032856154885824'>🔤</emoji>"
                                         "<emoji id='5213337333742454261'>🔤</emoji>"
                                     )
-                                    _add_btn = f"https://t.me/{app.username}?startgroup=true"
-                                    btn = (
-                                        [[StyledBtn(
-                                            text=f"🎵 {ap_title_short}  •  {ap_dur}",
-                                            url=_add_btn,
-                                            style="primary",
-                                        )]]
-                                        + stream_markup_timer(
-                                            _lang, chat_id,
-                                            "0:00", ap_dur,
-                                            autoplay_on=True,
-                                        )
+                                    btn = stream_markup_timer(
+                                        _lang, chat_id,
+                                        "0:00", ap_dur,
+                                        autoplay_on=True,
                                     )
                                     _ap_caption = (
                                         f"<blockquote>"
