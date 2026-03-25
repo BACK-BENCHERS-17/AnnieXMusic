@@ -786,6 +786,8 @@ class Call:
 
             video = True if str(streamtype) == "video" else False
 
+            _thumb_on = await is_thumb_enabled()
+
             if "live_" in queued:
                 n, link = await YouTube.video(videoid, True)
                 if n == 0:
@@ -797,20 +799,30 @@ class Call:
                 except Exception:
                     return await app.send_message(original_chat_id, text=_["call_6"])
 
-                img = await get_thumb(videoid)
                 button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
-                run = await app.send_photo(
-                    chat_id=original_chat_id,
-                    photo=img,
-                    caption=_["stream_1"].format(
-                        f"https://t.me/{app.username}?start=info_{videoid}",
-                        title[:23],
-                        check[0]["dur"],
-                        user,
-                    ),
-                    reply_markup=InlineKeyboardMarkup(button),
-                    has_spoiler=True,
+                _cap = _["stream_1"].format(
+                    f"https://t.me/{app.username}?start=info_{videoid}",
+                    title[:23],
+                    check[0]["dur"],
+                    user,
                 )
+                if _thumb_on:
+                    img = await get_thumb(videoid)
+                    run = await app.send_photo(
+                        chat_id=original_chat_id,
+                        photo=img,
+                        caption=_cap,
+                        reply_markup=InlineKeyboardMarkup(button),
+                        has_spoiler=True,
+                    )
+                else:
+                    run = await app.send_video(
+                        chat_id=original_chat_id,
+                        video=THUMB_OFF_VIDEO_URL,
+                        caption=_cap,
+                        reply_markup=InlineKeyboardMarkup(button),
+                        supports_streaming=True,
+                    )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "tg"
 
@@ -834,21 +846,31 @@ class Call:
                 except:
                     return await app.send_message(original_chat_id, text=_["call_6"])
 
-                img = await get_thumb(videoid)
                 button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
                 await mystic.delete()
-                run = await app.send_photo(
-                    chat_id=original_chat_id,
-                    photo=img,
-                    caption=_["stream_1"].format(
-                        f"https://t.me/{app.username}?start=info_{videoid}",
-                        title[:23],
-                        check[0]["dur"],
-                        user,
-                    ),
-                    reply_markup=InlineKeyboardMarkup(button),
-                    has_spoiler=True,
+                _cap = _["stream_1"].format(
+                    f"https://t.me/{app.username}?start=info_{videoid}",
+                    title[:23],
+                    check[0]["dur"],
+                    user,
                 )
+                if _thumb_on:
+                    img = await get_thumb(videoid)
+                    run = await app.send_photo(
+                        chat_id=original_chat_id,
+                        photo=img,
+                        caption=_cap,
+                        reply_markup=InlineKeyboardMarkup(button),
+                        has_spoiler=True,
+                    )
+                else:
+                    run = await app.send_video(
+                        chat_id=original_chat_id,
+                        video=THUMB_OFF_VIDEO_URL,
+                        caption=_cap,
+                        reply_markup=InlineKeyboardMarkup(button),
+                        supports_streaming=True,
+                    )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "stream"
 
@@ -860,13 +882,22 @@ class Call:
                     return await app.send_message(original_chat_id, text=_["call_6"])
 
                 button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
-                run = await app.send_photo(
-                    chat_id=original_chat_id,
-                    photo=config.STREAM_IMG_URL,
-                    caption=_["stream_2"].format(user),
-                    reply_markup=InlineKeyboardMarkup(button),
-                    has_spoiler=True,
-                )
+                if _thumb_on:
+                    run = await app.send_photo(
+                        chat_id=original_chat_id,
+                        photo=config.STREAM_IMG_URL,
+                        caption=_["stream_2"].format(user),
+                        reply_markup=InlineKeyboardMarkup(button),
+                        has_spoiler=True,
+                    )
+                else:
+                    run = await app.send_video(
+                        chat_id=original_chat_id,
+                        video=THUMB_OFF_VIDEO_URL,
+                        caption=_["stream_2"].format(user),
+                        reply_markup=InlineKeyboardMarkup(button),
+                        supports_streaming=True,
+                    )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "tg"
 
@@ -879,67 +910,102 @@ class Call:
 
                 if videoid == "telegram":
                     button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
-                    run = await app.send_photo(
-                        chat_id=original_chat_id,
-                        photo=(
-                            config.TELEGRAM_AUDIO_URL
-                            if str(streamtype) == "audio"
-                            else config.TELEGRAM_VIDEO_URL
-                        ),
-                        caption=_["stream_1"].format(
-                            config.SUPPORT_CHAT, title[:23], check[0]["dur"], user
-                        ),
-                        reply_markup=InlineKeyboardMarkup(button),
-                        has_spoiler=True,
+                    _cap = _["stream_1"].format(
+                        config.SUPPORT_CHAT, title[:23], check[0]["dur"], user
                     )
+                    if _thumb_on:
+                        run = await app.send_photo(
+                            chat_id=original_chat_id,
+                            photo=(
+                                config.TELEGRAM_AUDIO_URL
+                                if str(streamtype) == "audio"
+                                else config.TELEGRAM_VIDEO_URL
+                            ),
+                            caption=_cap,
+                            reply_markup=InlineKeyboardMarkup(button),
+                            has_spoiler=True,
+                        )
+                    else:
+                        run = await app.send_video(
+                            chat_id=original_chat_id,
+                            video=THUMB_OFF_VIDEO_URL,
+                            caption=_cap,
+                            reply_markup=InlineKeyboardMarkup(button),
+                            supports_streaming=True,
+                        )
                     db[chat_id][0]["mystic"] = run
                     db[chat_id][0]["markup"] = "tg"
 
                 elif videoid == "soundcloud":
                     button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
-                    run = await app.send_photo(
-                        chat_id=original_chat_id,
-                        photo=config.SOUNCLOUD_IMG_URL,
-                        caption=_["stream_1"].format(
-                            config.SUPPORT_CHAT, title[:23], check[0]["dur"], user
-                        ),
-                        reply_markup=InlineKeyboardMarkup(button),
-                        has_spoiler=True,
+                    _cap = _["stream_1"].format(
+                        config.SUPPORT_CHAT, title[:23], check[0]["dur"], user
                     )
+                    if _thumb_on:
+                        run = await app.send_photo(
+                            chat_id=original_chat_id,
+                            photo=config.SOUNCLOUD_IMG_URL,
+                            caption=_cap,
+                            reply_markup=InlineKeyboardMarkup(button),
+                            has_spoiler=True,
+                        )
+                    else:
+                        run = await app.send_video(
+                            chat_id=original_chat_id,
+                            video=THUMB_OFF_VIDEO_URL,
+                            caption=_cap,
+                            reply_markup=InlineKeyboardMarkup(button),
+                            supports_streaming=True,
+                        )
                     db[chat_id][0]["mystic"] = run
                     db[chat_id][0]["markup"] = "tg"
 
                 else:
-                    img = await get_thumb(videoid)
                     button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
+                    _cap = _["stream_1"].format(
+                        f"https://t.me/{app.username}?start=info_{videoid}",
+                        title[:23],
+                        check[0]["dur"],
+                        user,
+                    )
                     try:
-                        run = await app.send_photo(
-                            chat_id=original_chat_id,
-                            photo=img,
-                            caption=_["stream_1"].format(
-                                f"https://t.me/{app.username}?start=info_{videoid}",
-                                title[:23],
-                                check[0]["dur"],
-                                user,
-                            ),
-                            reply_markup=InlineKeyboardMarkup(button),
-                            has_spoiler=True,
-                        )
+                        if _thumb_on:
+                            img = await get_thumb(videoid)
+                            run = await app.send_photo(
+                                chat_id=original_chat_id,
+                                photo=img,
+                                caption=_cap,
+                                reply_markup=InlineKeyboardMarkup(button),
+                                has_spoiler=True,
+                            )
+                        else:
+                            run = await app.send_video(
+                                chat_id=original_chat_id,
+                                video=THUMB_OFF_VIDEO_URL,
+                                caption=_cap,
+                                reply_markup=InlineKeyboardMarkup(button),
+                                supports_streaming=True,
+                            )
                     except FloodWait as e:
                         LOGGER(__name__).warning(f"FloodWait: Sleeping for {e.value}")
                         await asyncio.sleep(e.value)
-                        run = await app.send_photo(
-                            chat_id=original_chat_id,
-                            photo=img,
-                            caption=_["stream_1"].format(
-                                f"https://t.me/{app.username}?start=info_{videoid}",
-                                title[:23],
-                                check[0]["dur"],
-                                user,
-                            ),
-                            reply_markup=InlineKeyboardMarkup(button),
-                            has_spoiler=True,
-                        )
+                        if _thumb_on:
+                            img = await get_thumb(videoid)
+                            run = await app.send_photo(
+                                chat_id=original_chat_id,
+                                photo=img,
+                                caption=_cap,
+                                reply_markup=InlineKeyboardMarkup(button),
+                                has_spoiler=True,
+                            )
+                        else:
+                            run = await app.send_video(
+                                chat_id=original_chat_id,
+                                video=THUMB_OFF_VIDEO_URL,
+                                caption=_cap,
+                                reply_markup=InlineKeyboardMarkup(button),
+                                supports_streaming=True,
+                            )
                     db[chat_id][0]["mystic"] = run
                     db[chat_id][0]["markup"] = "stream"
 
