@@ -288,6 +288,81 @@ def api_stream():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route('/api/play')
+def api_play():
+    """
+    Bot-style play API — accepts song name, YouTube URL, or video ID.
+    Returns full metadata + direct stream URL + audio proxy URL.
+
+    Params:
+      q  — song name / search query / YouTube URL  (required if v not given)
+      v  — YouTube video ID (11 chars)              (required if q not given)
+    """
+    q   = request.args.get("q", "").strip()
+    vid = request.args.get("v", "").strip()
+
+    if not q and not vid:
+        return jsonify({
+            "error": "Provide either ?q=song+name or ?v=VIDEO_ID",
+            "usage": "GET /api/play?q=Arijit+Singh+tum+hi+ho"
+        }), 400
+
+    # ── Step 1: resolve video ID ─────────────────────────────────
+    if not vid:
+        # Check if q is a YouTube URL → extract video ID
+        yt_patterns = [
+            r"(?:v=|youtu\.be/|youtube\.com/shorts/|youtube\.com/live/)([A-Za-z0-9_-]{11})"
+        ]
+        for pat in yt_patterns:
+            m = re.search(pat, q)
+            if m:
+                vid = m.group(1)
+                break
+
+    if not vid:
+        # Search YouTube for top result
+        try:
+            ydl_opts = {
+                "quiet": True, "no_warnings": True,
+                "extract_flat": True, "skip_download": True,
+                "ignoreerrors": True,
+            }
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(f"ytsearch1:{q}", download=False)
+                entries = info.get("entries", []) if info else []
+                for e in (entries or []):
+                    if e and e.get("id") and len(e["id"]) == 11:
+                        vid = e["id"]
+                        break
+        except Exception as e:
+            return jsonify({"error": f"Search failed: {e}"}), 500
+
+    if not vid or len(vid) != 11:
+        return jsonify({"error": "Song not found on YouTube"}), 404
+
+    # ── Step 2: get stream data (URL + metadata) ─────────────────
+    try:
+        data = _get_stream_data(vid)
+        if not data:
+            return jsonify({"error": "Could not fetch stream URL"}), 500
+
+        base_url = request.host_url.rstrip("/")
+        return jsonify({
+            "id":          vid,
+            "title":       data["title"],
+            "channel":     data["channel"],
+            "duration":    data["duration"],
+            "seconds":     data["seconds"],
+            "thumb":       data["thumb"],
+            "youtube_url": f"https://www.youtube.com/watch?v={vid}",
+            "stream_url":  data["url"],
+            "audio_proxy": f"{base_url}/api/audio?v={vid}",
+            "download":    f"{base_url}/api/download?v={vid}",
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route('/api/audio')
 def api_audio():
     """Proxy audio stream — fetches from YouTube CDN and streams to browser."""

@@ -1306,7 +1306,7 @@ pre .bool{color:#60a5fa}
   </div>
 
   <div class="stats-bar">
-    <div class="stat-card"><div class="stat-num">8</div><div class="stat-label">Endpoints</div></div>
+    <div class="stat-card"><div class="stat-num">9</div><div class="stat-label">Endpoints</div></div>
     <div class="stat-card"><div class="stat-num">Free</div><div class="stat-label">No Auth</div></div>
     <div class="stat-card"><div class="stat-num">REST</div><div class="stat-label">JSON API</div></div>
     <div class="stat-card"><div class="stat-num">24/7</div><div class="stat-label">Uptime</div></div>
@@ -1536,6 +1536,65 @@ curl -O -J "BASE_URL/api/download?v=dQw4w9WgXcQ"</pre>
 }</pre>
       </div>
       <div class="response-tags"><span class="resp-tag resp-200">200 OK</span><span class="resp-tag resp-400">400 Invalid ID</span></div>
+    </div>
+  </div>
+
+  <div class="api-card" data-tags="play song music youtube search stream bot">
+    <div class="api-head" onclick="toggle(this)">
+      <span class="method get">GET</span>
+      <span class="api-path">/api/play</span>
+      <span class="api-desc-short">Bot-style play — search &amp; stream</span>
+      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="api-body">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Exactly what the bot does when you send /play — accepts a song name, YouTube URL, or video ID. Returns full metadata + direct stream URL + audio proxy URL ready to use.</p>
+      <div class="param-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">q</span>
+        <span class="param-type">string</span>
+        <span class="param-opt">optional*</span>
+        <span class="param-desc">Song name, search query, or YouTube URL (e.g. "Tum Hi Ho" or https://youtu.be/...)</span>
+      </div>
+      <div class="param-row">
+        <span class="param-name">v</span>
+        <span class="param-type">string</span>
+        <span class="param-opt">optional*</span>
+        <span class="param-desc">YouTube video ID (11 chars). Use this if you already have the ID.</span>
+      </div>
+      <p style="color:var(--text3);font-size:12px;margin-top:8px">* At least one of <code>q</code> or <code>v</code> is required.</p>
+      <div class="code-wrap">
+        <div class="code-label">Example — by song name <button class="copy-btn" onclick="copyCode('play1')">Copy</button></div>
+        <pre id="play1">GET /api/play?q=Tum+Hi+Ho+Arijit+Singh</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Example — by YouTube URL <button class="copy-btn" onclick="copyCode('play2')">Copy</button></div>
+        <pre id="play2">GET /api/play?q=https://youtu.be/dQw4w9WgXcQ</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Example — by video ID <button class="copy-btn" onclick="copyCode('play3')">Copy</button></div>
+        <pre id="play3">GET /api/play?v=dQw4w9WgXcQ</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Response</div>
+        <pre>{
+  <span class="key">"id"</span>:          <span class="str">"dQw4w9WgXcQ"</span>,
+  <span class="key">"title"</span>:       <span class="str">"Tum Hi Ho"</span>,
+  <span class="key">"channel"</span>:     <span class="str">"T-Series"</span>,
+  <span class="key">"duration"</span>:    <span class="str">"4:22"</span>,
+  <span class="key">"seconds"</span>:     <span class="num">262</span>,
+  <span class="key">"thumb"</span>:       <span class="str">"https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg"</span>,
+  <span class="key">"youtube_url"</span>: <span class="str">"https://www.youtube.com/watch?v=dQw4w9WgXcQ"</span>,
+  <span class="key">"stream_url"</span>:  <span class="str">"https://rr3---sn-....googlevideo.com/..."</span>,
+  <span class="key">"audio_proxy"</span>: <span class="str">"https://yourbot.replit.dev/api/audio?v=dQw4w9WgXcQ"</span>,
+  <span class="key">"download"</span>:    <span class="str">"https://yourbot.replit.dev/api/download?v=dQw4w9WgXcQ"</span>
+}</pre>
+      </div>
+      <div class="response-tags">
+        <span class="resp-tag resp-200">200 OK</span>
+        <span class="resp-tag resp-400">400 Missing params</span>
+        <span class="resp-tag resp-400" style="background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.2)">404 Not found</span>
+        <span class="resp-tag resp-500">500 Error</span>
+      </div>
     </div>
   </div>
 
