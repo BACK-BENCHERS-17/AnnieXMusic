@@ -471,6 +471,130 @@ def health_check():
     return jsonify({"status": "alive"}), 200
 
 
+@app.route('/api/nsfw')
+def api_nsfw():
+    """Proxy NSFW check to webserver or handle inline."""
+    url = request.args.get("url", "").strip()
+    if not url:
+        return jsonify({
+            "error": "url parameter required",
+            "usage": "GET /api/nsfw?url=https://example.com/image.jpg",
+            "by": "t.me/PGL_B4CHI"
+        }), 400
+    try:
+        import io
+        from PIL import Image
+        resp = requests.get(url, timeout=12, stream=True)
+        if resp.status_code != 200:
+            return jsonify({"error": f"Could not fetch image: HTTP {resp.status_code}", "by": "t.me/PGL_B4CHI"}), 400
+        content_type = resp.headers.get("Content-Type", "")
+        if not any(ct in content_type for ct in ("image/", "application/octet-stream")):
+            return jsonify({"error": "URL does not point to an image", "by": "t.me/PGL_B4CHI"}), 400
+        image_bytes = b""
+        for chunk in resp.iter_content(chunk_size=65536):
+            image_bytes += chunk
+            if len(image_bytes) > 5_000_000:
+                break
+        if not image_bytes:
+            return jsonify({"error": "Empty image response", "by": "t.me/PGL_B4CHI"}), 400
+        try:
+            from nudenet import NudeDetector
+            detector = NudeDetector()
+            import tempfile as _tmpfile
+            with _tmpfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+                tmp_path = tmp.name
+                img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+                img.save(tmp_path, "PNG")
+            try:
+                detections = detector.detect(tmp_path)
+                EXPOSED = {"FEMALE_GENITALIA_EXPOSED", "MALE_GENITALIA_EXPOSED",
+                           "FEMALE_BREAST_EXPOSED", "ANUS_EXPOSED", "BUTTOCKS_EXPOSED"}
+                COVERED = {"FEMALE_GENITALIA_COVERED", "FEMALE_BREAST_COVERED", "BUTTOCKS_COVERED"}
+                labels = []
+                is_nsfw = False
+                for det in detections:
+                    cls = det.get("class", "")
+                    score = det.get("score", 0)
+                    if cls in EXPOSED and score >= 0.50:
+                        is_nsfw = True
+                        labels.append({"label": cls, "confidence": round(score, 3)})
+                    elif cls in COVERED and score >= 0.65:
+                        is_nsfw = True
+                        labels.append({"label": cls, "confidence": round(score, 3)})
+                return jsonify({
+                    "is_nsfw": is_nsfw,
+                    "method": "nudenet",
+                    "confidence": max((l["confidence"] for l in labels), default=0.0),
+                    "labels": labels,
+                    "by": "t.me/PGL_B4CHI"
+                })
+            finally:
+                try:
+                    os.remove(tmp_path)
+                except Exception:
+                    pass
+        except Exception:
+            return jsonify({"error": "Detection failed", "by": "t.me/PGL_B4CHI"}), 500
+    except Exception as e:
+        return jsonify({"error": str(e), "by": "t.me/PGL_B4CHI"}), 500
+
+
+@app.route('/api/related')
+def api_related():
+    vid = request.args.get("v", "").strip()
+    if not vid or len(vid) != 11:
+        return jsonify({"results": []}), 400
+    try:
+        ydl_opts = {
+            "quiet": True, "no_warnings": True,
+            "extract_flat": True, "skip_download": True,
+            "ignoreerrors": True,
+        }
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(f"ytsearch10:related {vid}", download=False)
+            entries = info.get("entries", []) if info else []
+            results = []
+            for e in (entries or []):
+                if not e:
+                    continue
+                eid = e.get("id") or ""
+                if not eid or len(eid) != 11 or eid == vid:
+                    continue
+                results.append({
+                    "id":       eid,
+                    "title":    e.get("title", "Unknown"),
+                    "channel":  e.get("channel") or e.get("uploader", ""),
+                    "duration": e.get("duration_string") or _sec_to_min(e.get("duration", 0)),
+                    "thumb":    f"https://img.youtube.com/vi/{eid}/mqdefault.jpg",
+                })
+        return jsonify({"results": results})
+    except Exception as e:
+        return jsonify({"results": [], "error": str(e)}), 500
+
+
+# ── API Documentation page ─────────────────────────────────────────────────────
+def _get_api_docs_html():
+    try:
+        import sys as _sys
+        repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+        if repo_root not in _sys.path:
+            _sys.path.insert(0, repo_root)
+        from webserver import _API_DOCS_HTML
+        return _API_DOCS_HTML
+    except Exception:
+        return "<h1>API Docs</h1><p>Could not load docs. Please check webserver.py</p>"
+
+
+@app.route('/api')
+def api_docs_main():
+    return _get_api_docs_html(), 200, {"Content-Type": "text/html; charset=utf-8"}
+
+
+@app.route('/api/docs')
+def api_docs_alias():
+    return _get_api_docs_html(), 200, {"Content-Type": "text/html; charset=utf-8"}
+
+
 def start_health_server():
     port = int(os.environ.get('PORT', 8080))
     threading.Thread(target=get_trending, daemon=True).start()
