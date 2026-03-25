@@ -23,6 +23,7 @@ from ANNIEMUSIC.utils.database import (
     group_assistant,
     is_autoend,
     is_autoplay,
+    is_thumb_enabled,
     music_on,
     remove_active_chat,
     remove_active_video_chat,
@@ -34,6 +35,8 @@ from ANNIEMUSIC.utils.inline import stream_markup, stream_markup_timer, add_to_c
 from ANNIEMUSIC.utils.stream.autoclear import auto_clean
 from ANNIEMUSIC.utils.thumbnails import get_thumb
 from ANNIEMUSIC.utils.errors import capture_internal_err, send_large_error
+
+THUMB_OFF_VIDEO_URL = "https://files.catbox.moe/4vr2jc.mp4"
 
 autoend = {}
 counter = {}
@@ -654,7 +657,6 @@ class Call:
                                 language = await get_lang(chat_id)
                                 _lang = get_string(language)
                                 try:
-                                    img = await get_thumb(ap_vidid)
                                     _BEAR = "<emoji id='5042192219960771668'>🧸</emoji>"
                                     _TIME = "<emoji id='4979027931234830344'>⏳</emoji>"
                                     _DOT  = "<emoji id='5972072533833289156'>🔹</emoji>"
@@ -679,24 +681,37 @@ class Call:
                                             autoplay_on=True,
                                         )
                                     )
-                                    ap_msg = await app.send_photo(
-                                        chat_id=original_chat_id,
-                                        photo=img,
-                                        caption=(
-                                            f"<blockquote>"
-                                            f"┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
-                                            f"┆{_BEAR} <b>ᴛɪᴛʟᴇ :</b> "
-                                            f"<a href='https://www.youtube.com/watch?v={ap_vidid}'>"
-                                            f"{ap_title_short}</a>\n"
-                                            f"┆{_TIME} <b>ᴅᴜʀᴀᴛɪᴏɴ :</b> {ap_dur}\n"
-                                            f"┆{_DOT} <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ :</b> ᴀɴɴɪᴇ ᴀᴜᴛᴏᴘʟᴀʏ\n"
-                                            f"└──────────────────────●"
-                                            f"</blockquote>\n"
-                                            f"<blockquote>{_AROW}</blockquote>"
-                                        ),
-                                        reply_markup=InlineKeyboardMarkup(btn),
-                                        has_spoiler=True,
+                                    _ap_caption = (
+                                        f"<blockquote>"
+                                        f"┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
+                                        f"┆{_BEAR} <b>ᴛɪᴛʟᴇ :</b> "
+                                        f"<a href='https://www.youtube.com/watch?v={ap_vidid}'>"
+                                        f"{ap_title_short}</a>\n"
+                                        f"┆{_TIME} <b>ᴅᴜʀᴀᴛɪᴏɴ :</b> {ap_dur}\n"
+                                        f"┆{_DOT} <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ :</b> ᴀɴɴɪᴇ ᴀᴜᴛᴏᴘʟᴀʏ\n"
+                                        f"└──────────────────────●"
+                                        f"</blockquote>\n"
+                                        f"<blockquote>{_AROW}</blockquote>"
                                     )
+                                    _ap_markup = InlineKeyboardMarkup(btn)
+                                    thumb_on = await is_thumb_enabled()
+                                    if thumb_on:
+                                        img = await get_thumb(ap_vidid)
+                                        ap_msg = await app.send_photo(
+                                            chat_id=original_chat_id,
+                                            photo=img,
+                                            caption=_ap_caption,
+                                            reply_markup=_ap_markup,
+                                            has_spoiler=True,
+                                        )
+                                    else:
+                                        ap_msg = await app.send_video(
+                                            chat_id=original_chat_id,
+                                            video=THUMB_OFF_VIDEO_URL,
+                                            caption=_ap_caption,
+                                            reply_markup=_ap_markup,
+                                            supports_streaming=True,
+                                        )
                                     db[chat_id][0]["mystic"] = ap_msg
                                 except Exception:
                                     pass

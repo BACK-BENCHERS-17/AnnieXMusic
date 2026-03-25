@@ -21,7 +21,7 @@ from ANNIEMUSIC.utils.thumbnails import get_thumb
 from ANNIEMUSIC.utils.errors import capture_internal_err
 from ANNIEMUSIC.plugins.Kishu.nsfw_filter import has_nsfw_text, is_thumb_nsfw_local
 
-THUMB_OFF_VIDEO_URL = "https://files.catbox.moe/1ohavg.mp4"
+THUMB_OFF_VIDEO_URL = "https://files.catbox.moe/4vr2jc.mp4"
 
 # Per-group whitelist: chat_id -> set of whitelisted vidids (by owner/admin)
 NSFW_WHITELIST: dict[int, set] = {}
