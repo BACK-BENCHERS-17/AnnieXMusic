@@ -41,12 +41,18 @@ _NSFW_COVERED = {
     "FEMALE_GENITALIA_COVERED",
     "MALE_GENITALIA_COVERED",
     "FEMALE_BREAST_COVERED",
-    "BUTTOCKS_COVERED",
+    # BUTTOCKS_COVERED removed — too many false positives on anime/cartoon stickers
 }
 
-_THRESHOLD_EXPOSED = 0.50
-_THRESHOLD_COVERED = 0.65
+# Higher thresholds = fewer false positives on normal stickers
+_THRESHOLD_EXPOSED = 0.75   # was 0.50 — raised to reduce false positives
+_THRESHOLD_COVERED = 0.85   # was 0.65 — raised to reduce false positives
 _SKIN_RATIO_FALLBACK = 0.48
+
+# Sticker-only: only exposed content is checked (not covered), to avoid
+# flagging innocent anime/cartoon stickers with clothed characters
+_STICKER_NSFW_EXPOSED = _NSFW_EXPOSED
+_THRESHOLD_STICKER_EXPOSED = 0.80  # even stricter for stickers
 
 _nsfw_hash_cache: dict[str, bool] = {}
 
@@ -400,8 +406,12 @@ def _extract_frames_from_path(path: str, max_frames: int = 6) -> list[str]:
     return frames
 
 
-def _check_frames_nudenet(frame_paths: list[str]) -> tuple[bool, str]:
-    """Run NudeNet on a list of frame PNGs. Returns (is_nsfw, reason) on first hit."""
+def _check_frames_nudenet(frame_paths: list[str], sticker_mode: bool = False) -> tuple[bool, str]:
+    """Run NudeNet on a list of frame PNGs. Returns (is_nsfw, reason) on first hit.
+
+    sticker_mode=True uses stricter thresholds and skips covered-body-part checks
+    to avoid false positives on anime/cartoon stickers.
+    """
     for fp in frame_paths:
         if not os.path.exists(fp):
             continue
@@ -411,10 +421,15 @@ def _check_frames_nudenet(frame_paths: list[str]) -> tuple[bool, str]:
             for det in detections:
                 cls = det.get("class", "")
                 score = det.get("score", 0)
-                if cls in _NSFW_EXPOSED and score >= _THRESHOLD_EXPOSED:
-                    return True, f"18+ exposed content detected ({cls})"
-                if cls in _NSFW_COVERED and score >= _THRESHOLD_COVERED:
-                    return True, f"18+ covered content detected ({cls})"
+                if sticker_mode:
+                    # Stickers: only fully exposed content, with very high confidence
+                    if cls in _STICKER_NSFW_EXPOSED and score >= _THRESHOLD_STICKER_EXPOSED:
+                        return True, f"18+ exposed content detected ({cls})"
+                else:
+                    if cls in _NSFW_EXPOSED and score >= _THRESHOLD_EXPOSED:
+                        return True, f"18+ exposed content detected ({cls})"
+                    if cls in _NSFW_COVERED and score >= _THRESHOLD_COVERED:
+                        return True, f"18+ covered content detected ({cls})"
         except Exception:
             logger.warning(f"[NSFW] NudeNet failed on frame {fp}")
     return False, ""
@@ -423,7 +438,7 @@ def _check_frames_nudenet(frame_paths: list[str]) -> tuple[bool, str]:
 # ─────────────────────────────────────────────────────────────────────────────
 # Core visual NSFW check — supports images, GIFs, videos, video stickers
 # ─────────────────────────────────────────────────────────────────────────────
-async def _is_visual_nsfw(tg_client: Client, file_id: str) -> tuple[bool, str]:
+async def _is_visual_nsfw(tg_client: Client, file_id: str, sticker_mode: bool = False) -> tuple[bool, str]:
     """
     Returns (is_nsfw, reason).
     Checks all media types:
@@ -431,6 +446,9 @@ async def _is_visual_nsfw(tg_client: Client, file_id: str) -> tuple[bool, str]:
     - GIFs          → NudeNet on multiple extracted frames
     - Videos / WebM → NudeNet on ffmpeg-extracted frames
     - Video stickers → same as video
+
+    sticker_mode=True applies stricter thresholds and only checks fully exposed
+    content — prevents false positives on anime/cartoon stickers.
     """
     if not _NUDE_OK:
         return False, ""
@@ -462,7 +480,7 @@ async def _is_visual_nsfw(tg_client: Client, file_id: str) -> tuple[bool, str]:
         # Skin ratio causes massive false positives on anime/cartoon/portrait
         # stickers and thumbnails that have skin-colored art.
         is_nsfw, reason = await asyncio.get_event_loop().run_in_executor(
-            None, _check_frames_nudenet, extracted_frames
+            None, _check_frames_nudenet, extracted_frames, sticker_mode
         )
 
         # ── Step 2: OCR — drug/illegal text in first frame ───────────────
@@ -594,7 +612,7 @@ async def nsfw_guard(client: Client, message: Message):
             return await _handle_violation(client, message, "NSFW / drug-related sticker pack", is_group)
         file_id = _get_file_id(message)
         if file_id:
-            is_bad, reason = await _is_visual_nsfw(client, file_id)
+            is_bad, reason = await _is_visual_nsfw(client, file_id, sticker_mode=True)
             if is_bad:
                 return await _handle_violation(client, message, reason or "18+ sticker content", is_group)
         if (message.sticker.is_video or message.sticker.is_animated) and not file_id:
