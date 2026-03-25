@@ -102,14 +102,15 @@ async def _convert_webm_to_m4a(src: str, vid: str) -> Optional[str]:
     return None
 
 
-async def download_from_cdn_url(vid: str, stream_url: str, ext: str) -> Optional[str]:
+async def download_from_cdn_url(vid: str, stream_url: str, ext: str, headers: dict = None) -> Optional[str]:
     """Download audio from a CDN URL to a local file using matching client headers."""
     out_path = f"{_DOWNLOAD_DIR}/{vid}.{ext}"
     if os.path.exists(out_path) and os.path.getsize(out_path) > 0:
         return out_path
     tmp_path = out_path + ".tmp"
     try:
-        headers = get_cdn_headers()
+        if headers is None:
+            headers = get_cdn_headers()
         timeout = aiohttp.ClientTimeout(total=90, connect=10)
         async with aiohttp.ClientSession(timeout=timeout) as sess:
             async with sess.get(stream_url, headers=headers) as resp:
@@ -378,14 +379,18 @@ async def download_from_own_api(vid: str) -> Optional[str]:
 
 async def download_audio_concurrent(link: str) -> Optional[str]:
     """
-    Main audio download function — permanent multi-method approach.
+    Main audio download function — parallel CDN + direct download race.
 
-    Method chain (fastest to most robust):
+    Flow:
     1. File cache — instant if already downloaded
-    2. Internal /api/yturl → CDN download (uses stream cache = near-instant on cache hit)
-    3. SmartYTDL URL extract → CDN download (fresh probe if not cached)
-    4. SmartYTDL direct download (yt-dlp handles everything internally)
-    5. External API race (if configured)
+    2. CDN path + Direct download run IN PARALLEL — first to finish wins
+       CDN path: Internal /api/yturl → CDN download (near-instant on cache hit)
+                 Fallback: fresh SmartYTDL URL extract → CDN download
+       Direct:   SmartYTDL direct yt-dlp download (always works, 10-25s)
+    3. External API race (only if API_URL configured)
+
+    Parallel approach ensures: if CDN gets 403 after 2s, direct download
+    is already 2s into its run → total wait ~15s instead of 40-50s.
     """
     vid = extract_video_id(link)
     cached = file_exists(vid)
@@ -396,67 +401,111 @@ async def download_audio_concurrent(link: str) -> Optional[str]:
 
     async def run():
         loop = asyncio.get_running_loop()
+        from ANNIEMUSIC.utils.ytdl_smart import _CLIENT_UA, _JSLESS_CLIENTS
 
-        # ── Method 1: Internal /api/yturl → CDN download ───────────────────
-        # Uses webserver stream cache — instant if URL was recently fetched
-        try:
-            result = await api_get_stream_url(vid)
-            if result:
-                cdn_url, ext = result
-                local = await download_from_cdn_url(vid, cdn_url, ext)
-                if local:
-                    LOGGER(__name__).info(f"[OWN-API] CDN download ok: {local}")
-                    return local
-                LOGGER(__name__).info(f"[OWN-API] CDN blocked, falling through for {vid}")
-        except Exception as e:
-            LOGGER(__name__).debug(f"[OWN-API] yturl failed for {vid}: {e}")
+        def _client_headers(client: str) -> dict:
+            """Return CDN headers matching the client that extracted the URL."""
+            ua = _CLIENT_UA.get(client, _CLIENT_UA.get("android_vr", ""))
+            return {
+                "User-Agent": ua,
+                "Accept": "*/*",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Accept-Encoding": "identity",
+                "Referer": "https://www.youtube.com/",
+                "Origin": "https://www.youtube.com",
+            }
 
-        # ── Method 2: SmartYTDL URL extract → CDN download ─────────────────
-        # Fresh probe using adaptive multi-client engine
-        try:
-            info = await loop.run_in_executor(None, smart_extract_url, vid)
-            if info:
-                cdn_url = info["url"]
-                ext = info["ext"]
-                local = await download_from_cdn_url(vid, cdn_url, ext)
-                if local:
-                    LOGGER(__name__).info(
-                        f"[SMART] CDN download ok via {info['client']}: {local}"
-                    )
-                    return local
-                LOGGER(__name__).info(f"[SMART] CDN blocked, trying direct download for {vid}")
-        except Exception as e:
-            LOGGER(__name__).debug(f"[SMART] URL extract failed for {vid}: {e}")
+        # ── CDN path (fast — tries cached URL then fresh extract) ──────────
+        async def _cdn_path() -> Optional[str]:
+            # Step A: Cached URL from internal webserver
+            try:
+                result = await api_get_stream_url(vid)
+                if result:
+                    cdn_url, ext = result
+                    local = await download_from_cdn_url(vid, cdn_url, ext)
+                    if local:
+                        LOGGER(__name__).info(f"[OWN-API] CDN download ok: {local}")
+                        return local
+                    LOGGER(__name__).info(f"[OWN-API] CDN blocked, falling through for {vid}")
+            except Exception as e:
+                LOGGER(__name__).debug(f"[OWN-API] yturl failed for {vid}: {e}")
 
-        # ── Method 3: SmartYTDL direct download ────────────────────────────
-        # yt-dlp handles auth, rate limits, n-param decoding internally
-        try:
-            fmt = "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best"
-            path = await _with_sem(loop.run_in_executor(None, smart_download, vid, _DOWNLOAD_DIR, fmt))
-            if path:
-                LOGGER(__name__).info(f"[SMART] Direct download ok: {path}")
-                return path
-        except Exception as e:
-            LOGGER(__name__).debug(f"[SMART] Direct download failed for {vid}: {e}")
+            # Step B: Fresh SmartYTDL extract → CDN download with matching headers
+            try:
+                info = await loop.run_in_executor(None, smart_extract_url, vid)
+                if info:
+                    cdn_url = info["url"]
+                    ext = info["ext"]
+                    client = info.get("client", "android_vr")
+                    hdrs = _client_headers(client)
+                    local = await download_from_cdn_url(vid, cdn_url, ext, headers=hdrs)
+                    if local:
+                        LOGGER(__name__).info(
+                            f"[SMART] CDN download ok via {client}: {local}"
+                        )
+                        return local
+                    LOGGER(__name__).info(f"[SMART] CDN blocked for {vid}")
+            except Exception as e:
+                LOGGER(__name__).debug(f"[SMART] URL extract failed for {vid}: {e}")
 
-        # ── Method 4: External API race (only if configured) ────────────────
+            return None
+
+        # ── Direct download (reliable but slower — yt-dlp handles everything) ─
+        async def _direct_path() -> Optional[str]:
+            try:
+                fmt = "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best"
+                path = await loop.run_in_executor(None, smart_download, vid, _DOWNLOAD_DIR, fmt)
+                if path:
+                    LOGGER(__name__).info(f"[SMART] Direct download ok: {path}")
+                    return path
+            except Exception as e:
+                LOGGER(__name__).debug(f"[SMART] Direct download failed for {vid}: {e}")
+            return None
+
+        # ── Race: CDN and Direct in parallel — whoever finishes first wins ──
+        cdn_task    = asyncio.create_task(_cdn_path())
+        direct_task = asyncio.create_task(_direct_path())
+
+        done, pending = await asyncio.wait(
+            {cdn_task, direct_task}, return_when=asyncio.FIRST_COMPLETED
+        )
+        for t in done:
+            try:
+                res = t.result()
+                if res:
+                    for p in pending:
+                        p.cancel()
+                    return res
+            except Exception:
+                pass
+
+        # One task finished with None — wait for the other
+        for p in pending:
+            try:
+                res = await p
+                if res:
+                    return res
+            except Exception:
+                pass
+
+        # ── External API race (only if configured) ──────────────────────────
         if USE_API:
             try:
-                yt_task = asyncio.create_task(yt_dlp_download(link, type="audio"))
+                yt_task  = asyncio.create_task(yt_dlp_download(link, type="audio"))
                 api_task = asyncio.create_task(api_download_song(link))
-                done, pending = await asyncio.wait(
+                done2, pending2 = await asyncio.wait(
                     {yt_task, api_task}, return_when=asyncio.FIRST_COMPLETED
                 )
-                for t in done:
+                for t in done2:
                     try:
                         res = t.result()
                         if res:
-                            for p in pending:
+                            for p in pending2:
                                 p.cancel()
                             return res
                     except Exception:
                         pass
-                for p in pending:
+                for p in pending2:
                     try:
                         res = await p
                         if res:

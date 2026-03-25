@@ -818,27 +818,45 @@ async function playSong(song) {
   try {
     const metaP = fetch(`/api/stream?v=${song.id}`).then(r=>r.json()).catch(()=>({}));
 
-    const ts = Date.now();
-    aud.src = `/api/audio?v=${song.id}&_t=${ts}`;
-    aud.load();
-    aud.loop = repeatOn;
-    await aud.play().then(() => {
-      playing = true;
-      setPlayBtns(true);
-      startProgTimer();
-    }).catch(async () => {
-      // Auto-retry once with a fresh request (cache-busted)
-      toast('⏳ Retrying…');
-      await new Promise(r => setTimeout(r, 1500));
+    // Retry helper — server may be downloading the file (503 = try again)
+    async function _tryPlay(attempt) {
+      const ts = Date.now();
+      aud.src = `/api/audio?v=${song.id}&_t=${ts}`;
+      aud.load();
+      aud.loop = repeatOn;
+      try {
+        await aud.play();
+        playing = true; setPlayBtns(true); startProgTimer();
+        return true;
+      } catch(e) {
+        // Check if server returned an error status (503 = still downloading)
+        try {
+          const probe = await fetch(`/api/audio?v=${song.id}&_probe=1`, {method:'HEAD'});
+          if (probe.status === 503 && attempt < 4) {
+            const delay = [3000,5000,8000,12000][attempt] || 8000;
+            toast(`⏳ Loading… (${attempt+1}/4)`);
+            await new Promise(r => setTimeout(r, delay));
+            return _tryPlay(attempt + 1);
+          }
+        } catch(_){}
+        return false;
+      }
+    }
+
+    const ok = await _tryPlay(0);
+    if (!ok) {
+      // Last resort: retry once more after a longer wait
+      toast('⏳ Preparing audio…');
+      await new Promise(r => setTimeout(r, 4000));
       aud.src = `/api/audio?v=${song.id}&_t=${Date.now()}`;
       aud.load();
-      return aud.play().then(() => {
+      await aud.play().then(() => {
         playing = true; setPlayBtns(true); startProgTimer();
       }).catch(() => {
-        toast('❌ Could not play. Try again.');
+        toast('❌ Could not play. Tap to retry.');
         playing = false; setPlayBtns(false);
       });
-    });
+    }
 
     const meta = await metaP;
     const sec = meta.seconds || 0;

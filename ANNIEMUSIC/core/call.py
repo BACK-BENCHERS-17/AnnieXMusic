@@ -598,10 +598,15 @@ class Call:
                             ap_dur     = chosen.get("duration") or "Unknown"
                             ap_title_short = ap_title[:35] + "..." if len(ap_title) > 35 else ap_title
 
-                            n, ap_link = await YouTube.video("", ap_vidid)
-                            if n == 1 and ap_link:
+                            # Use download pipeline instead of yt-dlp subprocess
+                            # — more reliable, uses SmartYTDL + all fallbacks
+                            from ANNIEMUSIC.utils.downloader import download_audio_concurrent
+                            ap_file = await download_audio_concurrent(
+                                f"https://www.youtube.com/watch?v={ap_vidid}"
+                            )
+                            if ap_file:
                                 ap_stream = dynamic_media_stream(
-                                    path=ap_link, video=False
+                                    path=ap_file, video=False
                                 )
                                 ap_played = False
                                 try:
@@ -625,7 +630,7 @@ class Call:
                                     "by":         "Annie AutoPlay",
                                     "user_id":    0,
                                     "chat_id":    original_chat_id,
-                                    "file":       f"live_{ap_vidid}",
+                                    "file":       ap_file,
                                     "vidid":      ap_vidid,
                                     "seconds":    ap_sec,
                                     "played":     0,
@@ -687,6 +692,9 @@ class Call:
                                     db[chat_id][0]["mystic"] = ap_msg
                                 except Exception:
                                     pass
+                                return
+                            else:
+                                LOGGER(__name__).warning(f"Autoplay: download failed for {ap_vidid}")
                                 return
                     except Exception as ap_err:
                         LOGGER(__name__).warning(f"Autoplay error: {ap_err}")

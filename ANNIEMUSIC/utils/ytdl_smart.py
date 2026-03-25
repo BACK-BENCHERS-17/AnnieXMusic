@@ -314,8 +314,8 @@ def _client_download(vid: str, client: str, out_dir: str,
         "overwrites": True,
         "continuedl": True,
         "noprogress": True,
-        "socket_timeout": 35,
-        "retries": 2,
+        "socket_timeout": 25,
+        "retries": 1,
     })
     try:
         with yt_dlp.YoutubeDL(o) as ydl:
@@ -475,7 +475,7 @@ def smart_extract_url(vid: str) -> Optional[Dict]:
         (lambda c: lambda: _client_extract(vid, c, cookie_file))(c)
         for c in clients
     ]
-    winner = _race(targets, timeout=30.0)
+    winner = _race(targets, timeout=15.0)
 
     if winner:
         _registry.mark_ok(winner["client"])

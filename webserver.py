@@ -498,6 +498,7 @@ def _proxy_audio(vid, force_refresh=False):
     Fetch stream data and proxy audio from YouTube.
     Returns a Flask Response, or raises an exception.
     If force_refresh=True, bypass cache and fetch a fresh URL.
+    Uses client-matched headers to reduce CDN 403 errors.
     """
     data = _get_stream_data(vid, force_refresh=force_refresh)
     if not data:
@@ -508,18 +509,25 @@ def _proxy_audio(vid, force_refresh=False):
     content_type = "audio/mp4" if ext == "m4a" else f"audio/{ext}"
 
     range_header = request.headers.get("Range")
-    req_headers = {
-        "User-Agent":      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Accept":          "*/*",
-        "Accept-Encoding": "identity",
-        "Connection":      "keep-alive",
-        "Referer":         "https://www.youtube.com/",
-    }
+    # Use SmartYTDL matched headers — reduces CDN 403 rate
+    req_headers = dict(get_cdn_headers())
+    req_headers["Accept-Encoding"] = "identity"
+    req_headers["Connection"] = "keep-alive"
     if range_header:
         req_headers["Range"] = range_header
 
     upstream = requests.get(stream_url, headers=req_headers, stream=True, timeout=30)
     return upstream, content_type
+
+
+def _check_bot_downloads(vid: str):
+    """Check bot's download directory for a cached audio file."""
+    bot_dl_dir = os.path.join(os.path.dirname(__file__), "downloads")
+    for ext in ("m4a", "mp3", "webm", "opus", "ogg", "flac", "mp4"):
+        p = os.path.join(bot_dl_dir, f"{vid}.{ext}")
+        if os.path.exists(p) and os.path.getsize(p) > 1024:
+            return p
+    return None
 
 
 @app.route("/api/audio")
@@ -529,6 +537,14 @@ def api_audio():
     if not vid or len(vid) != 11:
         return jsonify({"error": "Invalid video id"}), 400
     try:
+        # ── Fast path: serve from bot's download cache (already on disk) ────
+        cached = _check_bot_downloads(vid)
+        if cached:
+            ext = os.path.splitext(cached)[1].lstrip(".")
+            mime = "audio/mp4" if ext == "m4a" else f"audio/{ext}"
+            return send_file(cached, mimetype=mime, conditional=True)
+
+        # ── Try CDN proxy ────────────────────────────────────────────────────
         upstream, content_type = _proxy_audio(vid, force_refresh=False)
 
         # If stream URL extraction failed or YouTube rejected URL, try refresh once
@@ -554,8 +570,8 @@ def api_audio():
                         yield chunk
             return Response(generate(), status=status_code, headers=resp_headers)
 
-        # Fallback: download audio locally and serve from disk
-        # (handles Railway/cloud IPs blocked by YouTube bot detection)
+        # ── Fallback: download audio locally and serve from disk ─────────────
+        # (handles cloud IPs blocked by YouTube — client headers now match URL client)
         if upstream is not None:
             try:
                 upstream.close()
@@ -563,7 +579,10 @@ def api_audio():
                 pass
         file_path = _download_audio_local(vid)
         if file_path is None:
-            return jsonify({"error": "Could not fetch audio"}), 500
+            # Last chance: check bot downloads again (might have been added during above)
+            file_path = _check_bot_downloads(vid)
+        if file_path is None:
+            return jsonify({"error": "Could not fetch audio"}), 503
         ext = os.path.splitext(file_path)[1].lstrip(".")
         mime = "audio/mp4" if ext == "m4a" else f"audio/{ext}"
         return send_file(file_path, mimetype=mime, conditional=True)
