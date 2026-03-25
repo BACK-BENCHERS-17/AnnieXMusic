@@ -141,7 +141,6 @@ async def skip(cli, message: Message, _, chat_id):
                 text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                 reply_markup=InlineKeyboardMarkup(button),
                 parse_mode=ParseMode.HTML,
-                invert_media=True,
                 disable_web_page_preview=False,
             )
         if db.get(chat_id):
@@ -186,7 +185,6 @@ async def skip(cli, message: Message, _, chat_id):
                 text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                 reply_markup=InlineKeyboardMarkup(button),
                 parse_mode=ParseMode.HTML,
-                invert_media=True,
                 disable_web_page_preview=False,
             )
         if db.get(chat_id):
@@ -213,7 +211,6 @@ async def skip(cli, message: Message, _, chat_id):
                 text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                 reply_markup=InlineKeyboardMarkup(button),
                 parse_mode=ParseMode.HTML,
-                invert_media=True,
                 disable_web_page_preview=False,
             )
         if db.get(chat_id):
@@ -252,7 +249,6 @@ async def skip(cli, message: Message, _, chat_id):
                     text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                     reply_markup=InlineKeyboardMarkup(button),
                     parse_mode=ParseMode.HTML,
-                    invert_media=True,
                     disable_web_page_preview=False,
                 )
             if db.get(chat_id):
@@ -277,7 +273,6 @@ async def skip(cli, message: Message, _, chat_id):
                     text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                     reply_markup=InlineKeyboardMarkup(button),
                     parse_mode=ParseMode.HTML,
-                    invert_media=True,
                     disable_web_page_preview=False,
                 )
             if db.get(chat_id):
@@ -304,7 +299,6 @@ async def skip(cli, message: Message, _, chat_id):
                     text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                     reply_markup=InlineKeyboardMarkup(button),
                     parse_mode=ParseMode.HTML,
-                    invert_media=True,
                     disable_web_page_preview=False,
                 )
             if db.get(chat_id):

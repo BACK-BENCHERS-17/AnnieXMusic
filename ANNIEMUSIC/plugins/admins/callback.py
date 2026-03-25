@@ -347,7 +347,6 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
                 text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                 reply_markup=InlineKeyboardMarkup(buttons),
                 parse_mode=ParseMode.HTML,
-                invert_media=True,
                 disable_web_page_preview=False,
             )
         if db.get(chat_id):
@@ -384,7 +383,6 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
                 text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                 reply_markup=InlineKeyboardMarkup(buttons),
                 parse_mode=ParseMode.HTML,
-                invert_media=True,
                 disable_web_page_preview=False,
             )
         db[chat_id][0]["mystic"] = run
@@ -411,7 +409,6 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
                 text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                 reply_markup=InlineKeyboardMarkup(buttons),
                 parse_mode=ParseMode.HTML,
-                invert_media=True,
                 disable_web_page_preview=False,
             )
         if db.get(chat_id):
@@ -446,7 +443,6 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
                     text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                     reply_markup=InlineKeyboardMarkup(buttons),
                     parse_mode=ParseMode.HTML,
-                    invert_media=True,
                     disable_web_page_preview=False,
                 )
             db[chat_id][0]["mystic"] = run
@@ -466,7 +462,6 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
                     text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                     reply_markup=InlineKeyboardMarkup(buttons),
                     parse_mode=ParseMode.HTML,
-                    invert_media=True,
                     disable_web_page_preview=False,
                 )
             db[chat_id][0]["mystic"] = run
@@ -487,7 +482,6 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
                     text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                     reply_markup=InlineKeyboardMarkup(buttons),
                     parse_mode=ParseMode.HTML,
-                    invert_media=True,
                     disable_web_page_preview=False,
                 )
             db[chat_id][0]["mystic"] = run
