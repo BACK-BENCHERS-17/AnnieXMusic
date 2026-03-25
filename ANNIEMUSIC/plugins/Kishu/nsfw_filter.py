@@ -457,25 +457,15 @@ async def _is_visual_nsfw(tg_client: Client, file_id: str) -> tuple[bool, str]:
             return False, ""
 
         # ── Step 1: NudeNet on all frames ────────────────────────────────
+        # NudeNet is the authoritative check. If it ran successfully and found
+        # nothing, the content is SAFE — we do NOT override with skin ratio.
+        # Skin ratio causes massive false positives on anime/cartoon/portrait
+        # stickers and thumbnails that have skin-colored art.
         is_nsfw, reason = await asyncio.get_event_loop().run_in_executor(
             None, _check_frames_nudenet, extracted_frames
         )
 
-        # ── Step 2: Skin ratio fallback (first frame only, images/GIFs) ──
-        if not is_nsfw:
-            try:
-                with open(extracted_frames[0], "rb") as f:
-                    img_bytes = f.read()
-                ratio = _skin_ratio(img_bytes)
-                logger.info(f"[NSFW] Skin ratio: {ratio:.2f}")
-                if ratio >= _SKIN_RATIO_FALLBACK:
-                    is_nsfw = True
-                    reason = "Excessive skin exposure detected"
-                    logger.info("[NSFW] Flagged by skin ratio")
-            except Exception:
-                pass
-
-        # ── Step 3: OCR — drug/illegal text in first frame ───────────────
+        # ── Step 2: OCR — drug/illegal text in first frame ───────────────
         if not is_nsfw and _OCR_OK:
             try:
                 ocr_text = _ocr_text_from_image(extracted_frames[0])
