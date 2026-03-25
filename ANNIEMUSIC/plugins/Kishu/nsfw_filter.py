@@ -13,6 +13,7 @@ from pyrogram.types import Message
 
 from ANNIEMUSIC import app
 from ANNIEMUSIC.utils.database import is_content_guard_on
+from ANNIEMUSIC.utils.content_filter import _skin_ratio
 
 logger = logging.getLogger(__name__)
 
@@ -42,8 +43,10 @@ _NSFW_COVERED = {
     "BUTTOCKS_COVERED",
 }
 
-_THRESHOLD_EXPOSED = 0.50
-_THRESHOLD_COVERED = 0.75
+_THRESHOLD_EXPOSED = 0.45
+_THRESHOLD_COVERED = 0.55
+
+_SKIN_RATIO_FALLBACK = 0.38
 
 _nsfw_hash_cache: dict[str, bool] = {}
 
@@ -220,6 +223,18 @@ async def _is_visual_nsfw(tg_client: Client, file_id: str) -> bool:
             or (det.get("class") in _NSFW_COVERED and det.get("score", 0) >= _THRESHOLD_COVERED)
             for det in detections
         )
+        # Fallback: if NudeDetector missed it, use skin ratio check
+        if not is_nsfw:
+            try:
+                with open(png_path or path, "rb") as f:
+                    img_bytes = f.read()
+                ratio = _skin_ratio(img_bytes)
+                logger.info(f"[NSFW] Skin ratio fallback: {ratio:.2f}")
+                if ratio >= _SKIN_RATIO_FALLBACK:
+                    is_nsfw = True
+                    logger.info("[NSFW] Flagged by skin ratio fallback")
+            except Exception:
+                pass
         _nsfw_hash_cache[file_hash] = is_nsfw
         logger.info(f"[NSFW] Result: {'NSFW' if is_nsfw else 'SAFE'}")
         return is_nsfw

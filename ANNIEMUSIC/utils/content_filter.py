@@ -159,4 +159,4 @@ def _skin_ratio(image_bytes: bytes) -> float:
 
 def analyze_image_bytes(image_bytes: bytes) -> bool:
     ratio = _skin_ratio(image_bytes)
-    return ratio > 0.45
+    return ratio > 0.35
