@@ -36,6 +36,8 @@ from ANNIEMUSIC.utils.stream.autoclear import auto_clean
 from ANNIEMUSIC.utils.thumbnails import get_thumb
 from ANNIEMUSIC.utils.errors import capture_internal_err, send_large_error
 
+THUMB_OFF_VIDEO_URL = "https://files.catbox.moe/4vr2jc.mp4"
+
 autoend = {}
 counter = {}
 autoplay_history: dict[int, list] = {}  # per-chat played video IDs history
@@ -695,10 +697,12 @@ class Call:
                                             has_spoiler=True,
                                         )
                                     else:
-                                        ap_msg = await app.send_message(
+                                        ap_msg = await app.send_video(
                                             chat_id=original_chat_id,
-                                            text=_ap_caption,
+                                            video=THUMB_OFF_VIDEO_URL,
+                                            caption=_ap_caption,
                                             reply_markup=_ap_markup,
+                                            supports_streaming=True,
                                         )
                                     db[chat_id][0]["mystic"] = ap_msg
                                 except Exception:
@@ -804,10 +808,12 @@ class Call:
                         has_spoiler=True,
                     )
                 else:
-                    run = await app.send_message(
+                    run = await app.send_video(
                         chat_id=original_chat_id,
-                        text=_cap,
+                        video=THUMB_OFF_VIDEO_URL,
+                        caption=_cap,
                         reply_markup=InlineKeyboardMarkup(button),
+                        supports_streaming=True,
                     )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "tg"
@@ -850,10 +856,12 @@ class Call:
                         has_spoiler=True,
                     )
                 else:
-                    run = await app.send_message(
+                    run = await app.send_video(
                         chat_id=original_chat_id,
-                        text=_cap,
+                        video=THUMB_OFF_VIDEO_URL,
+                        caption=_cap,
                         reply_markup=InlineKeyboardMarkup(button),
+                        supports_streaming=True,
                     )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "stream"
@@ -875,10 +883,12 @@ class Call:
                         has_spoiler=True,
                     )
                 else:
-                    run = await app.send_message(
+                    run = await app.send_video(
                         chat_id=original_chat_id,
-                        text=_["stream_2"].format(user),
+                        video=THUMB_OFF_VIDEO_URL,
+                        caption=_["stream_2"].format(user),
                         reply_markup=InlineKeyboardMarkup(button),
+                        supports_streaming=True,
                     )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "tg"
@@ -908,10 +918,12 @@ class Call:
                             has_spoiler=True,
                         )
                     else:
-                        run = await app.send_message(
+                        run = await app.send_video(
                             chat_id=original_chat_id,
-                            text=_cap,
+                            video=THUMB_OFF_VIDEO_URL,
+                            caption=_cap,
                             reply_markup=InlineKeyboardMarkup(button),
+                            supports_streaming=True,
                         )
                     db[chat_id][0]["mystic"] = run
                     db[chat_id][0]["markup"] = "tg"
@@ -930,10 +942,12 @@ class Call:
                             has_spoiler=True,
                         )
                     else:
-                        run = await app.send_message(
+                        run = await app.send_video(
                             chat_id=original_chat_id,
-                            text=_cap,
+                            video=THUMB_OFF_VIDEO_URL,
+                            caption=_cap,
                             reply_markup=InlineKeyboardMarkup(button),
+                            supports_streaming=True,
                         )
                     db[chat_id][0]["mystic"] = run
                     db[chat_id][0]["markup"] = "tg"
@@ -957,10 +971,12 @@ class Call:
                                 has_spoiler=True,
                             )
                         else:
-                            run = await app.send_message(
+                            run = await app.send_video(
                                 chat_id=original_chat_id,
-                                text=_cap,
+                                video=THUMB_OFF_VIDEO_URL,
+                                caption=_cap,
                                 reply_markup=InlineKeyboardMarkup(button),
+                                supports_streaming=True,
                             )
                     except FloodWait as e:
                         LOGGER(__name__).warning(f"FloodWait: Sleeping for {e.value}")
@@ -975,10 +991,12 @@ class Call:
                                 has_spoiler=True,
                             )
                         else:
-                            run = await app.send_message(
+                            run = await app.send_video(
                                 chat_id=original_chat_id,
-                                text=_cap,
+                                video=THUMB_OFF_VIDEO_URL,
+                                caption=_cap,
                                 reply_markup=InlineKeyboardMarkup(button),
+                                supports_streaming=True,
                             )
                     db[chat_id][0]["mystic"] = run
                     db[chat_id][0]["markup"] = "stream"

@@ -46,10 +46,12 @@ async def _send_stream_msg(
             has_spoiler=has_spoiler,
         )
     else:
-        return await app.send_message(
+        return await app.send_video(
             original_chat_id,
-            text=caption,
+            video=THUMB_OFF_VIDEO_URL,
+            caption=caption,
             reply_markup=reply_markup,
+            supports_streaming=True,
         )
 
 
