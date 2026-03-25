@@ -766,3 +766,36 @@ async def thumb_off():
     exists = await is_on_off(5)
     if not exists:
         await onoffdb.insert_one({"on_off": 5})
+
+
+# ── Global NSFW on/off (key 6 in onoffdb) ────────────────────────────────────
+# on_off=6 in DB means global NSFW is DISABLED (off).
+# Default: not in DB = NSFW is ON globally.
+_global_nsfw_off_cache: list = []  # empty = not loaded; [0]=True means globally OFF
+
+
+async def is_global_nsfw_off() -> bool:
+    """Returns True if NSFW filter is globally disabled by the bot owner."""
+    if not _global_nsfw_off_cache:
+        get = await onoffdb.find_one({"on_off": 6})
+        _global_nsfw_off_cache.clear()
+        _global_nsfw_off_cache.append(bool(get))
+    return _global_nsfw_off_cache[0]
+
+
+async def set_global_nsfw_off():
+    """Globally disable the NSFW filter (owner-only action)."""
+    _global_nsfw_off_cache.clear()
+    _global_nsfw_off_cache.append(True)
+    exists = await is_on_off(6)
+    if not exists:
+        await onoffdb.insert_one({"on_off": 6})
+
+
+async def set_global_nsfw_on():
+    """Re-enable the NSFW filter globally."""
+    _global_nsfw_off_cache.clear()
+    _global_nsfw_off_cache.append(False)
+    exists = await is_on_off(6)
+    if exists:
+        await onoffdb.delete_one({"on_off": 6})

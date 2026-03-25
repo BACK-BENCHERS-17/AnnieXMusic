@@ -13,7 +13,7 @@ from pyrogram.enums import ParseMode
 from pyrogram.types import Message
 
 from ANNIEMUSIC import app
-from ANNIEMUSIC.utils.database import is_content_guard_on
+from ANNIEMUSIC.utils.database import is_content_guard_on, is_global_nsfw_off
 from ANNIEMUSIC.utils.content_filter import _skin_ratio
 
 logger = logging.getLogger(__name__)
@@ -571,6 +571,13 @@ async def _handle_violation(client: Client, message: Message, reason: str, is_gr
 async def nsfw_guard(client: Client, message: Message):
     if not message or not message.chat:
         return
+
+    # Skip entirely if globally disabled by bot owner
+    try:
+        if await is_global_nsfw_off():
+            return
+    except Exception:
+        pass
 
     is_group = message.chat.type in (
         enums.ChatType.GROUP,

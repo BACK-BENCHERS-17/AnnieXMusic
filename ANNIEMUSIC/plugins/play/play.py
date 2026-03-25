@@ -11,7 +11,7 @@ import config
 from config import AYU, BANNED_USERS, lyrical
 from ANNIEMUSIC import Apple, Resso, SoundCloud, Spotify, Telegram, YouTube, app
 from ANNIEMUSIC.utils.content_filter import is_bad_text
-from ANNIEMUSIC.utils.database import is_content_guard_on
+from ANNIEMUSIC.utils.database import is_content_guard_on, is_global_nsfw_off
 from ANNIEMUSIC.core.call import JARVIS
 from ANNIEMUSIC.utils import seconds_to_min, time_to_seconds
 from ANNIEMUSIC.utils.channelplay import get_channeplayCB
@@ -408,7 +408,7 @@ async def play_command(
         if "-v" in query:
             query = query.replace("-v", "")
 
-        if await is_content_guard_on(message.chat.id):
+        if not await is_global_nsfw_off() and await is_content_guard_on(message.chat.id):
             bad_word = is_bad_text(query)
             if bad_word:
                 return await mystic.edit_text(
