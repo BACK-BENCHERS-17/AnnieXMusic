@@ -66,41 +66,151 @@ def nsfw_nudenet_check(image_bytes: bytes):
         return None, []
 
 
-def nsfw_check_url(url: str) -> dict:
-    """Check image URL for NSFW content. Returns result dict."""
+def _detect_media_type(content_type: str, url: str) -> str:
+    """Detect media type from Content-Type header or URL extension."""
+    ct = content_type.lower()
+    if "video/" in ct or url.lower().endswith((".mp4", ".webm", ".avi", ".mov")):
+        return "video"
+    if "image/gif" in ct or url.lower().endswith(".gif"):
+        return "gif"
+    if any(x in ct for x in ("image/", "application/octet-stream")):
+        return "image"
+    return "unknown"
+
+
+def _extract_gif_frames_bytes(data: bytes, max_frames: int = 6) -> list[bytes]:
+    """Extract evenly-spaced frames from a GIF, return list of PNG bytes."""
+    from PIL import Image
+    frames_bytes = []
     try:
-        resp = _requests.get(url, timeout=12, stream=True)
+        img = Image.open(io.BytesIO(data))
+        n = getattr(img, "n_frames", 1)
+        step = max(1, n // max_frames)
+        for i in range(0, n, step):
+            if len(frames_bytes) >= max_frames:
+                break
+            try:
+                img.seek(i)
+                buf = io.BytesIO()
+                img.convert("RGB").save(buf, "PNG")
+                frames_bytes.append(buf.getvalue())
+            except EOFError:
+                break
+    except Exception:
+        frames_bytes = [data]  # fallback: try the raw data
+    return frames_bytes
+
+
+def _extract_video_frames_bytes(data: bytes, max_frames: int = 6) -> list[bytes]:
+    """Extract frames from a video (mp4/webm) using ffmpeg. Returns list of PNG bytes."""
+    import subprocess, tempfile, glob as _glob
+    frames_bytes = []
+    tmp_in = tmp_out = None
+    try:
+        suffix = ".mp4"
+        with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as f:
+            f.write(data)
+            tmp_in = f.name
+        out_base = tmp_in + "_vf"
+        cmd = [
+            "ffmpeg", "-y", "-i", tmp_in,
+            "-vf", "fps=1,scale=640:-2",
+            "-vframes", str(max_frames),
+            f"{out_base}%03d.png",
+        ]
+        subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=20)
+        for fp in sorted(_glob.glob(f"{out_base}*.png"))[:max_frames]:
+            with open(fp, "rb") as f:
+                frames_bytes.append(f.read())
+            try:
+                os.remove(fp)
+            except Exception:
+                pass
+    except Exception:
+        pass
+    finally:
+        if tmp_in and os.path.exists(tmp_in):
+            try:
+                os.remove(tmp_in)
+            except Exception:
+                pass
+    return frames_bytes
+
+
+def _check_frames_nsfw(frames: list[bytes]) -> tuple[bool, list, float]:
+    """Run NudeNet + skin ratio on a list of frame byte blobs. Returns (is_nsfw, labels, max_skin)."""
+    all_labels = []
+    max_skin = 0.0
+    for fb in frames:
+        is_bad, lbs = nsfw_nudenet_check(fb)
+        if is_bad:
+            return True, lbs, max(max_skin, nsfw_skin_ratio(fb))
+        skin = nsfw_skin_ratio(fb)
+        max_skin = max(max_skin, skin)
+        all_labels.extend(lbs)
+    return False, all_labels, max_skin
+
+
+def nsfw_check_url(url: str) -> dict:
+    """Check image / GIF / video URL for NSFW content. Returns result dict."""
+    _SIZE_LIMIT_IMAGE = 5_000_000   # 5 MB
+    _SIZE_LIMIT_VIDEO = 15_000_000  # 15 MB
+    try:
+        resp = _requests.get(url, timeout=15, stream=True)
         if resp.status_code != 200:
             return {"error": f"HTTP {resp.status_code}", "by": "t.me/PGL_B4CHI"}
+
         ct = resp.headers.get("Content-Type", "")
-        if not any(x in ct for x in ("image/", "application/octet-stream")):
-            return {"error": "Not an image URL", "by": "t.me/PGL_B4CHI"}
-        image_bytes = b""
+        media_type = _detect_media_type(ct, url)
+
+        if media_type == "unknown":
+            return {"error": "Unsupported media type. Supported: image (jpg/png/webp/gif), GIF, video (mp4/webm)", "by": "t.me/PGL_B4CHI"}
+
+        size_limit = _SIZE_LIMIT_VIDEO if media_type == "video" else _SIZE_LIMIT_IMAGE
+        raw = b""
         for chunk in resp.iter_content(65536):
-            image_bytes += chunk
-            if len(image_bytes) > 5_000_000:
-                break
-        if not image_bytes:
+            raw += chunk
+            if len(raw) > size_limit:
+                return {"error": f"File too large (limit: {size_limit // 1_000_000} MB for {media_type})", "by": "t.me/PGL_B4CHI"}
+        if not raw:
             return {"error": "Empty response", "by": "t.me/PGL_B4CHI"}
 
-        is_nsfw, labels = nsfw_nudenet_check(image_bytes)
-        skin = nsfw_skin_ratio(image_bytes)
-        if is_nsfw is not None:
-            confidence = max((l["confidence"] for l in labels), default=round(skin, 3))
+        # ── Extract frames based on media type ───────────────────────────
+        if media_type == "gif":
+            frames = _extract_gif_frames_bytes(raw)
+        elif media_type == "video":
+            frames = _extract_video_frames_bytes(raw)
+        else:
+            frames = [raw]  # single image
+
+        if not frames:
+            return {"error": "Could not extract frames from media", "by": "t.me/PGL_B4CHI"}
+
+        # ── Run NudeNet on all frames ─────────────────────────────────────
+        is_nsfw, labels, max_skin = _check_frames_nsfw(frames)
+        frames_checked = len(frames)
+
+        if labels or is_nsfw:
             return {
                 "is_nsfw": is_nsfw,
+                "media_type": media_type,
                 "method": "nudenet",
-                "confidence": confidence,
-                "skin_ratio": round(skin, 3),
+                "frames_checked": frames_checked,
+                "confidence": max((l["confidence"] for l in labels), default=round(max_skin, 3)),
+                "skin_ratio": round(max_skin, 3),
                 "labels": labels,
                 "by": "t.me/PGL_B4CHI",
             }
-        is_nsfw_skin = skin >= 0.48
+
+        # ── Skin ratio fallback ───────────────────────────────────────────
+        is_nsfw_skin = max_skin >= 0.48
         return {
             "is_nsfw": is_nsfw_skin,
+            "media_type": media_type,
             "method": "skin_ratio",
-            "confidence": round(skin, 3),
-            "skin_ratio": round(skin, 3),
+            "frames_checked": frames_checked,
+            "confidence": round(max_skin, 3),
+            "skin_ratio": round(max_skin, 3),
             "labels": [],
             "by": "t.me/PGL_B4CHI",
         }
@@ -388,36 +498,53 @@ pre .b{color:#60a5fa}
   <!-- NSFW -->
   <div class="sec-title" id="sec-nsfw">NSFW &amp; Content Safety</div>
 
-  <div class="card" data-tags="nsfw detection image adult content check 18+ explicit nudity">
+  <div class="card" data-tags="nsfw detection image gif video sticker adult content check 18+ explicit nudity frames">
     <div class="card-head" onclick="toggle(this)">
       <span class="method get">GET</span><span class="path">/api/nsfw</span>
-      <span class="short">Detect adult / explicit content</span>
+      <span class="short">Detect adult / explicit content in image, GIF &amp; video</span>
       <span class="tog"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span>
     </div>
     <div class="body">
-      <p class="desc">Check if an image URL contains NSFW / adult / explicit content. Uses AI-based NudeNet detection with skin-ratio fallback. Max image size 5 MB. Works on jpg, png, webp, gif.</p>
+      <p class="desc">Check any media URL for NSFW / adult / explicit content. Supports <b>images</b> (jpg, png, webp), <b>GIFs</b> (multi-frame scan), and <b>videos</b> (mp4, webm — ffmpeg frame extraction). Uses AI-based NudeNet detection on every frame with skin-ratio fallback. Size limits: images 5 MB · GIF 5 MB · video 15 MB.</p>
       <div class="ptitle">Parameters</div>
-      <div class="prow"><span class="pname">url</span><span class="ptype">string</span><span class="preq">required</span><span class="pdesc">Direct URL of the image to check</span></div>
-      <div class="cw"><div class="clbl">Example <button class="cbtn" onclick="cp('c12')">Copy</button></div><pre id="c12">GET /api/nsfw?url=https://example.com/image.jpg</pre></div>
-      <div class="cw"><div class="clbl">Response — Safe image</div>
+      <div class="prow"><span class="pname">url</span><span class="ptype">string</span><span class="preq">required</span><span class="pdesc">Direct URL of the media to check (image / GIF / video)</span></div>
+      <div class="cw"><div class="clbl">Example — Image <button class="cbtn" onclick="cp('c12a')">Copy</button></div><pre id="c12a">GET /api/nsfw?url=https://example.com/photo.jpg</pre></div>
+      <div class="cw"><div class="clbl">Example — GIF <button class="cbtn" onclick="cp('c12b')">Copy</button></div><pre id="c12b">GET /api/nsfw?url=https://example.com/animation.gif</pre></div>
+      <div class="cw"><div class="clbl">Example — Video <button class="cbtn" onclick="cp('c12c')">Copy</button></div><pre id="c12c">GET /api/nsfw?url=https://example.com/clip.mp4</pre></div>
+      <div class="cw"><div class="clbl">Response — Safe</div>
 <pre>{
   <span class="k">"is_nsfw"</span>: <span class="b">false</span>,
+  <span class="k">"media_type"</span>: <span class="s">"image"</span>,
   <span class="k">"method"</span>: <span class="s">"nudenet"</span>,
+  <span class="k">"frames_checked"</span>: <span class="n">1</span>,
   <span class="k">"confidence"</span>: <span class="n">0.08</span>,
   <span class="k">"skin_ratio"</span>: <span class="n">0.06</span>,
   <span class="k">"labels"</span>: [],
   <span class="k">"by"</span>: <span class="s">"t.me/PGL_B4CHI"</span>
 }</pre></div>
-      <div class="cw"><div class="clbl">Response — NSFW image</div>
+      <div class="cw"><div class="clbl">Response — NSFW GIF (frame scan)</div>
 <pre>{
   <span class="k">"is_nsfw"</span>: <span class="b">true</span>,
+  <span class="k">"media_type"</span>: <span class="s">"gif"</span>,
   <span class="k">"method"</span>: <span class="s">"nudenet"</span>,
-  <span class="k">"confidence"</span>: <span class="n">0.87</span>,
-  <span class="k">"skin_ratio"</span>: <span class="n">0.54</span>,
-  <span class="k">"labels"</span>: [{ <span class="k">"label"</span>: <span class="s">"FEMALE_BREAST_EXPOSED"</span>, <span class="k">"confidence"</span>: <span class="n">0.87</span> }],
+  <span class="k">"frames_checked"</span>: <span class="n">6</span>,
+  <span class="k">"confidence"</span>: <span class="n">0.91</span>,
+  <span class="k">"skin_ratio"</span>: <span class="n">0.57</span>,
+  <span class="k">"labels"</span>: [{ <span class="k">"label"</span>: <span class="s">"FEMALE_BREAST_EXPOSED"</span>, <span class="k">"confidence"</span>: <span class="n">0.91</span> }],
   <span class="k">"by"</span>: <span class="s">"t.me/PGL_B4CHI"</span>
 }</pre></div>
-      <div class="rtags"><span class="rt r200">200 OK</span><span class="rt r400">400 Missing / bad URL</span><span class="rt r500">500 Error</span></div>
+      <div class="cw"><div class="clbl">Response — NSFW Video (frame scan)</div>
+<pre>{
+  <span class="k">"is_nsfw"</span>: <span class="b">true</span>,
+  <span class="k">"media_type"</span>: <span class="s">"video"</span>,
+  <span class="k">"method"</span>: <span class="s">"nudenet"</span>,
+  <span class="k">"frames_checked"</span>: <span class="n">6</span>,
+  <span class="k">"confidence"</span>: <span class="n">0.85</span>,
+  <span class="k">"skin_ratio"</span>: <span class="n">0.49</span>,
+  <span class="k">"labels"</span>: [{ <span class="k">"label"</span>: <span class="s">"BUTTOCKS_EXPOSED"</span>, <span class="k">"confidence"</span>: <span class="n">0.85</span> }],
+  <span class="k">"by"</span>: <span class="s">"t.me/PGL_B4CHI"</span>
+}</pre></div>
+      <div class="rtags"><span class="rt r200">200 OK</span><span class="rt r400">400 Missing / bad URL</span><span class="rt r400">400 File too large</span><span class="rt r500">500 Error</span></div>
     </div>
   </div>
 
