@@ -38,11 +38,17 @@ async def _edit_media_or_reply_with_video(cbq, caption: str, reply_markup):
 async def open_stats(client, message: Message, _):
     is_sudo = message.from_user and (message.from_user.id in SUDOERS)
     keyboard = build_stats_keyboard(_, is_sudo)
-    await message.reply_video(
-        video=config.STATS_VID_URL,
-        caption=_["gstats_2"].format(app.mention),
-        reply_markup=keyboard,
-    )
+    try:
+        await message.reply_video(
+            video=config.STATS_VID_URL,
+            caption=_["gstats_2"].format(app.mention),
+            reply_markup=keyboard,
+        )
+    except Exception:
+        await message.reply_text(
+            _["gstats_2"].format(app.mention),
+            reply_markup=keyboard,
+        )
 
 
 @app.on_callback_query(filters.regex(f"^{StatsCallbacks.BACK}$") & ~BANNED_USERS)

@@ -141,7 +141,7 @@ async def skip(cli, message: Message, _, chat_id):
             run = await send_msg_invert_preview(
                 app,
                 chat_id,
-                text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
+                text=f'{_cap}<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>',
                 reply_markup=InlineKeyboardMarkup(button),
                 reply_to_message_id=message.id,
             )
@@ -186,7 +186,7 @@ async def skip(cli, message: Message, _, chat_id):
             run = await send_msg_invert_preview(
                 app,
                 chat_id,
-                text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
+                text=f'{_cap}<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>',
                 reply_markup=InlineKeyboardMarkup(button),
                 reply_to_message_id=message.id,
             )
@@ -213,7 +213,7 @@ async def skip(cli, message: Message, _, chat_id):
             run = await send_msg_invert_preview(
                 app,
                 chat_id,
-                text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
+                text=f'{_cap}<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>',
                 reply_markup=InlineKeyboardMarkup(button),
                 reply_to_message_id=message.id,
             )
@@ -252,7 +252,7 @@ async def skip(cli, message: Message, _, chat_id):
                 run = await send_msg_invert_preview(
                     app,
                     chat_id,
-                    text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
+                    text=f'{_cap}<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>',
                     reply_markup=InlineKeyboardMarkup(button),
                     reply_to_message_id=message.id,
                 )
@@ -277,7 +277,7 @@ async def skip(cli, message: Message, _, chat_id):
                 run = await send_msg_invert_preview(
                     app,
                     chat_id,
-                    text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
+                    text=f'{_cap}<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>',
                     reply_markup=InlineKeyboardMarkup(button),
                     reply_to_message_id=message.id,
                 )
@@ -304,7 +304,7 @@ async def skip(cli, message: Message, _, chat_id):
                 run = await send_msg_invert_preview(
                     app,
                     chat_id,
-                    text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
+                    text=f'{_cap}<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>',
                     reply_markup=InlineKeyboardMarkup(button),
                     reply_to_message_id=message.id,
                 )
