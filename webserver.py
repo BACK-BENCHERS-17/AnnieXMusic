@@ -1005,6 +1005,681 @@ def api_video():
 def health():
     return jsonify({"status": "running"}), 200
 
+
+# ── NSFW Detection API ────────────────────────────────────────────────────────
+
+def _skin_ratio_check(image_bytes: bytes) -> float:
+    try:
+        from PIL import Image
+        import numpy as np
+        import io
+        img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+        img = img.resize((300, 300))
+        arr = np.array(img, dtype=float)
+        r, g, b = arr[:, :, 0], arr[:, :, 1], arr[:, :, 2]
+        skin_mask = (
+            (r > 95) & (g > 40) & (b > 20) &
+            (r > g) & (r > b) &
+            ((r - g) > 15) &
+            (r < 240) & (g < 200) & (b < 180)
+        )
+        return float(skin_mask.sum()) / (300 * 300)
+    except Exception:
+        return 0.0
+
+
+def _nudenet_check(image_bytes: bytes):
+    try:
+        import io
+        from PIL import Image
+        from nudenet import NudeDetector
+        detector = NudeDetector()
+        import tempfile, os
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+            tmp_path = tmp.name
+            img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+            img.save(tmp_path, "PNG")
+        try:
+            detections = detector.detect(tmp_path)
+            EXPOSED = {
+                "FEMALE_GENITALIA_EXPOSED", "MALE_GENITALIA_EXPOSED",
+                "FEMALE_BREAST_EXPOSED", "ANUS_EXPOSED", "BUTTOCKS_EXPOSED",
+            }
+            COVERED = {
+                "FEMALE_GENITALIA_COVERED", "FEMALE_BREAST_COVERED",
+                "BUTTOCKS_COVERED",
+            }
+            labels = []
+            is_nsfw = False
+            for det in detections:
+                cls = det.get("class", "")
+                score = det.get("score", 0)
+                if cls in EXPOSED and score >= 0.50:
+                    is_nsfw = True
+                    labels.append({"label": cls, "confidence": round(score, 3)})
+                elif cls in COVERED and score >= 0.65:
+                    is_nsfw = True
+                    labels.append({"label": cls, "confidence": round(score, 3)})
+            return is_nsfw, labels
+        finally:
+            try:
+                os.remove(tmp_path)
+            except Exception:
+                pass
+    except Exception:
+        return None, []
+
+
+@app.route("/api/nsfw")
+def api_nsfw():
+    """
+    NSFW Image Detection API
+    GET /api/nsfw?url=<image_url>
+    Returns: { is_nsfw, method, confidence, labels, by }
+    by t.me/PGL_B4CHI
+    """
+    url = request.args.get("url", "").strip()
+    if not url:
+        return jsonify({
+            "error": "url parameter required",
+            "usage": "GET /api/nsfw?url=https://example.com/image.jpg",
+            "by": "t.me/PGL_B4CHI"
+        }), 400
+
+    try:
+        resp = requests.get(url, timeout=12, stream=True)
+        if resp.status_code != 200:
+            return jsonify({"error": f"Could not fetch image: HTTP {resp.status_code}", "by": "t.me/PGL_B4CHI"}), 400
+
+        content_type = resp.headers.get("Content-Type", "")
+        if not any(ct in content_type for ct in ("image/", "application/octet-stream")):
+            return jsonify({"error": "URL does not point to an image", "by": "t.me/PGL_B4CHI"}), 400
+
+        image_bytes = b""
+        for chunk in resp.iter_content(chunk_size=65536):
+            image_bytes += chunk
+            if len(image_bytes) > 5_000_000:
+                break
+
+        if not image_bytes:
+            return jsonify({"error": "Empty image response", "by": "t.me/PGL_B4CHI"}), 400
+
+        # Try NudeNet first (more accurate)
+        is_nsfw, labels = _nudenet_check(image_bytes)
+        if is_nsfw is not None:
+            skin = _skin_ratio_check(image_bytes)
+            confidence = max((l["confidence"] for l in labels), default=round(skin, 3))
+            return jsonify({
+                "is_nsfw": is_nsfw,
+                "method": "nudenet",
+                "confidence": confidence,
+                "skin_ratio": round(skin, 3),
+                "labels": labels,
+                "by": "t.me/PGL_B4CHI"
+            })
+
+        # Fallback: skin ratio
+        skin = _skin_ratio_check(image_bytes)
+        is_nsfw_skin = skin >= 0.48
+        return jsonify({
+            "is_nsfw": is_nsfw_skin,
+            "method": "skin_ratio",
+            "confidence": round(skin, 3),
+            "skin_ratio": round(skin, 3),
+            "labels": [],
+            "by": "t.me/PGL_B4CHI"
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e), "by": "t.me/PGL_B4CHI"}), 500
+
+
+# ── API Documentation Page ────────────────────────────────────────────────────
+
+_API_DOCS_HTML = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Annie X Music — API Docs</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#050508;--s1:#0f0f14;--s2:#16161e;--s3:#1e1e28;--s4:#2a2a38;
+  --acc:#a855f7;--acc2:#7c3aed;--green:#10b981;--blue:#3b82f6;
+  --red:#ef4444;--orange:#f97316;--pink:#ec4899;
+  --text:#fff;--text2:#a0a0b8;--text3:#505068;
+  --border:rgba(168,85,247,0.15);--border2:rgba(255,255,255,0.07);
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;padding:0}
+a{color:var(--acc);text-decoration:none}
+a:hover{text-decoration:underline}
+code,pre{font-family:'JetBrains Mono',monospace}
+
+/* Header */
+.header{background:linear-gradient(135deg,#0f0820 0%,#1a0a2e 50%,#0d1a3a 100%);border-bottom:1px solid var(--border);padding:36px 24px 28px;text-align:center;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(168,85,247,0.12),transparent);pointer-events:none}
+.header-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.3);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:600;color:var(--acc);margin-bottom:16px;letter-spacing:0.5px}
+.header-badge::before{content:'●';font-size:8px;color:var(--green);animation:pulse 2s ease infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.header h1{font-size:clamp(24px,5vw,40px);font-weight:800;background:linear-gradient(135deg,#fff 0%,#c084fc 60%,#a855f7 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.header p{color:var(--text2);font-size:15px;margin-bottom:16px}
+.by-link{display:inline-flex;align-items:center;gap:6px;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.25);border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;color:var(--acc);transition:all 0.2s}
+.by-link:hover{background:rgba(168,85,247,0.2);text-decoration:none}
+.by-link svg{width:16px;height:16px;fill:currentColor}
+
+/* Layout */
+.container{max-width:960px;margin:0 auto;padding:32px 20px}
+
+/* Search */
+.search-wrap{margin-bottom:32px;position:relative}
+.search-wrap input{width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:12px;padding:14px 20px 14px 48px;font-size:14px;color:var(--text);font-family:'Inter',sans-serif;outline:none;transition:border-color 0.2s}
+.search-wrap input:focus{border-color:var(--acc)}
+.search-wrap input::placeholder{color:var(--text3)}
+.search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--text3)}
+.search-icon svg{width:18px;height:18px;fill:currentColor}
+
+/* Stats bar */
+.stats-bar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:32px}
+.stat-card{flex:1;min-width:120px;background:var(--s2);border:1px solid var(--border2);border-radius:12px;padding:16px 20px;text-align:center}
+.stat-num{font-size:28px;font-weight:800;background:linear-gradient(135deg,var(--acc),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-label{font-size:12px;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600}
+
+/* Section */
+.section-title{font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border2)}
+
+/* API Card */
+.api-card{background:var(--s2);border:1px solid var(--border2);border-radius:16px;margin-bottom:16px;overflow:hidden;transition:border-color 0.2s;cursor:pointer}
+.api-card:hover{border-color:rgba(168,85,247,0.3)}
+.api-card.open{border-color:rgba(168,85,247,0.4)}
+.api-head{display:flex;align-items:center;gap:12px;padding:16px 20px;user-select:none}
+.method{display:inline-block;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:0.5px;flex-shrink:0}
+.method.get{background:rgba(16,185,129,0.15);color:var(--green);border:1px solid rgba(16,185,129,0.3)}
+.method.post{background:rgba(59,130,246,0.15);color:var(--blue);border:1px solid rgba(59,130,246,0.3)}
+.api-path{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;color:var(--text);flex:1}
+.api-desc-short{font-size:13px;color:var(--text2);flex:1;text-align:right;margin-left:8px}
+.api-toggle{color:var(--text3);transition:transform 0.2s;flex-shrink:0}
+.api-toggle svg{width:16px;height:16px;fill:currentColor}
+.api-card.open .api-toggle{transform:rotate(180deg)}
+.api-body{display:none;border-top:1px solid var(--border2);padding:20px}
+.api-card.open .api-body{display:block}
+
+/* Params */
+.param-title{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
+.param-row{display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid var(--border2)}
+.param-row:last-child{border-bottom:none}
+.param-name{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--acc);min-width:100px}
+.param-type{font-size:11px;background:var(--s4);padding:2px 8px;border-radius:4px;color:var(--text2);flex-shrink:0}
+.param-req{font-size:10px;background:rgba(239,68,68,0.15);color:var(--red);padding:2px 6px;border-radius:4px;flex-shrink:0;font-weight:600}
+.param-opt{font-size:10px;background:rgba(80,80,104,0.3);color:var(--text3);padding:2px 6px;border-radius:4px;flex-shrink:0}
+.param-desc{font-size:13px;color:var(--text2);flex:1}
+
+/* Code block */
+.code-wrap{margin-top:14px}
+.code-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+.copy-btn{background:var(--s4);border:none;color:var(--text2);padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s}
+.copy-btn:hover{background:var(--acc);color:#fff}
+pre{background:var(--s3);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;font-size:12px;line-height:1.6;overflow-x:auto;color:#e2e8f0}
+pre .key{color:#c084fc}
+pre .str{color:#86efac}
+pre .num{color:#fbbf24}
+pre .bool{color:#60a5fa}
+
+/* Response badge */
+.response-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
+.resp-tag{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600}
+.resp-200{background:rgba(16,185,129,0.12);color:var(--green);border:1px solid rgba(16,185,129,0.25)}
+.resp-400{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.2)}
+.resp-500{background:rgba(249,115,22,0.1);color:var(--orange);border:1px solid rgba(249,115,22,0.2)}
+
+/* Footer */
+.footer{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px}
+.footer a{color:var(--acc)}
+
+/* Mobile */
+@media(max-width:600px){
+  .api-desc-short{display:none}
+  .stats-bar{gap:8px}
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-badge">
+    <span>API</span>
+    <span>Live &amp; Free</span>
+  </div>
+  <h1>Annie X Music API</h1>
+  <p>Public REST API for music, search, NSFW detection &amp; more</p>
+  <a class="by-link" href="https://t.me/PGL_B4CHI" target="_blank">
+    <svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.8 13.917l-2.963-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.351 1.642z"/></svg>
+    by t.me/PGL_B4CHI
+  </a>
+</div>
+
+<div class="container">
+  <div class="search-wrap">
+    <span class="search-icon"><svg viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    <input type="text" id="search" placeholder="Search APIs..." oninput="filterApis(this.value)"/>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-card"><div class="stat-num">12</div><div class="stat-label">Endpoints</div></div>
+    <div class="stat-card"><div class="stat-num">Free</div><div class="stat-label">No Auth</div></div>
+    <div class="stat-card"><div class="stat-num">REST</div><div class="stat-label">JSON API</div></div>
+    <div class="stat-card"><div class="stat-num">24/7</div><div class="stat-label">Uptime</div></div>
+  </div>
+
+  <div class="section-title">Music &amp; YouTube</div>
+
+  <div class="api-card" data-tags="search youtube music">
+    <div class="api-head" onclick="toggle(this)">
+      <span class="method get">GET</span>
+      <span class="api-path">/api/search</span>
+      <span class="api-desc-short">Search songs on YouTube</span>
+      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="api-body">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Search YouTube for songs. Returns a list of results with title, channel, duration and thumbnail.</p>
+      <div class="param-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">q</span>
+        <span class="param-type">string</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">Search query (e.g. "Arijit Singh new song")</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Example Request <button class="copy-btn" onclick="copyCode('ex1')">Copy</button></div>
+        <pre id="ex1">GET /api/search?q=Arijit+Singh</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Response</div>
+        <pre><span class="key">"results"</span>: [
+  {
+    <span class="key">"id"</span>: <span class="str">"dQw4w9WgXcQ"</span>,
+    <span class="key">"title"</span>: <span class="str">"Song Title"</span>,
+    <span class="key">"channel"</span>: <span class="str">"Channel Name"</span>,
+    <span class="key">"duration"</span>: <span class="str">"4:32"</span>,
+    <span class="key">"thumb"</span>: <span class="str">"https://img.youtube.com/..."</span>
+  }
+]</pre>
+      </div>
+      <div class="response-tags">
+        <span class="resp-tag resp-200">200 OK</span>
+        <span class="resp-tag resp-400">400 Missing q</span>
+        <span class="resp-tag resp-500">500 Error</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="api-card" data-tags="stream metadata youtube video">
+    <div class="api-head" onclick="toggle(this)">
+      <span class="method get">GET</span>
+      <span class="api-path">/api/stream</span>
+      <span class="api-desc-short">Get video metadata</span>
+      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="api-body">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Get metadata for a YouTube video — title, channel, duration, thumbnail.</p>
+      <div class="param-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">v</span>
+        <span class="param-type">string</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">YouTube video ID (11 chars, e.g. dQw4w9WgXcQ)</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Example <button class="copy-btn" onclick="copyCode('ex2')">Copy</button></div>
+        <pre id="ex2">GET /api/stream?v=dQw4w9WgXcQ</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Response</div>
+        <pre>{
+  <span class="key">"title"</span>: <span class="str">"Never Gonna Give You Up"</span>,
+  <span class="key">"channel"</span>: <span class="str">"Rick Astley"</span>,
+  <span class="key">"duration"</span>: <span class="str">"3:33"</span>,
+  <span class="key">"seconds"</span>: <span class="num">213</span>,
+  <span class="key">"thumb"</span>: <span class="str">"https://img.youtube.com/vi/.../mqdefault.jpg"</span>
+}</pre>
+      </div>
+      <div class="response-tags"><span class="resp-tag resp-200">200 OK</span><span class="resp-tag resp-400">400 Invalid ID</span></div>
+    </div>
+  </div>
+
+  <div class="api-card" data-tags="audio proxy youtube download stream">
+    <div class="api-head" onclick="toggle(this)">
+      <span class="method get">GET</span>
+      <span class="api-path">/api/audio</span>
+      <span class="api-desc-short">Proxy audio stream</span>
+      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="api-body">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Proxy audio stream from YouTube — bypasses CORS. Returns audio/mp4 or audio/webm stream. Supports Range requests.</p>
+      <div class="param-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">v</span>
+        <span class="param-type">string</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">YouTube video ID</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Example <button class="copy-btn" onclick="copyCode('ex3')">Copy</button></div>
+        <pre id="ex3">GET /api/audio?v=dQw4w9WgXcQ</pre>
+      </div>
+      <div class="response-tags"><span class="resp-tag resp-200">200 Audio Stream</span><span class="resp-tag resp-400">400 Invalid ID</span><span class="resp-tag resp-500">503 Unavailable</span></div>
+    </div>
+  </div>
+
+  <div class="api-card" data-tags="download youtube audio file">
+    <div class="api-head" onclick="toggle(this)">
+      <span class="method get">GET</span>
+      <span class="api-path">/api/download</span>
+      <span class="api-desc-short">Download audio file</span>
+      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="api-body">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Download audio as a file with Content-Disposition header. Opens download dialog in browser.</p>
+      <div class="param-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">v</span>
+        <span class="param-type">string</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">YouTube video ID</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Example <button class="copy-btn" onclick="copyCode('ex4')">Copy</button></div>
+        <pre id="ex4">GET /api/download?v=dQw4w9WgXcQ</pre>
+      </div>
+      <div class="response-tags"><span class="resp-tag resp-200">200 File Download</span><span class="resp-tag resp-500">500 Error</span></div>
+    </div>
+  </div>
+
+  <div class="api-card" data-tags="video proxy youtube">
+    <div class="api-head" onclick="toggle(this)">
+      <span class="method get">GET</span>
+      <span class="api-path">/api/video</span>
+      <span class="api-desc-short">Proxy video stream</span>
+      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="api-body">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Proxy video+audio stream from YouTube for web player. Returns video/mp4 stream.</p>
+      <div class="param-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">v</span>
+        <span class="param-type">string</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">YouTube video ID</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Example <button class="copy-btn" onclick="copyCode('ex5')">Copy</button></div>
+        <pre id="ex5">GET /api/video?v=dQw4w9WgXcQ</pre>
+      </div>
+      <div class="response-tags"><span class="resp-tag resp-200">200 Video Stream</span><span class="resp-tag resp-500">500 Error</span></div>
+    </div>
+  </div>
+
+  <div class="api-card" data-tags="trending songs youtube music">
+    <div class="api-head" onclick="toggle(this)">
+      <span class="method get">GET</span>
+      <span class="api-path">/api/trending</span>
+      <span class="api-desc-short">Trending songs</span>
+      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="api-body">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Get trending songs — Hindi, Punjabi, Bollywood, International. Updated every 30 minutes. No parameters needed.</p>
+      <div class="code-wrap">
+        <div class="code-label">Example <button class="copy-btn" onclick="copyCode('ex6')">Copy</button></div>
+        <pre id="ex6">GET /api/trending</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Response</div>
+        <pre>{
+  <span class="key">"songs"</span>: [
+    {
+      <span class="key">"id"</span>: <span class="str">"abc123"</span>,
+      <span class="key">"title"</span>: <span class="str">"Song Name"</span>,
+      <span class="key">"channel"</span>: <span class="str">"Artist"</span>,
+      <span class="key">"duration"</span>: <span class="str">"3:45"</span>,
+      <span class="key">"category"</span>: <span class="str">"Hindi"</span>,
+      <span class="key">"thumb"</span>: <span class="str">"https://..."</span>
+    }
+  ]
+}</pre>
+      </div>
+      <div class="response-tags"><span class="resp-tag resp-200">200 OK</span></div>
+    </div>
+  </div>
+
+  <div class="api-card" data-tags="related songs youtube recommendations">
+    <div class="api-head" onclick="toggle(this)">
+      <span class="method get">GET</span>
+      <span class="api-path">/api/related</span>
+      <span class="api-desc-short">Related songs</span>
+      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="api-body">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Get related/recommended songs for a given video ID.</p>
+      <div class="param-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">v</span>
+        <span class="param-type">string</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">YouTube video ID</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Example <button class="copy-btn" onclick="copyCode('ex7')">Copy</button></div>
+        <pre id="ex7">GET /api/related?v=dQw4w9WgXcQ</pre>
+      </div>
+      <div class="response-tags"><span class="resp-tag resp-200">200 OK</span><span class="resp-tag resp-400">400 Invalid ID</span></div>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:32px">Bot &amp; System</div>
+
+  <div class="api-card" data-tags="bot info status name">
+    <div class="api-head" onclick="toggle(this)">
+      <span class="method get">GET</span>
+      <span class="api-path">/api/botinfo</span>
+      <span class="api-desc-short">Bot information</span>
+      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="api-body">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Returns bot name, username, bio and supported platforms.</p>
+      <div class="code-wrap">
+        <div class="code-label">Example <button class="copy-btn" onclick="copyCode('ex8')">Copy</button></div>
+        <pre id="ex8">GET /api/botinfo</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Response</div>
+        <pre>{
+  <span class="key">"name"</span>: <span class="str">"Annie X Music"</span>,
+  <span class="key">"username"</span>: <span class="str">"ANNIEXMUSICxBOT"</span>,
+  <span class="key">"bio"</span>: <span class="str">"Advanced Telegram Music Bot"</span>,
+  <span class="key">"features"</span>: [<span class="str">"YouTube"</span>, <span class="str">"Spotify"</span>, <span class="str">"Apple Music"</span>]
+}</pre>
+      </div>
+      <div class="response-tags"><span class="resp-tag resp-200">200 OK</span></div>
+    </div>
+  </div>
+
+  <div class="api-card" data-tags="status uptime system stats cpu ram">
+    <div class="api-head" onclick="toggle(this)">
+      <span class="method get">GET</span>
+      <span class="api-path">/api/status</span>
+      <span class="api-desc-short">Bot &amp; system status</span>
+      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="api-body">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Returns bot uptime, CPU/RAM usage and currently active voice chat queues.</p>
+      <div class="code-wrap">
+        <div class="code-label">Example <button class="copy-btn" onclick="copyCode('ex9')">Copy</button></div>
+        <pre id="ex9">GET /api/status</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Response</div>
+        <pre>{
+  <span class="key">"status"</span>: <span class="str">"online"</span>,
+  <span class="key">"uptime"</span>: <span class="str">"2h 15m 30s"</span>,
+  <span class="key">"active_chats"</span>: <span class="num">5</span>,
+  <span class="key">"cpu"</span>: <span class="num">12.4</span>,
+  <span class="key">"ram_used"</span>: <span class="str">"512 MB"</span>,
+  <span class="key">"ram_total"</span>: <span class="str">"2048 MB"</span>
+}</pre>
+      </div>
+      <div class="response-tags"><span class="resp-tag resp-200">200 OK</span></div>
+    </div>
+  </div>
+
+  <div class="api-card" data-tags="health ping alive check">
+    <div class="api-head" onclick="toggle(this)">
+      <span class="method get">GET</span>
+      <span class="api-path">/api/health</span>
+      <span class="api-desc-short">Health check</span>
+      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="api-body">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Simple health check. Returns 200 if the server is alive.</p>
+      <div class="code-wrap">
+        <div class="code-label">Example <button class="copy-btn" onclick="copyCode('ex10')">Copy</button></div>
+        <pre id="ex10">GET /api/health</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Response</div>
+        <pre>{ <span class="key">"status"</span>: <span class="str">"running"</span> }</pre>
+      </div>
+      <div class="response-tags"><span class="resp-tag resp-200">200 OK</span></div>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:32px">NSFW Detection</div>
+
+  <div class="api-card" data-tags="nsfw detection image adult content check">
+    <div class="api-head" onclick="toggle(this)">
+      <span class="method get">GET</span>
+      <span class="api-path">/api/nsfw</span>
+      <span class="api-desc-short">Detect adult content in images</span>
+      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="api-body">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Check if an image URL contains NSFW / adult / explicit content. Uses AI-based detection (NudeNet) with skin-ratio fallback. Max image size: 5MB.</p>
+      <div class="param-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">url</span>
+        <span class="param-type">string</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">Direct URL to the image (jpg, png, webp, gif)</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Example <button class="copy-btn" onclick="copyCode('ex11')">Copy</button></div>
+        <pre id="ex11">GET /api/nsfw?url=https://example.com/image.jpg</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Response (Safe image)</div>
+        <pre>{
+  <span class="key">"is_nsfw"</span>: <span class="bool">false</span>,
+  <span class="key">"method"</span>: <span class="str">"nudenet"</span>,
+  <span class="key">"confidence"</span>: <span class="num">0.12</span>,
+  <span class="key">"skin_ratio"</span>: <span class="num">0.08</span>,
+  <span class="key">"labels"</span>: [],
+  <span class="key">"by"</span>: <span class="str">"t.me/PGL_B4CHI"</span>
+}</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Response (NSFW image)</div>
+        <pre>{
+  <span class="key">"is_nsfw"</span>: <span class="bool">true</span>,
+  <span class="key">"method"</span>: <span class="str">"nudenet"</span>,
+  <span class="key">"confidence"</span>: <span class="num">0.87</span>,
+  <span class="key">"skin_ratio"</span>: <span class="num">0.54</span>,
+  <span class="key">"labels"</span>: [{ <span class="key">"label"</span>: <span class="str">"FEMALE_BREAST_EXPOSED"</span>, <span class="key">"confidence"</span>: <span class="num">0.87</span> }],
+  <span class="key">"by"</span>: <span class="str">"t.me/PGL_B4CHI"</span>
+}</pre>
+      </div>
+      <div class="response-tags">
+        <span class="resp-tag resp-200">200 OK</span>
+        <span class="resp-tag resp-400">400 Missing url / Not an image</span>
+        <span class="resp-tag resp-500">500 Error</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="api-card" data-tags="profile picture bot pfp avatar">
+    <div class="api-head" onclick="toggle(this)">
+      <span class="method get">GET</span>
+      <span class="api-path">/api/botpfp</span>
+      <span class="api-desc-short">Bot profile picture</span>
+      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="api-body">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Returns the bot's profile picture as a PNG image.</p>
+      <div class="code-wrap">
+        <div class="code-label">Example <button class="copy-btn" onclick="copyCode('ex12')">Copy</button></div>
+        <pre id="ex12">GET /api/botpfp</pre>
+      </div>
+      <div class="response-tags"><span class="resp-tag resp-200">200 image/png</span><span class="resp-tag resp-400">404 No picture</span></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>Built with ❤️ &nbsp;|&nbsp; <a href="https://t.me/PGL_B4CHI" target="_blank">@PGL_B4CHI</a> &nbsp;|&nbsp; <a href="/">🎵 Music Player</a></p>
+  <p style="margin-top:8px;font-size:12px">Annie X Music API — Free, No auth required, 24/7</p>
+</div>
+
+<script>
+function toggle(head){
+  const card=head.closest('.api-card');
+  card.classList.toggle('open');
+}
+function copyCode(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  navigator.clipboard.writeText(el.innerText).then(()=>{
+    const btn=document.querySelector(`[onclick="copyCode('${id}')"]`);
+    if(btn){btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1500)}
+  });
+}
+function filterApis(q){
+  q=q.toLowerCase().trim();
+  document.querySelectorAll('.api-card').forEach(card=>{
+    const tags=card.dataset.tags||'';
+    const path=card.querySelector('.api-path')?.textContent||'';
+    const desc=card.querySelector('.api-desc-short')?.textContent||'';
+    const match=!q||tags.includes(q)||path.includes(q)||desc.toLowerCase().includes(q);
+    card.style.display=match?'':'none';
+  });
+  document.querySelectorAll('.section-title').forEach(sec=>{
+    const next=sec.nextElementSibling;
+    let hasVisible=false;
+    let el=next;
+    while(el&&!el.classList.contains('section-title')){
+      if(el.classList.contains('api-card')&&el.style.display!=='none')hasVisible=true;
+      el=el.nextElementSibling;
+    }
+    sec.style.display=hasVisible?'':'none';
+  });
+}
+// Open first card by default
+document.querySelector('.api-card')?.classList.add('open');
+</script>
+</body>
+</html>"""
+
+
+@app.route("/api")
+def api_docs():
+    """API Documentation page."""
+    return _API_DOCS_HTML, 200, {"Content-Type": "text/html; charset=utf-8"}
+
+
+@app.route("/api/docs")
+def api_docs_alias():
+    return api_docs()
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("WEB_PORT") or 5000)
     from ANNIEMUSIC.utils.weburl import WEB_URL

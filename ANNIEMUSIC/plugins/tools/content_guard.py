@@ -1,24 +1,16 @@
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
 
 from pyrogram import filters
 from pyrogram.enums import ChatMemberStatus, ParseMode
 from pyrogram.types import Message
 
 from ANNIEMUSIC import app
-from ANNIEMUSIC.utils.content_filter import analyze_image_bytes, is_bad_text
+from ANNIEMUSIC.utils.content_filter import is_bad_text
 from ANNIEMUSIC.utils.database import (
     content_guard_off,
     content_guard_on,
     is_content_guard_on,
 )
-
-_executor = ThreadPoolExecutor(max_workers=2)
-
-
-async def _run_image_check(image_bytes: bytes) -> bool:
-    loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(_executor, analyze_image_bytes, image_bytes)
 
 
 async def _is_admin(client, chat_id: int, user_id: int) -> bool:
@@ -121,9 +113,9 @@ async def content_guard_cmd(client, message: Message):
 
 
 @app.on_message(
-    (filters.photo | filters.sticker | filters.animation) & filters.group
+    filters.text & filters.group
 )
-async def check_media(client, message: Message):
+async def check_text_nsfw(client, message: Message):
     if not await is_content_guard_on(message.chat.id):
         return
 
@@ -134,50 +126,11 @@ async def check_media(client, message: Message):
     except Exception:
         pass
 
-    caption = message.caption or ""
-    if caption:
-        bad_word = is_bad_text(caption)
+    text = message.text or ""
+    if text:
+        bad_word = is_bad_text(text)
         if bad_word:
             await _delete_and_warn(
                 message,
-                f"Explicit keyword in caption: <code>{bad_word}</code>",
-            )
-            return
-
-    if message.sticker:
-        sticker = message.sticker
-        set_name = (sticker.set_name or "").lower()
-        emoji = sticker.emoji or ""
-        combined = f"{set_name} {emoji}"
-        bad_word = is_bad_text(combined)
-        if bad_word:
-            await _delete_and_warn(
-                message,
-                f"NSFW sticker pack detected: <code>{bad_word}</code>",
-            )
-        return
-
-    if message.photo or message.animation:
-        try:
-            if message.photo:
-                file_id = message.photo.file_id
-            else:
-                anim = message.animation
-                size = getattr(anim, "file_size", None) or 0
-                file_id = anim.file_id if size <= 5_000_000 else None
-                if not file_id:
-                    return
-
-            downloaded = await client.download_media(file_id, in_memory=True)
-            if not downloaded:
-                return
-            image_bytes = bytes(downloaded.getvalue()) if hasattr(downloaded, "getvalue") else bytes(downloaded)
-        except Exception:
-            return
-
-        is_nsfw = await _run_image_check(image_bytes)
-        if is_nsfw:
-            await _delete_and_warn(
-                message,
-                "18+ / explicit visual content detected.",
+                f"Explicit keyword detected: <code>{bad_word}</code>",
             )
