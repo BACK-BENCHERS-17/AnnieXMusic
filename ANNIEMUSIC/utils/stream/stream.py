@@ -35,8 +35,8 @@ async def _send_stream_msg(
     reply_markup,
     has_spoiler: bool = False,
 ) -> object:
-    """Send photo or video based on per-group thumbnail setting."""
-    thumb_on = await is_thumb_enabled(original_chat_id)
+    """Send photo or video based on global thumbnail setting."""
+    thumb_on = await is_thumb_enabled()
     if thumb_on:
         return await app.send_photo(
             original_chat_id,

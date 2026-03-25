@@ -23,7 +23,6 @@ skipdb = mongodb.skipmode
 sudoersdb = mongodb.sudoers
 usersdb = mongodb.tgusersdb
 contentguarddb = mongodb.contentguard
-thumbdb = mongodb.thumbnailsettings
 
 
 active = []
@@ -733,34 +732,37 @@ async def content_guard_off(chat_id: int):
     )
 
 
-_thumb_cache: dict[int, bool] = {}
+_global_thumb: list = []  # empty = ON (default), [0] = 0 means OFF, [0] = 1 means ON
 
 
-async def is_thumb_enabled(chat_id: int) -> bool:
-    """Returns True if thumbnail is ON (default), False if thumbnail is OFF (video mode)."""
-    if chat_id in _thumb_cache:
-        return _thumb_cache[chat_id]
-    result = await thumbdb.find_one({"chat_id": chat_id})
-    enabled = result.get("enabled", True) if result else True
-    _thumb_cache[chat_id] = enabled
-    return enabled
+async def is_thumb_enabled() -> bool:
+    """Global setting — True = thumbnail ON (default), False = video mode."""
+    if not _global_thumb:
+        get = await onoffdb.find_one({"on_off": 5})
+        if get:
+            _global_thumb.clear()
+            _global_thumb.append(0)
+            return False
+        else:
+            _global_thumb.clear()
+            _global_thumb.append(1)
+            return True
+    return _global_thumb[0] == 1
 
 
-async def thumb_on(chat_id: int):
-    """Enable thumbnail for play messages."""
-    _thumb_cache[chat_id] = True
-    await thumbdb.update_one(
-        {"chat_id": chat_id},
-        {"$set": {"chat_id": chat_id, "enabled": True}},
-        upsert=True,
-    )
+async def thumb_on():
+    """Enable thumbnail globally."""
+    _global_thumb.clear()
+    _global_thumb.append(1)
+    exists = await is_on_off(5)
+    if exists:
+        await onoffdb.delete_one({"on_off": 5})
 
 
-async def thumb_off(chat_id: int):
-    """Disable thumbnail — bot will send video instead."""
-    _thumb_cache[chat_id] = False
-    await thumbdb.update_one(
-        {"chat_id": chat_id},
-        {"$set": {"chat_id": chat_id, "enabled": False}},
-        upsert=True,
-    )
+async def thumb_off():
+    """Disable thumbnail globally — video mode active."""
+    _global_thumb.clear()
+    _global_thumb.append(0)
+    exists = await is_on_off(5)
+    if not exists:
+        await onoffdb.insert_one({"on_off": 5})
