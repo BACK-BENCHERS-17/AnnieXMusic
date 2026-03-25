@@ -1,16 +1,19 @@
 from pyrogram import filters
+from pyrogram.enums import ParseMode
 from pyrogram.types import InlineKeyboardMarkup, Message
 
 import config
 from ANNIEMUSIC import YouTube, app
 from ANNIEMUSIC.core.call import JARVIS
 from ANNIEMUSIC.misc import db
-from ANNIEMUSIC.utils.database import get_loop
+from ANNIEMUSIC.utils.database import get_loop, is_thumb_enabled
 from ANNIEMUSIC.utils.decorators import AdminRightsCheck
 from ANNIEMUSIC.utils.inline import close_markup, stream_markup, add_to_channel_markup
 from ANNIEMUSIC.utils.stream.autoclear import auto_clean
 from ANNIEMUSIC.utils.thumbnails import get_thumb
 from config import BANNED_USERS
+
+THUMB_OFF_VIDEO_URL = "https://files.catbox.moe/4vr2jc.mp4"
 
 
 @app.on_message(
@@ -103,6 +106,9 @@ async def skip(cli, message: Message, _, chat_id):
             db[chat_id][0]["seconds"] = check[0]["old_second"]
             db[chat_id][0]["speed_path"] = None
             db[chat_id][0]["speed"] = 1.0
+
+    _thumb_on = await is_thumb_enabled()
+
     if "live_" in queued:
         n, link = await YouTube.video(videoid, True)
         if n == 0:
@@ -116,17 +122,28 @@ async def skip(cli, message: Message, _, chat_id):
         except:
             return await message.reply_text(_["call_6"])
         button = stream_markup(_, chat_id)
-        img = await get_thumb(videoid)
-        run = await message.reply_photo(
-            photo=img,
-            caption=_["stream_1"].format(
-                f"https://t.me/{app.username}?start=info_{videoid}",
-                title[:23],
-                check[0]["dur"],
-                user,
-            ),
-            reply_markup=InlineKeyboardMarkup(button),
+        _cap = _["stream_1"].format(
+            f"https://t.me/{app.username}?start=info_{videoid}",
+            title[:23],
+            check[0]["dur"],
+            user,
         )
+        if _thumb_on:
+            img = await get_thumb(videoid)
+            run = await message.reply_photo(
+                photo=img,
+                caption=_cap,
+                reply_markup=InlineKeyboardMarkup(button),
+                has_spoiler=True,
+            )
+        else:
+            run = await message.reply_text(
+                text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
+                reply_markup=InlineKeyboardMarkup(button),
+                parse_mode=ParseMode.HTML,
+                invert_media=True,
+                disable_web_page_preview=False,
+            )
         if db.get(chat_id):
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "tg"
@@ -150,17 +167,28 @@ async def skip(cli, message: Message, _, chat_id):
         except:
             return await mystic.edit_text(_["call_6"])
         button = stream_markup(_, chat_id)
-        img = await get_thumb(videoid)
-        run = await message.reply_photo(
-            photo=img,
-            caption=_["stream_1"].format(
-                f"https://t.me/{app.username}?start=info_{videoid}",
-                title[:23],
-                check[0]["dur"],
-                user,
-            ),
-            reply_markup=InlineKeyboardMarkup(button),
+        _cap = _["stream_1"].format(
+            f"https://t.me/{app.username}?start=info_{videoid}",
+            title[:23],
+            check[0]["dur"],
+            user,
         )
+        if _thumb_on:
+            img = await get_thumb(videoid)
+            run = await message.reply_photo(
+                photo=img,
+                caption=_cap,
+                reply_markup=InlineKeyboardMarkup(button),
+                has_spoiler=True,
+            )
+        else:
+            run = await message.reply_text(
+                text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
+                reply_markup=InlineKeyboardMarkup(button),
+                parse_mode=ParseMode.HTML,
+                invert_media=True,
+                disable_web_page_preview=False,
+            )
         if db.get(chat_id):
             if db.get(chat_id):
                 db[chat_id][0]["mystic"] = run
@@ -172,11 +200,22 @@ async def skip(cli, message: Message, _, chat_id):
         except:
             return await message.reply_text(_["call_6"])
         button = stream_markup(_, chat_id)
-        run = await message.reply_photo(
-            photo=config.STREAM_IMG_URL,
-            caption=_["stream_2"].format(user),
-            reply_markup=InlineKeyboardMarkup(button),
-        )
+        _cap = _["stream_2"].format(user)
+        if _thumb_on:
+            run = await message.reply_photo(
+                photo=config.STREAM_IMG_URL,
+                caption=_cap,
+                reply_markup=InlineKeyboardMarkup(button),
+                has_spoiler=True,
+            )
+        else:
+            run = await message.reply_text(
+                text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
+                reply_markup=InlineKeyboardMarkup(button),
+                parse_mode=ParseMode.HTML,
+                invert_media=True,
+                disable_web_page_preview=False,
+            )
         if db.get(chat_id):
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "tg"
@@ -196,45 +235,78 @@ async def skip(cli, message: Message, _, chat_id):
             return await message.reply_text(_["call_6"])
         if videoid == "telegram":
             button = stream_markup(_, chat_id)
-            run = await message.reply_photo(
-                photo=config.TELEGRAM_AUDIO_URL
-                if str(streamtype) == "audio"
-                else config.TELEGRAM_VIDEO_URL,
-                caption=_["stream_1"].format(
-                    config.SUPPORT_CHAT, title[:23], check[0]["dur"], user
-                ),
-                reply_markup=InlineKeyboardMarkup(button),
+            _cap = _["stream_1"].format(
+                config.SUPPORT_CHAT, title[:23], check[0]["dur"], user
             )
+            if _thumb_on:
+                run = await message.reply_photo(
+                    photo=config.TELEGRAM_AUDIO_URL
+                    if str(streamtype) == "audio"
+                    else config.TELEGRAM_VIDEO_URL,
+                    caption=_cap,
+                    reply_markup=InlineKeyboardMarkup(button),
+                    has_spoiler=True,
+                )
+            else:
+                run = await message.reply_text(
+                    text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
+                    reply_markup=InlineKeyboardMarkup(button),
+                    parse_mode=ParseMode.HTML,
+                    invert_media=True,
+                    disable_web_page_preview=False,
+                )
             if db.get(chat_id):
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "tg"
         elif videoid == "soundcloud":
             button = stream_markup(_, chat_id)
-            run = await message.reply_photo(
-                photo=config.SOUNCLOUD_IMG_URL
-                if str(streamtype) == "audio"
-                else config.TELEGRAM_VIDEO_URL,
-                caption=_["stream_1"].format(
-                    config.SUPPORT_CHAT, title[:23], check[0]["dur"], user
-                ),
-                reply_markup=InlineKeyboardMarkup(button),
+            _cap = _["stream_1"].format(
+                config.SUPPORT_CHAT, title[:23], check[0]["dur"], user
             )
+            if _thumb_on:
+                run = await message.reply_photo(
+                    photo=config.SOUNCLOUD_IMG_URL
+                    if str(streamtype) == "audio"
+                    else config.TELEGRAM_VIDEO_URL,
+                    caption=_cap,
+                    reply_markup=InlineKeyboardMarkup(button),
+                    has_spoiler=True,
+                )
+            else:
+                run = await message.reply_text(
+                    text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
+                    reply_markup=InlineKeyboardMarkup(button),
+                    parse_mode=ParseMode.HTML,
+                    invert_media=True,
+                    disable_web_page_preview=False,
+                )
             if db.get(chat_id):
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "tg"
         else:
             button = stream_markup(_, chat_id)
-            img = await get_thumb(videoid)
-            run = await message.reply_photo(
-                photo=img,
-                caption=_["stream_1"].format(
-                    f"https://t.me/{app.username}?start=info_{videoid}",
-                    title[:23],
-                    check[0]["dur"],
-                    user,
-                ),
-                reply_markup=InlineKeyboardMarkup(button),
+            _cap = _["stream_1"].format(
+                f"https://t.me/{app.username}?start=info_{videoid}",
+                title[:23],
+                check[0]["dur"],
+                user,
             )
+            if _thumb_on:
+                img = await get_thumb(videoid)
+                run = await message.reply_photo(
+                    photo=img,
+                    caption=_cap,
+                    reply_markup=InlineKeyboardMarkup(button),
+                    has_spoiler=True,
+                )
+            else:
+                run = await message.reply_text(
+                    text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
+                    reply_markup=InlineKeyboardMarkup(button),
+                    parse_mode=ParseMode.HTML,
+                    invert_media=True,
+                    disable_web_page_preview=False,
+                )
             if db.get(chat_id):
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "stream"
