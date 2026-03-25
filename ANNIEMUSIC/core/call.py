@@ -465,13 +465,51 @@ class Call:
                     "<blockquote>ᴘʟᴇᴀsᴇ ᴀᴅᴅ ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.</blockquote>"
                 )
             except ChannelPrivate:
-                raise AssistantErr(
-                    "<b>ᴀssɪsᴛᴀɴᴛ ɪs ɴᴏᴛ ᴀ ᴍᴇᴍʙᴇʀ ᴏꜰ ᴛʜɪs ɢʀᴏᴜᴘ.</b>\n\n"
-                    "<blockquote>"
-                    "ᴘʟᴇᴀsᴇ <b>ᴀᴅᴅ</b> ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.\n"
-                    "ɪꜰ ᴀssɪsᴛᴀɴᴛ ɪs ᴀʟʀᴇᴀᴅʏ ɪɴ ɢʀᴏᴜᴘ, ʀᴇᴍᴏᴠᴇ ᴀɴᴅ ʀᴇ-ᴀᴅᴅ ɪᴛ."
-                    "</blockquote>"
+                LOGGER(__name__).info(
+                    f"[PLAY] ChannelPrivate — trying to auto-add assistant to chat={chat_id}"
                 )
+                _auto_joined = False
+                try:
+                    _asst_client = getattr(assistant, '_app', None)
+                    _asst_id = None
+                    if _asst_client:
+                        _me = getattr(_asst_client, 'me', None)
+                        if _me:
+                            _asst_id = _me.id
+                    if _asst_id:
+                        await app.add_chat_members(chat_id, _asst_id)
+                        LOGGER(__name__).info(
+                            f"[PLAY] Assistant auto-added to chat={chat_id}. Retrying play."
+                        )
+                        await asyncio.sleep(2)
+                        await assistant.play(chat_id, stream)
+                        _auto_joined = True
+                        break
+                except Exception as _add_err:
+                    LOGGER(__name__).warning(f"[PLAY] add_chat_members failed: {_add_err}")
+                if not _auto_joined:
+                    try:
+                        _invite = await app.create_chat_invite_link(chat_id)
+                        _asst_client = getattr(assistant, '_app', None)
+                        if _asst_client:
+                            await _asst_client.join_chat(_invite.invite_link)
+                            LOGGER(__name__).info(
+                                f"[PLAY] Assistant joined via invite link for chat={chat_id}. Retrying."
+                            )
+                            await asyncio.sleep(2)
+                            await assistant.play(chat_id, stream)
+                            _auto_joined = True
+                            break
+                    except Exception as _inv_err:
+                        LOGGER(__name__).warning(f"[PLAY] Invite-link join failed: {_inv_err}")
+                if not _auto_joined:
+                    raise AssistantErr(
+                        "<b>ᴀssɪsᴛᴀɴᴛ ɪs ɴᴏᴛ ᴀ ᴍᴇᴍʙᴇʀ ᴏꜰ ᴛʜɪs ɢʀᴏᴜᴘ.</b>\n\n"
+                        "<blockquote>"
+                        "ᴘʟᴇᴀsᴇ <b>ᴀᴅᴅ</b> ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.\n"
+                        "ɪꜰ ᴀssɪsᴛᴀɴᴛ ɪs ᴀʟʀᴇᴀᴅʏ ɪɴ ɢʀᴏᴜᴘ, ʀᴇᴍᴏᴠᴇ ᴀɴᴅ ʀᴇ-ᴀᴅᴅ ɪᴛ."
+                        "</blockquote>"
+                    )
             except Exception as e:
                 LOGGER(__name__).warning(
                     f"[PLAY] Unexpected error attempt {attempt+1}/3 | chat={chat_id} | {type(e).__name__}: {e}"

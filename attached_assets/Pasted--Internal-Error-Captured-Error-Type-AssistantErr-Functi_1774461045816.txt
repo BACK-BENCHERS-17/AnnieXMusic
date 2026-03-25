@@ -1,0 +1,58 @@
+🚨 Internal Error Captured
+📍 Error Type: AssistantErr
+📌 Function: stream
+
+Traceback:
+Traceback (most recent call last):
+  File "/app/ANNIEMUSIC/core/call.py", line 331, in join_call
+    await assistant.play(chat_id, stream)
+  File "/usr/local/lib/python3.12/site-packages/pytgcalls/statictypes.py", line 96, in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pytgcalls/mtproto_required.py", line 23, in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pytgcalls/mutex.py", line 12, in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pytgcalls/methods/stream/play.py", line 74, in play
+    await self._app.create_group_call(
+  File "/usr/local/lib/python3.12/site-packages/pytgcalls/mtproto/mtproto_client.py", line 183, in create_group_call
+    await self._bind_client.create_group_call(
+  File "/usr/local/lib/python3.12/site-packages/pytgcalls/mtproto/pyrogram_client.py", line 596, in create_group_call
+    result: Updates = await self._invoke(
+                      ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pytgcalls/mtproto/pyrogram_client.py", line 840, in _invoke
+    return await session.invoke(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/methods/advanced/invoke.py", line 107, in invoke
+    r = await session.invoke(
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/usr/local/lib/python3.12/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.ChannelPrivate: Telegram says: [400 CHANNEL_PRIVATE] - You haven't joined this channel/supergroup. (caused by "phone.CreateGroupCall")
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/ANNIEMUSIC/utils/errors.py", line 136, in wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/ANNIEMUSIC/utils/stream/stream.py", line 323, in stream
+    await JARVIS.join_call(
+  File "/app/ANNIEMUSIC/utils/errors.py", line 143, in wrapper
+    raise err
+  File "/app/ANNIEMUSIC/utils/errors.py", line 136, in wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/ANNIEMUSIC/core/call.py", line 468, in join_call
+    raise AssistantErr(
+ANNIEMUSIC.utils.exceptions.AssistantErr: ᴀssɪsᴛᴀɴᴛ ɪs ɴᴏᴛ ᴀ ᴍᴇᴍʙᴇʀ ᴏꜰ ᴛʜɪs ɢʀᴏᴜᴘ.
+
+ᴘʟᴇᴀsᴇ ᴀᴅᴅ ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.
+ɪꜰ ᴀssɪsᴛᴀɴᴛ ɪs ᴀʟʀᴇᴀᴅʏ ɪɴ ɢʀᴏᴜᴘ, ʀᴇᴍᴏᴠᴇ ᴀɴᴅ ʀᴇ-ᴀᴅᴅ ɪᴛ.
