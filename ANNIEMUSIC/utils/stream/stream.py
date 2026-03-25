@@ -46,13 +46,10 @@ async def _send_stream_msg(
             has_spoiler=has_spoiler,
         )
     else:
-        existing = reply_markup.inline_keyboard if reply_markup else []
-        video_row = [[InlineKeyboardButton(text="🎬 Watch Video", url=THUMB_OFF_VIDEO_URL)]]
-        new_markup = InlineKeyboardMarkup(video_row + existing)
         return await app.send_message(
             original_chat_id,
             text=caption,
-            reply_markup=new_markup,
+            reply_markup=reply_markup,
         )
 
 
