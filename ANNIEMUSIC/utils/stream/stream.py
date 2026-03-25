@@ -51,7 +51,6 @@ async def _send_stream_msg(
             text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{caption}',
             reply_markup=reply_markup,
             parse_mode=ParseMode.HTML,
-            invert_media=True,
             disable_web_page_preview=False,
         )
 
