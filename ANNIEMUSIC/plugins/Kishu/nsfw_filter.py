@@ -304,7 +304,7 @@ async def nsfw_guard(client: Client, message: Message):
         if not await is_content_guard_on(message.chat.id):
             return
     except Exception:
-        return
+        pass  # Default to ON (safe) when DB fails
 
     # ── 1. Text / caption keyword check ─────────────────────────────────
     text = message.text or message.caption or ""
