@@ -35,7 +35,7 @@ async def _send_stream_msg(
     reply_markup,
     has_spoiler: bool = False,
 ) -> object:
-    """Send photo or video based on global thumbnail setting."""
+    """Send photo or text+link based on global thumbnail setting."""
     thumb_on = await is_thumb_enabled()
     if thumb_on:
         return await app.send_photo(
@@ -46,12 +46,13 @@ async def _send_stream_msg(
             has_spoiler=has_spoiler,
         )
     else:
-        return await app.send_video(
+        existing = reply_markup.inline_keyboard if reply_markup else []
+        video_row = [[InlineKeyboardButton(text="🎬 Watch Video", url=THUMB_OFF_VIDEO_URL)]]
+        new_markup = InlineKeyboardMarkup(video_row + existing)
+        return await app.send_message(
             original_chat_id,
-            video=THUMB_OFF_VIDEO_URL,
-            caption=caption,
-            reply_markup=reply_markup,
-            supports_streaming=True,
+            text=caption,
+            reply_markup=new_markup,
         )
 
 
