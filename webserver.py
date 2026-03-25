@@ -1323,141 +1323,327 @@ pre .bool{color:#60a5fa}
       <div class="usage-icon">🤖</div>
       <div style="flex:1">
         <div class="usage-title">Apne Bot mein kaise use karein</div>
-        <div class="usage-sub">Python · Pyrogram · aiogram · curl — sab ke liye examples</div>
+        <div class="usage-sub">Python · Pyrogram · aiohttp · Node.js · cURL — sab endpoints ke liye ready code</div>
       </div>
       <span class="usage-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
     </div>
     <div class="usage-body">
       <div class="usage-note">
-        <strong>✅ Bilkul Free!</strong> Koi API key nahi chahiye. Bas apne bot mein yeh BASE_URL copy karo aur requests bhejo.
+        <strong>✅ Bilkul Free!</strong> Koi API key nahi chahiye. Sirf BASE_URL apne bot mein copy karo aur neeche diye gaye ready-made code use karo.
       </div>
       <div class="lang-tabs">
-        <button class="lang-tab active" onclick="switchTab('python')">Python (requests)</button>
+        <button class="lang-tab active" onclick="switchTab('python')">Python</button>
         <button class="lang-tab" onclick="switchTab('pyrogram')">Pyrogram Bot</button>
         <button class="lang-tab" onclick="switchTab('aiohttp')">aiohttp (async)</button>
+        <button class="lang-tab" onclick="switchTab('nodejs')">Node.js</button>
         <button class="lang-tab" onclick="switchTab('curl')">cURL</button>
       </div>
 
+      <!-- ─── Python ─── -->
       <div class="code-tab active" id="tab-python">
-        <div class="code-label">Song Search Example <button class="copy-btn" onclick="copyCode('py1')">Copy</button></div>
-        <pre id="py1">import requests
+        <div class="code-label">Setup <button class="copy-btn" onclick="copyCode('py-setup')">Copy</button></div>
+        <pre id="py-setup">import requests
 
-BASE_URL = "<span id="py-base-url">https://yourbot.replit.dev</span>"
+BASE_URL = "<span id="py-base-url">https://yourbot.replit.dev</span>"</pre>
 
-# Search karo
-res = requests.get(f"{BASE_URL}/api/search", params={"q": "Arijit Singh"})
-songs = res.json()["results"]
-for song in songs:
-    print(song["title"], "-", song["duration"])
+        <div class="code-label" style="margin-top:14px">🎵 /api/play — Song name ya URL se play karo <button class="copy-btn" onclick="copyCode('py-play')">Copy</button></div>
+        <pre id="py-play">res = requests.get(f"{BASE_URL}/api/play", params={"q": "Tum Hi Ho Arijit Singh"})
+data = res.json()
+print(data["title"])        # Tum Hi Ho
+print(data["duration"])     # 4:22
+print(data["stream_url"])   # Direct YouTube audio URL
+print(data["audio_proxy"])  # Proxy URL (CORS-free, use this in browser)
+print(data["download"])     # Download link</pre>
 
-# NSFW check karo
-res = requests.get(f"{BASE_URL}/api/nsfw", params={"url": "https://example.com/img.jpg"})
-print(res.json())  # {"is_nsfw": false, "confidence": 0.02, ...}</pre>
-        <div class="code-wrap" style="margin-top:12px">
-          <div class="code-label">Trending Songs <button class="copy-btn" onclick="copyCode('py2')">Copy</button></div>
-          <pre id="py2">res = requests.get(f"{BASE_URL}/api/trending")
-songs = res.json()["songs"]
-print(f"Total trending: {len(songs)}")
-for s in songs[:5]:
-    print(f"[{s['category']}] {s['title']}")</pre>
-        </div>
+        <div class="code-label" style="margin-top:14px">🔍 /api/search — YouTube par search karo <button class="copy-btn" onclick="copyCode('py-search')">Copy</button></div>
+        <pre id="py-search">res = requests.get(f"{BASE_URL}/api/search", params={"q": "Arijit Singh"})
+for song in res.json()["results"]:
+    print(song["id"], song["title"], song["duration"])</pre>
+
+        <div class="code-label" style="margin-top:14px">📊 /api/stream — Video ki metadata lo <button class="copy-btn" onclick="copyCode('py-stream')">Copy</button></div>
+        <pre id="py-stream">res = requests.get(f"{BASE_URL}/api/stream", params={"v": "dQw4w9WgXcQ"})
+info = res.json()
+print(info["title"], info["channel"], info["duration"])</pre>
+
+        <div class="code-label" style="margin-top:14px">🔥 /api/trending — Trending songs lo <button class="copy-btn" onclick="copyCode('py-trend')">Copy</button></div>
+        <pre id="py-trend">res = requests.get(f"{BASE_URL}/api/trending")
+for s in res.json()["songs"][:5]:
+    print(f"[{s['category']}] {s['title']} — {s['duration']}")</pre>
+
+        <div class="code-label" style="margin-top:14px">🔗 /api/related — Related songs lo <button class="copy-btn" onclick="copyCode('py-related')">Copy</button></div>
+        <pre id="py-related">res = requests.get(f"{BASE_URL}/api/related", params={"v": "dQw4w9WgXcQ"})
+for s in res.json()["results"]:
+    print(s["title"], s["duration"])</pre>
+
+        <div class="code-label" style="margin-top:14px">⬇️ /api/download — Audio file download karo <button class="copy-btn" onclick="copyCode('py-dl')">Copy</button></div>
+        <pre id="py-dl">res = requests.get(f"{BASE_URL}/api/download", params={"v": "dQw4w9WgXcQ"}, stream=True)
+with open("song.m4a", "wb") as f:
+    for chunk in res.iter_content(65536):
+        f.write(chunk)
+print("Download complete!")</pre>
+
+        <div class="code-label" style="margin-top:14px">🔞 /api/nsfw — Image check karo <button class="copy-btn" onclick="copyCode('py-nsfw')">Copy</button></div>
+        <pre id="py-nsfw">res = requests.get(f"{BASE_URL}/api/nsfw", params={"url": "https://example.com/image.jpg"})
+data = res.json()
+if data["is_nsfw"]:
+    print(f"NSFW detected! Confidence: {data['confidence']}")
+else:
+    print("Image is safe")</pre>
       </div>
 
+      <!-- ─── Pyrogram Bot ─── -->
       <div class="code-tab" id="tab-pyrogram">
-        <div class="code-label">Pyrogram Bot mein use karo <button class="copy-btn" onclick="copyCode('pyro1')">Copy</button></div>
-        <pre id="pyro1">import requests
+        <div class="code-label">Complete Pyrogram Bot — Sab endpoints ke saath <button class="copy-btn" onclick="copyCode('pyro-full')">Copy</button></div>
+        <pre id="pyro-full">import requests
 from pyrogram import Client, filters
 
 BASE_URL = "<span id="pyro-base-url">https://yourbot.replit.dev</span>"
-app = Client("mybot", api_id=..., api_hash=..., bot_token=...)
+app = Client("mybot", api_id=123456, api_hash="your_hash", bot_token="your_token")
 
+# /play — Song name se play info lo
+@app.on_message(filters.command("play"))
+async def play_song(client, message):
+    query = " ".join(message.command[1:])
+    if not query:
+        return await message.reply("Usage: /play &lt;song name ya YouTube URL&gt;")
+    msg = await message.reply("🔍 Searching...")
+    res = requests.get(f"{BASE_URL}/api/play", params={"q": query})
+    if res.status_code != 200:
+        return await msg.edit("❌ Song nahi mila!")
+    d = res.json()
+    text = (
+        f"🎵 **{d['title']}**\n"
+        f"👤 {d['channel']}\n"
+        f"⏱ {d['duration']}\n"
+        f"🔗 [YouTube]({d['youtube_url']}) | [Download]({d['download']})\n\n"
+        f"▶️ Stream: `{d['audio_proxy']}`"
+    )
+    await msg.edit(text, disable_web_page_preview=True)
+
+# /search — YouTube search
 @app.on_message(filters.command("search"))
 async def search_song(client, message):
     query = " ".join(message.command[1:])
     if not query:
         return await message.reply("Usage: /search &lt;song name&gt;")
-    
     res = requests.get(f"{BASE_URL}/api/search", params={"q": query})
     results = res.json().get("results", [])
-    
     if not results:
-        return await message.reply("❌ Koi song nahi mila!")
-    
+        return await message.reply("❌ Koi result nahi mila!")
     text = "🎵 **Search Results:**\n\n"
     for i, s in enumerate(results[:5], 1):
         text += f"{i}. [{s['title']}](https://youtu.be/{s['id']}) — {s['duration']}\n"
-    
     await message.reply(text)
 
-app.run()</pre>
-        <div class="code-wrap" style="margin-top:12px">
-          <div class="code-label">NSFW Guard in Pyrogram <button class="copy-btn" onclick="copyCode('pyro2')">Copy</button></div>
-          <pre id="pyro2">@app.on_message(filters.photo & filters.group)
-async def check_photo(client, message):
-    # Temporarily download and check
-    file = await message.download()
-    
-    # Ya URL se check karo
-    res = requests.get(f"{BASE_URL}/api/nsfw", params={"url": "IMAGE_URL"})
-    data = res.json()
-    
-    if data.get("is_nsfw"):
+# /trending — Trending songs
+@app.on_message(filters.command("trending"))
+async def trending_songs(client, message):
+    res = requests.get(f"{BASE_URL}/api/trending")
+    songs = res.json().get("songs", [])[:8]
+    text = "🔥 **Trending Songs:**\n\n"
+    for i, s in enumerate(songs, 1):
+        text += f"{i}. [{s['title']}](https://youtu.be/{s['id']}) [{s['category']}]\n"
+    await message.reply(text)
+
+# NSFW guard — group mein photo check karo
+@app.on_message(filters.photo &amp; filters.group)
+async def nsfw_check(client, message):
+    photo = message.photo
+    file_url = await client.get_file_url(photo.file_id) if hasattr(photo, "file_id") else None
+    if not file_url:
+        return
+    res = requests.get(f"{BASE_URL}/api/nsfw", params={"url": file_url})
+    if res.json().get("is_nsfw"):
         await message.delete()
-        await message.chat.send_message("⛔ NSFW content deleted!")</pre>
-        </div>
+        await message.chat.send_message("⛔ NSFW content remove kar diya gaya!")
+
+app.run()</pre>
       </div>
 
+      <!-- ─── aiohttp async ─── -->
       <div class="code-tab" id="tab-aiohttp">
-        <div class="code-label">Async Python (aiohttp) <button class="copy-btn" onclick="copyCode('aio1')">Copy</button></div>
-        <pre id="aio1">import aiohttp
+        <div class="code-label">Complete async wrapper — sab endpoints <button class="copy-btn" onclick="copyCode('aio-full')">Copy</button></div>
+        <pre id="aio-full">import aiohttp
 import asyncio
 
 BASE_URL = "<span id="aio-base-url">https://yourbot.replit.dev</span>"
 
-async def search_songs(query: str):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(
-            f"{BASE_URL}/api/search",
-            params={"q": query}
-        ) as resp:
-            data = await resp.json()
-            return data.get("results", [])
+class AnnieAPI:
+    def __init__(self, base_url: str):
+        self.base = base_url
 
-async def get_trending():
-    async with aiohttp.ClientSession() as session:
-        async with session.get(f"{BASE_URL}/api/trending") as resp:
-            data = await resp.json()
-            return data.get("songs", [])
+    async def play(self, query: str) -> dict:
+        # Song name / URL / video ID se full play info lo
+        async with aiohttp.ClientSession() as s:
+            async with s.get(f"{self.base}/api/play", params={"q": query}) as r:
+                return await r.json()
 
-async def check_nsfw(image_url: str) -> bool:
-    async with aiohttp.ClientSession() as session:
-        async with session.get(
-            f"{BASE_URL}/api/nsfw",
-            params={"url": image_url}
-        ) as resp:
-            data = await resp.json()
-            return data.get("is_nsfw", False)
+    async def search(self, query: str) -> list:
+        # YouTube par search karo
+        async with aiohttp.ClientSession() as s:
+            async with s.get(f"{self.base}/api/search", params={"q": query}) as r:
+                data = await r.json()
+                return data.get("results", [])
 
-# Run karo
-asyncio.run(search_songs("Arijit Singh"))</pre>
+    async def stream(self, video_id: str) -> dict:
+        # Video ki metadata lo
+        async with aiohttp.ClientSession() as s:
+            async with s.get(f"{self.base}/api/stream", params={"v": video_id}) as r:
+                return await r.json()
+
+    async def trending(self) -> list:
+        # Trending songs lo
+        async with aiohttp.ClientSession() as s:
+            async with s.get(f"{self.base}/api/trending") as r:
+                data = await r.json()
+                return data.get("songs", [])
+
+    async def related(self, video_id: str) -> list:
+        # Related songs lo
+        async with aiohttp.ClientSession() as s:
+            async with s.get(f"{self.base}/api/related", params={"v": video_id}) as r:
+                data = await r.json()
+                return data.get("results", [])
+
+    async def check_nsfw(self, image_url: str) -> bool:
+        # Image NSFW hai ya nahi check karo
+        async with aiohttp.ClientSession() as s:
+            async with s.get(f"{self.base}/api/nsfw", params={"url": image_url}) as r:
+                data = await r.json()
+                return data.get("is_nsfw", False)
+
+# ── Usage ────────────────────────────────────────────────────────
+api = AnnieAPI(BASE_URL)
+
+async def main():
+    # Play
+    info = await api.play("Tum Hi Ho Arijit Singh")
+    print(f"Playing: {info['title']} ({info['duration']})")
+    print(f"Stream: {info['audio_proxy']}")
+
+    # Search
+    results = await api.search("Punjabi songs")
+    for r in results[:3]:
+        print(r["title"], r["duration"])
+
+    # Trending
+    songs = await api.trending()
+    print(f"Trending: {len(songs)} songs")
+
+    # NSFW check
+    safe = await api.check_nsfw("https://example.com/image.jpg")
+    print(f"Is NSFW: {safe}")
+
+asyncio.run(main())</pre>
       </div>
 
+      <!-- ─── Node.js ─── -->
+      <div class="code-tab" id="tab-nodejs">
+        <div class="code-label">Node.js — Complete wrapper (fetch built-in) <button class="copy-btn" onclick="copyCode('node-full')">Copy</button></div>
+        <pre id="node-full">const BASE_URL = "<span id="node-base-url">https://yourbot.replit.dev</span>";
+
+const api = {
+  // 🎵 Song name ya URL se play info lo
+  async play(query) {
+    const res = await fetch(`${BASE_URL}/api/play?q=${encodeURIComponent(query)}`);
+    return res.json();
+  },
+
+  // 🔍 YouTube search
+  async search(query) {
+    const res = await fetch(`${BASE_URL}/api/search?q=${encodeURIComponent(query)}`);
+    const data = await res.json();
+    return data.results || [];
+  },
+
+  // 📊 Video metadata
+  async stream(videoId) {
+    const res = await fetch(`${BASE_URL}/api/stream?v=${videoId}`);
+    return res.json();
+  },
+
+  // 🔥 Trending songs
+  async trending() {
+    const res = await fetch(`${BASE_URL}/api/trending`);
+    const data = await res.json();
+    return data.songs || [];
+  },
+
+  // 🔗 Related songs
+  async related(videoId) {
+    const res = await fetch(`${BASE_URL}/api/related?v=${videoId}`);
+    const data = await res.json();
+    return data.results || [];
+  },
+
+  // ⬇️ Download link lo
+  download(videoId) {
+    return `${BASE_URL}/api/download?v=${videoId}`;
+  },
+
+  // 🎧 Audio proxy URL lo (browser player ke liye)
+  audioProxy(videoId) {
+    return `${BASE_URL}/api/audio?v=${videoId}`;
+  },
+
+  // 🔞 NSFW check
+  async checkNsfw(imageUrl) {
+    const res = await fetch(`${BASE_URL}/api/nsfw?url=${encodeURIComponent(imageUrl)}`);
+    const data = await res.json();
+    return data;
+  },
+};
+
+// ── Example usage ────────────────────────────────────────────────
+(async () => {
+  // Play a song
+  const info = await api.play("Tum Hi Ho Arijit Singh");
+  console.log(`Title: ${info.title}`);
+  console.log(`Duration: ${info.duration}`);
+  console.log(`Stream URL: ${info.audio_proxy}`);
+  console.log(`Download: ${info.download}`);
+
+  // Search
+  const results = await api.search("Punjabi hits");
+  results.slice(0, 3).forEach(s => console.log(s.title, s.duration));
+
+  // Trending
+  const trending = await api.trending();
+  console.log(`${trending.length} trending songs`);
+})();</pre>
+      </div>
+
+      <!-- ─── cURL ─── -->
       <div class="code-tab" id="tab-curl">
-        <div class="code-label">cURL Examples <button class="copy-btn" onclick="copyCode('curl1')">Copy</button></div>
-        <pre id="curl1"># Song search
-curl "<span id="curl-base-url">https://yourbot.replit.dev</span>/api/search?q=Arijit+Singh"
+        <div class="code-label">cURL — Sab endpoints <button class="copy-btn" onclick="copyCode('curl-all')">Copy</button></div>
+        <pre id="curl-all">BASE="<span id="curl-base-url">https://yourbot.replit.dev</span>"
 
-# Video metadata
-curl "BASE_URL/api/stream?v=dQw4w9WgXcQ"
+# 🎵 Play — song name se
+curl "$BASE/api/play?q=Tum+Hi+Ho+Arijit+Singh"
 
-# Trending songs
-curl "BASE_URL/api/trending"
+# 🎵 Play — video ID se
+curl "$BASE/api/play?v=dQw4w9WgXcQ"
 
-# NSFW image check
-curl "BASE_URL/api/nsfw?url=https://example.com/image.jpg"
+# 🔍 Search
+curl "$BASE/api/search?q=Arijit+Singh"
 
-# Download audio
-curl -O -J "BASE_URL/api/download?v=dQw4w9WgXcQ"</pre>
+# 📊 Stream metadata
+curl "$BASE/api/stream?v=dQw4w9WgXcQ"
+
+# 🔥 Trending songs
+curl "$BASE/api/trending"
+
+# 🔗 Related songs
+curl "$BASE/api/related?v=dQw4w9WgXcQ"
+
+# 🎧 Audio proxy stream (browser player ke liye)
+curl "$BASE/api/audio?v=dQw4w9WgXcQ"
+
+# ⬇️ Download as file
+curl -O -J "$BASE/api/download?v=dQw4w9WgXcQ"
+
+# 🔞 NSFW check
+curl "$BASE/api/nsfw?url=https://example.com/image.jpg"</pre>
       </div>
 
     </div>
@@ -1787,38 +1973,76 @@ curl -O -J "BASE_URL/api/download?v=dQw4w9WgXcQ"</pre>
 </div>
 
 <script>
-function toggle(head){
-  const card=head.closest('.api-card');
-  card.classList.toggle('open');
-}
-function copyCode(id){
-  const el=document.getElementById(id);
-  if(!el)return;
-  navigator.clipboard.writeText(el.innerText).then(()=>{
-    const btn=document.querySelector(`[onclick="copyCode('${id}')"]`);
+// ── Base URL auto-detect ─────────────────────────────────────────
+(function(){
+  const base = window.location.origin;
+  ['py-base-url','pyro-base-url','aio-base-url','node-base-url','curl-base-url','baseUrl'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.textContent = base;
+  });
+})();
+
+function copyBaseUrl(){
+  const val = document.getElementById('baseUrl')?.textContent || window.location.origin;
+  navigator.clipboard.writeText(val).then(()=>{
+    const btn = document.querySelector('[onclick="copyBaseUrl()"]');
     if(btn){btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1500)}
   });
 }
-function filterApis(q){
-  q=q.toLowerCase().trim();
-  document.querySelectorAll('.api-card').forEach(card=>{
-    const tags=card.dataset.tags||'';
-    const path=card.querySelector('.api-path')?.textContent||'';
-    const desc=card.querySelector('.api-desc-short')?.textContent||'';
-    const match=!q||tags.includes(q)||path.includes(q)||desc.toLowerCase().includes(q);
-    card.style.display=match?'':'none';
-  });
-  document.querySelectorAll('.section-title').forEach(sec=>{
-    const next=sec.nextElementSibling;
-    let hasVisible=false;
-    let el=next;
-    while(el&&!el.classList.contains('section-title')){
-      if(el.classList.contains('api-card')&&el.style.display!=='none')hasVisible=true;
-      el=el.nextElementSibling;
-    }
-    sec.style.display=hasVisible?'':'none';
+
+// ── Toggle API card ──────────────────────────────────────────────
+function toggle(head){
+  const card = head.closest('.api-card');
+  card.classList.toggle('open');
+}
+
+// ── Copy code ────────────────────────────────────────────────────
+function copyCode(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  navigator.clipboard.writeText(el.innerText).then(()=>{
+    const btn = document.querySelector(`[onclick="copyCode('${id}')"]`);
+    if(btn){btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1500)}
   });
 }
+
+// ── Language tabs ────────────────────────────────────────────────
+function switchTab(lang){
+  document.querySelectorAll('.lang-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+  const activeBtn = document.querySelector(`.lang-tab[onclick="switchTab('${lang}')"]`);
+  const activeTab = document.getElementById('tab-' + lang);
+  if(activeBtn) activeBtn.classList.add('active');
+  if(activeTab) activeTab.classList.add('active');
+}
+
+// ── Usage card toggle ─────────────────────────────────────────────
+function toggleUsage(){
+  const card = document.getElementById('usageCard');
+  card.classList.toggle('open');
+}
+
+// ── Search / filter ──────────────────────────────────────────────
+function filterApis(q){
+  q = q.toLowerCase().trim();
+  document.querySelectorAll('.api-card').forEach(card=>{
+    const tags = card.dataset.tags || '';
+    const path = card.querySelector('.api-path')?.textContent || '';
+    const desc = card.querySelector('.api-desc-short')?.textContent || '';
+    const match = !q || tags.includes(q) || path.includes(q) || desc.toLowerCase().includes(q);
+    card.style.display = match ? '' : 'none';
+  });
+  document.querySelectorAll('.section-title').forEach(sec=>{
+    let el = sec.nextElementSibling;
+    let hasVisible = false;
+    while(el && !el.classList.contains('section-title')){
+      if(el.classList.contains('api-card') && el.style.display !== 'none') hasVisible = true;
+      el = el.nextElementSibling;
+    }
+    sec.style.display = hasVisible ? '' : 'none';
+  });
+}
+
 // Open first card by default
 document.querySelector('.api-card')?.classList.add('open');
 </script>
