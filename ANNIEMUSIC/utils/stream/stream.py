@@ -12,7 +12,7 @@ from ANNIEMUSIC import Carbon, YouTube, app
 from ANNIEMUSIC.core.call import JARVIS
 from ANNIEMUSIC.misc import db
 from ANNIEMUSIC.utils.content_filter import is_bad_text
-from ANNIEMUSIC.utils.database import add_active_video_chat, is_active_chat, is_autoplay, is_content_guard_on
+from ANNIEMUSIC.utils.database import add_active_video_chat, is_active_chat, is_autoplay, is_content_guard_on, is_thumb_enabled
 from ANNIEMUSIC.utils.exceptions import AssistantErr
 from ANNIEMUSIC.utils.inline import aq_markup, close_markup, stream_markup
 from ANNIEMUSIC.utils.pastebin import ANNIEBIN
@@ -21,8 +21,38 @@ from ANNIEMUSIC.utils.thumbnails import get_thumb
 from ANNIEMUSIC.utils.errors import capture_internal_err
 from ANNIEMUSIC.plugins.Kishu.nsfw_filter import has_nsfw_text, is_thumb_nsfw_local
 
+THUMB_OFF_VIDEO_URL = "https://files.catbox.moe/1ohavg.mp4"
+
 # Per-group whitelist: chat_id -> set of whitelisted vidids (by owner/admin)
 NSFW_WHITELIST: dict[int, set] = {}
+
+
+async def _send_stream_msg(
+    chat_id: int,
+    original_chat_id: int,
+    photo,
+    caption: str,
+    reply_markup,
+    has_spoiler: bool = False,
+) -> object:
+    """Send photo or video based on per-group thumbnail setting."""
+    thumb_on = await is_thumb_enabled(original_chat_id)
+    if thumb_on:
+        return await app.send_photo(
+            original_chat_id,
+            photo=photo,
+            caption=caption,
+            reply_markup=reply_markup,
+            has_spoiler=has_spoiler,
+        )
+    else:
+        return await app.send_video(
+            original_chat_id,
+            video=THUMB_OFF_VIDEO_URL,
+            caption=caption,
+            reply_markup=reply_markup,
+            supports_streaming=True,
+        )
 
 
 async def _stop_and_block(
@@ -210,7 +240,8 @@ async def stream(
                     continue
 
                 button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
-                run = await app.send_photo(
+                run = await _send_stream_msg(
+                    chat_id,
                     original_chat_id,
                     photo=img,
                     caption=_["stream_1"].format(
@@ -240,7 +271,8 @@ async def stream(
         final_position = len(db.get(chat_id) or []) - 1
         if final_position < 0:
             final_position = 0
-        return await app.send_photo(
+        return await _send_stream_msg(
+            chat_id,
             original_chat_id,
             photo=playlist_photo,
             caption=_["play_21"].format(final_position, link),
@@ -315,7 +347,8 @@ async def stream(
                 return await _stop_and_block(_, chat_id, original_chat_id, title, vidid, user_name, user_id)
 
             button = stream_markup(_, chat_id)
-            run = await app.send_photo(
+            run = await _send_stream_msg(
+                chat_id,
                 original_chat_id,
                 photo=img,
                 caption=_["stream_1"].format(
@@ -374,7 +407,8 @@ async def stream(
                 forceplay=forceplay,
             )
             button = stream_markup(_, chat_id)
-            run = await app.send_photo(
+            run = await _send_stream_msg(
+                chat_id,
                 original_chat_id,
                 photo=config.SOUNCLOUD_IMG_URL,
                 caption=_["stream_1"].format(
@@ -433,7 +467,8 @@ async def stream(
             if is_video:
                 await add_active_video_chat(chat_id)
             button = stream_markup(_, chat_id)
-            run = await app.send_photo(
+            run = await _send_stream_msg(
+                chat_id,
                 original_chat_id,
                 photo=config.TELEGRAM_VIDEO_URL if is_video else config.TELEGRAM_AUDIO_URL,
                 caption=_["stream_1"].format(link, title[:23], duration_min, user_name),
@@ -511,7 +546,8 @@ async def stream(
                 return await _stop_and_block(_, chat_id, original_chat_id, title, vidid, user_name, user_id)
 
             button = stream_markup(_, chat_id)
-            run = await app.send_photo(
+            run = await _send_stream_msg(
+                chat_id,
                 original_chat_id,
                 photo=img,
                 caption=_["stream_1"].format(
@@ -570,7 +606,8 @@ async def stream(
                 forceplay=forceplay,
             )
             button = stream_markup(_, chat_id)
-            run = await app.send_photo(
+            run = await _send_stream_msg(
+                chat_id,
                 original_chat_id,
                 photo=config.STREAM_IMG_URL,
                 caption=_["stream_2"].format(user_name),

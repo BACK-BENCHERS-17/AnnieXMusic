@@ -2,7 +2,7 @@ import asyncio
 import random
 import string
 
-from pyrogram import filters
+from pyrogram import filters, enums
 from pyrogram.errors import FloodWait, RandomIdDuplicate
 from pyrogram.types import InlineKeyboardMarkup, InputMediaPhoto, Message
 from pytgcalls.exceptions import NoActiveGroupCall
@@ -464,11 +464,21 @@ async def play_command(
             )
         except Exception as e:
             err = (
-                e
+                str(e)
                 if type(e).__name__ == "AssistantErr"
                 else _["general_2"].format(type(e).__name__)
             )
-            return await mystic.edit_text(err)
+            try:
+                return await mystic.edit_text(
+                    err, parse_mode=enums.ParseMode.HTML, disable_web_page_preview=True
+                )
+            except Exception:
+                try:
+                    return await mystic.reply_text(
+                        err, parse_mode=enums.ParseMode.HTML, disable_web_page_preview=True
+                    )
+                except Exception:
+                    pass
 
         await mystic.delete()
         return await play_logs(message, streamtype=log_label)

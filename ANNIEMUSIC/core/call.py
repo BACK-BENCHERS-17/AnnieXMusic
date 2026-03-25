@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from typing import Union
 
 from ntgcalls import TelegramServerError, ConnectionError as NTgConnectionError
-from pyrogram.errors import FloodWait, ChatAdminRequired, ChannelInvalid
+from pyrogram.errors import FloodWait, ChatAdminRequired, ChannelInvalid, ChannelPrivate
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pytgcalls import PyTgCalls
 from pytgcalls.exceptions import NoActiveGroupCall
@@ -458,6 +458,14 @@ class Call:
                 raise AssistantErr(
                     "<b>ᴀssɪsᴛᴀɴᴛ ᴄᴀɴɴᴏᴛ ᴊᴏɪɴ ᴛʜɪs ɢʀᴏᴜᴘ.</b>\n\n"
                     "<blockquote>ᴘʟᴇᴀsᴇ ᴀᴅᴅ ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.</blockquote>"
+                )
+            except ChannelPrivate:
+                raise AssistantErr(
+                    "<b>ᴀssɪsᴛᴀɴᴛ ɪs ɴᴏᴛ ᴀ ᴍᴇᴍʙᴇʀ ᴏꜰ ᴛʜɪs ɢʀᴏᴜᴘ.</b>\n\n"
+                    "<blockquote>"
+                    "ᴘʟᴇᴀsᴇ <b>ᴀᴅᴅ</b> ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.\n"
+                    "ɪꜰ ᴀssɪsᴛᴀɴᴛ ɪs ᴀʟʀᴇᴀᴅʏ ɪɴ ɢʀᴏᴜᴘ, ʀᴇᴍᴏᴠᴇ ᴀɴᴅ ʀᴇ-ᴀᴅᴅ ɪᴛ."
+                    "</blockquote>"
                 )
             except Exception as e:
                 LOGGER(__name__).warning(
