@@ -638,12 +638,16 @@ def _get_api_docs_html():
 
 @app.route('/api')
 def api_docs_main():
-    return _get_api_docs_html(), 200, {"Content-Type": "text/html; charset=utf-8"}
+    base = request.host_url.rstrip("/")
+    html = _get_api_docs_html().replace("https://yourbot.replit.dev", base)
+    return html, 200, {"Content-Type": "text/html; charset=utf-8"}
 
 
 @app.route('/api/docs')
 def api_docs_alias():
-    return _get_api_docs_html(), 200, {"Content-Type": "text/html; charset=utf-8"}
+    base = request.host_url.rstrip("/")
+    html = _get_api_docs_html().replace("https://yourbot.replit.dev", base)
+    return html, 200, {"Content-Type": "text/html; charset=utf-8"}
 
 
 def start_health_server():

@@ -2053,7 +2053,9 @@ document.querySelector('.api-card')?.classList.add('open');
 @app.route("/api")
 def api_docs():
     """API Documentation page."""
-    return _API_DOCS_HTML, 200, {"Content-Type": "text/html; charset=utf-8"}
+    base = request.host_url.rstrip("/")
+    html = _API_DOCS_HTML.replace("https://yourbot.replit.dev", base)
+    return html, 200, {"Content-Type": "text/html; charset=utf-8"}
 
 
 @app.route("/api/docs")
