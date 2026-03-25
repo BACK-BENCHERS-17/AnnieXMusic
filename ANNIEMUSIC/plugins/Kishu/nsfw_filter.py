@@ -217,12 +217,22 @@ def _get_file_id(message: Message):
     if message.document:
         if message.document.file_size and int(message.document.file_size) > 5_000_000:
             return None
-        allowed_mime = ("image/png", "image/jpeg", "image/webp", "image/gif", "video/mp4")
+        allowed_mime = (
+            "image/png", "image/jpeg", "image/webp", "image/gif",
+            "video/mp4", "video/webm",
+        )
         if message.document.mime_type not in allowed_mime:
             return None
         return message.document.file_id
     if message.sticker:
-        if message.sticker.is_animated or message.sticker.is_video:
+        if message.sticker.is_animated:
+            # TGS (Lottie) — can't decode frames, use thumbnail only
+            return _best_thumb(message.sticker.thumbs)
+        if message.sticker.is_video:
+            # WebM video sticker — download actual file for frame scan (≤5 MB)
+            size = getattr(message.sticker, "file_size", None) or 0
+            if size <= 5_000_000:
+                return message.sticker.file_id
             return _best_thumb(message.sticker.thumbs)
         return message.sticker.file_id
     if message.photo:
@@ -233,6 +243,10 @@ def _get_file_id(message: Message):
             return message.animation.file_id
         return _best_thumb(message.animation.thumbs)
     if message.video:
+        # Return actual video file_id if small enough for frame extraction
+        size = getattr(message.video, "file_size", None) or 0
+        if size <= 10_000_000:
+            return message.video.file_id
         return _best_thumb(message.video.thumbs)
     return None
 
@@ -315,20 +329,113 @@ def _to_png(path: str) -> str:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Core visual NSFW check — NudeNet + skin ratio + OCR drug text
+# Frame extraction — images / GIFs (PIL) / videos & webm (ffmpeg)
+# ─────────────────────────────────────────────────────────────────────────────
+_VIDEO_EXTS = {".mp4", ".webm", ".avi", ".mov", ".mkv", ".3gp", ".flv"}
+
+
+def _extract_video_frames_sync(path: str, max_frames: int = 6) -> list[str]:
+    """Extract evenly-spaced frames from a video/webm file using ffmpeg."""
+    import subprocess
+    import glob as _glob
+    frames = []
+    out_base = path + "_vf"
+    try:
+        cmd = [
+            "ffmpeg", "-y", "-i", path,
+            "-vf", "fps=1,scale=640:-2",
+            "-vframes", str(max_frames),
+            f"{out_base}%03d.png",
+        ]
+        subprocess.run(
+            cmd,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=20,
+        )
+        frames = sorted(_glob.glob(f"{out_base}*.png"))[:max_frames]
+        logger.info(f"[NSFW] Extracted {len(frames)} video frames from {path}")
+    except Exception as e:
+        logger.warning(f"[NSFW] ffmpeg frame extract failed: {e}")
+    return frames
+
+
+def _extract_frames_from_path(path: str, max_frames: int = 6) -> list[str]:
+    """
+    Smart frame extractor.
+    - Single image → 1 PNG
+    - GIF / APNG / multi-frame → up to max_frames evenly spaced PNGs
+    - Video / WebM → ffmpeg extracts up to max_frames PNGs
+    """
+    ext = os.path.splitext(path)[1].lower()
+    if ext in _VIDEO_EXTS:
+        return _extract_video_frames_sync(path, max_frames)
+
+    frames = []
+    try:
+        img = Image.open(path)
+        n_frames = getattr(img, "n_frames", 1)
+        if n_frames == 1:
+            png = path + "_chk.png"
+            img.convert("RGB").save(png, "PNG")
+            return [png]
+        # Multi-frame (GIF, APNG, etc.)
+        step = max(1, n_frames // max_frames)
+        for i in range(0, n_frames, step):
+            if len(frames) >= max_frames:
+                break
+            try:
+                img.seek(i)
+                fp = f"{path}_frame{i}.png"
+                img.convert("RGB").save(fp, "PNG")
+                frames.append(fp)
+            except EOFError:
+                break
+        logger.info(f"[NSFW] Extracted {len(frames)} GIF frames from {path}")
+    except Exception as e:
+        logger.warning(f"[NSFW] Frame extract (PIL) failed: {e} — fallback to _to_png")
+        fallback = _to_png(path)
+        if fallback and os.path.exists(fallback):
+            frames = [fallback]
+    return frames
+
+
+def _check_frames_nudenet(frame_paths: list[str]) -> tuple[bool, str]:
+    """Run NudeNet on a list of frame PNGs. Returns (is_nsfw, reason) on first hit."""
+    for fp in frame_paths:
+        if not os.path.exists(fp):
+            continue
+        try:
+            detections = _detector.detect(fp)
+            logger.info(f"[NSFW] Frame {fp} detections: {detections}")
+            for det in detections:
+                cls = det.get("class", "")
+                score = det.get("score", 0)
+                if cls in _NSFW_EXPOSED and score >= _THRESHOLD_EXPOSED:
+                    return True, f"18+ exposed content detected ({cls})"
+                if cls in _NSFW_COVERED and score >= _THRESHOLD_COVERED:
+                    return True, f"18+ covered content detected ({cls})"
+        except Exception:
+            logger.warning(f"[NSFW] NudeNet failed on frame {fp}")
+    return False, ""
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Core visual NSFW check — supports images, GIFs, videos, video stickers
 # ─────────────────────────────────────────────────────────────────────────────
 async def _is_visual_nsfw(tg_client: Client, file_id: str) -> tuple[bool, str]:
     """
     Returns (is_nsfw, reason).
-    Checks:
-    1. NudeNet AI — adult/18+ body detection
-    2. Skin ratio fallback — high skin exposure
-    3. OCR text scan — drug/illegal text visible in image
+    Checks all media types:
+    - Images        → NudeNet + skin ratio + OCR
+    - GIFs          → NudeNet on multiple extracted frames
+    - Videos / WebM → NudeNet on ffmpeg-extracted frames
+    - Video stickers → same as video
     """
     if not _NUDE_OK:
         return False, ""
     path = None
-    png_path = None
+    extracted_frames: list[str] = []
     try:
         path = await tg_client.download_media(file_id)
         if not path or not os.path.exists(path):
@@ -338,48 +445,50 @@ async def _is_visual_nsfw(tg_client: Client, file_id: str) -> tuple[bool, str]:
         file_hash = _file_hash(path)
         if file_hash in _nsfw_hash_cache:
             cached = _nsfw_hash_cache[file_hash]
-            return cached, ("18+ visual content" if cached else "")
+            return cached, ("18+ visual content (cached)" if cached else "")
 
-        png_path = _to_png(path)
-
-        # ── Step 1: NudeNet adult content detection ───────────────────────
-        detections = _detector.detect(png_path)
-        logger.info(f"[NSFW] Detections: {detections}")
-        is_nsfw = any(
-            (det.get("class") in _NSFW_EXPOSED and det.get("score", 0) >= _THRESHOLD_EXPOSED)
-            or (det.get("class") in _NSFW_COVERED and det.get("score", 0) >= _THRESHOLD_COVERED)
-            for det in detections
+        # ── Extract frames based on media type ───────────────────────────
+        extracted_frames = await asyncio.get_event_loop().run_in_executor(
+            None, _extract_frames_from_path, path
         )
-        reason = "18+ adult content detected in image" if is_nsfw else ""
+        if not extracted_frames:
+            logger.warning(f"[NSFW] No frames extracted from {path}")
+            _nsfw_hash_cache[file_hash] = False
+            return False, ""
 
-        # ── Step 2: Skin ratio fallback ───────────────────────────────────
+        # ── Step 1: NudeNet on all frames ────────────────────────────────
+        is_nsfw, reason = await asyncio.get_event_loop().run_in_executor(
+            None, _check_frames_nudenet, extracted_frames
+        )
+
+        # ── Step 2: Skin ratio fallback (first frame only, images/GIFs) ──
         if not is_nsfw:
             try:
-                with open(png_path or path, "rb") as f:
+                with open(extracted_frames[0], "rb") as f:
                     img_bytes = f.read()
                 ratio = _skin_ratio(img_bytes)
                 logger.info(f"[NSFW] Skin ratio: {ratio:.2f}")
                 if ratio >= _SKIN_RATIO_FALLBACK:
                     is_nsfw = True
-                    reason = "Excessive skin exposure detected in image"
+                    reason = "Excessive skin exposure detected"
                     logger.info("[NSFW] Flagged by skin ratio")
             except Exception:
                 pass
 
-        # ── Step 3: OCR — detect drug/illegal text in image ───────────────
+        # ── Step 3: OCR — drug/illegal text in first frame ───────────────
         if not is_nsfw and _OCR_OK:
             try:
-                ocr_text = _ocr_text_from_image(png_path or path)
+                ocr_text = _ocr_text_from_image(extracted_frames[0])
                 if ocr_text:
                     logger.info(f"[NSFW] OCR text: {ocr_text[:200]}")
                     if _has_drug_text(ocr_text):
                         is_nsfw = True
-                        reason = "Drug-related text found in image"
-                        logger.info("[NSFW] Flagged by OCR drug text detection")
+                        reason = "Drug-related text found in content"
+                        logger.info("[NSFW] Flagged by OCR drug text")
                     elif _has_nsfw_text(ocr_text):
                         is_nsfw = True
-                        reason = "Explicit content text found in image"
-                        logger.info("[NSFW] Flagged by OCR NSFW text detection")
+                        reason = "Explicit content text found in content"
+                        logger.info("[NSFW] Flagged by OCR NSFW text")
             except Exception:
                 logger.warning(f"[NSFW] OCR scan failed: {traceback.format_exc()}")
 
@@ -391,7 +500,8 @@ async def _is_visual_nsfw(tg_client: Client, file_id: str) -> tuple[bool, str]:
         logger.error(f"[NSFW] Visual scan error:\n{traceback.format_exc()}")
         return False, ""
     finally:
-        for p in [path, png_path]:
+        cleanup = ([path] if path else []) + extracted_frames
+        for p in cleanup:
             if p and os.path.exists(p):
                 try:
                     os.remove(p)
@@ -531,9 +641,13 @@ async def nsfw_guard(client: Client, message: Message):
         vid_name = (getattr(vid, "file_name", "") or "").lower()
         if _has_nsfw_text(vid_name):
             return await _handle_violation(client, message, "Explicit video filename", is_group)
-        thumb_file_id = _get_video_thumb_file_id(message)
-        if thumb_file_id:
-            is_bad, reason = await _is_visual_nsfw(client, thumb_file_id)
+        # _get_file_id returns actual video (≤10MB) for frame scan, else thumbnail
+        file_id = _get_file_id(message)
+        if not file_id:
+            # Fallback: check thumbnail only if actual video is too large
+            file_id = _get_video_thumb_file_id(message)
+        if file_id:
+            is_bad, reason = await _is_visual_nsfw(client, file_id)
             if is_bad:
                 return await _handle_violation(client, message, reason or "18+ video content", is_group)
 
