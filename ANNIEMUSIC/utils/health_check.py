@@ -160,75 +160,6 @@ def index():
     return send_from_directory(WEB_DIR, 'index.html')
 
 
-@app.route('/api/status')
-def api_status():
-    try:
-        from ANNIEMUSIC.misc import db, _boot_
-        boot_time = _boot_
-    except Exception:
-        db = {}
-        boot_time = _boot_time
-
-    chats_data = []
-    for chat_id, queue in db.items():
-        if not queue:
-            continue
-        cur = queue[0]
-        vid = str(cur.get("vidid", ""))
-        thumb = f"https://img.youtube.com/vi/{vid}/mqdefault.jpg" if len(vid) == 11 else ""
-        user_id = cur.get("user_id", 0)
-        chats_data.append({
-            "chat_id": chat_id,
-            "current": {
-                "title":      cur.get("title", "Unknown"),
-                "duration":   cur.get("dur", "0:00"),
-                "played":     cur.get("played", 0),
-                "seconds":    cur.get("seconds", 0),
-                "by":         cur.get("by", "Unknown"),
-                "user_id":    user_id,
-                "tg_link":    f"tg://user?id={user_id}" if user_id else "",
-                "streamtype": cur.get("streamtype", "youtube"),
-                "vidid":      vid,
-                "thumbnail":  thumb,
-            },
-            "queue_count": max(len(queue) - 1, 0),
-            "queue": [
-                {
-                    "title":    t.get("title", "Unknown"),
-                    "duration": t.get("dur", "0:00"),
-                    "by":       t.get("by", "Unknown"),
-                    "vidid":    str(t.get("vidid", "")),
-                    "thumb":    f"https://img.youtube.com/vi/{str(t.get('vidid',''))}/default.jpg"
-                                if len(str(t.get("vidid", ""))) == 11 else "",
-                }
-                for t in queue[1:8]
-            ],
-        })
-
-    try:
-        cpu     = psutil.cpu_percent(interval=None)
-        ram     = psutil.virtual_memory()
-        ram_used  = f"{ram.used // (1024**2)} MB"
-        ram_total = f"{ram.total // (1024**2)} MB"
-        ram_pct   = round(ram.percent, 1)
-    except Exception:
-        cpu, ram_used, ram_total, ram_pct = 0, "N/A", "N/A", 0
-
-    up = int(time.time() - boot_time)
-    h, rem = divmod(up, 3600)
-    m, s   = divmod(rem, 60)
-
-    return jsonify({
-        "status":       "online",
-        "uptime":       f"{h}h {m}m {s}s",
-        "active_chats": len(chats_data),
-        "cpu":          cpu,
-        "ram_used":     ram_used,
-        "ram_total":    ram_total,
-        "ram_percent":  ram_pct,
-        "chats":        chats_data,
-    })
-
 
 @app.route('/api/trending')
 def api_trending():
@@ -445,42 +376,6 @@ def api_ytdl():
             with _ytdl_lock_guard:
                 _ytdl_locks.pop(vid, None)
 
-
-@app.route('/api/botinfo')
-def api_botinfo():
-    try:
-        from config import BOT_NAME, BOT_USERNAME
-    except Exception:
-        BOT_NAME = "Annie X Music"
-        BOT_USERNAME = "ANNIEXMUSICxBOT"
-    assets_dir = os.path.join(os.path.dirname(__file__), '..', 'assets')
-    has_pfp  = os.path.isfile(os.path.join(assets_dir, "bot_pfp.png"))
-    has_upic = os.path.isfile(os.path.join(assets_dir, "upic.png"))
-    pfp_url  = "/api/botpfp" if (has_pfp or has_upic) else None
-    return jsonify({
-        "name":     BOT_NAME,
-        "username": BOT_USERNAME,
-        "pfp":      pfp_url,
-        "bio":      "Advanced Telegram Music Bot — streams songs & videos into voice chats using yt-dlp for high-quality audio.",
-        "features": ["YouTube", "Spotify", "Apple Music", "SoundCloud", "Telegram"],
-    })
-
-
-@app.route('/api/botpfp')
-def api_botpfp():
-    assets_dir = os.path.join(os.path.dirname(__file__), '..', 'assets')
-    pfp_path  = os.path.join(assets_dir, "bot_pfp.png")
-    upic_path = os.path.join(assets_dir, "upic.png")
-    if os.path.isfile(pfp_path):
-        return send_file(pfp_path, mimetype="image/png")
-    elif os.path.isfile(upic_path):
-        return send_file(upic_path, mimetype="image/png")
-    return jsonify({"error": "No profile picture"}), 404
-
-
-@app.route('/api/health')
-def health_check():
-    return jsonify({"status": "alive"}), 200
 
 
 @app.route('/api/nsfw')

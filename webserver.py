@@ -1306,7 +1306,7 @@ pre .bool{color:#60a5fa}
   </div>
 
   <div class="stats-bar">
-    <div class="stat-card"><div class="stat-num">12</div><div class="stat-label">Endpoints</div></div>
+    <div class="stat-card"><div class="stat-num">8</div><div class="stat-label">Endpoints</div></div>
     <div class="stat-card"><div class="stat-num">Free</div><div class="stat-label">No Auth</div></div>
     <div class="stat-card"><div class="stat-num">REST</div><div class="stat-label">JSON API</div></div>
     <div class="stat-card"><div class="stat-num">24/7</div><div class="stat-label">Uptime</div></div>
@@ -1455,9 +1455,6 @@ curl "BASE_URL/api/trending"
 
 # NSFW image check
 curl "BASE_URL/api/nsfw?url=https://example.com/image.jpg"
-
-# Bot status
-curl "BASE_URL/api/status"
 
 # Download audio
 curl -O -J "BASE_URL/api/download?v=dQw4w9WgXcQ"</pre>
@@ -1670,83 +1667,6 @@ curl -O -J "BASE_URL/api/download?v=dQw4w9WgXcQ"</pre>
     </div>
   </div>
 
-  <div class="section-title" style="margin-top:32px">Bot &amp; System</div>
-
-  <div class="api-card" data-tags="bot info status name">
-    <div class="api-head" onclick="toggle(this)">
-      <span class="method get">GET</span>
-      <span class="api-path">/api/botinfo</span>
-      <span class="api-desc-short">Bot information</span>
-      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
-    </div>
-    <div class="api-body">
-      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Returns bot name, username, bio and supported platforms.</p>
-      <div class="code-wrap">
-        <div class="code-label">Example <button class="copy-btn" onclick="copyCode('ex8')">Copy</button></div>
-        <pre id="ex8">GET /api/botinfo</pre>
-      </div>
-      <div class="code-wrap">
-        <div class="code-label">Response</div>
-        <pre>{
-  <span class="key">"name"</span>: <span class="str">"Annie X Music"</span>,
-  <span class="key">"username"</span>: <span class="str">"ANNIEXMUSICxBOT"</span>,
-  <span class="key">"bio"</span>: <span class="str">"Advanced Telegram Music Bot"</span>,
-  <span class="key">"features"</span>: [<span class="str">"YouTube"</span>, <span class="str">"Spotify"</span>, <span class="str">"Apple Music"</span>]
-}</pre>
-      </div>
-      <div class="response-tags"><span class="resp-tag resp-200">200 OK</span></div>
-    </div>
-  </div>
-
-  <div class="api-card" data-tags="status uptime system stats cpu ram">
-    <div class="api-head" onclick="toggle(this)">
-      <span class="method get">GET</span>
-      <span class="api-path">/api/status</span>
-      <span class="api-desc-short">Bot &amp; system status</span>
-      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
-    </div>
-    <div class="api-body">
-      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Returns bot uptime, CPU/RAM usage and currently active voice chat queues.</p>
-      <div class="code-wrap">
-        <div class="code-label">Example <button class="copy-btn" onclick="copyCode('ex9')">Copy</button></div>
-        <pre id="ex9">GET /api/status</pre>
-      </div>
-      <div class="code-wrap">
-        <div class="code-label">Response</div>
-        <pre>{
-  <span class="key">"status"</span>: <span class="str">"online"</span>,
-  <span class="key">"uptime"</span>: <span class="str">"2h 15m 30s"</span>,
-  <span class="key">"active_chats"</span>: <span class="num">5</span>,
-  <span class="key">"cpu"</span>: <span class="num">12.4</span>,
-  <span class="key">"ram_used"</span>: <span class="str">"512 MB"</span>,
-  <span class="key">"ram_total"</span>: <span class="str">"2048 MB"</span>
-}</pre>
-      </div>
-      <div class="response-tags"><span class="resp-tag resp-200">200 OK</span></div>
-    </div>
-  </div>
-
-  <div class="api-card" data-tags="health ping alive check">
-    <div class="api-head" onclick="toggle(this)">
-      <span class="method get">GET</span>
-      <span class="api-path">/api/health</span>
-      <span class="api-desc-short">Health check</span>
-      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
-    </div>
-    <div class="api-body">
-      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Simple health check. Returns 200 if the server is alive.</p>
-      <div class="code-wrap">
-        <div class="code-label">Example <button class="copy-btn" onclick="copyCode('ex10')">Copy</button></div>
-        <pre id="ex10">GET /api/health</pre>
-      </div>
-      <div class="code-wrap">
-        <div class="code-label">Response</div>
-        <pre>{ <span class="key">"status"</span>: <span class="str">"running"</span> }</pre>
-      </div>
-      <div class="response-tags"><span class="resp-tag resp-200">200 OK</span></div>
-    </div>
-  </div>
-
   <div class="section-title" style="margin-top:32px">NSFW Detection</div>
 
   <div class="api-card" data-tags="nsfw detection image adult content check">
@@ -1799,22 +1719,6 @@ curl -O -J "BASE_URL/api/download?v=dQw4w9WgXcQ"</pre>
     </div>
   </div>
 
-  <div class="api-card" data-tags="profile picture bot pfp avatar">
-    <div class="api-head" onclick="toggle(this)">
-      <span class="method get">GET</span>
-      <span class="api-path">/api/botpfp</span>
-      <span class="api-desc-short">Bot profile picture</span>
-      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
-    </div>
-    <div class="api-body">
-      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Returns the bot's profile picture as a PNG image.</p>
-      <div class="code-wrap">
-        <div class="code-label">Example <button class="copy-btn" onclick="copyCode('ex12')">Copy</button></div>
-        <pre id="ex12">GET /api/botpfp</pre>
-      </div>
-      <div class="response-tags"><span class="resp-tag resp-200">200 image/png</span><span class="resp-tag resp-400">404 No picture</span></div>
-    </div>
-  </div>
 
 </div>
 
