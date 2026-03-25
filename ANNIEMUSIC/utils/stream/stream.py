@@ -19,6 +19,7 @@ from ANNIEMUSIC.utils.pastebin import ANNIEBIN
 from ANNIEMUSIC.utils.stream.queue import put_queue, put_queue_index
 from ANNIEMUSIC.utils.thumbnails import get_thumb
 from ANNIEMUSIC.utils.errors import capture_internal_err
+from ANNIEMUSIC.utils.raw_send import send_msg_invert_preview
 from ANNIEMUSIC.plugins.Kishu.nsfw_filter import has_nsfw_text, is_thumb_nsfw_local
 
 THUMB_OFF_VIDEO_URL = "https://files.catbox.moe/4vr2jc.mp4"
@@ -46,12 +47,11 @@ async def _send_stream_msg(
             has_spoiler=has_spoiler,
         )
     else:
-        return await app.send_message(
+        return await send_msg_invert_preview(
+            app,
             original_chat_id,
             text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{caption}',
             reply_markup=reply_markup,
-            parse_mode=ParseMode.HTML,
-            disable_web_page_preview=False,
         )
 
 

@@ -24,6 +24,7 @@ from strings import get_string
 from ANNIEMUSIC import YouTube, app
 from ANNIEMUSIC.core.call import JARVIS
 from ANNIEMUSIC.misc import SUDOERS, db
+from ANNIEMUSIC.utils.raw_send import send_msg_invert_preview
 from ANNIEMUSIC.utils.database import (
     get_active_chats,
     get_assistant,
@@ -343,11 +344,12 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
                 has_spoiler=True,
             )
         else:
-            run = await callback.message.reply_text(
+            run = await send_msg_invert_preview(
+                app,
+                chat_id,
                 text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                 reply_markup=InlineKeyboardMarkup(buttons),
-                parse_mode=ParseMode.HTML,
-                disable_web_page_preview=False,
+                reply_to_message_id=callback.message.id,
             )
         if db.get(chat_id):
             db[chat_id][0]["mystic"] = run
@@ -379,11 +381,12 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
                 has_spoiler=True,
             )
         else:
-            run = await callback.message.reply_text(
+            run = await send_msg_invert_preview(
+                app,
+                chat_id,
                 text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                 reply_markup=InlineKeyboardMarkup(buttons),
-                parse_mode=ParseMode.HTML,
-                disable_web_page_preview=False,
+                reply_to_message_id=callback.message.id,
             )
         db[chat_id][0]["mystic"] = run
         db[chat_id][0]["markup"] = "stream"
@@ -405,11 +408,12 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
                 has_spoiler=True,
             )
         else:
-            run = await callback.message.reply_text(
+            run = await send_msg_invert_preview(
+                app,
+                chat_id,
                 text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                 reply_markup=InlineKeyboardMarkup(buttons),
-                parse_mode=ParseMode.HTML,
-                disable_web_page_preview=False,
+                reply_to_message_id=callback.message.id,
             )
         if db.get(chat_id):
             db[chat_id][0]["mystic"] = run
@@ -439,11 +443,12 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
                     has_spoiler=True,
                 )
             else:
-                run = await callback.message.reply_text(
+                run = await send_msg_invert_preview(
+                    app,
+                    chat_id,
                     text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                     reply_markup=InlineKeyboardMarkup(buttons),
-                    parse_mode=ParseMode.HTML,
-                    disable_web_page_preview=False,
+                    reply_to_message_id=callback.message.id,
                 )
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "tg"
@@ -458,11 +463,12 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
                     has_spoiler=True,
                 )
             else:
-                run = await callback.message.reply_text(
+                run = await send_msg_invert_preview(
+                    app,
+                    chat_id,
                     text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                     reply_markup=InlineKeyboardMarkup(buttons),
-                    parse_mode=ParseMode.HTML,
-                    disable_web_page_preview=False,
+                    reply_to_message_id=callback.message.id,
                 )
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "tg"
@@ -478,11 +484,12 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
                     has_spoiler=True,
                 )
             else:
-                run = await callback.message.reply_text(
+                run = await send_msg_invert_preview(
+                    app,
+                    chat_id,
                     text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                     reply_markup=InlineKeyboardMarkup(buttons),
-                    parse_mode=ParseMode.HTML,
-                    disable_web_page_preview=False,
+                    reply_to_message_id=callback.message.id,
                 )
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "stream"

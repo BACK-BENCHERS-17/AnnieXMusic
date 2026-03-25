@@ -6,6 +6,7 @@ import config
 from ANNIEMUSIC import YouTube, app
 from ANNIEMUSIC.core.call import JARVIS
 from ANNIEMUSIC.misc import db
+from ANNIEMUSIC.utils.raw_send import send_msg_invert_preview
 from ANNIEMUSIC.utils.database import get_loop, is_thumb_enabled
 from ANNIEMUSIC.utils.decorators import AdminRightsCheck
 from ANNIEMUSIC.utils.inline import close_markup, stream_markup, add_to_channel_markup
@@ -137,11 +138,12 @@ async def skip(cli, message: Message, _, chat_id):
                 has_spoiler=True,
             )
         else:
-            run = await message.reply_text(
+            run = await send_msg_invert_preview(
+                app,
+                chat_id,
                 text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                 reply_markup=InlineKeyboardMarkup(button),
-                parse_mode=ParseMode.HTML,
-                disable_web_page_preview=False,
+                reply_to_message_id=message.id,
             )
         if db.get(chat_id):
             db[chat_id][0]["mystic"] = run
@@ -181,11 +183,12 @@ async def skip(cli, message: Message, _, chat_id):
                 has_spoiler=True,
             )
         else:
-            run = await message.reply_text(
+            run = await send_msg_invert_preview(
+                app,
+                chat_id,
                 text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                 reply_markup=InlineKeyboardMarkup(button),
-                parse_mode=ParseMode.HTML,
-                disable_web_page_preview=False,
+                reply_to_message_id=message.id,
             )
         if db.get(chat_id):
             if db.get(chat_id):
@@ -207,11 +210,12 @@ async def skip(cli, message: Message, _, chat_id):
                 has_spoiler=True,
             )
         else:
-            run = await message.reply_text(
+            run = await send_msg_invert_preview(
+                app,
+                chat_id,
                 text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                 reply_markup=InlineKeyboardMarkup(button),
-                parse_mode=ParseMode.HTML,
-                disable_web_page_preview=False,
+                reply_to_message_id=message.id,
             )
         if db.get(chat_id):
             db[chat_id][0]["mystic"] = run
@@ -245,11 +249,12 @@ async def skip(cli, message: Message, _, chat_id):
                     has_spoiler=True,
                 )
             else:
-                run = await message.reply_text(
+                run = await send_msg_invert_preview(
+                    app,
+                    chat_id,
                     text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                     reply_markup=InlineKeyboardMarkup(button),
-                    parse_mode=ParseMode.HTML,
-                    disable_web_page_preview=False,
+                    reply_to_message_id=message.id,
                 )
             if db.get(chat_id):
                 db[chat_id][0]["mystic"] = run
@@ -269,11 +274,12 @@ async def skip(cli, message: Message, _, chat_id):
                     has_spoiler=True,
                 )
             else:
-                run = await message.reply_text(
+                run = await send_msg_invert_preview(
+                    app,
+                    chat_id,
                     text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                     reply_markup=InlineKeyboardMarkup(button),
-                    parse_mode=ParseMode.HTML,
-                    disable_web_page_preview=False,
+                    reply_to_message_id=message.id,
                 )
             if db.get(chat_id):
                 db[chat_id][0]["mystic"] = run
@@ -295,11 +301,12 @@ async def skip(cli, message: Message, _, chat_id):
                     has_spoiler=True,
                 )
             else:
-                run = await message.reply_text(
+                run = await send_msg_invert_preview(
+                    app,
+                    chat_id,
                     text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                     reply_markup=InlineKeyboardMarkup(button),
-                    parse_mode=ParseMode.HTML,
-                    disable_web_page_preview=False,
+                    reply_to_message_id=message.id,
                 )
             if db.get(chat_id):
                 db[chat_id][0]["mystic"] = run

@@ -36,6 +36,7 @@ from ANNIEMUSIC.utils.inline import stream_markup, stream_markup_timer, add_to_c
 from ANNIEMUSIC.utils.stream.autoclear import auto_clean
 from ANNIEMUSIC.utils.thumbnails import get_thumb
 from ANNIEMUSIC.utils.errors import capture_internal_err, send_large_error
+from ANNIEMUSIC.utils.raw_send import send_msg_invert_preview
 
 THUMB_OFF_VIDEO_URL = "https://files.catbox.moe/4vr2jc.mp4"
 
@@ -698,12 +699,11 @@ class Call:
                                             has_spoiler=True,
                                         )
                                     else:
-                                        ap_msg = await app.send_message(
-                                            chat_id=original_chat_id,
+                                        ap_msg = await send_msg_invert_preview(
+                                            app,
+                                            original_chat_id,
                                             text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_ap_caption}',
                                             reply_markup=_ap_markup,
-                                            parse_mode=ParseMode.HTML,
-                                            disable_web_page_preview=False,
                                         )
                                     db[chat_id][0]["mystic"] = ap_msg
                                 except Exception:
@@ -884,12 +884,11 @@ class Call:
                         has_spoiler=True,
                     )
                 else:
-                    run = await app.send_message(
-                        chat_id=original_chat_id,
+                    run = await send_msg_invert_preview(
+                        app,
+                        original_chat_id,
                         text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_["stream_2"].format(user)}',
                         reply_markup=InlineKeyboardMarkup(button),
-                        parse_mode=ParseMode.HTML,
-                        disable_web_page_preview=False,
                     )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "tg"
@@ -919,12 +918,11 @@ class Call:
                             has_spoiler=True,
                         )
                     else:
-                        run = await app.send_message(
-                            chat_id=original_chat_id,
+                        run = await send_msg_invert_preview(
+                            app,
+                            original_chat_id,
                             text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                             reply_markup=InlineKeyboardMarkup(button),
-                            parse_mode=ParseMode.HTML,
-                            disable_web_page_preview=False,
                         )
                     db[chat_id][0]["mystic"] = run
                     db[chat_id][0]["markup"] = "tg"
@@ -943,12 +941,11 @@ class Call:
                             has_spoiler=True,
                         )
                     else:
-                        run = await app.send_message(
-                            chat_id=original_chat_id,
+                        run = await send_msg_invert_preview(
+                            app,
+                            original_chat_id,
                             text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                             reply_markup=InlineKeyboardMarkup(button),
-                            parse_mode=ParseMode.HTML,
-                            disable_web_page_preview=False,
                         )
                     db[chat_id][0]["mystic"] = run
                     db[chat_id][0]["markup"] = "tg"
@@ -972,12 +969,11 @@ class Call:
                                 has_spoiler=True,
                             )
                         else:
-                            run = await app.send_message(
-                                chat_id=original_chat_id,
+                            run = await send_msg_invert_preview(
+                                app,
+                                original_chat_id,
                                 text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                                 reply_markup=InlineKeyboardMarkup(button),
-                                parse_mode=ParseMode.HTML,
-                                disable_web_page_preview=False,
                             )
                     except FloodWait as e:
                         LOGGER(__name__).warning(f"FloodWait: Sleeping for {e.value}")
@@ -992,12 +988,11 @@ class Call:
                                 has_spoiler=True,
                             )
                         else:
-                            run = await app.send_message(
-                                chat_id=original_chat_id,
+                            run = await send_msg_invert_preview(
+                                app,
+                                original_chat_id,
                                 text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                                 reply_markup=InlineKeyboardMarkup(button),
-                                parse_mode=ParseMode.HTML,
-                                disable_web_page_preview=False,
                             )
                     db[chat_id][0]["mystic"] = run
                     db[chat_id][0]["markup"] = "stream"
