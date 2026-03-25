@@ -45,15 +45,16 @@ def nsfw_nudenet_check(image_bytes: bytes):
             }
             COVERED = {
                 "FEMALE_GENITALIA_COVERED", "FEMALE_BREAST_COVERED",
-                "BUTTOCKS_COVERED",
+                "MALE_GENITALIA_COVERED",
+                # BUTTOCKS_COVERED removed — too many false positives on normal/anime art
             }
             labels, is_nsfw = [], False
             for det in detections:
                 cls, score = det.get("class", ""), det.get("score", 0)
-                if cls in EXPOSED and score >= 0.50:
+                if cls in EXPOSED and score >= 0.75:
                     is_nsfw = True
                     labels.append({"label": cls, "confidence": round(score, 3)})
-                elif cls in COVERED and score >= 0.65:
+                elif cls in COVERED and score >= 0.85:
                     is_nsfw = True
                     labels.append({"label": cls, "confidence": round(score, 3)})
             return is_nsfw, labels
@@ -505,7 +506,7 @@ pre .b{color:#60a5fa}
       <span class="tog"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span>
     </div>
     <div class="body">
-      <p class="desc">Check any media URL for NSFW / adult / explicit content. Supports <b>images</b> (jpg, png, webp), <b>GIFs</b> (multi-frame scan), and <b>videos</b> (mp4, webm — ffmpeg frame extraction). Uses AI-based NudeNet detection on every frame with skin-ratio fallback. Size limits: images 5 MB · GIF 5 MB · video 15 MB.</p>
+      <p class="desc">Check any media URL for NSFW / adult / explicit content. Supports <b>images</b> (jpg, png, webp), <b>GIFs</b> (multi-frame scan), and <b>videos</b> (mp4, webm — ffmpeg frame extraction). Uses AI-based NudeNet detection on every frame. <b>Thresholds:</b> exposed content ≥ 0.75 confidence · covered content ≥ 0.85 confidence. <code>BUTTOCKS_COVERED</code> is excluded to prevent false positives on anime/cartoon art. Size limits: images 5 MB · GIF 5 MB · video 15 MB.</p>
       <div class="ptitle">Parameters</div>
       <div class="prow"><span class="pname">url</span><span class="ptype">string</span><span class="preq">required</span><span class="pdesc">Direct URL of the media to check (image / GIF / video)</span></div>
       <div class="cw"><div class="clbl">Example — Image <button class="cbtn" onclick="cp('c12a')">Copy</button></div><pre id="c12a">GET /api/nsfw?url=https://example.com/photo.jpg</pre></div>

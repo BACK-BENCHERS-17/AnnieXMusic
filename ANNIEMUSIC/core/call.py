@@ -813,10 +813,9 @@ class Call:
                     run = await app.send_message(
                         chat_id=original_chat_id,
                         text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
-                        reply_markup=InlineKeyboardMarkup(button
+                        reply_markup=InlineKeyboardMarkup(button),
                         parse_mode=ParseMode.HTML,
                         disable_web_page_preview=False,
-                    ),
                     )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "tg"
@@ -862,10 +861,9 @@ class Call:
                     run = await app.send_message(
                         chat_id=original_chat_id,
                         text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
-                        reply_markup=InlineKeyboardMarkup(button
+                        reply_markup=InlineKeyboardMarkup(button),
                         parse_mode=ParseMode.HTML,
                         disable_web_page_preview=False,
-                    ),
                     )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "stream"
@@ -925,10 +923,9 @@ class Call:
                         run = await app.send_message(
                             chat_id=original_chat_id,
                             text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
-                            reply_markup=InlineKeyboardMarkup(button
+                            reply_markup=InlineKeyboardMarkup(button),
                             parse_mode=ParseMode.HTML,
                             disable_web_page_preview=False,
-                        ),
                         )
                     db[chat_id][0]["mystic"] = run
                     db[chat_id][0]["markup"] = "tg"
@@ -950,10 +947,9 @@ class Call:
                         run = await app.send_message(
                             chat_id=original_chat_id,
                             text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
-                            reply_markup=InlineKeyboardMarkup(button
+                            reply_markup=InlineKeyboardMarkup(button),
                             parse_mode=ParseMode.HTML,
                             disable_web_page_preview=False,
-                        ),
                         )
                     db[chat_id][0]["mystic"] = run
                     db[chat_id][0]["markup"] = "tg"
@@ -980,10 +976,9 @@ class Call:
                             run = await app.send_message(
                                 chat_id=original_chat_id,
                                 text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
-                                reply_markup=InlineKeyboardMarkup(button
+                                reply_markup=InlineKeyboardMarkup(button),
                                 parse_mode=ParseMode.HTML,
                                 disable_web_page_preview=False,
-                            ),
                             )
                     except FloodWait as e:
                         LOGGER(__name__).warning(f"FloodWait: Sleeping for {e.value}")
@@ -1001,10 +996,9 @@ class Call:
                             run = await app.send_message(
                                 chat_id=original_chat_id,
                                 text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
-                                reply_markup=InlineKeyboardMarkup(button
+                                reply_markup=InlineKeyboardMarkup(button),
                                 parse_mode=ParseMode.HTML,
                                 disable_web_page_preview=False,
-                            ),
                             )
                     db[chat_id][0]["mystic"] = run
                     db[chat_id][0]["markup"] = "stream"
