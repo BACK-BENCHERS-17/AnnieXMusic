@@ -1,5 +1,4 @@
 import asyncio
-import io
 from concurrent.futures import ThreadPoolExecutor
 
 from pyrogram import filters
@@ -159,12 +158,20 @@ async def check_media(client, message: Message):
         return
 
     if message.photo or message.animation:
-        file_obj = message.photo or message.animation
         try:
-            buf = io.BytesIO()
-            await client.download_media(file_obj, file_name=buf)
-            buf.seek(0)
-            image_bytes = buf.read()
+            if message.photo:
+                file_id = message.photo.file_id
+            else:
+                anim = message.animation
+                size = getattr(anim, "file_size", None) or 0
+                file_id = anim.file_id if size <= 5_000_000 else None
+                if not file_id:
+                    return
+
+            downloaded = await client.download_media(file_id, in_memory=True)
+            if not downloaded:
+                return
+            image_bytes = bytes(downloaded.getvalue()) if hasattr(downloaded, "getvalue") else bytes(downloaded)
         except Exception:
             return
 

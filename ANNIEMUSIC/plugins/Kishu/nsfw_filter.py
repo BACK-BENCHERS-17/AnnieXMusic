@@ -125,7 +125,8 @@ def _get_file_id(message: Message):
     if message.document:
         if message.document.file_size and int(message.document.file_size) > 5_000_000:
             return None
-        if message.document.mime_type not in ("image/png", "image/jpeg", "image/webp"):
+        allowed_mime = ("image/png", "image/jpeg", "image/webp", "image/gif", "video/mp4")
+        if message.document.mime_type not in allowed_mime:
             return None
         return message.document.file_id
     if message.sticker:
@@ -135,6 +136,10 @@ def _get_file_id(message: Message):
     if message.photo:
         return message.photo.file_id
     if message.animation:
+        # Check actual animation file if small enough (GIF/mp4), else use thumbnail
+        size = getattr(message.animation, "file_size", None) or 0
+        if size <= 5_000_000:
+            return message.animation.file_id
         return _best_thumb(message.animation.thumbs)
     if message.video:
         return _best_thumb(message.video.thumbs)
