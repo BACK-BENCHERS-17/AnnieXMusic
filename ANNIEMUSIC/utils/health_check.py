@@ -160,6 +160,75 @@ def index():
     return send_from_directory(WEB_DIR, 'index.html')
 
 
+@app.route('/api/status')
+def api_status():
+    try:
+        from ANNIEMUSIC.misc import db, _boot_
+        boot_time = _boot_
+    except Exception:
+        db = {}
+        boot_time = _boot_time
+
+    chats_data = []
+    for chat_id, queue in db.items():
+        if not queue:
+            continue
+        cur = queue[0]
+        vid = str(cur.get("vidid", ""))
+        thumb = f"https://img.youtube.com/vi/{vid}/mqdefault.jpg" if len(vid) == 11 else ""
+        user_id = cur.get("user_id", 0)
+        chats_data.append({
+            "chat_id": chat_id,
+            "current": {
+                "title":      cur.get("title", "Unknown"),
+                "duration":   cur.get("dur", "0:00"),
+                "played":     cur.get("played", 0),
+                "seconds":    cur.get("seconds", 0),
+                "by":         cur.get("by", "Unknown"),
+                "user_id":    user_id,
+                "tg_link":    f"tg://user?id={user_id}" if user_id else "",
+                "streamtype": cur.get("streamtype", "youtube"),
+                "vidid":      vid,
+                "thumbnail":  thumb,
+            },
+            "queue_count": max(len(queue) - 1, 0),
+            "queue": [
+                {
+                    "title":    t.get("title", "Unknown"),
+                    "duration": t.get("dur", "0:00"),
+                    "by":       t.get("by", "Unknown"),
+                    "vidid":    str(t.get("vidid", "")),
+                    "thumb":    f"https://img.youtube.com/vi/{str(t.get('vidid',''))}/default.jpg"
+                                if len(str(t.get("vidid", ""))) == 11 else "",
+                }
+                for t in queue[1:8]
+            ],
+        })
+
+    try:
+        cpu     = psutil.cpu_percent(interval=None)
+        ram     = psutil.virtual_memory()
+        ram_used  = f"{ram.used // (1024**2)} MB"
+        ram_total = f"{ram.total // (1024**2)} MB"
+        ram_pct   = round(ram.percent, 1)
+    except Exception:
+        cpu, ram_used, ram_total, ram_pct = 0, "N/A", "N/A", 0
+
+    up = int(time.time() - boot_time)
+    h, rem = divmod(up, 3600)
+    m, s   = divmod(rem, 60)
+
+    return jsonify({
+        "status":       "online",
+        "uptime":       f"{h}h {m}m {s}s",
+        "active_chats": len(chats_data),
+        "cpu":          cpu,
+        "ram_used":     ram_used,
+        "ram_total":    ram_total,
+        "ram_percent":  ram_pct,
+        "chats":        chats_data,
+    })
+
 
 @app.route('/api/trending')
 def api_trending():
