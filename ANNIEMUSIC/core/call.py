@@ -702,7 +702,7 @@ class Call:
                                         ap_msg = await send_msg_invert_preview(
                                             app,
                                             original_chat_id,
-                                            text=f'{_ap_caption}<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>',
+                                            text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_ap_caption}',
                                             reply_markup=_ap_markup,
                                         )
                                     db[chat_id][0]["mystic"] = ap_msg
@@ -811,7 +811,7 @@ class Call:
                 else:
                     run = await app.send_message(
                         chat_id=original_chat_id,
-                        text=f'{_cap}<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>',
+                        text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                         reply_markup=InlineKeyboardMarkup(button),
                         parse_mode=ParseMode.HTML,
                         disable_web_page_preview=False,
@@ -859,7 +859,7 @@ class Call:
                 else:
                     run = await app.send_message(
                         chat_id=original_chat_id,
-                        text=f'{_cap}<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>',
+                        text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                         reply_markup=InlineKeyboardMarkup(button),
                         parse_mode=ParseMode.HTML,
                         disable_web_page_preview=False,
@@ -887,7 +887,7 @@ class Call:
                     run = await send_msg_invert_preview(
                         app,
                         original_chat_id,
-                        text=f'{_["stream_2"].format(user)}<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>',
+                        text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_["stream_2"].format(user)}',
                         reply_markup=InlineKeyboardMarkup(button),
                     )
                 db[chat_id][0]["mystic"] = run
@@ -921,7 +921,7 @@ class Call:
                         run = await send_msg_invert_preview(
                             app,
                             original_chat_id,
-                            text=f'{_cap}<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>',
+                            text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                             reply_markup=InlineKeyboardMarkup(button),
                         )
                     db[chat_id][0]["mystic"] = run
@@ -944,7 +944,7 @@ class Call:
                         run = await send_msg_invert_preview(
                             app,
                             original_chat_id,
-                            text=f'{_cap}<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>',
+                            text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                             reply_markup=InlineKeyboardMarkup(button),
                         )
                     db[chat_id][0]["mystic"] = run
@@ -972,7 +972,7 @@ class Call:
                             run = await send_msg_invert_preview(
                                 app,
                                 original_chat_id,
-                                text=f'{_cap}<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>',
+                                text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                                 reply_markup=InlineKeyboardMarkup(button),
                             )
                     except FloodWait as e:
@@ -991,7 +991,7 @@ class Call:
                             run = await send_msg_invert_preview(
                                 app,
                                 original_chat_id,
-                                text=f'{_cap}<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>',
+                                text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                                 reply_markup=InlineKeyboardMarkup(button),
                             )
                     db[chat_id][0]["mystic"] = run

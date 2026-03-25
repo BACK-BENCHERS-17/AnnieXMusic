@@ -50,7 +50,7 @@ async def _send_stream_msg(
         return await send_msg_invert_preview(
             app,
             original_chat_id,
-            text=f'{caption}<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>',
+            text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{caption}',
             reply_markup=reply_markup,
         )
 

@@ -10,31 +10,24 @@ from strings import get_string
 
 def language(mystic):
     async def wrapper(_, message, **kwargs):
-        try:
-            asyncio.create_task(react_to_command(message))
-        except Exception:
-            pass
+        asyncio.create_task(react_to_command(message))
         if await is_maintenance() is False:
-            user_id = message.from_user.id if message.from_user else None
-            if user_id not in SUDOERS:
+            if message.from_user.id not in SUDOERS:
                 return await message.reply_text(
                     text=f"{app.mention} ɪs ᴜɴᴅᴇʀ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ, ᴠɪsɪᴛ <a href={SUPPORT_CHAT}>sᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ</a> ғᴏʀ ᴋɴᴏᴡɪɴɢ ᴛʜᴇ ʀᴇᴀsᴏɴ.",
                     disable_web_page_preview=True,
                 )
         try:
             await message.delete()
-        except Exception:
+        except:
             pass
 
         try:
             language = await get_lang(message.chat.id)
             language = get_string(language)
-        except Exception:
+        except:
             language = get_string("en")
-        try:
-            return await mystic(_, message, language)
-        except Exception:
-            raise
+        return await mystic(_, message, language)
 
     return wrapper
 

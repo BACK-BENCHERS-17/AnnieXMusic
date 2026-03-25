@@ -347,7 +347,7 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
             run = await send_msg_invert_preview(
                 app,
                 chat_id,
-                text=f'{_cap}<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>',
+                text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                 reply_markup=InlineKeyboardMarkup(buttons),
                 reply_to_message_id=callback.message.id,
             )
@@ -384,7 +384,7 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
             run = await send_msg_invert_preview(
                 app,
                 chat_id,
-                text=f'{_cap}<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>',
+                text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                 reply_markup=InlineKeyboardMarkup(buttons),
                 reply_to_message_id=callback.message.id,
             )
@@ -411,7 +411,7 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
             run = await send_msg_invert_preview(
                 app,
                 chat_id,
-                text=f'{_cap}<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>',
+                text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                 reply_markup=InlineKeyboardMarkup(buttons),
                 reply_to_message_id=callback.message.id,
             )
@@ -446,7 +446,7 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
                 run = await send_msg_invert_preview(
                     app,
                     chat_id,
-                    text=f'{_cap}<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>',
+                    text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                     reply_markup=InlineKeyboardMarkup(buttons),
                     reply_to_message_id=callback.message.id,
                 )
@@ -466,7 +466,7 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
                 run = await send_msg_invert_preview(
                     app,
                     chat_id,
-                    text=f'{_cap}<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>',
+                    text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                     reply_markup=InlineKeyboardMarkup(buttons),
                     reply_to_message_id=callback.message.id,
                 )
@@ -487,7 +487,7 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
                 run = await send_msg_invert_preview(
                     app,
                     chat_id,
-                    text=f'{_cap}<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>',
+                    text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                     reply_markup=InlineKeyboardMarkup(buttons),
                     reply_to_message_id=callback.message.id,
                 )
