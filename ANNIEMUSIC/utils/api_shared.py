@@ -39,22 +39,18 @@ def nsfw_nudenet_check(image_bytes: bytes):
         img.save(tmp_path, "PNG")
         try:
             detections = detector.detect(tmp_path)
+            # Per official NudeNet docs (pypi.org/project/nudenet):
+            # Only EXPOSED classes indicate actual NSFW content.
+            # COVERED classes are NOT NSFW — they cause false positives on
+            # swimwear, anime/cartoon art, stickers, etc.
             EXPOSED = {
                 "FEMALE_GENITALIA_EXPOSED", "MALE_GENITALIA_EXPOSED",
                 "FEMALE_BREAST_EXPOSED", "ANUS_EXPOSED", "BUTTOCKS_EXPOSED",
             }
-            COVERED = {
-                "FEMALE_GENITALIA_COVERED", "FEMALE_BREAST_COVERED",
-                "MALE_GENITALIA_COVERED",
-                # BUTTOCKS_COVERED removed — too many false positives on normal/anime art
-            }
             labels, is_nsfw = [], False
             for det in detections:
                 cls, score = det.get("class", ""), det.get("score", 0)
-                if cls in EXPOSED and score >= 0.75:
-                    is_nsfw = True
-                    labels.append({"label": cls, "confidence": round(score, 3)})
-                elif cls in COVERED and score >= 0.85:
+                if cls in EXPOSED and score >= 0.60:
                     is_nsfw = True
                     labels.append({"label": cls, "confidence": round(score, 3)})
             return is_nsfw, labels
@@ -506,7 +502,7 @@ pre .b{color:#60a5fa}
       <span class="tog"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span>
     </div>
     <div class="body">
-      <p class="desc">Check any media URL for NSFW / adult / explicit content. Supports <b>images</b> (jpg, png, webp), <b>GIFs</b> (multi-frame scan), and <b>videos</b> (mp4, webm — ffmpeg frame extraction). Uses AI-based NudeNet detection on every frame. <b>Thresholds:</b> exposed content ≥ 0.75 confidence · covered content ≥ 0.85 confidence. <code>BUTTOCKS_COVERED</code> is excluded to prevent false positives on anime/cartoon art. Size limits: images 5 MB · GIF 5 MB · video 15 MB.</p>
+      <p class="desc">Check any media URL for NSFW / adult / explicit content. Supports <b>images</b> (jpg, png, webp), <b>GIFs</b> (multi-frame scan), and <b>videos</b> (mp4, webm — ffmpeg frame extraction). Uses AI-based <b>NudeNet</b> detection per official docs. Only fully <b>EXPOSED</b> body-part classes are flagged (confidence ≥ 0.60) — COVERED classes are intentionally skipped to avoid false positives on swimwear, anime/cartoon art and normal stickers. Size limits: images 5 MB · GIF 5 MB · video 15 MB.</p>
       <div class="ptitle">Parameters</div>
       <div class="prow"><span class="pname">url</span><span class="ptype">string</span><span class="preq">required</span><span class="pdesc">Direct URL of the media to check (image / GIF / video)</span></div>
       <div class="cw"><div class="clbl">Example — Image <button class="cbtn" onclick="cp('c12a')">Copy</button></div><pre id="c12a">GET /api/nsfw?url=https://example.com/photo.jpg</pre></div>

@@ -30,6 +30,13 @@ except Exception as e:
     _NUDE_OK = False
     logger.error(f"NudeDetector failed to load: {e}")
 
+# ── Official NudeNet all_labels (18 classes from PyPI docs) ──────────────────
+# Reference: https://pypi.org/project/nudenet/
+# Only EXPOSED classes are used for NSFW detection.
+# COVERED classes (FEMALE_BREAST_COVERED, BUTTOCKS_COVERED, etc.) are NOT
+# NSFW by themselves — they cause massive false positives on swimwear,
+# anime/cartoon art, and normal stickers. Official examples only check EXPOSED.
+
 _NSFW_EXPOSED = {
     "FEMALE_GENITALIA_EXPOSED",
     "MALE_GENITALIA_EXPOSED",
@@ -37,22 +44,13 @@ _NSFW_EXPOSED = {
     "ANUS_EXPOSED",
     "BUTTOCKS_EXPOSED",
 }
-_NSFW_COVERED = {
-    "FEMALE_GENITALIA_COVERED",
-    "MALE_GENITALIA_COVERED",
-    "FEMALE_BREAST_COVERED",
-    # BUTTOCKS_COVERED removed — too many false positives on anime/cartoon stickers
-}
+# COVERED classes intentionally NOT used — per official NudeNet usage docs,
+# covered content is not NSFW. Causes false positives on normal stickers.
 
-# Higher thresholds = fewer false positives on normal stickers
-_THRESHOLD_EXPOSED = 0.75   # was 0.50 — raised to reduce false positives
-_THRESHOLD_COVERED = 0.85   # was 0.65 — raised to reduce false positives
+# Standard threshold per official NudeNet community examples
+_THRESHOLD_EXPOSED = 0.60        # for photos/videos/GIFs
+_THRESHOLD_STICKER_EXPOSED = 0.70  # stricter for stickers (anime/cartoon art)
 _SKIN_RATIO_FALLBACK = 0.48
-
-# Sticker-only: only exposed content is checked (not covered), to avoid
-# flagging innocent anime/cartoon stickers with clothed characters
-_STICKER_NSFW_EXPOSED = _NSFW_EXPOSED
-_THRESHOLD_STICKER_EXPOSED = 0.80  # even stricter for stickers
 
 _nsfw_hash_cache: dict[str, bool] = {}
 
@@ -296,8 +294,7 @@ def is_thumb_nsfw_local(img_path: str) -> bool:
         detections = _detector.detect(png_path)
         logger.info(f"[NSFW-THUMB] Detections for {img_path}: {detections}")
         return any(
-            (det.get("class") in _NSFW_EXPOSED and det.get("score", 0) >= _THRESHOLD_EXPOSED)
-            or (det.get("class") in _NSFW_COVERED and det.get("score", 0) >= _THRESHOLD_COVERED)
+            det.get("class") in _NSFW_EXPOSED and det.get("score", 0) >= _THRESHOLD_EXPOSED
             for det in detections
         )
     except Exception:
@@ -409,9 +406,14 @@ def _extract_frames_from_path(path: str, max_frames: int = 6) -> list[str]:
 def _check_frames_nudenet(frame_paths: list[str], sticker_mode: bool = False) -> tuple[bool, str]:
     """Run NudeNet on a list of frame PNGs. Returns (is_nsfw, reason) on first hit.
 
-    sticker_mode=True uses stricter thresholds and skips covered-body-part checks
-    to avoid false positives on anime/cartoon stickers.
+    Per official NudeNet docs (pypi.org/project/nudenet), only EXPOSED classes
+    are checked. COVERED classes are intentionally skipped — they are NOT NSFW
+    and cause false positives on normal stickers, anime, swimwear, etc.
+
+    sticker_mode=True uses a stricter threshold (0.70 vs 0.60) to further
+    reduce false positives on cartoon/anime sticker art.
     """
+    threshold = _THRESHOLD_STICKER_EXPOSED if sticker_mode else _THRESHOLD_EXPOSED
     for fp in frame_paths:
         if not os.path.exists(fp):
             continue
@@ -421,15 +423,8 @@ def _check_frames_nudenet(frame_paths: list[str], sticker_mode: bool = False) ->
             for det in detections:
                 cls = det.get("class", "")
                 score = det.get("score", 0)
-                if sticker_mode:
-                    # Stickers: only fully exposed content, with very high confidence
-                    if cls in _STICKER_NSFW_EXPOSED and score >= _THRESHOLD_STICKER_EXPOSED:
-                        return True, f"18+ exposed content detected ({cls})"
-                else:
-                    if cls in _NSFW_EXPOSED and score >= _THRESHOLD_EXPOSED:
-                        return True, f"18+ exposed content detected ({cls})"
-                    if cls in _NSFW_COVERED and score >= _THRESHOLD_COVERED:
-                        return True, f"18+ covered content detected ({cls})"
+                if cls in _NSFW_EXPOSED and score >= threshold:
+                    return True, f"18+ explicit content detected ({cls}: {score:.2f})"
         except Exception:
             logger.warning(f"[NSFW] NudeNet failed on frame {fp}")
     return False, ""
