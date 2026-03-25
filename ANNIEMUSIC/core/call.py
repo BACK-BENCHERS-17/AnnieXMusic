@@ -702,8 +702,8 @@ class Call:
                                             chat_id=original_chat_id,
                                             text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_ap_caption}',
                                             reply_markup=_ap_markup,
-                                        
                                             parse_mode=ParseMode.HTML,
+                                            invert_media=True,
                                             disable_web_page_preview=False,
                                         )
                                     db[chat_id][0]["mystic"] = ap_msg
@@ -815,6 +815,7 @@ class Call:
                         text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                         reply_markup=InlineKeyboardMarkup(button),
                         parse_mode=ParseMode.HTML,
+                        invert_media=True,
                         disable_web_page_preview=False,
                     )
                 db[chat_id][0]["mystic"] = run
@@ -863,6 +864,7 @@ class Call:
                         text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                         reply_markup=InlineKeyboardMarkup(button),
                         parse_mode=ParseMode.HTML,
+                        invert_media=True,
                         disable_web_page_preview=False,
                     )
                 db[chat_id][0]["mystic"] = run
@@ -890,6 +892,7 @@ class Call:
                         text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_["stream_2"].format(user)}',
                         reply_markup=InlineKeyboardMarkup(button),
                         parse_mode=ParseMode.HTML,
+                        invert_media=True,
                         disable_web_page_preview=False,
                     )
                 db[chat_id][0]["mystic"] = run
@@ -925,6 +928,7 @@ class Call:
                             text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                             reply_markup=InlineKeyboardMarkup(button),
                             parse_mode=ParseMode.HTML,
+                            invert_media=True,
                             disable_web_page_preview=False,
                         )
                     db[chat_id][0]["mystic"] = run
@@ -949,6 +953,7 @@ class Call:
                             text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                             reply_markup=InlineKeyboardMarkup(button),
                             parse_mode=ParseMode.HTML,
+                            invert_media=True,
                             disable_web_page_preview=False,
                         )
                     db[chat_id][0]["mystic"] = run
@@ -978,6 +983,7 @@ class Call:
                                 text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                                 reply_markup=InlineKeyboardMarkup(button),
                                 parse_mode=ParseMode.HTML,
+                                invert_media=True,
                                 disable_web_page_preview=False,
                             )
                     except FloodWait as e:
@@ -998,6 +1004,7 @@ class Call:
                                 text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
                                 reply_markup=InlineKeyboardMarkup(button),
                                 parse_mode=ParseMode.HTML,
+                                invert_media=True,
                                 disable_web_page_preview=False,
                             )
                     db[chat_id][0]["mystic"] = run
