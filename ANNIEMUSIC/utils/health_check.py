@@ -19,6 +19,18 @@ from ANNIEMUSIC.utils.internal_secret import get_secret
 
 app = Flask(__name__)
 
+# ── CORS — allow anyone to use these APIs from any bot/server ─────────────────
+try:
+    from flask_cors import CORS
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
+except Exception:
+    @app.after_request
+    def _add_cors(response):
+        response.headers["Access-Control-Allow-Origin"]  = "*"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        return response
+
 _INTERNAL_KEY = get_secret()   # random per-process, never logged
 _boot_time = time.time()
 

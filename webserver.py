@@ -32,6 +32,18 @@ WEB_DIR = os.path.join(os.path.dirname(__file__), 'ANNIEMUSIC', 'utils', 'web')
 app = Flask(__name__)
 _boot_time = time.time()
 
+# ── CORS — allow anyone to call these APIs from any bot/server ────────────────
+try:
+    from flask_cors import CORS
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
+except Exception:
+    @app.after_request
+    def _add_cors(response):
+        response.headers["Access-Control-Allow-Origin"]  = "*"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        return response
+
 def _sec_to_min(s):
     if not s:
         return "0:00"
@@ -1238,10 +1250,38 @@ pre .bool{color:#60a5fa}
 .footer{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px}
 .footer a{color:var(--acc)}
 
+/* Base URL box */
+.base-url-box{background:linear-gradient(135deg,rgba(168,85,247,0.08),rgba(59,130,246,0.06));border:1px solid rgba(168,85,247,0.25);border-radius:14px;padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.base-url-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--acc);flex-shrink:0}
+.base-url-value{font-family:'JetBrains Mono',monospace;font-size:13px;color:#c084fc;flex:1;word-break:break-all}
+.base-url-copy{background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);border-radius:8px;color:var(--acc);padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;flex-shrink:0}
+.base-url-copy:hover{background:var(--acc);color:#fff}
+
+/* Usage card */
+.usage-card{background:var(--s2);border:1px solid var(--border2);border-radius:16px;margin-bottom:24px;overflow:hidden}
+.usage-head{display:flex;align-items:center;gap:12px;padding:16px 20px;cursor:pointer;user-select:none}
+.usage-head:hover .usage-title{color:var(--acc)}
+.usage-icon{width:32px;height:32px;background:rgba(168,85,247,0.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.usage-title{font-size:15px;font-weight:700;color:var(--text);flex:1}
+.usage-sub{font-size:12px;color:var(--text3);margin-top:2px}
+.usage-toggle{color:var(--text3);transition:transform 0.2s;flex-shrink:0}
+.usage-toggle svg{width:16px;height:16px;fill:currentColor}
+.usage-card.open .usage-toggle{transform:rotate(180deg)}
+.usage-body{display:none;border-top:1px solid var(--border2);padding:20px}
+.usage-card.open .usage-body{display:block}
+.lang-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.lang-tab{background:var(--s4);border:1px solid var(--border2);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2);font-family:'Inter',sans-serif;transition:all 0.15s}
+.lang-tab.active,.lang-tab:hover{background:rgba(168,85,247,0.15);border-color:rgba(168,85,247,0.3);color:var(--acc)}
+.code-tab{display:none}
+.code-tab.active{display:block}
+.usage-note{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:12px 16px;font-size:13px;color:#6ee7b7;margin-bottom:16px}
+.usage-note strong{color:var(--green)}
+
 /* Mobile */
 @media(max-width:600px){
   .api-desc-short{display:none}
   .stats-bar{gap:8px}
+  .base-url-box{gap:8px}
 }
 </style>
 </head>
@@ -1270,6 +1310,160 @@ pre .bool{color:#60a5fa}
     <div class="stat-card"><div class="stat-num">Free</div><div class="stat-label">No Auth</div></div>
     <div class="stat-card"><div class="stat-num">REST</div><div class="stat-label">JSON API</div></div>
     <div class="stat-card"><div class="stat-num">24/7</div><div class="stat-label">Uptime</div></div>
+  </div>
+
+  <div class="base-url-box">
+    <span class="base-url-label">🌐 Base URL</span>
+    <span class="base-url-value" id="baseUrl"></span>
+    <button class="base-url-copy" onclick="copyBaseUrl()">Copy</button>
+  </div>
+
+  <div class="usage-card open" id="usageCard">
+    <div class="usage-head" onclick="toggleUsage()">
+      <div class="usage-icon">🤖</div>
+      <div style="flex:1">
+        <div class="usage-title">Apne Bot mein kaise use karein</div>
+        <div class="usage-sub">Python · Pyrogram · aiogram · curl — sab ke liye examples</div>
+      </div>
+      <span class="usage-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="usage-body">
+      <div class="usage-note">
+        <strong>✅ Bilkul Free!</strong> Koi API key nahi chahiye. Bas apne bot mein yeh BASE_URL copy karo aur requests bhejo.
+      </div>
+      <div class="lang-tabs">
+        <button class="lang-tab active" onclick="switchTab('python')">Python (requests)</button>
+        <button class="lang-tab" onclick="switchTab('pyrogram')">Pyrogram Bot</button>
+        <button class="lang-tab" onclick="switchTab('aiohttp')">aiohttp (async)</button>
+        <button class="lang-tab" onclick="switchTab('curl')">cURL</button>
+      </div>
+
+      <div class="code-tab active" id="tab-python">
+        <div class="code-label">Song Search Example <button class="copy-btn" onclick="copyCode('py1')">Copy</button></div>
+        <pre id="py1">import requests
+
+BASE_URL = "<span id="py-base-url">https://yourbot.replit.dev</span>"
+
+# Search karo
+res = requests.get(f"{BASE_URL}/api/search", params={"q": "Arijit Singh"})
+songs = res.json()["results"]
+for song in songs:
+    print(song["title"], "-", song["duration"])
+
+# NSFW check karo
+res = requests.get(f"{BASE_URL}/api/nsfw", params={"url": "https://example.com/img.jpg"})
+print(res.json())  # {"is_nsfw": false, "confidence": 0.02, ...}</pre>
+        <div class="code-wrap" style="margin-top:12px">
+          <div class="code-label">Trending Songs <button class="copy-btn" onclick="copyCode('py2')">Copy</button></div>
+          <pre id="py2">res = requests.get(f"{BASE_URL}/api/trending")
+songs = res.json()["songs"]
+print(f"Total trending: {len(songs)}")
+for s in songs[:5]:
+    print(f"[{s['category']}] {s['title']}")</pre>
+        </div>
+      </div>
+
+      <div class="code-tab" id="tab-pyrogram">
+        <div class="code-label">Pyrogram Bot mein use karo <button class="copy-btn" onclick="copyCode('pyro1')">Copy</button></div>
+        <pre id="pyro1">import requests
+from pyrogram import Client, filters
+
+BASE_URL = "<span id="pyro-base-url">https://yourbot.replit.dev</span>"
+app = Client("mybot", api_id=..., api_hash=..., bot_token=...)
+
+@app.on_message(filters.command("search"))
+async def search_song(client, message):
+    query = " ".join(message.command[1:])
+    if not query:
+        return await message.reply("Usage: /search &lt;song name&gt;")
+    
+    res = requests.get(f"{BASE_URL}/api/search", params={"q": query})
+    results = res.json().get("results", [])
+    
+    if not results:
+        return await message.reply("❌ Koi song nahi mila!")
+    
+    text = "🎵 **Search Results:**\n\n"
+    for i, s in enumerate(results[:5], 1):
+        text += f"{i}. [{s['title']}](https://youtu.be/{s['id']}) — {s['duration']}\n"
+    
+    await message.reply(text)
+
+app.run()</pre>
+        <div class="code-wrap" style="margin-top:12px">
+          <div class="code-label">NSFW Guard in Pyrogram <button class="copy-btn" onclick="copyCode('pyro2')">Copy</button></div>
+          <pre id="pyro2">@app.on_message(filters.photo & filters.group)
+async def check_photo(client, message):
+    # Temporarily download and check
+    file = await message.download()
+    
+    # Ya URL se check karo
+    res = requests.get(f"{BASE_URL}/api/nsfw", params={"url": "IMAGE_URL"})
+    data = res.json()
+    
+    if data.get("is_nsfw"):
+        await message.delete()
+        await message.chat.send_message("⛔ NSFW content deleted!")</pre>
+        </div>
+      </div>
+
+      <div class="code-tab" id="tab-aiohttp">
+        <div class="code-label">Async Python (aiohttp) <button class="copy-btn" onclick="copyCode('aio1')">Copy</button></div>
+        <pre id="aio1">import aiohttp
+import asyncio
+
+BASE_URL = "<span id="aio-base-url">https://yourbot.replit.dev</span>"
+
+async def search_songs(query: str):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            f"{BASE_URL}/api/search",
+            params={"q": query}
+        ) as resp:
+            data = await resp.json()
+            return data.get("results", [])
+
+async def get_trending():
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"{BASE_URL}/api/trending") as resp:
+            data = await resp.json()
+            return data.get("songs", [])
+
+async def check_nsfw(image_url: str) -> bool:
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            f"{BASE_URL}/api/nsfw",
+            params={"url": image_url}
+        ) as resp:
+            data = await resp.json()
+            return data.get("is_nsfw", False)
+
+# Run karo
+asyncio.run(search_songs("Arijit Singh"))</pre>
+      </div>
+
+      <div class="code-tab" id="tab-curl">
+        <div class="code-label">cURL Examples <button class="copy-btn" onclick="copyCode('curl1')">Copy</button></div>
+        <pre id="curl1"># Song search
+curl "<span id="curl-base-url">https://yourbot.replit.dev</span>/api/search?q=Arijit+Singh"
+
+# Video metadata
+curl "BASE_URL/api/stream?v=dQw4w9WgXcQ"
+
+# Trending songs
+curl "BASE_URL/api/trending"
+
+# NSFW image check
+curl "BASE_URL/api/nsfw?url=https://example.com/image.jpg"
+
+# Bot status
+curl "BASE_URL/api/status"
+
+# Download audio
+curl -O -J "BASE_URL/api/download?v=dQw4w9WgXcQ"</pre>
+      </div>
+
+    </div>
   </div>
 
   <div class="section-title">Music &amp; YouTube</div>
