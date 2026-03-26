@@ -377,6 +377,78 @@ async def download_from_own_api(vid: str) -> Optional[str]:
     return None
 
 
+_bg_download_tasks: Dict[str, asyncio.Task] = {}
+
+
+async def fast_get_stream(vid: str) -> Optional[str]:
+    """
+    Ultra-fast path: return a playable path/URL in <1s for cached songs,
+    or <3s on first play (URL-only extraction, no full download).
+
+    Priority:
+      1. Cached local file → instant
+      2. CDN URL via smart_extract_url (cached best client, ~0.5-2s)
+         → streams directly from YouTube CDN, no download wait
+      3. Falls back to download_audio_concurrent if URL extraction fails
+
+    A background task is always kicked off to cache the file locally for
+    the next play (so repeat plays are truly instant).
+    """
+    loop = asyncio.get_running_loop()
+
+    cached = file_exists(vid)
+    if cached:
+        return cached
+
+    try:
+        info = await loop.run_in_executor(None, smart_extract_url, vid)
+        if info and info.get("url"):
+            cdn_url: str = info["url"]
+            ext: str = info.get("ext", "m4a")
+
+            if not cdn_url.startswith("http"):
+                raise ValueError("Not a CDN URL")
+
+            link_full = f"https://www.youtube.com/watch?v={vid}"
+            _kick_bg_download(vid, link_full)
+
+            LOGGER(__name__).info(
+                f"[FAST] CDN stream ready in <extract> for {vid} | ext={ext}"
+            )
+            return cdn_url
+    except Exception as e:
+        LOGGER(__name__).warning(f"[FAST] URL extract failed for {vid}: {e}")
+
+    link_full = f"https://www.youtube.com/watch?v={vid}"
+    return await download_audio_concurrent(link_full)
+
+
+def _kick_bg_download(vid: str, link: str) -> None:
+    """Fire-and-forget background download to cache the file locally."""
+    if vid in _bg_download_tasks:
+        t = _bg_download_tasks[vid]
+        if not t.done():
+            return
+
+    async def _bg():
+        try:
+            loop = asyncio.get_running_loop()
+            fmt = "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best"
+            path = await loop.run_in_executor(None, smart_download, vid, _DOWNLOAD_DIR, fmt)
+            if path:
+                LOGGER(__name__).info(f"[BG-DL] Cached for future plays: {path}")
+        except Exception as e:
+            LOGGER(__name__).debug(f"[BG-DL] Background download failed for {vid}: {e}")
+        finally:
+            _bg_download_tasks.pop(vid, None)
+
+    try:
+        task = asyncio.get_event_loop().create_task(_bg())
+        _bg_download_tasks[vid] = task
+    except Exception:
+        pass
+
+
 async def download_audio_concurrent(link: str) -> Optional[str]:
     """
     Main audio download function — parallel CDN + direct download race.

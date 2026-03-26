@@ -652,12 +652,10 @@ class Call:
                             ap_dur     = chosen.get("duration") or "Unknown"
                             ap_title_short = ap_title[:35] + "..." if len(ap_title) > 35 else ap_title
 
-                            # Use download pipeline instead of yt-dlp subprocess
-                            # — more reliable, uses SmartYTDL + all fallbacks
-                            from ANNIEMUSIC.utils.downloader import download_audio_concurrent
-                            ap_file = await download_audio_concurrent(
-                                f"https://www.youtube.com/watch?v={ap_vidid}"
-                            )
+                            # Fast path: CDN URL extraction → instant VC stream,
+                            # background download caches for future plays
+                            from ANNIEMUSIC.utils.downloader import fast_get_stream
+                            ap_file = await fast_get_stream(ap_vidid)
                             if ap_file:
                                 ap_stream = dynamic_media_stream(
                                     path=ap_file, video=False

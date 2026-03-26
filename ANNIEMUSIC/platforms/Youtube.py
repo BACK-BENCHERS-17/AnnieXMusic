@@ -12,7 +12,7 @@ from pyrogram.types import Message
 from youtubesearchpython.__future__ import VideosSearch
 
 from ANNIEMUSIC.utils.database import is_on_off
-from ANNIEMUSIC.utils.downloader import download_audio_concurrent, extract_video_id, yt_dlp_download
+from ANNIEMUSIC.utils.downloader import download_audio_concurrent, extract_video_id, fast_get_stream, yt_dlp_download
 from ANNIEMUSIC.utils.errors import capture_internal_err
 from ANNIEMUSIC.utils.formatters import time_to_seconds
 from ANNIEMUSIC.utils.tuning import (
@@ -417,6 +417,10 @@ class YouTubeAPI:
             p = await yt_dlp_download(link, type="video")
             return (p, True) if p else (None, None)
 
-        # ── Audio: CDN fast-download → local file → smooth VC playback ──────────
-        p = await download_audio_concurrent(link)
-        return (p, True) if p else (None, None)
+        # ── Audio: instant CDN stream → play immediately, cache in background ───
+        vid = extract_video_id(link)
+        p = await fast_get_stream(vid)
+        if p:
+            is_local = not p.startswith("http")
+            return (p, is_local)
+        return (None, None)
