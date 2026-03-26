@@ -32,6 +32,7 @@ from ANNIEMUSIC.utils.database import (
 )
 from ANNIEMUSIC.utils.exceptions import AssistantErr
 from ANNIEMUSIC.utils.formatters import check_duration, seconds_to_min, speed_converter
+from ANNIEMUSIC.utils.prefetch import trigger_prefetch, cancel_prefetch
 from ANNIEMUSIC.utils.inline import stream_markup, stream_markup_timer, add_to_channel_markup, InlineKeyboardButton as StyledBtn
 from ANNIEMUSIC.utils.stream.autoclear import auto_clean
 from ANNIEMUSIC.utils.thumbnails import get_thumb
@@ -198,6 +199,7 @@ class Call:
                 await assistant.pause(chat_id)
             except Exception:
                 pass
+        cancel_prefetch(chat_id)
         db[chat_id] = []
 
 
@@ -532,6 +534,7 @@ class Call:
         await music_on(chat_id)
         if video:
             await add_active_video_chat(chat_id)
+        trigger_prefetch(chat_id)
 
         if await is_autoend():
             counter[chat_id] = {}
@@ -876,6 +879,7 @@ class Call:
                     await client.play(chat_id, stream)
                 except:
                     return await app.send_message(original_chat_id, text=_["call_6"])
+                trigger_prefetch(chat_id)
 
                 button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
                 await mystic.delete()
