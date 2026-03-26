@@ -470,6 +470,119 @@ def api_ytdl():
                 _ytdl_locks.pop(vid, None)
 
 
+# ── Sub-1-second play: Prepare / Warm pool ───────────────────────────────────
+# Call /api/prepare as soon as a song is added to queue.
+# By the time the song's turn comes, the file is already on disk → instant play.
+_prepare_pool: dict = {}   # vidid → threading.Event (set when download done)
+_prepare_lock = threading.Lock()
+
+
+def _prepare_bg(vid: str):
+    """Background worker: download song and signal Event when done."""
+    try:
+        # Already on disk?
+        existing = _file_exists_any(vid)
+        if existing:
+            return existing
+
+        # Fast path: stream URL → CDN download
+        stream_data = _get_stream_data(vid)
+        if stream_data and stream_data.get("url"):
+            ext = stream_data.get("ext", "m4a")
+            path = _cdn_download_sync(vid, stream_data["url"], ext)
+            if path:
+                return path
+
+        # Slow path fallback: yt-dlp
+        smart_download(vid, _DOWNLOAD_DIR, "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best")
+    except Exception as e:
+        _log_prepare = logging.getLogger("webserver.prepare")
+        _log_prepare.debug(f"[prepare] {vid}: {e}")
+    finally:
+        with _prepare_lock:
+            ev = _prepare_pool.get(vid)
+        if ev:
+            ev.set()
+
+
+def trigger_prepare(vid: str):
+    """
+    Non-blocking: start background download for a video if not already in flight.
+    Call this as soon as a vidid is known (queue add, search result, etc.)
+    """
+    if not vid or len(vid) != 11:
+        return
+    if _file_exists_any(vid):
+        return  # already cached
+    with _prepare_lock:
+        if vid in _prepare_pool:
+            return  # already in flight
+        ev = threading.Event()
+        _prepare_pool[vid] = ev
+
+    t = threading.Thread(target=_prepare_bg, args=(vid,), daemon=True, name=f"prepare-{vid}")
+    t.start()
+
+
+def wait_ready(vid: str, timeout: float = 0.0) -> bool:
+    """Return True if file is ready within `timeout` seconds (0 = instant check)."""
+    if _file_exists_any(vid):
+        return True
+    with _prepare_lock:
+        ev = _prepare_pool.get(vid)
+    if ev:
+        return ev.wait(timeout=timeout)
+    return False
+
+
+@app.route("/api/prepare")
+def api_prepare():
+    """
+    Kick off background download for a video so it's ready before play.
+    Call this the moment a song is queued — by the time it's its turn, the
+    file will already be on disk and play starts instantly (< 1 s).
+
+    GET /api/prepare?v=VIDEO_ID&key=INTERNAL_KEY
+    Returns: {"status": "started"} or {"status": "ready", "path": "..."}
+    """
+    vid = request.args.get("v", "").strip()
+    key = request.args.get("key", "").strip()
+
+    if not vid or len(vid) != 11:
+        return jsonify({"error": "Invalid video id"}), 400
+    if key != _INTERNAL_KEY:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    existing = _file_exists_any(vid)
+    if existing:
+        return jsonify({"status": "ready", "path": existing, "cached": True})
+
+    trigger_prepare(vid)
+    return jsonify({"status": "started", "vid": vid})
+
+
+@app.route("/api/ready")
+def api_ready():
+    """
+    Check if a video's audio file is ready on disk.
+    GET /api/ready?v=VIDEO_ID&key=INTERNAL_KEY&wait=2
+    wait= optional seconds to block (useful for last-moment readiness check)
+    Returns: {"ready": true/false, "path": "..." or null}
+    """
+    vid = request.args.get("v", "").strip()
+    key = request.args.get("key", "").strip()
+    wait_sec = min(float(request.args.get("wait", "0") or 0), 30.0)
+
+    if not vid or len(vid) != 11:
+        return jsonify({"error": "Invalid video id"}), 400
+    if key != _INTERNAL_KEY:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    ready = wait_ready(vid, timeout=wait_sec)
+    path  = _file_exists_any(vid)
+    return jsonify({"ready": bool(path), "path": path})
+
+
 @app.route("/api/stream")
 def api_stream():
     """Return metadata for a video (no stream URL exposed to browser)."""
