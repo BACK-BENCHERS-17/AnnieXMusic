@@ -11,6 +11,7 @@ BYPASS LAYERS (tried in order):
 """
 
 import base64
+import json
 import logging
 import os
 import queue
@@ -23,6 +24,11 @@ from typing import Dict, List, Optional
 import yt_dlp
 
 _log = logging.getLogger(__name__)
+
+# ── Persistent best-client state file ────────────────────────────────────────
+_STATE_FILE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "..", "cache", "best_yt_client.json"
+)
 
 # ── Node.js path detection ────────────────────────────────────────────────────
 def _find_node() -> Optional[str]:
@@ -204,12 +210,42 @@ class _ClientRegistry:
         self._failed: Dict[str, float] = {}
         self._FAIL_TTL = 900
         self._BEST_TTL = 1800
+        self._DISK_TTL = 86400  # 24 hours — persist best client across restarts
+        self._load_state()
+
+    def _load_state(self) -> None:
+        """Load best client from disk so it survives bot restarts."""
+        try:
+            if os.path.exists(_STATE_FILE):
+                with open(_STATE_FILE, "r") as f:
+                    data = json.load(f)
+                client = data.get("best")
+                ts = float(data.get("ts", 0.0))
+                if client and client in ALL_CLIENTS:
+                    if time.time() - ts < self._DISK_TTL:
+                        self._best = client
+                        self._best_ts = ts
+                        _log.info(f"[SmartYTDL] Loaded best client from disk: '{client}'")
+                    else:
+                        _log.info("[SmartYTDL] Disk state expired, using default android_vr")
+        except Exception as e:
+            _log.debug(f"[SmartYTDL] Could not load state: {e}")
+
+    def _save_state(self) -> None:
+        """Persist best client to disk for faster startup after restart."""
+        try:
+            os.makedirs(os.path.dirname(os.path.abspath(_STATE_FILE)), exist_ok=True)
+            with open(_STATE_FILE, "w") as f:
+                json.dump({"best": self._best, "ts": self._best_ts}, f)
+        except Exception as e:
+            _log.debug(f"[SmartYTDL] Could not save state: {e}")
 
     def mark_ok(self, client: str):
         with self._lock:
             self._best = client
             self._best_ts = time.time()
             self._failed.pop(client, None)
+        self._save_state()
 
     def mark_failed(self, client: str):
         with self._lock:
