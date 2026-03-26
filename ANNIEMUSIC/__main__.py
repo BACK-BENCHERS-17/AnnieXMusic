@@ -14,7 +14,7 @@ from ANNIEMUSIC.utils.database import get_banned_users, get_gbanned
 from ANNIEMUSIC.utils.weburl import WEB_URL
 from config import BANNED_USERS
 
-from ANNIEMUSIC.utils.health_check import start_health_server
+from ANNIEMUSIC.utils.health_check import start_health_server, set_bot_loop
 
 
 async def _set_menu_button():
@@ -44,6 +44,8 @@ async def _set_menu_button():
 async def init():
     # Start health check server for Railway
     start_health_server()
+    # Register the running event loop so Flask control endpoints can call async bot functions
+    set_bot_loop(asyncio.get_event_loop())
 
     if (
         not config.STRING1

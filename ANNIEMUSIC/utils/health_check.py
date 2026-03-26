@@ -1,3 +1,4 @@
+import asyncio
 import os
 import sys
 import re
@@ -648,6 +649,400 @@ def api_docs_alias():
     base = request.host_url.rstrip("/")
     html = _get_api_docs_html().replace("https://yourbot.replit.dev", base)
     return html, 200, {"Content-Type": "text/html; charset=utf-8"}
+
+
+# ── Bot asyncio event loop (set from __main__.py) ──────────────────────────────
+_bot_loop = None
+
+
+def set_bot_loop(loop):
+    """Register the bot's asyncio event loop so Flask threads can call async functions."""
+    global _bot_loop
+    _bot_loop = loop
+
+
+def _run_async(coro, timeout=15):
+    """Run an async coroutine from a sync Flask thread using the bot's event loop."""
+    if _bot_loop is None:
+        raise RuntimeError("Bot event loop not registered yet")
+    import concurrent.futures
+    future = asyncio.run_coroutine_threadsafe(coro, _bot_loop)
+    return future.result(timeout=timeout)
+
+
+def _get_db():
+    from ANNIEMUSIC.misc import db
+    return db
+
+
+# ── VC Control Endpoints ────────────────────────────────────────────────────────
+
+@app.route('/api/queue', methods=['GET'])
+def api_queue():
+    """
+    View full queue for a chat.
+    GET /api/queue?chat_id=-1001234567890
+    Returns: { current: {...}, queue: [...], total: N }
+    """
+    chat_id = request.args.get("chat_id", "").strip()
+    if not chat_id:
+        return jsonify({"error": "chat_id required"}), 400
+    try:
+        chat_id = int(chat_id)
+    except ValueError:
+        return jsonify({"error": "Invalid chat_id"}), 400
+
+    db = _get_db()
+    queue = db.get(chat_id, [])
+    if not queue:
+        return jsonify({"current": None, "queue": [], "total": 0})
+
+    def _fmt(t):
+        vid = str(t.get("vidid", ""))
+        return {
+            "title":    t.get("title", "Unknown"),
+            "duration": t.get("dur", "0:00"),
+            "by":       t.get("by", "Unknown"),
+            "vidid":    vid,
+            "streamtype": t.get("streamtype", "audio"),
+            "thumb": f"https://img.youtube.com/vi/{vid}/mqdefault.jpg" if len(vid) == 11 else "",
+        }
+
+    cur = queue[0]
+    vid = str(cur.get("vidid", ""))
+    return jsonify({
+        "current": {
+            **_fmt(cur),
+            "played":  cur.get("played", 0),
+            "seconds": cur.get("seconds", 0),
+        },
+        "queue": [_fmt(t) for t in queue[1:]],
+        "total": len(queue),
+    })
+
+
+@app.route('/api/pause', methods=['GET', 'POST'])
+def api_pause():
+    """
+    Pause VC playback.
+    GET/POST /api/pause?chat_id=-1001234567890
+    """
+    chat_id = (request.args.get("chat_id") or (request.json or {}).get("chat_id", ""))
+    try:
+        chat_id = int(str(chat_id).strip())
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid chat_id"}), 400
+    try:
+        from ANNIEMUSIC.core.call import JARVIS
+        _run_async(JARVIS.pause_stream(chat_id))
+        return jsonify({"ok": True, "action": "paused", "chat_id": chat_id})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/resume', methods=['GET', 'POST'])
+def api_resume():
+    """
+    Resume VC playback.
+    GET/POST /api/resume?chat_id=-1001234567890
+    """
+    chat_id = (request.args.get("chat_id") or (request.json or {}).get("chat_id", ""))
+    try:
+        chat_id = int(str(chat_id).strip())
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid chat_id"}), 400
+    try:
+        from ANNIEMUSIC.core.call import JARVIS
+        _run_async(JARVIS.resume_stream(chat_id))
+        return jsonify({"ok": True, "action": "resumed", "chat_id": chat_id})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/stop', methods=['GET', 'POST'])
+def api_stop():
+    """
+    Stop VC and leave call.
+    GET/POST /api/stop?chat_id=-1001234567890
+    """
+    chat_id = (request.args.get("chat_id") or (request.json or {}).get("chat_id", ""))
+    try:
+        chat_id = int(str(chat_id).strip())
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid chat_id"}), 400
+    try:
+        from ANNIEMUSIC.core.call import JARVIS
+        _run_async(JARVIS.stop_stream(chat_id))
+        return jsonify({"ok": True, "action": "stopped", "chat_id": chat_id})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/skip', methods=['GET', 'POST'])
+def api_skip():
+    """
+    Skip current song to next in queue.
+    GET/POST /api/skip?chat_id=-1001234567890
+    Optional: ?count=2  to skip N songs
+    """
+    chat_id = (request.args.get("chat_id") or (request.json or {}).get("chat_id", ""))
+    count   = int(request.args.get("count") or (request.json or {}).get("count", 1) or 1)
+    try:
+        chat_id = int(str(chat_id).strip())
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid chat_id"}), 400
+
+    try:
+        import random as _rand
+        from ANNIEMUSIC.core.call import JARVIS
+        from ANNIEMUSIC.utils.stream.autoclear import auto_clean
+
+        db = _get_db()
+        check = db.get(chat_id, [])
+        if not check:
+            return jsonify({"ok": False, "error": "Nothing playing"}), 400
+
+        async def _do_skip():
+            _check = db.get(chat_id, [])
+            popped = None
+            for _ in range(max(1, count)):
+                if not _check:
+                    break
+                try:
+                    popped = _check.pop(0)
+                    if popped:
+                        await auto_clean(popped)
+                except Exception:
+                    break
+
+            if not _check:
+                await JARVIS.stop_or_autoplay(chat_id, popped)
+                return {"action": "stopped_queue_empty"}
+
+            nxt = _check[0]
+            queued = nxt["file"]
+            streamtype = nxt.get("streamtype", "audio")
+            video = str(streamtype) == "video"
+            await JARVIS.skip_stream(chat_id, queued, video=video)
+            return {
+                "action":   "skipped",
+                "now_playing": {
+                    "title":    nxt.get("title", "Unknown"),
+                    "duration": nxt.get("dur", "0:00"),
+                    "by":       nxt.get("by", "Unknown"),
+                    "vidid":    str(nxt.get("vidid", "")),
+                }
+            }
+
+        result = _run_async(_do_skip())
+        return jsonify({"ok": True, "chat_id": chat_id, **result})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/loop', methods=['GET', 'POST'])
+def api_loop():
+    """
+    Set loop count for current chat.
+    GET/POST /api/loop?chat_id=-1001234567890&count=0
+    count=0 means no loop, count=1+ means loop N times, count=-1 means infinite loop
+    Returns: { ok, loop_count }
+    """
+    chat_id = (request.args.get("chat_id") or (request.json or {}).get("chat_id", ""))
+    count   = request.args.get("count") or (request.json or {}).get("count", None)
+    try:
+        chat_id = int(str(chat_id).strip())
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid chat_id"}), 400
+
+    try:
+        from ANNIEMUSIC.utils.database import set_loop, get_loop
+
+        async def _do():
+            if count is None:
+                current = await get_loop(chat_id)
+                new = 0 if current != 0 else 1
+            else:
+                new = int(count)
+            await set_loop(chat_id, new)
+            return new
+
+        new_count = _run_async(_do())
+        return jsonify({"ok": True, "chat_id": chat_id, "loop_count": new_count})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/shuffle', methods=['GET', 'POST'])
+def api_shuffle():
+    """
+    Shuffle the queue for a chat.
+    GET/POST /api/shuffle?chat_id=-1001234567890
+    """
+    chat_id = (request.args.get("chat_id") or (request.json or {}).get("chat_id", ""))
+    try:
+        chat_id = int(str(chat_id).strip())
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid chat_id"}), 400
+
+    import random as _rand
+    db = _get_db()
+    queue = db.get(chat_id, [])
+    if len(queue) < 3:
+        return jsonify({"ok": False, "error": "Need at least 2 songs in queue to shuffle"}), 400
+
+    playing = queue[0]
+    rest = queue[1:]
+    _rand.shuffle(rest)
+    db[chat_id] = [playing] + rest
+    return jsonify({"ok": True, "chat_id": chat_id, "queue_count": len(rest)})
+
+
+@app.route('/api/seek', methods=['GET', 'POST'])
+def api_seek():
+    """
+    Seek to position in current song (audio only).
+    GET/POST /api/seek?chat_id=-1001234567890&seconds=60
+    """
+    chat_id = (request.args.get("chat_id") or (request.json or {}).get("chat_id", ""))
+    seek_sec = request.args.get("seconds") or (request.json or {}).get("seconds")
+    try:
+        chat_id  = int(str(chat_id).strip())
+        seek_sec = int(str(seek_sec).strip())
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid chat_id or seconds"}), 400
+
+    try:
+        db = _get_db()
+        queue = db.get(chat_id, [])
+        if not queue:
+            return jsonify({"ok": False, "error": "Nothing playing"}), 400
+
+        cur = queue[0]
+        file_path = cur.get("file", "")
+        total_sec = cur.get("seconds", 0)
+        streamtype = cur.get("streamtype", "audio")
+        mode = "video" if str(streamtype) == "video" else "audio"
+
+        def _fmt_time(s):
+            s = max(0, int(s))
+            return f"{s // 60}:{s % 60:02d}"
+
+        to_seek   = _fmt_time(seek_sec)
+        to_end    = _fmt_time(total_sec)
+
+        from ANNIEMUSIC.core.call import JARVIS
+        _run_async(JARVIS.seek_stream(chat_id, file_path, to_seek, to_end, mode))
+
+        db[chat_id][0]["played"] = seek_sec
+        return jsonify({"ok": True, "chat_id": chat_id, "seeked_to": to_seek})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/speed', methods=['GET', 'POST'])
+def api_speed():
+    """
+    Change playback speed.
+    GET/POST /api/speed?chat_id=-1001234567890&speed=1.5
+    Supported: 0.5, 0.75, 1.0, 1.25, 1.5, 2.0
+    """
+    chat_id = (request.args.get("chat_id") or (request.json or {}).get("chat_id", ""))
+    speed   = request.args.get("speed") or (request.json or {}).get("speed", 1.0)
+    try:
+        chat_id = int(str(chat_id).strip())
+        speed   = float(str(speed).strip())
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid chat_id or speed"}), 400
+
+    allowed = {0.5, 0.75, 1.0, 1.25, 1.5, 2.0}
+    if speed not in allowed:
+        return jsonify({"error": f"Speed must be one of: {sorted(allowed)}"}), 400
+
+    try:
+        db = _get_db()
+        queue = db.get(chat_id, [])
+        if not queue:
+            return jsonify({"ok": False, "error": "Nothing playing"}), 400
+
+        cur = queue[0]
+        file_path = cur.get("file", "")
+
+        from ANNIEMUSIC.core.call import JARVIS
+        _run_async(JARVIS.speedup_stream(chat_id, file_path, speed, queue))
+        return jsonify({"ok": True, "chat_id": chat_id, "speed": speed})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/volume', methods=['GET', 'POST'])
+def api_volume():
+    """
+    Change VC volume (0–200).
+    GET/POST /api/volume?chat_id=-1001234567890&level=80
+    """
+    chat_id = (request.args.get("chat_id") or (request.json or {}).get("chat_id", ""))
+    level   = request.args.get("level") or (request.json or {}).get("level", 100)
+    try:
+        chat_id = int(str(chat_id).strip())
+        level   = int(str(level).strip())
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid chat_id or level"}), 400
+
+    if not 0 <= level <= 200:
+        return jsonify({"error": "Volume level must be between 0 and 200"}), 400
+
+    try:
+        from ANNIEMUSIC.core.call import JARVIS
+        from ANNIEMUSIC.utils.database import group_assistant
+
+        async def _do():
+            assistant = await group_assistant(JARVIS, chat_id)
+            await assistant.change_volume_call(chat_id, level)
+
+        _run_async(_do())
+        return jsonify({"ok": True, "chat_id": chat_id, "volume": level})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/nowplaying', methods=['GET'])
+def api_nowplaying():
+    """
+    Get currently playing song info for a chat.
+    GET /api/nowplaying?chat_id=-1001234567890
+    """
+    chat_id = request.args.get("chat_id", "").strip()
+    if not chat_id:
+        return jsonify({"error": "chat_id required"}), 400
+    try:
+        chat_id = int(chat_id)
+    except ValueError:
+        return jsonify({"error": "Invalid chat_id"}), 400
+
+    db = _get_db()
+    queue = db.get(chat_id, [])
+    if not queue:
+        return jsonify({"playing": False, "current": None})
+
+    cur = queue[0]
+    vid = str(cur.get("vidid", ""))
+    return jsonify({
+        "playing": True,
+        "current": {
+            "title":      cur.get("title", "Unknown"),
+            "duration":   cur.get("dur", "0:00"),
+            "played":     cur.get("played", 0),
+            "seconds":    cur.get("seconds", 0),
+            "by":         cur.get("by", "Unknown"),
+            "user_id":    cur.get("user_id", 0),
+            "streamtype": cur.get("streamtype", "audio"),
+            "vidid":      vid,
+            "thumb": f"https://img.youtube.com/vi/{vid}/mqdefault.jpg" if len(vid) == 11 else "",
+            "youtube_url": f"https://www.youtube.com/watch?v={vid}" if len(vid) == 11 else "",
+        },
+        "queue_count": max(len(queue) - 1, 0),
+    })
 
 
 def start_health_server():
