@@ -1419,7 +1419,7 @@ pre .bool{color:#60a5fa}
   </div>
 
   <div class="stats-bar">
-    <div class="stat-card"><div class="stat-num">9</div><div class="stat-label">Endpoints</div></div>
+    <div class="stat-card"><div class="stat-num">20+</div><div class="stat-label">Endpoints</div></div>
     <div class="stat-card"><div class="stat-num">Free</div><div class="stat-label">No Auth</div></div>
     <div class="stat-card"><div class="stat-num">REST</div><div class="stat-label">JSON API</div></div>
     <div class="stat-card"><div class="stat-num">24/7</div><div class="stat-label">Uptime</div></div>
@@ -1502,6 +1502,45 @@ if data["is_nsfw"]:
     print(f"NSFW detected! Confidence: {data['confidence']}")
 else:
     print("Image is safe")</pre>
+
+        <div class="code-label" style="margin-top:14px">🎛️ VC Control APIs — Group VC ko control karo <button class="copy-btn" onclick="copyCode('py-vc')">Copy</button></div>
+        <pre id="py-vc">CHAT_ID = -1001234567890  # Apna group ID daalo
+
+# Now Playing — kya chal raha hai
+np = requests.get(f"{BASE_URL}/api/nowplaying", params={"chat_id": CHAT_ID}).json()
+if np["playing"]:
+    print(f"Playing: {np['current']['title']} | Queue: {np['queue_count']}")
+
+# Queue dekho
+q = requests.get(f"{BASE_URL}/api/queue", params={"chat_id": CHAT_ID}).json()
+print(f"Total songs: {q['total']}")
+
+# Pause / Resume
+requests.post(f"{BASE_URL}/api/pause",  params={"chat_id": CHAT_ID})
+requests.post(f"{BASE_URL}/api/resume", params={"chat_id": CHAT_ID})
+
+# Skip next song
+requests.post(f"{BASE_URL}/api/skip", params={"chat_id": CHAT_ID})
+# Skip 3 songs
+requests.post(f"{BASE_URL}/api/skip", params={"chat_id": CHAT_ID, "count": 3})
+
+# Loop 5 baar
+requests.post(f"{BASE_URL}/api/loop", params={"chat_id": CHAT_ID, "count": 5})
+
+# Queue shuffle karo
+requests.post(f"{BASE_URL}/api/shuffle", params={"chat_id": CHAT_ID})
+
+# 1:30 par seek karo
+requests.post(f"{BASE_URL}/api/seek", params={"chat_id": CHAT_ID, "seconds": 90})
+
+# Speed 1.5x karo
+requests.post(f"{BASE_URL}/api/speed", params={"chat_id": CHAT_ID, "speed": 1.5})
+
+# Volume 80% karo
+requests.post(f"{BASE_URL}/api/volume", params={"chat_id": CHAT_ID, "level": 80})
+
+# Stop karo aur VC chhodo
+requests.post(f"{BASE_URL}/api/stop", params={"chat_id": CHAT_ID})</pre>
       </div>
 
       <!-- ─── Pyrogram Bot ─── -->
@@ -1570,6 +1609,57 @@ async def nsfw_check(client, message):
         await message.delete()
         await message.chat.send_message("⛔ NSFW content remove kar diya gaya!")
 
+# /np — Now Playing
+@app.on_message(filters.command("np"))
+async def now_playing(client, message):
+    chat_id = message.chat.id
+    res = requests.get(f"{BASE_URL}/api/nowplaying", params={"chat_id": chat_id})
+    d = res.json()
+    if not d.get("playing"):
+        return await message.reply("❌ Koi gaana nahi chal raha!")
+    c = d["current"]
+    text = (
+        f"🎵 **{c['title']}**\n"
+        f"⏱ {c.get('played', 0)}s / {c['duration']}\n"
+        f"🗂 Queue: {d['queue_count']} songs"
+    )
+    await message.reply(text)
+
+# /pause, /resume, /skip, /stop, /shuffle
+@app.on_message(filters.command(["pause","resume","skip","stop","shuffle"]))
+async def vc_control(client, message):
+    cmd = message.command[0]
+    chat_id = message.chat.id
+    res = requests.post(f"{BASE_URL}/api/{cmd}", params={"chat_id": chat_id})
+    d = res.json()
+    if d.get("ok"):
+        emojis = {"pause":"⏸","resume":"▶️","skip":"⏭","stop":"⏹","shuffle":"🔀"}
+        await message.reply(f"{emojis.get(cmd,'✅')} Done!")
+    else:
+        await message.reply(f"❌ {d.get('error','Kuch galat hua!')}")
+
+# /volume — volume change karo
+@app.on_message(filters.command("volume"))
+async def set_volume(client, message):
+    try:
+        level = int(message.command[1])
+    except (IndexError, ValueError):
+        return await message.reply("Usage: /volume &lt;0-200&gt;")
+    res = requests.post(f"{BASE_URL}/api/volume", params={"chat_id": message.chat.id, "level": level})
+    d = res.json()
+    await message.reply(f"🔊 Volume set to {d.get('volume', level)}%" if d.get("ok") else f"❌ {d.get('error')}")
+
+# /speed — speed change karo
+@app.on_message(filters.command("speed"))
+async def set_speed(client, message):
+    try:
+        speed = float(message.command[1])
+    except (IndexError, ValueError):
+        return await message.reply("Usage: /speed &lt;0.5|0.75|1.0|1.25|1.5|2.0&gt;")
+    res = requests.post(f"{BASE_URL}/api/speed", params={"chat_id": message.chat.id, "speed": speed})
+    d = res.json()
+    await message.reply(f"⚡ Speed set to {d.get('speed', speed)}x" if d.get("ok") else f"❌ {d.get('error')}")
+
 app.run()</pre>
       </div>
 
@@ -1619,33 +1709,93 @@ class AnnieAPI:
                 return data.get("results", [])
 
     async def check_nsfw(self, image_url: str) -> bool:
-        # Image NSFW hai ya nahi check karo
         async with aiohttp.ClientSession() as s:
             async with s.get(f"{self.base}/api/nsfw", params={"url": image_url}) as r:
                 data = await r.json()
                 return data.get("is_nsfw", False)
 
+    # ── VC Control ────────────────────────────────────────────────
+    async def nowplaying(self, chat_id: int) -> dict:
+        async with aiohttp.ClientSession() as s:
+            async with s.get(f"{self.base}/api/nowplaying", params={"chat_id": chat_id}) as r:
+                return await r.json()
+
+    async def queue(self, chat_id: int) -> dict:
+        async with aiohttp.ClientSession() as s:
+            async with s.get(f"{self.base}/api/queue", params={"chat_id": chat_id}) as r:
+                return await r.json()
+
+    async def pause(self, chat_id: int) -> dict:
+        async with aiohttp.ClientSession() as s:
+            async with s.post(f"{self.base}/api/pause", params={"chat_id": chat_id}) as r:
+                return await r.json()
+
+    async def resume(self, chat_id: int) -> dict:
+        async with aiohttp.ClientSession() as s:
+            async with s.post(f"{self.base}/api/resume", params={"chat_id": chat_id}) as r:
+                return await r.json()
+
+    async def skip(self, chat_id: int, count: int = 1) -> dict:
+        async with aiohttp.ClientSession() as s:
+            async with s.post(f"{self.base}/api/skip", params={"chat_id": chat_id, "count": count}) as r:
+                return await r.json()
+
+    async def stop(self, chat_id: int) -> dict:
+        async with aiohttp.ClientSession() as s:
+            async with s.post(f"{self.base}/api/stop", params={"chat_id": chat_id}) as r:
+                return await r.json()
+
+    async def loop(self, chat_id: int, count: int = 0) -> dict:
+        async with aiohttp.ClientSession() as s:
+            async with s.post(f"{self.base}/api/loop", params={"chat_id": chat_id, "count": count}) as r:
+                return await r.json()
+
+    async def shuffle(self, chat_id: int) -> dict:
+        async with aiohttp.ClientSession() as s:
+            async with s.post(f"{self.base}/api/shuffle", params={"chat_id": chat_id}) as r:
+                return await r.json()
+
+    async def seek(self, chat_id: int, seconds: int) -> dict:
+        async with aiohttp.ClientSession() as s:
+            async with s.post(f"{self.base}/api/seek", params={"chat_id": chat_id, "seconds": seconds}) as r:
+                return await r.json()
+
+    async def speed(self, chat_id: int, spd: float) -> dict:
+        async with aiohttp.ClientSession() as s:
+            async with s.post(f"{self.base}/api/speed", params={"chat_id": chat_id, "speed": spd}) as r:
+                return await r.json()
+
+    async def volume(self, chat_id: int, level: int) -> dict:
+        async with aiohttp.ClientSession() as s:
+            async with s.post(f"{self.base}/api/volume", params={"chat_id": chat_id, "level": level}) as r:
+                return await r.json()
+
 # ── Usage ────────────────────────────────────────────────────────
 api = AnnieAPI(BASE_URL)
 
 async def main():
-    # Play
+    CHAT_ID = -1001234567890
+
+    # Play info
     info = await api.play("Tum Hi Ho Arijit Singh")
     print(f"Playing: {info['title']} ({info['duration']})")
-    print(f"Stream: {info['audio_proxy']}")
 
-    # Search
-    results = await api.search("Punjabi songs")
-    for r in results[:3]:
-        print(r["title"], r["duration"])
+    # Now Playing
+    np = await api.nowplaying(CHAT_ID)
+    if np["playing"]:
+        print(f"Now: {np['current']['title']} | Queue: {np['queue_count']}")
 
-    # Trending
-    songs = await api.trending()
-    print(f"Trending: {len(songs)} songs")
+    # Volume 80%, Speed 1.25x
+    await api.volume(CHAT_ID, 80)
+    await api.speed(CHAT_ID, 1.25)
 
-    # NSFW check
-    safe = await api.check_nsfw("https://example.com/image.jpg")
-    print(f"Is NSFW: {safe}")
+    # Skip, shuffle, seek
+    await api.skip(CHAT_ID)
+    await api.shuffle(CHAT_ID)
+    await api.seek(CHAT_ID, 60)
+
+    # Stop
+    await api.stop(CHAT_ID)
 
 asyncio.run(main())</pre>
       </div>
@@ -1702,27 +1852,88 @@ const api = {
   // 🔞 NSFW check
   async checkNsfw(imageUrl) {
     const res = await fetch(`${BASE_URL}/api/nsfw?url=${encodeURIComponent(imageUrl)}`);
-    const data = await res.json();
-    return data;
+    return res.json();
+  },
+
+  // ── VC Control ──────────────────────────────────────────────────
+  async nowplaying(chatId) {
+    const res = await fetch(`${BASE_URL}/api/nowplaying?chat_id=${chatId}`);
+    return res.json();
+  },
+
+  async queue(chatId) {
+    const res = await fetch(`${BASE_URL}/api/queue?chat_id=${chatId}`);
+    return res.json();
+  },
+
+  async pause(chatId) {
+    const res = await fetch(`${BASE_URL}/api/pause?chat_id=${chatId}`, { method: "POST" });
+    return res.json();
+  },
+
+  async resume(chatId) {
+    const res = await fetch(`${BASE_URL}/api/resume?chat_id=${chatId}`, { method: "POST" });
+    return res.json();
+  },
+
+  async skip(chatId, count = 1) {
+    const res = await fetch(`${BASE_URL}/api/skip?chat_id=${chatId}&count=${count}`, { method: "POST" });
+    return res.json();
+  },
+
+  async stop(chatId) {
+    const res = await fetch(`${BASE_URL}/api/stop?chat_id=${chatId}`, { method: "POST" });
+    return res.json();
+  },
+
+  async loop(chatId, count = 0) {
+    const res = await fetch(`${BASE_URL}/api/loop?chat_id=${chatId}&count=${count}`, { method: "POST" });
+    return res.json();
+  },
+
+  async shuffle(chatId) {
+    const res = await fetch(`${BASE_URL}/api/shuffle?chat_id=${chatId}`, { method: "POST" });
+    return res.json();
+  },
+
+  async seek(chatId, seconds) {
+    const res = await fetch(`${BASE_URL}/api/seek?chat_id=${chatId}&seconds=${seconds}`, { method: "POST" });
+    return res.json();
+  },
+
+  async speed(chatId, spd) {
+    const res = await fetch(`${BASE_URL}/api/speed?chat_id=${chatId}&speed=${spd}`, { method: "POST" });
+    return res.json();
+  },
+
+  async volume(chatId, level) {
+    const res = await fetch(`${BASE_URL}/api/volume?chat_id=${chatId}&level=${level}`, { method: "POST" });
+    return res.json();
   },
 };
 
 // ── Example usage ────────────────────────────────────────────────
+const CHAT_ID = -1001234567890;
+
 (async () => {
   // Play a song
   const info = await api.play("Tum Hi Ho Arijit Singh");
-  console.log(`Title: ${info.title}`);
-  console.log(`Duration: ${info.duration}`);
-  console.log(`Stream URL: ${info.audio_proxy}`);
-  console.log(`Download: ${info.download}`);
+  console.log(`Title: ${info.title} | Stream: ${info.audio_proxy}`);
 
-  // Search
-  const results = await api.search("Punjabi hits");
-  results.slice(0, 3).forEach(s => console.log(s.title, s.duration));
+  // Now playing
+  const np = await api.nowplaying(CHAT_ID);
+  if (np.playing) console.log(`Playing: ${np.current.title} | Queue: ${np.queue_count}`);
 
-  // Trending
-  const trending = await api.trending();
-  console.log(`${trending.length} trending songs`);
+  // VC controls
+  await api.volume(CHAT_ID, 80);          // 80% volume
+  await api.speed(CHAT_ID, 1.25);         // 1.25x speed
+  await api.seek(CHAT_ID, 60);            // Jump to 1:00
+  await api.skip(CHAT_ID);               // Skip song
+  await api.shuffle(CHAT_ID);            // Shuffle queue
+  await api.pause(CHAT_ID);              // Pause
+  await api.resume(CHAT_ID);             // Resume
+  await api.loop(CHAT_ID, 3);            // Loop 3 times
+  await api.stop(CHAT_ID);               // Stop &amp; leave VC
 })();</pre>
       </div>
 
@@ -1756,7 +1967,46 @@ curl "$BASE/api/audio?v=dQw4w9WgXcQ"
 curl -O -J "$BASE/api/download?v=dQw4w9WgXcQ"
 
 # 🔞 NSFW check
-curl "$BASE/api/nsfw?url=https://example.com/image.jpg"</pre>
+curl "$BASE/api/nsfw?url=https://example.com/image.jpg"
+
+# ── VC Control (apna group ID replace karo) ──────────────────────
+CHAT=-1001234567890
+
+# 🎵 Now Playing — kya chal raha hai
+curl "$BASE/api/nowplaying?chat_id=$CHAT"
+
+# 🗂 Queue dekho
+curl "$BASE/api/queue?chat_id=$CHAT"
+
+# ⏸ Pause
+curl -X POST "$BASE/api/pause?chat_id=$CHAT"
+
+# ▶️ Resume
+curl -X POST "$BASE/api/resume?chat_id=$CHAT"
+
+# ⏭ Skip
+curl -X POST "$BASE/api/skip?chat_id=$CHAT"
+
+# ⏭ Skip 3 songs
+curl -X POST "$BASE/api/skip?chat_id=$CHAT&count=3"
+
+# ⏹ Stop &amp; leave VC
+curl -X POST "$BASE/api/stop?chat_id=$CHAT"
+
+# 🔁 Loop 5 times
+curl -X POST "$BASE/api/loop?chat_id=$CHAT&count=5"
+
+# 🔀 Shuffle queue
+curl -X POST "$BASE/api/shuffle?chat_id=$CHAT"
+
+# ⏩ Seek to 1:30
+curl -X POST "$BASE/api/seek?chat_id=$CHAT&seconds=90"
+
+# ⚡ Speed 1.5x
+curl -X POST "$BASE/api/speed?chat_id=$CHAT&speed=1.5"
+
+# 🔊 Volume 80%
+curl -X POST "$BASE/api/volume?chat_id=$CHAT&level=80"</pre>
       </div>
 
     </div>
@@ -2022,6 +2272,377 @@ curl "$BASE/api/nsfw?url=https://example.com/image.jpg"</pre>
         <pre id="ex7">GET /api/related?v=dQw4w9WgXcQ</pre>
       </div>
       <div class="response-tags"><span class="resp-tag resp-200">200 OK</span><span class="resp-tag resp-400">400 Invalid ID</span></div>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:32px">VC Playback Control</div>
+
+  <div class="api-card" data-tags="nowplaying current song playing queue bot vc">
+    <div class="api-head" onclick="toggle(this)">
+      <span class="method get">GET</span>
+      <span class="api-path">/api/nowplaying</span>
+      <span class="api-desc-short">Currently playing song</span>
+      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="api-body">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Get the currently playing song info for a Telegram group VC. Returns playing status, title, duration, progress, and queue count.</p>
+      <div class="param-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">chat_id</span>
+        <span class="param-type">integer</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">Telegram group/channel ID (e.g. -1001234567890)</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Example <button class="copy-btn" onclick="copyCode('np1')">Copy</button></div>
+        <pre id="np1">GET /api/nowplaying?chat_id=-1001234567890</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Response</div>
+        <pre>{
+  <span class="key">"playing"</span>: <span class="bool">true</span>,
+  <span class="key">"current"</span>: {
+    <span class="key">"title"</span>:      <span class="str">"Tum Hi Ho"</span>,
+    <span class="key">"duration"</span>:   <span class="str">"4:22"</span>,
+    <span class="key">"played"</span>:     <span class="num">62</span>,
+    <span class="key">"seconds"</span>:    <span class="num">262</span>,
+    <span class="key">"by"</span>:         <span class="str">"@username"</span>,
+    <span class="key">"vidid"</span>:      <span class="str">"dQw4w9WgXcQ"</span>,
+    <span class="key">"thumb"</span>:      <span class="str">"https://img.youtube.com/vi/.../mqdefault.jpg"</span>,
+    <span class="key">"youtube_url"</span>:<span class="str">"https://www.youtube.com/watch?v=dQw4w9WgXcQ"</span>
+  },
+  <span class="key">"queue_count"</span>: <span class="num">3</span>
+}</pre>
+      </div>
+      <div class="response-tags"><span class="resp-tag resp-200">200 OK</span><span class="resp-tag resp-400">400 Missing chat_id</span></div>
+    </div>
+  </div>
+
+  <div class="api-card" data-tags="queue list songs vc bot control">
+    <div class="api-head" onclick="toggle(this)">
+      <span class="method get">GET</span>
+      <span class="api-path">/api/queue</span>
+      <span class="api-desc-short">View full queue</span>
+      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="api-body">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Get the full song queue for a group VC — current song + upcoming songs.</p>
+      <div class="param-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">chat_id</span>
+        <span class="param-type">integer</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">Telegram group/channel ID</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Example <button class="copy-btn" onclick="copyCode('q1')">Copy</button></div>
+        <pre id="q1">GET /api/queue?chat_id=-1001234567890</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Response</div>
+        <pre>{
+  <span class="key">"current"</span>: { <span class="key">"title"</span>: <span class="str">"..."</span>, <span class="key">"duration"</span>: <span class="str">"3:30"</span>, <span class="key">"by"</span>: <span class="str">"@user"</span>, <span class="key">"vidid"</span>: <span class="str">"..."</span> },
+  <span class="key">"queue"</span>: [
+    { <span class="key">"title"</span>: <span class="str">"Next Song"</span>, <span class="key">"duration"</span>: <span class="str">"4:10"</span>, <span class="key">"by"</span>: <span class="str">"@user2"</span>, <span class="key">"vidid"</span>: <span class="str">"..."</span> }
+  ],
+  <span class="key">"total"</span>: <span class="num">4</span>
+}</pre>
+      </div>
+      <div class="response-tags"><span class="resp-tag resp-200">200 OK</span><span class="resp-tag resp-400">400 Missing chat_id</span></div>
+    </div>
+  </div>
+
+  <div class="api-card" data-tags="pause vc bot control playback">
+    <div class="api-head" onclick="toggle(this)">
+      <span class="method post">POST</span>
+      <span class="api-path">/api/pause</span>
+      <span class="api-desc-short">Pause VC playback</span>
+      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="api-body">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Pause the currently playing song in a group VC. Supports both GET and POST.</p>
+      <div class="param-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">chat_id</span>
+        <span class="param-type">integer</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">Telegram group/channel ID</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Example <button class="copy-btn" onclick="copyCode('pause1')">Copy</button></div>
+        <pre id="pause1">POST /api/pause?chat_id=-1001234567890</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Response</div>
+        <pre>{ <span class="key">"ok"</span>: <span class="bool">true</span>, <span class="key">"action"</span>: <span class="str">"paused"</span>, <span class="key">"chat_id"</span>: <span class="num">-1001234567890</span> }</pre>
+      </div>
+      <div class="response-tags"><span class="resp-tag resp-200">200 OK</span><span class="resp-tag resp-400">400 Invalid chat_id</span><span class="resp-tag resp-500">500 Bot error</span></div>
+    </div>
+  </div>
+
+  <div class="api-card" data-tags="resume vc bot control playback">
+    <div class="api-head" onclick="toggle(this)">
+      <span class="method post">POST</span>
+      <span class="api-path">/api/resume</span>
+      <span class="api-desc-short">Resume VC playback</span>
+      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="api-body">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Resume a paused song in a group VC. Supports both GET and POST.</p>
+      <div class="param-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">chat_id</span>
+        <span class="param-type">integer</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">Telegram group/channel ID</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Example <button class="copy-btn" onclick="copyCode('res1')">Copy</button></div>
+        <pre id="res1">POST /api/resume?chat_id=-1001234567890</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Response</div>
+        <pre>{ <span class="key">"ok"</span>: <span class="bool">true</span>, <span class="key">"action"</span>: <span class="str">"resumed"</span>, <span class="key">"chat_id"</span>: <span class="num">-1001234567890</span> }</pre>
+      </div>
+      <div class="response-tags"><span class="resp-tag resp-200">200 OK</span><span class="resp-tag resp-400">400 Invalid chat_id</span></div>
+    </div>
+  </div>
+
+  <div class="api-card" data-tags="skip next song vc bot control queue">
+    <div class="api-head" onclick="toggle(this)">
+      <span class="method post">POST</span>
+      <span class="api-path">/api/skip</span>
+      <span class="api-desc-short">Skip current song</span>
+      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="api-body">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Skip the current song and play the next one in the queue. Optionally skip multiple songs at once.</p>
+      <div class="param-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">chat_id</span>
+        <span class="param-type">integer</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">Telegram group/channel ID</span>
+      </div>
+      <div class="param-row">
+        <span class="param-name">count</span>
+        <span class="param-type">integer</span>
+        <span class="param-opt">optional</span>
+        <span class="param-desc">Number of songs to skip (default: 1)</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Example — skip 1 <button class="copy-btn" onclick="copyCode('sk1')">Copy</button></div>
+        <pre id="sk1">POST /api/skip?chat_id=-1001234567890</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Example — skip 3 <button class="copy-btn" onclick="copyCode('sk2')">Copy</button></div>
+        <pre id="sk2">POST /api/skip?chat_id=-1001234567890&count=3</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Response</div>
+        <pre>{
+  <span class="key">"ok"</span>: <span class="bool">true</span>,
+  <span class="key">"action"</span>: <span class="str">"skipped"</span>,
+  <span class="key">"now_playing"</span>: { <span class="key">"title"</span>: <span class="str">"Next Song"</span>, <span class="key">"duration"</span>: <span class="str">"3:22"</span>, <span class="key">"vidid"</span>: <span class="str">"..."</span> }
+}</pre>
+      </div>
+      <div class="response-tags"><span class="resp-tag resp-200">200 OK</span><span class="resp-tag resp-400">400 Nothing playing</span></div>
+    </div>
+  </div>
+
+  <div class="api-card" data-tags="stop leave vc bot control end">
+    <div class="api-head" onclick="toggle(this)">
+      <span class="method post">POST</span>
+      <span class="api-path">/api/stop</span>
+      <span class="api-desc-short">Stop VC &amp; leave call</span>
+      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="api-body">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Stop playback, clear the queue, and leave the voice chat.</p>
+      <div class="param-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">chat_id</span>
+        <span class="param-type">integer</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">Telegram group/channel ID</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Example <button class="copy-btn" onclick="copyCode('stop1')">Copy</button></div>
+        <pre id="stop1">POST /api/stop?chat_id=-1001234567890</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Response</div>
+        <pre>{ <span class="key">"ok"</span>: <span class="bool">true</span>, <span class="key">"action"</span>: <span class="str">"stopped"</span>, <span class="key">"chat_id"</span>: <span class="num">-1001234567890</span> }</pre>
+      </div>
+      <div class="response-tags"><span class="resp-tag resp-200">200 OK</span><span class="resp-tag resp-400">400 Invalid chat_id</span></div>
+    </div>
+  </div>
+
+  <div class="api-card" data-tags="loop repeat song vc bot control">
+    <div class="api-head" onclick="toggle(this)">
+      <span class="method post">POST</span>
+      <span class="api-path">/api/loop</span>
+      <span class="api-desc-short">Set loop count</span>
+      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="api-body">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Set loop count for current song. count=0 disables loop, count=N loops N more times. No count param = toggle.</p>
+      <div class="param-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">chat_id</span>
+        <span class="param-type">integer</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">Telegram group/channel ID</span>
+      </div>
+      <div class="param-row">
+        <span class="param-name">count</span>
+        <span class="param-type">integer</span>
+        <span class="param-opt">optional</span>
+        <span class="param-desc">0 = off, 1+ = loop N times. Omit to toggle on/off.</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Example — disable loop <button class="copy-btn" onclick="copyCode('loop1')">Copy</button></div>
+        <pre id="loop1">POST /api/loop?chat_id=-1001234567890&count=0</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Example — loop 5 times <button class="copy-btn" onclick="copyCode('loop2')">Copy</button></div>
+        <pre id="loop2">POST /api/loop?chat_id=-1001234567890&count=5</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Response</div>
+        <pre>{ <span class="key">"ok"</span>: <span class="bool">true</span>, <span class="key">"chat_id"</span>: <span class="num">-1001234567890</span>, <span class="key">"loop_count"</span>: <span class="num">5</span> }</pre>
+      </div>
+      <div class="response-tags"><span class="resp-tag resp-200">200 OK</span><span class="resp-tag resp-400">400 Invalid chat_id</span></div>
+    </div>
+  </div>
+
+  <div class="api-card" data-tags="shuffle queue randomize vc bot control">
+    <div class="api-head" onclick="toggle(this)">
+      <span class="method post">POST</span>
+      <span class="api-path">/api/shuffle</span>
+      <span class="api-desc-short">Shuffle queue</span>
+      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="api-body">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Randomly shuffle the upcoming songs in queue. Current song stays unchanged.</p>
+      <div class="param-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">chat_id</span>
+        <span class="param-type">integer</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">Telegram group/channel ID</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Example <button class="copy-btn" onclick="copyCode('shuf1')">Copy</button></div>
+        <pre id="shuf1">POST /api/shuffle?chat_id=-1001234567890</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Response</div>
+        <pre>{ <span class="key">"ok"</span>: <span class="bool">true</span>, <span class="key">"chat_id"</span>: <span class="num">-1001234567890</span>, <span class="key">"queue_count"</span>: <span class="num">5</span> }</pre>
+      </div>
+      <div class="response-tags"><span class="resp-tag resp-200">200 OK</span><span class="resp-tag resp-400">400 Need 2+ songs</span></div>
+    </div>
+  </div>
+
+  <div class="api-card" data-tags="seek position timestamp vc bot control audio">
+    <div class="api-head" onclick="toggle(this)">
+      <span class="method post">POST</span>
+      <span class="api-path">/api/seek</span>
+      <span class="api-desc-short">Seek to timestamp</span>
+      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="api-body">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Jump to a specific position (in seconds) in the current song.</p>
+      <div class="param-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">chat_id</span>
+        <span class="param-type">integer</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">Telegram group/channel ID</span>
+      </div>
+      <div class="param-row">
+        <span class="param-name">seconds</span>
+        <span class="param-type">integer</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">Position to seek to in seconds (e.g. 60 = 1:00)</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Example — seek to 1:30 <button class="copy-btn" onclick="copyCode('seek1')">Copy</button></div>
+        <pre id="seek1">POST /api/seek?chat_id=-1001234567890&seconds=90</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Response</div>
+        <pre>{ <span class="key">"ok"</span>: <span class="bool">true</span>, <span class="key">"chat_id"</span>: <span class="num">-1001234567890</span>, <span class="key">"seeked_to"</span>: <span class="str">"1:30"</span> }</pre>
+      </div>
+      <div class="response-tags"><span class="resp-tag resp-200">200 OK</span><span class="resp-tag resp-400">400 Missing params</span><span class="resp-tag resp-500">500 Bot error</span></div>
+    </div>
+  </div>
+
+  <div class="api-card" data-tags="speed playback rate vc bot control">
+    <div class="api-head" onclick="toggle(this)">
+      <span class="method post">POST</span>
+      <span class="api-path">/api/speed</span>
+      <span class="api-desc-short">Change playback speed</span>
+      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="api-body">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Change the playback speed of the current song. Allowed values: 0.5, 0.75, 1.0, 1.25, 1.5, 2.0</p>
+      <div class="param-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">chat_id</span>
+        <span class="param-type">integer</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">Telegram group/channel ID</span>
+      </div>
+      <div class="param-row">
+        <span class="param-name">speed</span>
+        <span class="param-type">float</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">Speed multiplier: 0.5 | 0.75 | 1.0 | 1.25 | 1.5 | 2.0</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Example — 1.5x speed <button class="copy-btn" onclick="copyCode('spd1')">Copy</button></div>
+        <pre id="spd1">POST /api/speed?chat_id=-1001234567890&speed=1.5</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Response</div>
+        <pre>{ <span class="key">"ok"</span>: <span class="bool">true</span>, <span class="key">"chat_id"</span>: <span class="num">-1001234567890</span>, <span class="key">"speed"</span>: <span class="num">1.5</span> }</pre>
+      </div>
+      <div class="response-tags"><span class="resp-tag resp-200">200 OK</span><span class="resp-tag resp-400">400 Invalid speed</span></div>
+    </div>
+  </div>
+
+  <div class="api-card" data-tags="volume sound level vc bot control">
+    <div class="api-head" onclick="toggle(this)">
+      <span class="method post">POST</span>
+      <span class="api-path">/api/volume</span>
+      <span class="api-desc-short">Change VC volume</span>
+      <span class="api-toggle"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="api-body">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:14px">Change the volume level of the voice chat. Range: 0 (mute) to 200 (double volume). Default is 100.</p>
+      <div class="param-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">chat_id</span>
+        <span class="param-type">integer</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">Telegram group/channel ID</span>
+      </div>
+      <div class="param-row">
+        <span class="param-name">level</span>
+        <span class="param-type">integer</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">Volume level 0–200 (100 = normal, 200 = max)</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Example — set 80% <button class="copy-btn" onclick="copyCode('vol1')">Copy</button></div>
+        <pre id="vol1">POST /api/volume?chat_id=-1001234567890&level=80</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Response</div>
+        <pre>{ <span class="key">"ok"</span>: <span class="bool">true</span>, <span class="key">"chat_id"</span>: <span class="num">-1001234567890</span>, <span class="key">"volume"</span>: <span class="num">80</span> }</pre>
+      </div>
+      <div class="response-tags"><span class="resp-tag resp-200">200 OK</span><span class="resp-tag resp-400">400 Out of range</span></div>
     </div>
   </div>
 
