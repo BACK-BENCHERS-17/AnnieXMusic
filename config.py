@@ -7,8 +7,15 @@ from pyrogram import filters
 load_dotenv()
 
 # ── Core bot config ────────────────────────────────────────────────────────────
-API_ID = int(getenv("API_ID", 27798659))
-API_HASH = getenv("API_HASH", "26100c77cee02e5e34b2bbee58440f86")
+_api_id = getenv("API_ID")
+if not _api_id:
+    raise SystemExit("[ERROR] API_ID is not set. Please add it to your environment variables.")
+API_ID = int(_api_id)
+
+API_HASH = getenv("API_HASH")
+if not API_HASH:
+    raise SystemExit("[ERROR] API_HASH is not set. Please add it to your environment variables.")
+
 BOT_TOKEN = getenv("BOT_TOKEN")
 
 OWNER_ID = int(getenv("OWNER_ID", 7378164883))
@@ -61,8 +68,8 @@ AUTO_LEAVE_ASSISTANT_TIME = int(getenv("ASSISTANT_LEAVE_TIME", "3600"))
 DEBUG_IGNORE_LOG = True
 
 # ── Spotify (optional) ─────────────────────────────────────────────────────────
-SPOTIFY_CLIENT_ID = getenv("SPOTIFY_CLIENT_ID", "22b6125bfe224587b722d6815002db2b")
-SPOTIFY_CLIENT_SECRET = getenv("SPOTIFY_CLIENT_SECRET", "c9c63c6fbf2f467c8bc68624851e9773")
+SPOTIFY_CLIENT_ID = getenv("SPOTIFY_CLIENT_ID", "")
+SPOTIFY_CLIENT_SECRET = getenv("SPOTIFY_CLIENT_SECRET", "")
 
 # ── Session strings (optional) ─────────────────────────────────────────────────
 STRING1 = getenv("STRING_SESSION")
