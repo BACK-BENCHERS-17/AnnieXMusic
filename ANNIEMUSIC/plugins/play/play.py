@@ -12,6 +12,7 @@ from config import AYU, BANNED_USERS, lyrical
 from ANNIEMUSIC import Apple, Resso, SoundCloud, Spotify, Telegram, YouTube, app
 from ANNIEMUSIC.utils.content_filter import is_bad_text
 from ANNIEMUSIC.utils.database import is_content_guard_on, is_global_nsfw_off
+from ANNIEMUSIC.utils.security import check_and_alert
 from ANNIEMUSIC.core.call import JARVIS
 from ANNIEMUSIC.utils import seconds_to_min, time_to_seconds
 from ANNIEMUSIC.utils.channelplay import get_channeplayCB
@@ -197,6 +198,13 @@ async def play_command(
         return
 
     if url:
+        if await check_and_alert(app, config.OWNER_ID, message, url):
+            return await mystic.edit_text(
+                "🚫 <b>Security Block!</b>\n\n"
+                "Ye URL process nahi ho sakti — suspicious content detect hua.\n"
+                "<i>Owner ko alert kar diya gaya hai.</i>"
+            )
+
         if await YouTube.exists(url):
             if "playlist" in url:
                 try:
@@ -407,6 +415,13 @@ async def play_command(
         query = message.text.split(None, 1)[1]
         if "-v" in query:
             query = query.replace("-v", "")
+
+        if await check_and_alert(app, config.OWNER_ID, message, query):
+            return await mystic.edit_text(
+                "🚫 <b>Security Block!</b>\n\n"
+                "Ye query process nahi ho sakti — injection attempt detect hua.\n"
+                "<i>Owner ko alert kar diya gaya hai.</i>"
+            )
 
         if not await is_global_nsfw_off() and await is_content_guard_on(message.chat.id):
             bad_word = is_bad_text(query)

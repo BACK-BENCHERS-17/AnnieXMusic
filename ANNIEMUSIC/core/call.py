@@ -236,8 +236,14 @@ class Call:
 
         if not os.path.exists(out):
             vs = str(2.0 / float(speed))
-            cmd = f"ffmpeg -i {file_path} -filter:v setpts={vs}*PTS -filter:a atempo={speed} {out}"
-            proc = await asyncio.create_subprocess_shell(cmd, stdin=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+            proc = await asyncio.create_subprocess_exec(
+                "ffmpeg", "-i", file_path,
+                "-filter:v", f"setpts={vs}*PTS",
+                "-filter:a", f"atempo={speed}",
+                out,
+                stdin=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
             await proc.communicate()
 
         dur = int(await asyncio.get_event_loop().run_in_executor(None, check_duration, out))
