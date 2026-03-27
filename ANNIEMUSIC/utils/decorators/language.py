@@ -1,15 +1,23 @@
 import asyncio
 from pyrogram.errors import MessageNotModified, QueryIdInvalid
 from ANNIEMUSIC import app
+from ANNIEMUSIC.logging import LOGGER
 from config import SUPPORT_CHAT
 from ANNIEMUSIC.misc import SUDOERS
 from ANNIEMUSIC.utils.database import get_lang, is_maintenance
 from ANNIEMUSIC.utils.reactions import react_to_command
 from strings import get_string
 
+_log = LOGGER("ANNIEMUSIC.decorators.language")
+
 
 def language(mystic):
     async def wrapper(_, message, **kwargs):
+        _log.info(
+            f"[language] cmd='{message.text}' chat={message.chat.id} "
+            f"type={getattr(message.chat, 'type', '?')} "
+            f"user={message.from_user.id if message.from_user else 'anon'}"
+        )
         asyncio.create_task(react_to_command(message))
         if await is_maintenance() is False:
             user_id = message.from_user.id if message.from_user else None
@@ -24,11 +32,21 @@ def language(mystic):
             pass
 
         try:
-            language = await get_lang(message.chat.id)
-            language = get_string(language)
-        except:
-            language = get_string("en")
-        return await mystic(_, message, language)
+            lang = await get_lang(message.chat.id)
+            lang = get_string(lang)
+        except Exception as e:
+            _log.warning(f"[language] get_lang failed for chat {message.chat.id}: {e}")
+            lang = get_string("en")
+
+        try:
+            return await mystic(_, message, lang)
+        except Exception as e:
+            _log.error(
+                f"[language] handler '{mystic.__name__}' raised in chat "
+                f"{message.chat.id} ({getattr(message.chat, 'type', '?')}): "
+                f"{type(e).__name__}: {e}",
+                exc_info=True,
+            )
 
     return wrapper
 
@@ -41,12 +59,12 @@ def languageCB(mystic):
                     show_alert=True,
                 )
         try:
-            language = await get_lang(CallbackQuery.message.chat.id)
-            language = get_string(language)
+            lang = await get_lang(CallbackQuery.message.chat.id)
+            lang = get_string(lang)
         except:
-            language = get_string("en")
+            lang = get_string("en")
         try:
-            return await mystic(_, CallbackQuery, language)
+            return await mystic(_, CallbackQuery, lang)
         except (MessageNotModified, QueryIdInvalid):
             pass
 
@@ -57,12 +75,12 @@ def LanguageStart(mystic):
     async def wrapper(_, message, **kwargs):
         asyncio.create_task(react_to_command(message))
         try:
-            language = await get_lang(message.chat.id)
-            language = get_string(language)
+            lang = await get_lang(message.chat.id)
+            lang = get_string(lang)
         except:
-            language = get_string("en")
+            lang = get_string("en")
         try:
-            return await mystic(_, message, language)
+            return await mystic(_, message, lang)
         except (MessageNotModified, QueryIdInvalid):
             pass
 
