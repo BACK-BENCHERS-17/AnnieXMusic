@@ -485,7 +485,7 @@ class Call:
                         assistant._wait_connect.pop(chat_id, None)
                     except Exception:
                         pass
-                    wait_sec = 5 if attempt == 0 else 10
+                    wait_sec = 1 if attempt == 0 else 2
                     LOGGER(__name__).info(f"[PLAY] Waiting {wait_sec}s before retry {attempt+2}/3")
                     await asyncio.sleep(wait_sec)
                     continue
@@ -493,7 +493,7 @@ class Call:
                 LOGGER(__name__).warning(f"[PLAY] All retries failed. Attempting VC reset for chat={chat_id}")
                 try:
                     await assistant.leave_call(chat_id, close=True)
-                    await asyncio.sleep(3)
+                    await asyncio.sleep(1)
                     # Recreate voice chat via raw API
                     import random as _random
                     from pyrogram.raw import functions as _rf, types as _rt
@@ -504,7 +504,7 @@ class Call:
                             random_id=_random.randint(10000, 9999999),
                         )
                     )
-                    await asyncio.sleep(3)
+                    await asyncio.sleep(1)
                     LOGGER(__name__).info(f"[PLAY] VC reset done. Final play attempt for chat={chat_id}")
                     await assistant.play(chat_id, stream)
                     self.active_calls.add(chat_id)
