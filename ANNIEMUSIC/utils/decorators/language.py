@@ -14,7 +14,7 @@ _log = LOGGER("ANNIEMUSIC.decorators.language")
 def language(mystic):
     async def wrapper(_, message, **kwargs):
         asyncio.create_task(react_to_command(message))
-        if await is_maintenance() is False:
+        if await is_maintenance():
             user_id = message.from_user.id if message.from_user else None
             if user_id not in SUDOERS:
                 return await message.reply_text(
@@ -32,7 +32,7 @@ def language(mystic):
 
 def languageCB(mystic):
     async def wrapper(_, CallbackQuery, **kwargs):
-        if await is_maintenance() is False:
+        if await is_maintenance():
             if CallbackQuery.from_user.id not in SUDOERS:
                 return await CallbackQuery.answer(
                     f"{app.mention} ɪs ᴜɴᴅᴇʀ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ, ᴠɪsɪᴛ sᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ ғᴏʀ ᴋɴᴏᴡɪɴɢ ᴛʜᴇ ʀᴇᴀsᴏɴ.",
