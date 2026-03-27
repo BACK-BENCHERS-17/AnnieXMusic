@@ -382,45 +382,24 @@ _bg_download_tasks: Dict[str, asyncio.Task] = {}
 
 async def fast_get_stream(vid: str) -> Optional[str]:
     """
-    Ultra-fast path: return a playable path/URL in <1s for cached songs,
-    or <3s on first play (URL-only extraction, no full download).
+    Return a local file path for the given YouTube video ID.
 
     Priority:
       1. Cached local file → instant
-      2. CDN URL via smart_extract_url (cached best client, ~0.5-2s)
-         → streams directly from YouTube CDN, no download wait
-      3. Falls back to download_audio_concurrent if URL extraction fails
+      2. Download via download_audio_concurrent (CDN + direct race, ~5-20s)
 
-    A background task is always kicked off to cache the file locally for
-    the next play (so repeat plays are truly instant).
+    Note: CDN URL direct streaming is disabled — NTgCalls requires a local
+    file path on this host for reliable VC audio streaming.
     """
-    loop = asyncio.get_running_loop()
-
     cached = file_exists(vid)
     if cached:
         return cached
 
-    try:
-        info = await loop.run_in_executor(None, smart_extract_url, vid)
-        if info and info.get("url"):
-            cdn_url: str = info["url"]
-            ext: str = info.get("ext", "m4a")
-
-            if not cdn_url.startswith("http"):
-                raise ValueError("Not a CDN URL")
-
-            link_full = f"https://www.youtube.com/watch?v={vid}"
-            _kick_bg_download(vid, link_full)
-
-            LOGGER(__name__).info(
-                f"[FAST] CDN stream ready in <extract> for {vid} | ext={ext}"
-            )
-            return cdn_url
-    except Exception as e:
-        LOGGER(__name__).warning(f"[FAST] URL extract failed for {vid}: {e}")
-
     link_full = f"https://www.youtube.com/watch?v={vid}"
-    return await download_audio_concurrent(link_full)
+    path = await download_audio_concurrent(link_full)
+    if path:
+        LOGGER(__name__).info(f"[FAST] Downloaded locally: {path}")
+    return path
 
 
 def _kick_bg_download(vid: str, link: str) -> None:

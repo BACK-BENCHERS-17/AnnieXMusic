@@ -909,12 +909,24 @@ class Call:
             if "live_" in queued:
                 n, link = await YouTube.video(videoid, True)
                 if n == 0:
+                    await _clear_(chat_id)
+                    try:
+                        await client.leave_call(chat_id)
+                    except Exception:
+                        pass
+                    self.active_calls.discard(chat_id)
                     return await app.send_message(original_chat_id, text=_["call_6"])
 
                 stream = dynamic_media_stream(path=link, video=video)
                 try:
                     await client.play(chat_id, stream)
                 except Exception:
+                    await _clear_(chat_id)
+                    try:
+                        await client.leave_call(chat_id)
+                    except Exception:
+                        pass
+                    self.active_calls.discard(chat_id)
                     return await app.send_message(original_chat_id, text=_["call_6"])
 
                 button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
@@ -953,7 +965,13 @@ class Call:
                         videoid=True,
                         video=True if str(streamtype) == "video" else False,
                     )
-                except:
+                except Exception:
+                    await _clear_(chat_id)
+                    try:
+                        await client.leave_call(chat_id)
+                    except Exception:
+                        pass
+                    self.active_calls.discard(chat_id)
                     return await mystic.edit_text(
                         _["call_6"], disable_web_page_preview=True
                     )
@@ -961,7 +979,13 @@ class Call:
                 stream = dynamic_media_stream(path=file_path, video=video)
                 try:
                     await client.play(chat_id, stream)
-                except:
+                except Exception:
+                    await _clear_(chat_id)
+                    try:
+                        await client.leave_call(chat_id)
+                    except Exception:
+                        pass
+                    self.active_calls.discard(chat_id)
                     return await app.send_message(original_chat_id, text=_["call_6"])
                 trigger_prefetch(chat_id)
 
@@ -997,7 +1021,13 @@ class Call:
                 stream = dynamic_media_stream(path=videoid, video=video)
                 try:
                     await client.play(chat_id, stream)
-                except:
+                except Exception:
+                    await _clear_(chat_id)
+                    try:
+                        await client.leave_call(chat_id)
+                    except Exception:
+                        pass
+                    self.active_calls.discard(chat_id)
                     return await app.send_message(original_chat_id, text=_["call_6"])
 
                 button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
@@ -1023,7 +1053,13 @@ class Call:
                 stream = dynamic_media_stream(path=queued, video=video)
                 try:
                     await client.play(chat_id, stream)
-                except:
+                except Exception:
+                    await _clear_(chat_id)
+                    try:
+                        await client.leave_call(chat_id)
+                    except Exception:
+                        pass
+                    self.active_calls.discard(chat_id)
                     return await app.send_message(original_chat_id, text=_["call_6"])
 
                 if videoid == "telegram":
