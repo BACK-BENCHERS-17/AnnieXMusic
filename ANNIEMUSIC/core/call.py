@@ -134,15 +134,46 @@ class Call:
         self.four = None
         self.five = None
         self.active_calls: set[int] = set()
+        # Store references to underlying Pyrogram clients for client recreation
+        self._pyrogram_clients: dict[int, object] = {}
 
     def setup_clients(self, userbot) -> None:
         """Initialize PyTgCalls using the shared Userbot Pyrogram clients.
         This avoids AUTH_KEY_DUPLICATED by reusing a single connection per session."""
-        self.one = PyTgCalls(userbot.one) if userbot.one else None
-        self.two = PyTgCalls(userbot.two) if userbot.two else None
-        self.three = PyTgCalls(userbot.three) if userbot.three else None
-        self.four = PyTgCalls(userbot.four) if userbot.four else None
-        self.five = PyTgCalls(userbot.five) if userbot.five else None
+        if userbot.one:
+            self._pyrogram_clients[1] = userbot.one
+            self.one = PyTgCalls(userbot.one)
+        if userbot.two:
+            self._pyrogram_clients[2] = userbot.two
+            self.two = PyTgCalls(userbot.two)
+        if userbot.three:
+            self._pyrogram_clients[3] = userbot.three
+            self.three = PyTgCalls(userbot.three)
+        if userbot.four:
+            self._pyrogram_clients[4] = userbot.four
+            self.four = PyTgCalls(userbot.four)
+        if userbot.five:
+            self._pyrogram_clients[5] = userbot.five
+            self.five = PyTgCalls(userbot.five)
+
+    def _recreate_pytgcalls(self, index: int) -> object:
+        """Recreate a fresh PyTgCalls instance for a given assistant index.
+        Used to recover from AUTH_KEY_DUPLICATED which leaves PyTgCalls in bad state."""
+        pyrogram_client = self._pyrogram_clients.get(index)
+        if pyrogram_client is None:
+            return None
+        new_client = PyTgCalls(pyrogram_client)
+        if index == 1:
+            self.one = new_client
+        elif index == 2:
+            self.two = new_client
+        elif index == 3:
+            self.three = new_client
+        elif index == 4:
+            self.four = new_client
+        elif index == 5:
+            self.five = new_client
+        return new_client
 
 
     @capture_internal_err
@@ -1097,48 +1128,122 @@ class Call:
         LOGGER(__name__).info("Starting PyTgCalls Clients...")
         from pyrogram.errors import AuthKeyDuplicated, AuthKeyUnregistered
 
-        async def start_client(client, index):
+        async def _try_start_once(client, index) -> bool:
+            """Try to start a single client. Returns True on success, False on failure."""
             if client is None:
-                return
+                return False
             try:
                 await client.start()
+                LOGGER(__name__).info(f"Client {index} started successfully.")
+                return True
             except FloodWait as e:
                 LOGGER(__name__).warning(f"FloodWait in Call {index}. Waiting {e.value}s...")
                 await asyncio.sleep(e.value)
-                await client.start()
+                return False
             except AuthKeyDuplicated:
-                LOGGER(__name__).error(
-                    f"Client {index} in Call: AUTH_KEY_DUPLICATED — session already in use. "
-                    f"Generate a new session string for STRING{index}."
+                LOGGER(__name__).warning(
+                    f"Client {index}: AUTH_KEY_DUPLICATED — old session still alive."
                 )
+                try:
+                    await client.stop()
+                except Exception:
+                    pass
+                return False
             except AuthKeyUnregistered:
                 LOGGER(__name__).error(
-                    f"Client {index} in Call: AuthKeyUnregistered — session is invalid/expired. "
+                    f"Client {index}: AuthKeyUnregistered — session is invalid/expired. "
                     f"Generate a new session string for STRING{index}."
                 )
+                return None  # None = permanent failure, don't retry
             except Exception as e:
-                LOGGER(__name__).error(f"Failed to start Client {index} in Call: {e}")
+                err_str = str(e)
+                if "already running" in err_str:
+                    try:
+                        await client.stop()
+                    except Exception:
+                        pass
+                    return False
+                LOGGER(__name__).warning(f"Client {index} start failed: {e}")
+                return False
 
-        await start_client(self.one, 1)
-        await start_client(self.two, 2)
-        await start_client(self.three, 3)
-        await start_client(self.four, 4)
-        await start_client(self.five, 5)
+        async def start_client_with_bg_retry(client, index):
+            """Try to start client immediately; if AUTH_KEY_DUPLICATED, keep retrying in background."""
+            if client is None:
+                return
 
-    @capture_internal_err
+            result = await _try_start_once(client, index)
+
+            if result is True:
+                return  # Started OK
+            if result is None:
+                return  # Permanent failure (invalid session)
+
+            # Transient failure (AUTH_KEY_DUPLICATED or "already running") — retry in background
+            LOGGER(__name__).info(
+                f"Client {index}: Starting background retry task (old session needs time to expire)..."
+            )
+
+            async def _bg_retry():
+                from ANNIEMUSIC.core.userbot import assistants
+                for attempt in range(20):  # retry up to 20 times, every 15s = max 5 min
+                    await asyncio.sleep(15)
+                    fresh = self._recreate_pytgcalls(index)
+                    if fresh is None:
+                        return
+                    ok = await _try_start_once(fresh, index)
+                    if ok is True:
+                        LOGGER(__name__).info(
+                            f"Client {index}: Background retry succeeded on attempt {attempt + 1}."
+                        )
+                        # Run post-start setup for this assistant
+                        try:
+                            from ANNIEMUSIC import userbot as _ub
+                            asst_map = {1: _ub.one, 2: _ub.two, 3: _ub.three, 4: _ub.four, 5: _ub.five}
+                            pyrogram_asst = asst_map.get(index)
+                            if pyrogram_asst:
+                                await _ub._setup_assistant(pyrogram_asst, index)
+                        except Exception as se:
+                            LOGGER(__name__).warning(f"Client {index}: post-start setup error: {se}")
+                        # Re-register decorators so the new client gets stream update callbacks
+                        try:
+                            await self.decorators()
+                        except Exception:
+                            pass
+                        return
+                    if ok is None:
+                        return  # Permanent failure — stop retrying
+                    # ok is False — continue retrying
+                LOGGER(__name__).error(
+                    f"Client {index}: Background retry exhausted after 20 attempts. "
+                    f"Generate a new session string for STRING{index}."
+                )
+
+            asyncio.create_task(_bg_retry())
+
+        await start_client_with_bg_retry(self.one, 1)
+        await start_client_with_bg_retry(self.two, 2)
+        await start_client_with_bg_retry(self.three, 3)
+        await start_client_with_bg_retry(self.four, 4)
+        await start_client_with_bg_retry(self.five, 5)
+
     async def ping(self) -> str:
         pings = []
-        if config.STRING1:
-            pings.append(self.one.ping)
-        if config.STRING2:
-            pings.append(self.two.ping)
-        if config.STRING3:
-            pings.append(self.three.ping)
-        if config.STRING4:
-            pings.append(self.four.ping)
-        if config.STRING5:
-            pings.append(self.five.ping)
-        return str(round(sum(pings) / len(pings), 3)) if pings else "0.0"
+        pairs = [
+            (config.STRING1, self.one),
+            (config.STRING2, self.two),
+            (config.STRING3, self.three),
+            (config.STRING4, self.four),
+            (config.STRING5, self.five),
+        ]
+        for string, client in pairs:
+            if string and client is not None:
+                try:
+                    val = client.ping
+                    if val is not None and val > 0:
+                        pings.append(val)
+                except Exception:
+                    pass
+        return str(round(sum(pings) / len(pings), 3)) if pings else "N/A"
 
     @capture_internal_err
     async def decorators(self) -> None:

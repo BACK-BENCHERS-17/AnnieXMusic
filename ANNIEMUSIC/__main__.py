@@ -1,5 +1,6 @@
 import asyncio
 import importlib
+import signal
 import requests
 
 from pyrogram import idle
@@ -41,11 +42,38 @@ async def _set_menu_button():
         LOGGER("ANNIEMUSIC").warning(f"⚠️  Could not set menu button: {e}")
 
 
+async def _graceful_shutdown():
+    """Gracefully stop all Pyrogram clients so Telegram closes the sessions.
+    This prevents AUTH_KEY_DUPLICATED on the next bot restart."""
+    LOGGER("ANNIEMUSIC").info("Received shutdown signal — gracefully stopping clients...")
+    try:
+        await userbot.stop()
+    except Exception:
+        pass
+    try:
+        await app.stop()
+    except Exception:
+        pass
+    LOGGER("ANNIEMUSIC").info("All clients stopped. Exiting.")
+
+
 async def init():
     # Start health check server for Railway
     start_health_server()
     # Register the running event loop so Flask control endpoints can call async bot functions
-    set_bot_loop(asyncio.get_event_loop())
+    loop = asyncio.get_event_loop()
+    set_bot_loop(loop)
+
+    # Register SIGTERM handler for graceful shutdown (prevents AUTH_KEY_DUPLICATED on restart)
+    def _sigterm_handler():
+        LOGGER("ANNIEMUSIC").info("SIGTERM received — scheduling graceful shutdown.")
+        asyncio.ensure_future(_graceful_shutdown())
+
+    try:
+        loop.add_signal_handler(signal.SIGTERM, _sigterm_handler)
+        loop.add_signal_handler(signal.SIGINT, _sigterm_handler)
+    except (NotImplementedError, RuntimeError):
+        pass
 
     if (
         not config.STRING1
