@@ -59,13 +59,19 @@ class Userbot:
             return
 
         try:
+            # Verify client is actually connected before registering it
+            me = await client.get_me()
+            client.id, client.name, client.username = me.id, me.first_name, me.username
+            assistantids.append(me.id)
+
+            # Only register as active AFTER confirming the connection works
+            assistants.append(index)
+
             for group in GROUPS_TO_JOIN:
                 try:
                     await client.join_chat(group)
                 except Exception:
                     pass
-
-            assistants.append(index)
 
             try:
                 await client.send_message(
@@ -76,15 +82,12 @@ class Userbot:
                     f"Assistant {index} can't access the log group. Check permissions!"
                 )
 
-            me = await client.get_me()
-            client.id, client.name, client.username = me.id, me.first_name, me.username
-            assistantids.append(me.id)
-
             LOGGER(__name__).info(f"Assistant {index} Started as {client.name}")
 
         except errors.AuthKeyDuplicated:
             LOGGER(__name__).error(
-                f"Assistant {index}: AUTH_KEY_DUPLICATED — generate a new session for STRING{index}."
+                f"Assistant {index}: AUTH_KEY_DUPLICATED — this session is already open elsewhere. "
+                f"Generate a fresh session string for STRING{index}."
             )
         except errors.AuthKeyUnregistered:
             LOGGER(__name__).error(

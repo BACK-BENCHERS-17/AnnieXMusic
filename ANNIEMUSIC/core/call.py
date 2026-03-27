@@ -8,7 +8,7 @@ from pyrogram.enums import ParseMode
 from pyrogram.errors import FloodWait, ChatAdminRequired, ChannelInvalid, ChannelPrivate
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pytgcalls import PyTgCalls
-from pytgcalls.exceptions import NoActiveGroupCall
+from pytgcalls.exceptions import NoActiveGroupCall, MTProtoClientNotConnected
 from pytgcalls.types import AudioQuality, ChatUpdate, MediaStream, StreamEnded, Update, VideoQuality
 
 import config
@@ -113,6 +113,19 @@ async def _clear_(chat_id: int) -> None:
     await remove_active_chat(chat_id)
     await set_loop(chat_id, 0)
 
+
+def _check_connected(assistant) -> bool:
+    """Return True if the PyTgCalls assistant's underlying Pyrogram client is connected."""
+    try:
+        pyrogram_client = getattr(assistant, '_app', None) or getattr(assistant, 'mtproto_client', None)
+        if pyrogram_client is not None:
+            return getattr(pyrogram_client, 'is_connected', False)
+        # No way to check — assume connected
+        return True
+    except Exception:
+        return True
+
+
 class Call:
     def __init__(self):
         self.one = None
@@ -135,22 +148,46 @@ class Call:
     @capture_internal_err
     async def pause_stream(self, chat_id: int) -> None:
         assistant = await group_assistant(self, chat_id)
-        await assistant.pause(chat_id)
+        try:
+            await assistant.pause(chat_id)
+        except MTProtoClientNotConnected:
+            raise AssistantErr(
+                "ᴀssɪsᴛᴀɴᴛ ᴅɪsᴄᴏɴɴᴇᴄᴛᴇᴅ.\n\n"
+                "ᴘʟᴇᴀsᴇ ᴜsᴇ /stop ᴀɴᴅ /play ᴛᴏ ʀᴇsᴛᴀʀᴛ."
+            )
 
     @capture_internal_err
     async def resume_stream(self, chat_id: int) -> None:
         assistant = await group_assistant(self, chat_id)
-        await assistant.resume(chat_id)
+        try:
+            await assistant.resume(chat_id)
+        except MTProtoClientNotConnected:
+            raise AssistantErr(
+                "ᴀssɪsᴛᴀɴᴛ ᴅɪsᴄᴏɴɴᴇᴄᴛᴇᴅ.\n\n"
+                "ᴘʟᴇᴀsᴇ ᴜsᴇ /stop ᴀɴᴅ /play ᴛᴏ ʀᴇsᴛᴀʀᴛ."
+            )
 
     @capture_internal_err
     async def mute_stream(self, chat_id: int) -> None:
         assistant = await group_assistant(self, chat_id)
-        await assistant.mute(chat_id)
+        try:
+            await assistant.mute(chat_id)
+        except MTProtoClientNotConnected:
+            raise AssistantErr(
+                "ᴀssɪsᴛᴀɴᴛ ᴅɪsᴄᴏɴɴᴇᴄᴛᴇᴅ.\n\n"
+                "ᴘʟᴇᴀsᴇ ᴜsᴇ /stop ᴀɴᴅ /play ᴛᴏ ʀᴇsᴛᴀʀᴛ."
+            )
 
     @capture_internal_err
     async def unmute_stream(self, chat_id: int) -> None:
         assistant = await group_assistant(self, chat_id)
-        await assistant.unmute(chat_id)
+        try:
+            await assistant.unmute(chat_id)
+        except MTProtoClientNotConnected:
+            raise AssistantErr(
+                "ᴀssɪsᴛᴀɴᴛ ᴅɪsᴄᴏɴɴᴇᴄᴛᴇᴅ.\n\n"
+                "ᴘʟᴇᴀsᴇ ᴜsᴇ /stop ᴀɴᴅ /play ᴛᴏ ʀᴇsᴛᴀʀᴛ."
+            )
 
     @capture_internal_err
     async def stop_stream(self, chat_id: int) -> None:
@@ -183,7 +220,11 @@ class Call:
 
     @capture_internal_err
     async def force_stop_stream(self, chat_id: int) -> None:
-        assistant = await group_assistant(self, chat_id)
+        try:
+            assistant = await group_assistant(self, chat_id)
+        except AssistantErr:
+            assistant = None
+
         try:
             check = db.get(chat_id)
             if check:
@@ -194,7 +235,7 @@ class Call:
         await remove_active_chat(chat_id)
         # Don't fully leave the call - just pause and clear queue for forceplay to work
         # This allows seamless track switching without admin requirement issues
-        if chat_id in self.active_calls:
+        if assistant and chat_id in self.active_calls:
             try:
                 await assistant.pause(chat_id)
             except Exception:
@@ -799,11 +840,19 @@ class Call:
                     pass
                 return
         except:
+            # Always clean up active_calls regardless of whether leave_call succeeds.
+            # Without this, a failed leave_call leaves the chat stuck in active_calls,
+            # causing every subsequent /play to queue instead of joining fresh.
             try:
                 await _clear_(chat_id)
-                return await client.leave_call(chat_id)
-            except:
-                return
+            except Exception:
+                pass
+            try:
+                await client.leave_call(chat_id)
+            except Exception:
+                pass
+            self.active_calls.discard(chat_id)
+            return
         else:
             queued = check[0]["file"]
             language = await get_lang(chat_id)
@@ -1112,9 +1161,43 @@ class Call:
                         return
 
                 elif isinstance(update, StreamEnded):
-                    if update.stream_type == StreamEnded.Type.AUDIO:
-                        assistant = await group_assistant(self, update.chat_id)
-                        await self.play(assistant, update.chat_id)
+                    chat_id = update.chat_id
+                    # Handle both AUDIO and VIDEO stream endings
+                    if update.stream_type in (StreamEnded.Type.AUDIO, StreamEnded.Type.VIDEO):
+                        try:
+                            assistant = await group_assistant(self, chat_id)
+                        except AssistantErr:
+                            # No connected assistant — force-clean the stuck state so
+                            # the next /play doesn't get queued behind a ghost stream
+                            LOGGER(__name__).warning(
+                                f"[StreamEnded] No connected assistant for chat={chat_id}. "
+                                f"Force-clearing stuck VC state."
+                            )
+                            await _clear_(chat_id)
+                            self.active_calls.discard(chat_id)
+                            return
+                        except Exception as _ga_err:
+                            LOGGER(__name__).error(
+                                f"[StreamEnded] group_assistant failed for chat={chat_id}: {_ga_err}"
+                            )
+                            await _clear_(chat_id)
+                            self.active_calls.discard(chat_id)
+                            return
+
+                        try:
+                            await self.play(assistant, chat_id)
+                        except Exception as _play_err:
+                            # play() failed — ensure VC state is cleaned up completely
+                            LOGGER(__name__).error(
+                                f"[StreamEnded] play() failed for chat={chat_id}: {_play_err}. "
+                                f"Force-clearing to prevent stuck state."
+                            )
+                            await _clear_(chat_id)
+                            try:
+                                await client.leave_call(chat_id)
+                            except Exception:
+                                pass
+                            self.active_calls.discard(chat_id)
 
             except Exception:
                 import sys, traceback
