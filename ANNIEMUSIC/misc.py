@@ -46,6 +46,16 @@ async def sudo():
 
     LOGGER(__name__).info("sᴜᴅᴏ ᴜsᴇʀs ᴅᴏɴᴇ..")
 
+    try:
+        onoffdb = mongodb.onoffper
+        await onoffdb.delete_one({"on_off": 1})
+        from ANNIEMUSIC.utils.database import maintenance
+        maintenance.clear()
+        maintenance.append(2)
+        LOGGER(__name__).info("ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ ᴍᴏᴅᴇ ʀᴇsᴇᴛ ᴏɴ sᴛᴀʀᴛᴜᴘ.")
+    except Exception as e:
+        LOGGER(__name__).warning(f"Could not reset maintenance flag: {e}")
+
 def heroku():
     global HAPP
     if is_heroku():
