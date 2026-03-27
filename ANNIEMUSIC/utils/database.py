@@ -443,16 +443,16 @@ async def is_maintenance():
         if not get:
             maintenance.clear()
             maintenance.append(2)
-            return True
+            return False
         else:
             maintenance.clear()
             maintenance.append(1)
-            return False
+            return True
     else:
         if 1 in maintenance:
-            return False
-        else:
             return True
+        else:
+            return False
 
 
 async def maintenance_off():
