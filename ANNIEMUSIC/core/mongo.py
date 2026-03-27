@@ -1,6 +1,6 @@
 import sys
 from motor.motor_asyncio import AsyncIOMotorClient
-from config import MONGO_DB_URI
+from config import MONGO_DB_URI, MONGO_DB_NAME
 from ..logging import LOGGER
 
 if not MONGO_DB_URI:
@@ -15,14 +15,12 @@ LOGGER(__name__).info("Connecting to your Mongo Database...")
 
 try:
     _mongo_async_ = AsyncIOMotorClient(MONGO_DB_URI, serverSelectionTimeoutMS=5000)
-    mongodb = _mongo_async_.Annie
-    # Test connection
+    mongodb = _mongo_async_[MONGO_DB_NAME]
     import asyncio
     loop = asyncio.get_event_loop()
     if loop.is_running():
-        # We can't easily wait here if loop is already running, but AsyncIOMotorClient is lazy anyway.
         pass
-    LOGGER(__name__).info("Connected to your Mongo Database.")
+    LOGGER(__name__).info(f"Connected to your Mongo Database. (DB: {MONGO_DB_NAME})")
 except Exception as e:
     LOGGER(__name__).error(f"Failed to connect to your Mongo Database: {e}")
     sys.exit(1)

@@ -26,6 +26,7 @@ ASSUSERNAME = getenv("ASSUSERNAME", "musicxannie")
 
 # ── Database & logging ─────────────────────────────────────────────────────────
 MONGO_DB_URI = getenv("MONGO_DB_URI")
+MONGO_DB_NAME = getenv("MONGO_DB_NAME", "Annie")
 LOGGER_ID = int(getenv("LOGGER_ID", -1002014167331))
 
 # ── Limits (durations in min/sec; sizes in bytes) ──────────────────────────────
