@@ -29,11 +29,6 @@ def AdminRightsCheck(mystic):
                 )
 
         try:
-            await message.delete()
-        except:
-            pass
-
-        try:
             language = await get_lang(message.chat.id)
             _ = get_string(language)
         except:
@@ -123,11 +118,6 @@ def AdminActual(mystic):
                     text=f"{app.mention} ɪs ᴜɴᴅᴇʀ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ, ᴠɪsɪᴛ <a href={SUPPORT_CHAT}>sᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ</a> ғᴏʀ ᴋɴᴏᴡɪɴɢ ᴛʜᴇ ʀᴇᴀsᴏɴ.",
                     disable_web_page_preview=True,
                 )
-
-        try:
-            await message.delete()
-        except:
-            pass
 
         try:
             language = await get_lang(message.chat.id)
