@@ -1,6 +1,8 @@
 
 
-HELP_1 = """
+_ANNIE = '<blockquote><emoji id="5042192219960771668">🧸</emoji><emoji id="5210820276748566172">🔤</emoji><emoji id="5213301251722203632">🔤</emoji><emoji id="5213301251722203632">🔤</emoji><emoji id="5211032856154885824">🔤</emoji><emoji id="5213337333742454261">🔤</emoji></blockquote>\n\n'
+
+HELP_1 = _ANNIE + """
 <blockquote><b><emoji id="5188093600538057635">🎵</emoji> ᴘʟᴀʏ ᴄᴏᴍᴍᴀɴᴅs</b></blockquote>
 
 <blockquote>
@@ -23,7 +25,7 @@ HELP_1 = """
 <blockquote><emoji id="5972072533833289156">🔹</emoji> sᴜᴘᴘᴏʀᴛs: ʏᴏᴜᴛᴜʙᴇ, sᴘᴏᴛɪꜰʏ, sᴏᴜɴᴅᴄʟᴏᴜᴅ, ʀᴇssᴏ, ᴀᴘᴘʟᴇ ᴍᴜsɪᴄ, ᴅɪʀᴇᴄᴛ ʟɪɴᴋs, ᴛᴇʟᴇɢʀᴀᴍ ꜰɪʟᴇs</blockquote>
 """
 
-HELP_2 = """
+HELP_2 = _ANNIE + """
 <blockquote><b><emoji id="5373123633415854520">⏯</emoji> ᴘʟᴀʏʙᴀᴄᴋ ᴄᴏɴᴛʀᴏʟs</b></blockquote>
 
 <blockquote>
@@ -39,7 +41,7 @@ HELP_2 = """
 <blockquote><emoji id="5449449325434266744">❄️</emoji> ᴀᴅᴅ <b>c</b> ᴘʀᴇꜰɪx ꜰᴏʀ ᴄʜᴀɴɴᴇʟ ᴘʟᴀʏʙᴀᴄᴋ <code>(e.g. /cpause)</code></blockquote>
 """
 
-HELP_3 = """
+HELP_3 = _ANNIE + """
 <blockquote><b><emoji id="5235731086212088293">🔀</emoji> ǫᴜᴇᴜᴇ ᴍᴀɴᴀɢᴇᴍᴇɴᴛ</b></blockquote>
 
 <blockquote>
@@ -51,7 +53,7 @@ HELP_3 = """
 <blockquote><emoji id="5972072533833289156">🔹</emoji> ǫᴜᴇᴜᴇ ᴄᴀᴘᴀᴄɪᴛʏ ɪs ᴜɴʟɪᴍɪᴛᴇᴅ — sᴛᴀᴄᴋ ᴀs ᴍᴀɴʏ ᴛʀᴀᴄᴋs ᴀs ʏᴏᴜ ᴡᴀɴᴛ!</blockquote>
 """
 
-HELP_4 = """
+HELP_4 = _ANNIE + """
 <blockquote><b><emoji id="5236698095568298517">🔁</emoji> ʟᴏᴏᴘ ᴍᴏᴅᴇ</b></blockquote>
 
 <blockquote>
@@ -64,7 +66,7 @@ HELP_4 = """
 <blockquote><emoji id="5042334757040423886">⚡️</emoji> ᴄᴏᴍʙɪɴᴇ ᴡɪᴛʜ ᴀᴜᴛᴏᴘʟᴀʏ ꜰᴏʀ ᴄᴏɴᴛɪɴᴜᴏᴜs ᴍᴜsɪᴄ ᴇxᴘᴇʀɪᴇɴᴄᴇ!</blockquote>
 """
 
-HELP_5 = """
+HELP_5 = _ANNIE + """
 <blockquote><b><emoji id="5289584807741733596">⏩</emoji> sᴇᴇᴋ ᴄᴏɴᴛʀᴏʟs</b></blockquote>
 
 <blockquote>
@@ -75,7 +77,7 @@ HELP_5 = """
 <blockquote><emoji id="5972072533833289156">🔹</emoji> ᴇxᴀᴍᴘʟᴇ: <code>/seek 30</code> — sᴋɪᴘs ꜰᴏʀᴡᴀʀᴅ 30 sᴇᴄᴏɴᴅs ɪɴ ᴛʜᴇ ᴄᴜʀʀᴇɴᴛ ᴛʀᴀᴄᴋ</blockquote>
 """
 
-HELP_6 = """
+HELP_6 = _ANNIE + """
 <blockquote><b><emoji id="5463107823946717464">🎵</emoji> sᴘᴇᴇᴅ ᴄᴏɴᴛʀᴏʟ</b></blockquote>
 
 <blockquote>
@@ -89,7 +91,7 @@ HELP_6 = """
 <blockquote><emoji id="5042334757040423886">⚡️</emoji> ᴅᴇꜰᴀᴜʟᴛ sᴘᴇᴇᴅ ɪs <code>1.0x</code> — ɴᴏʀᴍᴀʟ ᴘʟᴀʏʙᴀᴄᴋ</blockquote>
 """
 
-HELP_7 = """
+HELP_7 = _ANNIE + """
 <blockquote><b><emoji id="5431895003821513760">❄️</emoji> ᴀᴜᴛʜᴏʀɪᴢᴇᴅ ᴜsᴇʀs</b></blockquote>
 
 <blockquote>
@@ -101,7 +103,7 @@ HELP_7 = """
 <blockquote><emoji id="5972072533833289156">🔹</emoji> ᴀᴜᴛʜ ᴜsᴇʀs ᴄᴀɴ ᴄᴏɴᴛʀᴏʟ ᴍᴜsɪᴄ ᴡɪᴛʜᴏᴜᴛ ʙᴇɪɴɢ ɢʀᴏᴜᴘ ᴀᴅᴍɪɴ</blockquote>
 """
 
-HELP_8 = """
+HELP_8 = _ANNIE + """
 <blockquote><b><emoji id="5825434651717127160">📻</emoji> ʟɪᴠᴇ sᴛʀᴇᴀᴍɪɴɢ</b></blockquote>
 
 <blockquote>
@@ -113,7 +115,7 @@ HELP_8 = """
 <blockquote><emoji id="5042334757040423886">⚡️</emoji> sᴜᴘᴘᴏʀᴛs: ʏᴏᴜᴛᴜʙᴇ ʟɪᴠᴇ, ᴛᴡɪᴛᴄʜ, ᴍ3ᴜ8, ᴅɪʀᴇᴄᴛ ʀᴛᴍᴘ ꜱᴛʀᴇᴀᴍs</blockquote>
 """
 
-HELP_9 = """
+HELP_9 = _ANNIE + """
 <blockquote><b><emoji id="5231200819986047254">📊</emoji> ʙᴏᴛ sᴛᴀᴛs & ɪɴꜰᴏ</b></blockquote>
 
 <blockquote>
@@ -127,7 +129,7 @@ HELP_9 = """
 <blockquote><emoji id="5039598514980520994">❤️‍🔥</emoji> ᴀʟʟ sᴛᴀᴛs ᴀʀᴇ ʀᴇᴀʟ-ᴛɪᴍᴇ ᴀɴᴅ ᴜᴘᴅᴀᴛᴇᴅ ʟɪᴠᴇ</blockquote>
 """
 
-HELP_10 = """
+HELP_10 = _ANNIE + """
 <blockquote><b><emoji id="5823103619665777239">⚙️</emoji> sᴇᴛᴛɪɴɢs & ᴍᴏᴅᴇs</b></blockquote>
 
 <blockquote>
