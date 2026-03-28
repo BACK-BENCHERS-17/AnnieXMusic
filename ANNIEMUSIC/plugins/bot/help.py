@@ -154,6 +154,15 @@ async def action_pun_cb(client: Client, CallbackQuery: types.CallbackQuery, _):
         reply_markup=help_back_markup(_, 1),
     )
 
+# ────────────────────────────────────────────────  global close button ─
+
+@app.on_callback_query(filters.regex("^close$") & ~BANNED_USERS)
+async def close_message(client, CallbackQuery: types.CallbackQuery):
+    try:
+        await CallbackQuery.message.delete()
+    except Exception:
+        await CallbackQuery.answer()
+
 # ────────────────────────────────────────────────  back to start panel ─
 
 @app.on_callback_query(filters.regex("back_to_main") & ~BANNED_USERS)

@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from pyrogram import filters
+from pyrogram.enums import ParseMode
 from pyrogram.types import Message
 from config import *
 from ANNIEMUSIC import app
@@ -15,35 +16,37 @@ from config import BANNED_USERS, PING_IMG_URL
 @language
 async def ping_com(client, message: Message, _):
     start = datetime.now()
+
     try:
-        response = await message.reply_photo(
-            photo=PING_IMG_URL,
-            caption=_["ping_1"].format(app.mention),
-        )
-        try:
-            pytgping = await JARVIS.ping()
-        except Exception:
-            pytgping = "N/A"
-        UP, CPU, RAM, DISK = await bot_sys_stats()
-        resp = (datetime.now() - start).microseconds / 1000
-        try:
-            await response.edit_caption(
-                caption=_["ping_2"].format(resp, app.mention, UP, RAM, CPU, DISK, pytgping),
-                reply_markup=supp_markup(_),
-            )
-        except Exception:
-            await message.reply_text(
-                _["ping_2"].format(resp, app.mention, UP, RAM, CPU, DISK, pytgping),
-                reply_markup=supp_markup(_),
-            )
+        pytgping = await JARVIS.ping()
     except Exception:
+        pytgping = "N/A"
+
+    UP, CPU, RAM, DISK = await bot_sys_stats()
+    resp = (datetime.now() - start).microseconds / 1000
+
+    caption = _["ping_2"].format(resp, app.mention, UP, RAM, CPU, DISK, pytgping)
+    markup = supp_markup(_)
+
+    sent = False
+
+    if PING_IMG_URL:
         try:
-            pytgping = await JARVIS.ping()
+            await message.reply_photo(
+                photo=PING_IMG_URL,
+                caption=caption,
+                reply_markup=markup,
+            )
+            sent = True
         except Exception:
-            pytgping = "N/A"
-        UP, CPU, RAM, DISK = await bot_sys_stats()
-        resp = (datetime.now() - start).microseconds / 1000
-        await message.reply_text(
-            _["ping_2"].format(resp, app.mention, UP, RAM, CPU, DISK, pytgping),
-            reply_markup=supp_markup(_),
-        )
+            pass
+
+    if not sent:
+        try:
+            await message.reply_text(
+                text=caption,
+                reply_markup=markup,
+                parse_mode=ParseMode.HTML,
+            )
+        except Exception:
+            pass

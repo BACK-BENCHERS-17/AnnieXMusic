@@ -38,18 +38,27 @@ async def _edit_media_or_reply_with_video(cbq, caption: str, reply_markup):
 async def open_stats(client, message: Message, _):
     is_sudo = message.from_user and (message.from_user.id in SUDOERS)
     keyboard = build_stats_keyboard(_, is_sudo)
-    try:
-        await message.reply_video(
-            video=config.STATS_VID_URL,
-            caption=_["gstats_2"].format(app.mention),
-            reply_markup=keyboard,
-        )
-    except Exception:
-        await message.reply_text(
-            text=_["gstats_2"].format(app.mention),
-            reply_markup=keyboard,
-            disable_web_page_preview=True,
-        )
+    sent = False
+    if config.STATS_VID_URL:
+        try:
+            await message.reply_video(
+                video=config.STATS_VID_URL,
+                caption=_["gstats_2"].format(app.mention),
+                reply_markup=keyboard,
+            )
+            sent = True
+        except Exception:
+            pass
+    if not sent:
+        try:
+            await message.reply_text(
+                text=_["gstats_2"].format(app.mention),
+                reply_markup=keyboard,
+                parse_mode="html",
+                disable_web_page_preview=True,
+            )
+        except Exception:
+            pass
 
 
 @app.on_callback_query(filters.regex(f"^{StatsCallbacks.BACK}$") & ~BANNED_USERS)
@@ -57,9 +66,26 @@ async def open_stats(client, message: Message, _):
 async def handle_back_to_stats(client, callback_query, _):
     is_sudo = callback_query.from_user and (callback_query.from_user.id in SUDOERS)
     keyboard = build_stats_keyboard(_, is_sudo)
-    await callback_query.edit_message_text(
-        text=_["gstats_2"].format(app.mention), reply_markup=keyboard
-    )
+    text = _["gstats_2"].format(app.mention)
+    try:
+        await callback_query.edit_message_caption(
+            caption=text, reply_markup=keyboard
+        )
+    except Exception:
+        try:
+            await callback_query.edit_message_text(
+                text=text, reply_markup=keyboard
+            )
+        except Exception:
+            pass
+
+
+@app.on_callback_query(filters.regex(f"^{StatsCallbacks.CLOSE}$") & ~BANNED_USERS)
+async def handle_stats_close(client, callback_query):
+    try:
+        await callback_query.message.delete()
+    except Exception:
+        await callback_query.answer()
 
 
 @app.on_callback_query(filters.regex(f"^{StatsCallbacks.SHOW_OVERVIEW}$") & ~BANNED_USERS)
