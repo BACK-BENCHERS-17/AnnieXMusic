@@ -45,14 +45,21 @@ autoend = {}
 counter = {}
 autoplay_history: dict[int, list] = {}  # per-chat played video IDs history
 
-_CDN_HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
-    ),
-    "Referer": "https://www.youtube.com/",
-    "Origin": "https://www.youtube.com",
-}
+def _get_cdn_headers() -> dict:
+    """Return CDN headers that match the current best SmartYTDL client (dynamic)."""
+    try:
+        from ANNIEMUSIC.utils.ytdl_smart import get_cdn_headers as _smart_headers
+        return _smart_headers()
+    except Exception:
+        return {
+            "User-Agent": (
+                "Mozilla/5.0 (Linux; Android 14; Oculus Quest 3) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) OculusBrowser/35.0.0 "
+                "VR SamsungBrowser/4.0 Chrome/124.0.6367.118 Mobile Safari/537.36"
+            ),
+            "Referer": "https://www.youtube.com/",
+            "Origin": "https://www.youtube.com",
+        }
 
 
 def _needs_ytdlp(path: str) -> bool:
@@ -80,7 +87,7 @@ def dynamic_media_stream(path: str, video: bool = False, ffmpeg_params: str = No
         if COOKIE_PATH.exists():
             ytdlp_args += f" --cookies {COOKIE_PATH}"
     elif _is_cdn_url(path):
-        headers = _CDN_HEADERS
+        headers = _get_cdn_headers()
 
     if video:
         return MediaStream(

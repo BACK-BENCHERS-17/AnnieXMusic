@@ -24,9 +24,12 @@ from config import API_KEY, API_URL
 USE_API: bool = bool(API_URL and API_KEY)
 
 # ── Internal webserver API ─────────────────────────────────────────────────
-_WEB_PORT = int(os.environ.get("PORT") or os.environ.get("WEB_PORT") or 8080)
+# webserver.py binds on WEB_PORT (default 5000); health_check.py on 8080.
+# We always talk to the main webserver (port 5000) for URL/download APIs.
+_WEB_PORT = int(os.environ.get("WEB_PORT") or 5000)
 _YTURL_ENDPOINT = f"http://localhost:{_WEB_PORT}/api/yturl"
 _YTDL_ENDPOINT  = f"http://localhost:{_WEB_PORT}/api/ytdl"
+_PREPARE_ENDPOINT = f"http://localhost:{_WEB_PORT}/api/prepare"
 
 _inflight: Dict[str, asyncio.Future] = {}
 _inflight_lock = asyncio.Lock()
@@ -380,25 +383,92 @@ async def download_from_own_api(vid: str) -> Optional[str]:
 _bg_download_tasks: Dict[str, asyncio.Task] = {}
 
 
+async def _trigger_bg_cache(vid: str) -> None:
+    """Start a background download to cache the file locally for future plays."""
+    if file_exists(vid):
+        return
+    if vid in _bg_download_tasks:
+        t = _bg_download_tasks[vid]
+        if not t.done():
+            return
+
+    async def _bg():
+        try:
+            # Also tell the webserver to download in its own thread pool
+            try:
+                params = {"v": vid, "key": get_secret()}
+                timeout = aiohttp.ClientTimeout(total=5)
+                async with aiohttp.ClientSession(timeout=timeout) as s:
+                    await s.get(_PREPARE_ENDPOINT, params=params)
+            except Exception:
+                pass
+            loop = asyncio.get_running_loop()
+            fmt = "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best"
+            path = await loop.run_in_executor(None, smart_download, vid, _DOWNLOAD_DIR, fmt)
+            if path:
+                LOGGER(__name__).info(f"[BG-CACHE] Cached for next play: {path}")
+        except asyncio.CancelledError:
+            pass
+        except Exception as e:
+            LOGGER(__name__).debug(f"[BG-CACHE] Failed for {vid}: {e}")
+        finally:
+            _bg_download_tasks.pop(vid, None)
+
+    task = asyncio.create_task(_bg())
+    _bg_download_tasks[vid] = task
+
+
 async def fast_get_stream(vid: str) -> Optional[str]:
     """
-    Return a local file path for the given YouTube video ID.
+    Return a file path or CDN URL for the given YouTube video ID as fast as possible.
 
     Priority:
-      1. Cached local file → instant
-      2. Download via download_audio_concurrent (CDN + direct race, ~5-20s)
+      1. Cached local file           → instant (0 ms)
+      2. Webserver cached CDN URL    → near-instant (~10 ms, hits internal cache)
+      3. Fresh SmartYTDL URL extract → ~2-5 s (jsless android_vr client)
+         → returns CDN URL immediately, kicks off background file download
+      4. Full local download fallback → slow (~15-30 s), only if URL extract fails
 
-    Note: CDN URL direct streaming is disabled — NTgCalls requires a local
-    file path on this host for reliable VC audio streaming.
+    NTgCalls / pytgcalls can stream from remote HTTP URLs via ffmpeg, so returning
+    a CDN URL instead of a local file still plays instantly in VC.
+    Background download caches the file for the NEXT play of the same song.
     """
     cached = file_exists(vid)
     if cached:
         return cached
 
+    loop = asyncio.get_running_loop()
+
+    # ── Step 2: Check webserver URL cache (near-instant) ────────────────────
+    try:
+        result = await api_get_stream_url(vid)
+        if result:
+            cdn_url, ext = result
+            LOGGER(__name__).info(f"[FAST] Webserver cache hit for {vid}, streaming from CDN URL")
+            asyncio.create_task(_trigger_bg_cache(vid))
+            return cdn_url
+    except Exception as e:
+        LOGGER(__name__).debug(f"[FAST] Webserver URL cache miss for {vid}: {e}")
+
+    # ── Step 3: Fresh URL extraction (~2-5 s with android_vr jsless client) ─
+    try:
+        info = await loop.run_in_executor(None, smart_extract_url, vid)
+        if info and info.get("url"):
+            LOGGER(__name__).info(
+                f"[FAST] Got fresh CDN URL for {vid} via {info.get('client', '?')}, "
+                f"streaming directly — bg download started"
+            )
+            asyncio.create_task(_trigger_bg_cache(vid))
+            return info["url"]
+    except Exception as e:
+        LOGGER(__name__).debug(f"[FAST] URL extraction failed for {vid}: {e}")
+
+    # ── Step 4: Full download fallback (slow) ────────────────────────────────
+    LOGGER(__name__).warning(f"[FAST] CDN URL unavailable for {vid}, falling back to full download")
     link_full = f"https://www.youtube.com/watch?v={vid}"
     path = await download_audio_concurrent(link_full)
     if path:
-        LOGGER(__name__).info(f"[FAST] Downloaded locally: {path}")
+        LOGGER(__name__).info(f"[FAST] Fallback download done: {path}")
     return path
 
 
