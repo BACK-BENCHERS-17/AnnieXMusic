@@ -22,18 +22,18 @@ async def _set_bot_commands():
     """Register bot commands so they appear in Telegram's '/' menu."""
     try:
         commands = [
-            {"command": "start",   "description": "✨ Start the bot"},
-            {"command": "help",    "description": "📖 Show help & commands"},
-            {"command": "play",    "description": "🎵 Play a song in voice chat"},
-            {"command": "vplay",   "description": "📺 Play a video in voice chat"},
-            {"command": "pause",   "description": "⏸ Pause playback"},
-            {"command": "resume",  "description": "▶️ Resume playback"},
-            {"command": "skip",    "description": "⏭ Skip current track"},
-            {"command": "stop",    "description": "⏹ Stop streaming"},
-            {"command": "queue",   "description": "📋 Show current queue"},
-            {"command": "song",    "description": "⬇️ Download a song"},
-            {"command": "ping",    "description": "📡 Check bot status & stats"},
-            {"command": "stats",   "description": "📊 Show overall bot stats"},
+            {"command": "start",   "description": "Start the bot"},
+            {"command": "help",    "description": "Show help & commands"},
+            {"command": "play",    "description": "Play a song in voice chat"},
+            {"command": "vplay",   "description": "Play a video in voice chat"},
+            {"command": "pause",   "description": "Pause playback"},
+            {"command": "resume",  "description": "Resume playback"},
+            {"command": "skip",    "description": "Skip current track"},
+            {"command": "stop",    "description": "Stop streaming"},
+            {"command": "queue",   "description": "Show current queue"},
+            {"command": "song",    "description": "Download a song"},
+            {"command": "ping",    "description": "Check bot status & stats"},
+            {"command": "stats",   "description": "Show overall bot stats"},
         ]
         url = f"https://api.telegram.org/bot{config.BOT_TOKEN}/setMyCommands"
         resp = requests.post(url, json={"commands": commands}, timeout=10)
@@ -54,7 +54,7 @@ async def _set_menu_button():
             payload = {
                 "menu_button": {
                     "type": "web_app",
-                    "text": "🎵 ANNIE",
+                    "text": "ANNIE",
                     "web_app": {"url": WEB_URL},
                 }
             }
