@@ -5,11 +5,15 @@ from ANNIEMUSIC import app
 
 TOTAL_SECTIONS = 29
 
+# Sections removed because their commands don't work yet
+SKIP_SECTIONS = {11}  # 11 = ChatGPT (coming soon)
+
 
 def generate_help_buttons(_, start: int, end: int, current_page: int):
     """Create a grid of three buttons per row for the given range."""
     buttons, per_row = [], 3
-    for idx, i in enumerate(range(start, end + 1)):
+    active = [n for n in range(start, end + 1) if n not in SKIP_SECTIONS]
+    for idx, i in enumerate(active):
         if idx % per_row == 0:
             buttons.append([])
         buttons[-1].append(
@@ -26,8 +30,8 @@ def first_page(_):
     buttons = generate_help_buttons(_, 1, 15, current_page=1)
     buttons.append(
         [
-            InlineKeyboardButton(text="๏ ᴍᴇɴᴜ ๏", callback_data="back_to_main", style="success"),
-            InlineKeyboardButton(text="๏ ɴᴇxᴛ ๏", callback_data="help_next_2", style="success")
+            InlineKeyboardButton(text="🏠 ᴍᴇɴᴜ", callback_data="back_to_main", style="success"),
+            InlineKeyboardButton(text="ɴᴇxᴛ ›", callback_data="help_next_2", style="success")
         ]
     )
     return InlineKeyboardMarkup(buttons)
@@ -37,8 +41,8 @@ def second_page(_):
     buttons = generate_help_buttons(_, 16, TOTAL_SECTIONS, current_page=2)
     buttons.append(
         [
-            InlineKeyboardButton(text="๏ ʙᴀᴄᴋ ๏", callback_data="help_prev_1", style="success"),
-            InlineKeyboardButton(text="๏ ᴍᴇɴᴜ ๏", callback_data="back_to_main", style="success")
+            InlineKeyboardButton(text="‹ ʙᴀᴄᴋ", callback_data="help_prev_1", style="success"),
+            InlineKeyboardButton(text="🏠 ᴍᴇɴᴜ", callback_data="back_to_main", style="success")
         ]
     )
     return InlineKeyboardMarkup(buttons)

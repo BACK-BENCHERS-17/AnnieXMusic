@@ -18,24 +18,58 @@ from config import BANNED_USERS
 from ANNIEMUSIC.utils.health_check import start_health_server, set_bot_loop
 
 
+async def _set_bot_commands():
+    """Register bot commands so they appear in Telegram's '/' menu."""
+    try:
+        commands = [
+            {"command": "start",   "description": "✨ Start the bot"},
+            {"command": "help",    "description": "📖 Show help & commands"},
+            {"command": "play",    "description": "🎵 Play a song in voice chat"},
+            {"command": "vplay",   "description": "📺 Play a video in voice chat"},
+            {"command": "pause",   "description": "⏸ Pause playback"},
+            {"command": "resume",  "description": "▶️ Resume playback"},
+            {"command": "skip",    "description": "⏭ Skip current track"},
+            {"command": "stop",    "description": "⏹ Stop streaming"},
+            {"command": "queue",   "description": "📋 Show current queue"},
+            {"command": "song",    "description": "⬇️ Download a song"},
+            {"command": "ping",    "description": "📡 Check bot status & stats"},
+            {"command": "stats",   "description": "📊 Show overall bot stats"},
+        ]
+        url = f"https://api.telegram.org/bot{config.BOT_TOKEN}/setMyCommands"
+        resp = requests.post(url, json={"commands": commands}, timeout=10)
+        data = resp.json()
+        if data.get("ok"):
+            LOGGER("ANNIEMUSIC").info("✅ Bot commands registered.")
+        else:
+            LOGGER("ANNIEMUSIC").warning(f"⚠️  setMyCommands error: {data.get('description')}")
+    except Exception as e:
+        LOGGER("ANNIEMUSIC").warning(f"⚠️  Could not set bot commands: {e}")
+
+
 async def _set_menu_button():
     """Set the bot menu button via Bot API (works with all pyrogram versions)."""
-    if not WEB_URL:
-        LOGGER("ANNIEMUSIC").info("⚙️  No WEB_URL detected — menu button not set.")
-        return
     try:
         url = f"https://api.telegram.org/bot{config.BOT_TOKEN}/setChatMenuButton"
-        payload = {
-            "menu_button": {
-                "type": "web_app",
-                "text": "ANNIE",
-                "web_app": {"url": WEB_URL},
+        if WEB_URL:
+            payload = {
+                "menu_button": {
+                    "type": "web_app",
+                    "text": "🎵 ANNIE",
+                    "web_app": {"url": WEB_URL},
+                }
             }
-        }
+            log_msg = f"✅ Menu button (WebApp) set → {WEB_URL}"
+        else:
+            payload = {
+                "menu_button": {
+                    "type": "commands",
+                }
+            }
+            log_msg = "✅ Menu button set to Commands list."
         resp = requests.post(url, json=payload, timeout=10)
         data = resp.json()
         if data.get("ok"):
-            LOGGER("ANNIEMUSIC").info(f"✅ Menu button set → {WEB_URL}")
+            LOGGER("ANNIEMUSIC").info(log_msg)
         else:
             LOGGER("ANNIEMUSIC").warning(f"⚠️  Menu button API error: {data.get('description')}")
     except Exception as e:
@@ -101,7 +135,8 @@ async def init():
 
     await app.start()
 
-    # ── Set the menu button (Mini App) ───────────────────────────
+    # ── Register bot commands + set menu button ───────────────────
+    await _set_bot_commands()
     await _set_menu_button()
 
     for all_module in ALL_MODULES:
