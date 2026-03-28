@@ -45,3 +45,6 @@ unidecode
 wget
 yt-dlp[default] @ git+https://github.com/yt-dlp/yt-dlp.git
 nudenet
+psutil
+pyrofork
+pyrogram
