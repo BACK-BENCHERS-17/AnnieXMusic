@@ -58,6 +58,33 @@ python -m ANNIEMUSIC
 - ffmpeg
 - libGL, libGLU, mesa (for OpenCV)
 
+## KHUSHI Folder (New Bot Package — March 2026)
+A brand-new, super-fast parallel bot package with new UI.
+
+### Structure
+```
+KHUSHI/
+├── __init__.py       # Imports ANNIEMUSIC's core (reuses app, JARVIS, platforms, DB)
+├── __main__.py       # Entry point — run with: python -m KHUSHI
+├── plugins/
+│   ├── start.py      # /kstart /khelp — new premium UI with blockquotes & emojis
+│   ├── ping.py       # /kping — super UI with progress bars
+│   ├── controls.py   # pause/resume/skip/stop/loop/shuffle/volume/247 — new UI
+│   ├── queue.py      # /queue — new premium queue card UI
+│   ├── broadcast.py  # /bc /broadcast — -nf -pin -pinloud -user flags
+│   └── sudo.py       # gban/ungban/block/unblock/maintenance/addsudo/delsudo
+├── web/
+│   └── index.html    # Copied from ANNIEMUSIC/utils/web/ + KHUSHI branding
+├── webserver.py      # Thin wrapper — serves KHUSHI/web/ using main webserver APIs
+└── assets/           # Copied from ANNIEMUSIC/assets/
+```
+
+### Key Features (New vs ANNIEMUSIC)
+- **New UI**: All messages use `<blockquote>`, premium emojis, progress bars
+- **Super Fast**: Fewer plugins, fewer imports, 64 workers
+- **Workflow**: "KHUSHI Bot" — `python -m KHUSHI`
+- **Web**: KHUSHI/web/index.html branded as "KHUSHI Music Player"
+
 ## Customizations (December 2025)
 - **Developer Branding**: Changed developer name to "⎯꯭̽ 𝚱 𝚮 𝐔 𝛅 𝚮 𝚰⥱" (PGL_B4CHI) everywhere
 - **Developer Link**: Updated all developer/support links to https://t.me/PGL_B4CHI

@@ -22,6 +22,10 @@ args = "AnnieMusic Bot"
 task = "workflow.run"
 args = "Annie Web UI"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "KHUSHI Bot"
+
 [[workflows.workflow]]
 name = "AnnieMusic Bot"
 author = "agent"
@@ -44,6 +48,17 @@ waitForPort = 5000
 
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow]]
+name = "KHUSHI Bot"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python -m KHUSHI"
+
+[workflows.workflow.metadata]
+outputType = "console"
 
 [userenv]
 
