@@ -16,38 +16,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "AnnieMusic Bot"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Annie Web UI"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "KHUSHI Bot"
-
-[[workflows.workflow]]
-name = "AnnieMusic Bot"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python -m ANNIEMUSIC"
-
-[workflows.workflow.metadata]
-outputType = "console"
-
-[[workflows.workflow]]
-name = "Annie Web UI"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python webserver.py"
-waitForPort = 5000
-
-[workflows.workflow.metadata]
-outputType = "webview"
 
 [[workflows.workflow]]
 name = "KHUSHI Bot"
