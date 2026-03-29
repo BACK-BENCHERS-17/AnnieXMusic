@@ -15,9 +15,6 @@ _BRAND = (
     "<emoji id='5213301251722203632'>🔤</emoji>"
     "<emoji id='5213337333742454261'>🔤</emoji>"
     "<emoji id='5211032856154885824'>🔤</emoji>"
-    "<emoji id='5213301251722203632'>🔤</emoji>"
-    "<emoji id='5213301251722203632'>🔤</emoji>"
-    "<emoji id='5213301251722203632'>🔤</emoji>"
 )
 
 START_TEXT = (
@@ -52,7 +49,7 @@ HELP_TEXT = (
 def _start_kb(_):
     return InlineKeyboardMarkup([
         [
-            InlineKeyboardButton("📖 ʜᴇʟᴘ", callback_data="khushi_help"),
+            InlineKeyboardButton("📖 ʜᴇʟᴘ", callback_data="annie_help"),
             InlineKeyboardButton("💬 ꜱᴜᴘᴘᴏʀᴛ", url=f"https://t.me/{SUPPORT_CHAT.lstrip('@')}"),
         ],
         [
@@ -84,18 +81,18 @@ async def khushi_help(_, message: Message):
     )
 
 
-@app.on_callback_query(filters.regex("khushi_help") & ~BANNED_USERS)
+@app.on_callback_query(filters.regex("annie_help") & ~BANNED_USERS)
 async def khushi_help_cb(_, query):
     await query.answer()
     await query.edit_message_text(
         f"<blockquote>{_BRAND}</blockquote>\n\n" + HELP_TEXT,
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data="khushi_back")]
+            [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data="annie_back")]
         ]),
     )
 
 
-@app.on_callback_query(filters.regex("khushi_back") & ~BANNED_USERS)
+@app.on_callback_query(filters.regex("annie_back") & ~BANNED_USERS)
 async def khushi_back_cb(_, query):
     await query.answer()
     try:
