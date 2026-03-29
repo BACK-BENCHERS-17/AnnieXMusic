@@ -1157,3 +1157,23 @@ pymongo.errors.ConfigurationError: The DNS query name does not exist: _mongodb._
 [29-Mar-26 20:33:24 - INFO] - KHUSHI -   KHUSHI Bot  |  Independent Core  
 [29-Mar-26 20:33:24 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 [29-Mar-26 20:33:27 - WARNING] - KHUSHI.core.bot - FloodWait: waiting 239s...
+[29-Mar-26 20:37:31 - INFO] - KHUSHI.core.bot - KHUSHI Bot started as Semex (@WordSeekUBot)
+[29-Mar-26 20:37:31 - INFO] - KHUSHI.core.bot - KHUSHI: No PFP — using default.
+[29-Mar-26 20:37:31 - INFO] - KHUSHI.core.call - Starting PyTgCalls Clients...
+[29-Mar-26 20:37:32 - INFO] - KHUSHI.core.call - Client 1 started successfully.
+[29-Mar-26 20:37:33 - INFO] - KHUSHI.core.userbot - KHUSHI Assistant 1 started as ㅤ-𐌁 Λ ᥴ Ҝ ㅤ𐌁 ꫀ 𐌽 𐌂 ͱ꧊፝֟ ꫀ ᰻⃪᱂ ร
+[29-Mar-26 20:37:33 - INFO] - KHUSHI.misc - KHUSHI: Sudo users loaded.
+[29-Mar-26 20:37:33 - INFO] - KHUSHI.misc - KHUSHI: Maintenance mode reset on startup.
+[29-Mar-26 20:37:33 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.broadcast
+[29-Mar-26 20:37:33 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.controls
+[29-Mar-26 20:37:33 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.ping
+[29-Mar-26 20:37:33 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.play
+[29-Mar-26 20:37:33 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.queue
+[29-Mar-26 20:37:33 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.start
+[29-Mar-26 20:37:33 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.stats
+[29-Mar-26 20:37:33 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.sudo
+[29-Mar-26 20:37:33 - INFO] - KHUSHI - KHUSHI: 8/8 plugins loaded.
+[29-Mar-26 20:37:33 - INFO] - KHUSHI - ✅ Bot commands registered.
+[29-Mar-26 20:37:34 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[29-Mar-26 20:37:34 - INFO] - KHUSHI -   KHUSHI is LIVE!
+[29-Mar-26 20:37:34 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

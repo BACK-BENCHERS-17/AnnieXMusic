@@ -2,7 +2,7 @@ from . import InlineKeyboardButton
 from pyrogram.types import InlineKeyboardMarkup
 from ANNIEMUSIC import app
 
-TOTAL_SECTIONS = 10
+TOTAL_SECTIONS = 11
 SKIP_SECTIONS = set()
 
 
@@ -63,6 +63,11 @@ def first_page(_):
             InlineKeyboardButton(
                 text=_["H_B_10"],
                 callback_data="help_callback hb10_p1",
+                style="primary",
+            ),
+            InlineKeyboardButton(
+                text=_["H_B_11"],
+                callback_data="help_callback hb11_p1",
                 style="primary",
             ),
         ],

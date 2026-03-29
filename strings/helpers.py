@@ -123,7 +123,6 @@ HELP_9 = _ANNIE + """
 <b>• /stats</b>      ↳ ꜰᴜʟʟ sʏsᴛᴇᴍ & ʙᴏᴛ sᴛᴀᴛɪsᴛɪᴄs
 <b>• /speedtest</b>  ↳ sᴇʀᴠᴇʀ sᴘᴇᴇᴅ ᴛᴇsᴛ
 <b>• /active</b>     ↳ sʜᴏᴡ ᴀᴄᴛɪᴠᴇ sᴛʀᴇᴀᴍɪɴɢ ᴄʜᴀᴛs
-<b>• /song</b> <code>[name]</code> ↳ ᴅᴏᴡɴʟᴏᴀᴅ sᴏɴɢ ᴀs ᴀᴜᴅɪᴏ ꜰɪʟᴇ
 </blockquote>
 
 <blockquote><emoji id="5039598514980520994">❤️‍🔥</emoji> ᴀʟʟ sᴛᴀᴛs ᴀʀᴇ ʀᴇᴀʟ-ᴛɪᴍᴇ ᴀɴᴅ ᴜᴘᴅᴀᴛᴇᴅ ʟɪᴠᴇ</blockquote>
@@ -141,4 +140,24 @@ HELP_10 = _ANNIE + """
 </blockquote>
 
 <blockquote><emoji id="5449449325434266744">❄️</emoji> ᴀʟʟ sᴇᴛᴛɪɴɢs ᴀʀᴇ ᴘᴇʀ-ɢʀᴏᴜᴘ ᴀɴᴅ sᴀᴠᴇᴅ ɪɴ ᴅᴀᴛᴀʙᴀsᴇ</blockquote>
+"""
+
+HELP_11 = _ANNIE + """
+<blockquote><b><emoji id="5310181805966167157">📥</emoji> ᴅᴏᴡɴʟᴏᴀᴅ</b></blockquote>
+
+<blockquote>
+<b>• /song</b> <code>[song name or YouTube URL]</code>
+   ↳ ᴅᴏᴡɴʟᴏᴀᴅ ᴀᴜᴅɪᴏ ᴏʀ ᴠɪᴅᴇᴏ ꜰɪʟᴇ ᴅɪʀᴇᴄᴛʟʏ ᴛᴏ ᴅᴍ
+
+<b>• /dl</b> <code>[name or URL]</code>
+   ↳ sᴀᴍᴇ ᴀs /sᴏɴɢ (sʜᴏʀᴛ ᴀʟɪᴀs)
+</blockquote>
+
+<blockquote><emoji id="5972072533833289156">🔹</emoji> <b>ǫᴜᴀʟɪᴛɪᴇs ᴀᴠᴀɪʟᴀʙʟᴇ:</b>
+• 🎵 ᴀᴜᴅɪᴏ 128ᴋ — ʟɪɢʜᴛ ᴀᴜᴅɪᴏ
+• 🎵 ᴀᴜᴅɪᴏ ʙᴇsᴛ — ʜɪɢʜᴇsᴛ ǫᴜᴀʟɪᴛʏ ᴀᴜᴅɪᴏ
+• 📹 ᴠɪᴅᴇᴏ 360ᴘ — sᴛᴀɴᴅᴀʀᴅ ᴠɪᴅᴇᴏ
+• 📹 ᴠɪᴅᴇᴏ 720ᴘ — ʜᴅ ᴠɪᴅᴇᴏ</blockquote>
+
+<blockquote><emoji id="5042334757040423886">⚡️</emoji> ᴡᴏʀᴋs ɪɴ ᴘʀɪᴠᴀᴛᴇ ᴄʜᴀᴛ ᴏɴʟʏ · 48 ᴍʙ ʟɪᴍɪᴛ · ʏᴏᴜᴛᴜʙᴇ ꜱᴜᴘᴘᴏʀᴛ</blockquote>
 """
