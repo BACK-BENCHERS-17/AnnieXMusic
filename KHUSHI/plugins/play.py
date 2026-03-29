@@ -53,9 +53,14 @@ def _close_kb():
 def _playing_kb(chat_id):
     return InlineKeyboardMarkup([
         [
-            InlineKeyboardButton("⏸˹ᴘᴀᴜꜱᴇ˼", callback_data=f"Pause|||{chat_id}"),
-            InlineKeyboardButton("⏭˹ꜱᴋɪᴘ˼", callback_data=f"Skip|||{chat_id}"),
-            InlineKeyboardButton("⏹˹ꜱᴛᴏᴘ˼", callback_data=f"Stop|||{chat_id}"),
+            InlineKeyboardButton("▷", callback_data=f"ADMIN Resume|{chat_id}"),
+            InlineKeyboardButton("II", callback_data=f"ADMIN Pause|{chat_id}"),
+            InlineKeyboardButton("↻", callback_data=f"ADMIN Replay|{chat_id}"),
+            InlineKeyboardButton("‣‣I", callback_data=f"ADMIN Skip|{chat_id}"),
+            InlineKeyboardButton("▢", callback_data=f"ADMIN Stop|{chat_id}"),
+        ],
+        [
+            InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close"),
         ],
     ])
 
