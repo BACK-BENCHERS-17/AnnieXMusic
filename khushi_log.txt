@@ -514,3 +514,238 @@ pymongo.errors.ConfigurationError: The DNS query name does not exist: _mongodb._
 [29-Mar-26 19:45:04 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 [29-Mar-26 19:45:04 - INFO] - KHUSHI -   KHUSHI is LIVE!
 [29-Mar-26 19:45:04 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[29-Mar-26 19:48:11 - ERROR] - pyrogram.dispatcher - Unexpected exception raised in MessageHandler:
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/srv_resolver.py", line 108, in _resolve_uri
+    results = _resolve(
+              ^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/srv_resolver.py", line 53, in _resolve
+    return resolver.resolve(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/dns/resolver.py", line 1572, in resolve
+    return get_default_resolver().resolve(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/dns/resolver.py", line 1314, in resolve
+    (request, answer) = resolution.next_request()
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/dns/resolver.py", line 758, in next_request
+    raise NXDOMAIN(qnames=self.qnames_to_try, responses=self.nxdomain_responses)
+dns.resolver.NXDOMAIN: The DNS query name does not exist: _mongodb._tcp.cluster0.by6uncl.mongodb.net.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/dispatcher.py", line 383, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/home/runner/workspace/KHUSHI/plugins/stats.py", line 144, in stats_command
+    text = await _main_text()
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/KHUSHI/plugins/stats.py", line 77, in _main_text
+    served_chats = len(await get_served_chats())
+                       ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/ANNIEMUSIC/utils/database.py", line 499, in get_served_chats
+    async for chat in chatsdb.find({"chat_id": {"$lt": 0}}):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/motor/core.py", line 1425, in next
+    if self.alive and (self._buffer_size() or await self._get_more()):
+                                              ^^^^^^^^^^^^^^^^^^^^^^
+  File "/nix/store/iizfzmqjdfvbyx82gqw92glb5zl6m4my-python3-3.12.12/lib/python3.12/concurrent/futures/thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/cursor.py", line 1213, in _refresh
+    self._send_message(q)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/cursor.py", line 1108, in _send_message
+    response = client._run_operation(
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/mongo_client.py", line 1938, in _run_operation
+    return self._retryable_read(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/mongo_client.py", line 2048, in _retryable_read
+    return self._retry_internal(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/mongo_client.py", line 2763, in run
+    return self._read() if self._is_read else self._write()
+           ^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/mongo_client.py", line 2908, in _read
+    self._server = self._get_server()
+                   ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/mongo_client.py", line 2856, in _get_server
+    return self._client._select_server(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/mongo_client.py", line 1820, in _select_server
+    topology = self._get_topology()
+               ^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/mongo_client.py", line 1758, in _get_topology
+    self._resolve_srv()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/mongo_client.py", line 910, in _resolve_srv
+    res = uri_parser._parse_srv(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/uri_parser.py", line 168, in _parse_srv
+    nodes = dns_resolver.get_hosts()
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/srv_resolver.py", line 148, in get_hosts
+    _, nodes = self._get_srv_response_and_hosts(True)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/srv_resolver.py", line 122, in _get_srv_response_and_hosts
+    results = self._resolve_uri(encapsulate_errors)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/srv_resolver.py", line 116, in _resolve_uri
+    raise ConfigurationError(str(exc)) from exc
+pymongo.errors.ConfigurationError: The DNS query name does not exist: _mongodb._tcp.cluster0.by6uncl.mongodb.net.
+[29-Mar-26 19:50:38 - ERROR] - pyrogram.dispatcher - Unexpected exception raised in MessageHandler:
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/srv_resolver.py", line 108, in _resolve_uri
+    results = _resolve(
+              ^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/srv_resolver.py", line 53, in _resolve
+    return resolver.resolve(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/dns/resolver.py", line 1572, in resolve
+    return get_default_resolver().resolve(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/dns/resolver.py", line 1314, in resolve
+    (request, answer) = resolution.next_request()
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/dns/resolver.py", line 758, in next_request
+    raise NXDOMAIN(qnames=self.qnames_to_try, responses=self.nxdomain_responses)
+dns.resolver.NXDOMAIN: The DNS query name does not exist: _mongodb._tcp.cluster0.by6uncl.mongodb.net.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/dispatcher.py", line 383, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/home/runner/workspace/ANNIEMUSIC/utils/decorators/admins.py", line 24, in wrapper
+    if await is_maintenance():
+       ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/ANNIEMUSIC/utils/database.py", line 442, in is_maintenance
+    get = await onoffdb.find_one({"on_off": 1})
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nix/store/iizfzmqjdfvbyx82gqw92glb5zl6m4my-python3-3.12.12/lib/python3.12/concurrent/futures/thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/collection.py", line 1755, in find_one
+    for result in cursor.limit(-1):
+                  ^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/cursor.py", line 1289, in __next__
+    return self.next()
+           ^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/cursor.py", line 1265, in next
+    if len(self._data) or self._refresh():
+                          ^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/cursor.py", line 1213, in _refresh
+    self._send_message(q)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/cursor.py", line 1108, in _send_message
+    response = client._run_operation(
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/mongo_client.py", line 1938, in _run_operation
+    return self._retryable_read(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/mongo_client.py", line 2048, in _retryable_read
+    return self._retry_internal(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/mongo_client.py", line 2763, in run
+    return self._read() if self._is_read else self._write()
+           ^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/mongo_client.py", line 2908, in _read
+    self._server = self._get_server()
+                   ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/mongo_client.py", line 2856, in _get_server
+    return self._client._select_server(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/mongo_client.py", line 1820, in _select_server
+    topology = self._get_topology()
+               ^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/mongo_client.py", line 1758, in _get_topology
+    self._resolve_srv()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/mongo_client.py", line 910, in _resolve_srv
+    res = uri_parser._parse_srv(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/uri_parser.py", line 168, in _parse_srv
+    nodes = dns_resolver.get_hosts()
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/srv_resolver.py", line 148, in get_hosts
+    _, nodes = self._get_srv_response_and_hosts(True)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/srv_resolver.py", line 122, in _get_srv_response_and_hosts
+    results = self._resolve_uri(encapsulate_errors)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pymongo/synchronous/srv_resolver.py", line 116, in _resolve_uri
+    raise ConfigurationError(str(exc)) from exc
+pymongo.errors.ConfigurationError: The DNS query name does not exist: _mongodb._tcp.cluster0.by6uncl.mongodb.net.
+[29-Mar-26 19:51:05 - INFO] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] Racing 8 clients for hHuG7FIKgtc | order: ['android_vr', 'ios', 'android', 'mweb']
+[29-Mar-26 19:51:11 - WARNING] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] All yt-dlp clients failed for hHuG7FIKgtc → Invidious
+[29-Mar-26 19:51:11 - WARNING] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] All yt-dlp clients failed download for hHuG7FIKgtc → Invidious
+[29-Mar-26 19:51:27 - ERROR] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] ALL download methods failed for hHuG7FIKgtc
+[29-Mar-26 19:51:32 - ERROR] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] ALL extract methods failed for hHuG7FIKgtc
+[29-Mar-26 19:51:32 - WARNING] - ANNIEMUSIC.utils.downloader - [FAST] All URL methods failed for hHuG7FIKgtc, falling back to full download
+[29-Mar-26 19:51:32 - INFO] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] Racing 8 clients for hHuG7FIKgtc | order: ['android_vr', 'ios', 'android', 'mweb']
+[29-Mar-26 19:51:38 - WARNING] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] All yt-dlp clients failed for hHuG7FIKgtc → Invidious
+[29-Mar-26 19:51:38 - WARNING] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] All yt-dlp clients failed download for hHuG7FIKgtc → Invidious
+[29-Mar-26 19:51:52 - ERROR] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] ALL extract methods failed for hHuG7FIKgtc
+[29-Mar-26 19:51:57 - ERROR] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] ALL download methods failed for hHuG7FIKgtc
+[29-Mar-26 19:51:57 - ERROR] - ANNIEMUSIC.utils.downloader - [DL] All methods failed for hHuG7FIKgtc
+[29-Mar-26 19:51:57 - ERROR] - ANNIEMUSIC.errors - [join_call] AssistantErr: No assistant accounts are active. Please add at least one session string (STRING1–STRING5) to use voice chat features.
+Traceback (most recent call last):
+  File "/home/runner/workspace/ANNIEMUSIC/utils/errors.py", line 136, in wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/KHUSHI/core/call.py", line 376, in join_call
+    assistant = await group_assistant(self, chat_id)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/ANNIEMUSIC/utils/database.py", line 136, in group_assistant
+    raise AssistantErr(
+ANNIEMUSIC.utils.exceptions.AssistantErr: No assistant accounts are active. Please add at least one session string (STRING1–STRING5) to use voice chat features.
+
+[29-Mar-26 19:53:53 - INFO] - KHUSHI.core.mongo - KHUSHI: Connecting to MongoDB...
+[29-Mar-26 19:53:53 - INFO] - KHUSHI.core.mongo - KHUSHI: MongoDB connected. (DB: Annie)
+[29-Mar-26 19:53:53 - INFO] - ANNIEMUSIC.core.mongo - Connecting to your Mongo Database...
+[29-Mar-26 19:53:53 - INFO] - ANNIEMUSIC.core.mongo - Connected to your Mongo Database. (DB: Annie)
+[29-Mar-26 19:53:53 - INFO] - ANNIEMUSIC.core.dir - Directories Updated.
+[29-Mar-26 19:53:53 - INFO] - ANNIEMUSIC.core.git - Git Client Found [VPS DEPLOYER]
+[29-Mar-26 19:53:53 - INFO] - ANNIEMUSIC.core.git - Successfully updated from upstream repository.
+[29-Mar-26 19:53:53 - INFO] - ANNIEMUSIC.misc - ᴅᴀᴛᴀʙᴀsᴇ ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ💗
+[29-Mar-26 19:53:53 - INFO] - ANNIEMUSIC.core.bot - Bot client initialized.
+[29-Mar-26 19:53:54 - WARNING] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] Node.js NOT found — web_safari client may fail, android_vr will still work
+[29-Mar-26 19:53:54 - INFO] - KHUSHI.core.bot - KHUSHI Bot client initialized.
+[29-Mar-26 19:53:54 - INFO] - KHUSHI.misc - KHUSHI: In-memory DB initialized.
+[29-Mar-26 19:53:54 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[29-Mar-26 19:53:54 - INFO] - KHUSHI -   KHUSHI Bot  |  Independent Core  
+[29-Mar-26 19:53:54 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[29-Mar-26 19:53:54 - WARNING] - KHUSHI - Could not load banned users from DB (bot will still start): The DNS query name does not exist: _mongodb._tcp.cluster0.by6uncl.mongodb.net.
+[29-Mar-26 19:53:59 - INFO] - KHUSHI.core.bot - KHUSHI Bot started as Semex (@WordSeekUBot)
+[29-Mar-26 19:53:59 - INFO] - KHUSHI.core.bot - KHUSHI: No PFP — using default.
+[29-Mar-26 19:53:59 - INFO] - KHUSHI.core.call - Starting PyTgCalls Clients...
+[29-Mar-26 19:54:01 - INFO] - KHUSHI.core.call - Client 1 started successfully.
+[29-Mar-26 19:54:01 - INFO] - KHUSHI.core.userbot - KHUSHI Assistant 1 started as ㅤ-𐌁 Λ ᥴ Ҝ ㅤ𐌁 ꫀ 𐌽 𐌂 ͱ꧊፝֟ ꫀ ᰻⃪᱂ ร
+[29-Mar-26 19:54:01 - WARNING] - KHUSHI - Could not load sudo users from DB (bot will still start): The DNS query name does not exist: _mongodb._tcp.cluster0.by6uncl.mongodb.net.
+[29-Mar-26 19:54:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.broadcast
+[29-Mar-26 19:54:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.controls
+[29-Mar-26 19:54:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.ping
+[29-Mar-26 19:54:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.play
+[29-Mar-26 19:54:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.queue
+[29-Mar-26 19:54:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.start
+[29-Mar-26 19:54:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.stats
+[29-Mar-26 19:54:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.sudo
+[29-Mar-26 19:54:01 - INFO] - KHUSHI - KHUSHI: 8/8 plugins loaded.
+[29-Mar-26 19:54:02 - INFO] - KHUSHI - ✅ Bot commands registered.
+[29-Mar-26 19:54:03 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[29-Mar-26 19:54:03 - INFO] - KHUSHI -   KHUSHI is LIVE!
+[29-Mar-26 19:54:03 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

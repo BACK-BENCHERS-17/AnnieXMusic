@@ -1,27 +1,30 @@
-"""KHUSHI — Play Plugin: /play and /vplay commands."""
+"""KHUSHI — Play Plugin: direct VC stream, same notification as AnnieMusic."""
 
 import asyncio
-from datetime import datetime
 
 from pyrogram import filters
-from pyrogram.errors import FloodWait
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
+from strings import get_string
 from KHUSHI import YouTube, app
 from KHUSHI.core.call import JARVIS
 from KHUSHI.misc import SUDOERS, db
 from ANNIEMUSIC.utils.database import (
-    add_active_chat,
-    get_assistant,
     get_lang,
-    get_playmode,
+    get_playtype,
     is_active_chat,
+    is_autoplay,
     is_maintenance,
 )
 from ANNIEMUSIC.utils.decorators import AdminRightsCheck
 from ANNIEMUSIC.utils.downloader import _trigger_bg_cache
+from ANNIEMUSIC.utils.inline import aq_markup, stream_markup
 from ANNIEMUSIC.utils.raw_send import send_msg_invert_preview
+from ANNIEMUSIC.utils.stream.queue import put_queue
+from ANNIEMUSIC.utils.thumbnails import get_thumb
 from config import BANNED_USERS, BOT_USERNAME, DURATION_LIMIT, SUPPORT_CHAT, adminlist
+
+THUMB_OFF_VIDEO_URL = "https://files.catbox.moe/4vr2jc.mp4"
 
 _BRAND = (
     "<emoji id='5042192219960771668'>🧸</emoji>"
@@ -33,67 +36,22 @@ _BRAND = (
 )
 
 _EM = {
-    "music":  "<emoji id='5463107823946717464'>🎵</emoji>",
-    "video":  "<emoji id='5375464961822695044'>🎬</emoji>",
-    "zap":    "<emoji id='5042334757040423886'>⚡️</emoji>",
-    "dot":    "<emoji id='5972072533833289156'>🔹</emoji>",
-    "fire":   "<emoji id='5039598514980520994'>❤️‍🔥</emoji>",
-    "clock":  "<emoji id='5123230779593196220'>⏰</emoji>",
-    "user":   "<emoji id='5316992572680320646'>👤</emoji>",
-    "queue":  "<emoji id='5462956611033117422'>📀</emoji>",
+    "music": "<emoji id='5463107823946717464'>🎵</emoji>",
+    "video": "<emoji id='5375464961822695044'>🎬</emoji>",
+    "zap":   "<emoji id='5042334757040423886'>⚡️</emoji>",
+    "dot":   "<emoji id='5972072533833289156'>🔹</emoji>",
 }
 
-THUMB_OFF_VIDEO_URL = "https://files.catbox.moe/4vr2jc.mp4"
 
-
-def _close_kb():
-    return InlineKeyboardMarkup([[
-        InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close")
-    ]])
-
-
-def _playing_kb(chat_id):
-    return InlineKeyboardMarkup([
-        [
-            InlineKeyboardButton("▷", callback_data=f"ADMIN Resume|{chat_id}"),
-            InlineKeyboardButton("II", callback_data=f"ADMIN Pause|{chat_id}"),
-            InlineKeyboardButton("↻", callback_data=f"ADMIN Replay|{chat_id}"),
-            InlineKeyboardButton("‣‣I", callback_data=f"ADMIN Skip|{chat_id}"),
-            InlineKeyboardButton("▢", callback_data=f"ADMIN Stop|{chat_id}"),
-        ],
-        [
-            InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close"),
-        ],
-    ])
-
-
-def _queued_kb():
-    return InlineKeyboardMarkup([[
-        InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close")
-    ]])
-
-
-def _stream_notification(title, duration, user_mention, vidid, chat_id, mode="queued"):
-    """Returns the stream notification text (invert_media preview style)."""
-    bot = BOT_USERNAME.lstrip("@")
-    title_display = title.title()[:35]
-    if len(title.title()) > 35:
-        title_display += "…"
-    link = f"https://t.me/{bot}?start=info_{vidid}"
-
-    if mode == "playing":
-        return (
-            f"<blockquote><b><a href='{link}'>{title_display}</a></b>"
-            f" | <code>{duration}</code></blockquote>\n"
-            f"<blockquote>{_EM['user']} {user_mention}</blockquote>"
-        )
-    else:
-        return (
-            f"<blockquote>{_EM['queue']} <b>ᴀᴅᴅᴇᴅ ᴛᴏ ǫᴜᴇᴜᴇ</b></blockquote>\n"
-            f"<blockquote><b><a href='{link}'>{title_display}</a></b>"
-            f" | <code>{duration}</code></blockquote>\n"
-            f"<blockquote>{_EM['user']} {user_mention}</blockquote>"
-        )
+async def _send_stream_msg(chat_id: int, caption: str, reply_markup) -> object:
+    """Send stream notification — same mechanism as AnnieMusic (invert_media banner)."""
+    link_text = f'<a href="{THUMB_OFF_VIDEO_URL}">&#8203;</a>'
+    return await send_msg_invert_preview(
+        app,
+        chat_id,
+        text=f"{link_text}{caption}",
+        reply_markup=reply_markup,
+    )
 
 
 async def _check_maintenance(message: Message) -> bool:
@@ -103,8 +61,8 @@ async def _check_maintenance(message: Message) -> bool:
                 await message.reply_text(
                     f"<blockquote>{_BRAND}</blockquote>\n\n"
                     f"<blockquote>{_EM['zap']} <b>ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ ᴍᴏᴅᴇ</b>\n"
-                    f"{_EM['dot']} ʙᴏᴛ ɪꜱ ᴜɴᴅᴇʀ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ.\n"
-                    f"{_EM['dot']} ᴠɪꜱɪᴛ <a href='https://t.me/{SUPPORT_CHAT.lstrip('@')}'>ꜱᴜᴘᴘᴏʀᴛ</a> ᴄʜᴀᴛ.</blockquote>",
+                    f"{_EM['dot']} ᴠɪꜱɪᴛ "
+                    f"<a href='https://t.me/{SUPPORT_CHAT.lstrip('@')}'>ꜱᴜᴘᴘᴏʀᴛ</a>.</blockquote>",
                     disable_web_page_preview=True,
                 )
                 return True
@@ -115,7 +73,6 @@ async def _check_maintenance(message: Message) -> bool:
 
 async def _check_playtype(message: Message, chat_id: int) -> bool:
     try:
-        from ANNIEMUSIC.utils.database import get_playtype
         playty = await get_playtype(chat_id)
         if playty != "Everyone":
             if message.from_user.id not in SUDOERS:
@@ -131,44 +88,6 @@ async def _check_playtype(message: Message, chat_id: int) -> bool:
     return False
 
 
-def _put_to_db(chat_id, original_chat_id, file, title, duration, user, vidid, user_id, streamtype, forceplay=False):
-    from config import time_to_seconds, autoclean
-    try:
-        secs = time_to_seconds(duration) - 3
-    except Exception:
-        secs = 0
-
-    entry = {
-        "title":      title.title(),
-        "dur":        duration,
-        "streamtype": streamtype,
-        "by":         user,
-        "user_id":    user_id,
-        "chat_id":    original_chat_id,
-        "file":       file,
-        "vidid":      vidid,
-        "seconds":    secs,
-        "played":     0,
-    }
-
-    if forceplay:
-        q = db.get(chat_id)
-        if q:
-            q.insert(0, entry)
-        else:
-            db[chat_id] = [entry]
-    else:
-        if chat_id not in db:
-            db[chat_id] = []
-        db[chat_id].append(entry)
-
-    try:
-        if hasattr(file, "startswith") and not file.startswith(("live_", "vid_", "index_")):
-            autoclean.append(file)
-    except Exception:
-        pass
-
-
 async def _handle_play(message: Message, video: bool = False):
     chat_id = message.chat.id
     user = message.from_user
@@ -180,6 +99,9 @@ async def _handle_play(message: Message, video: bool = False):
     if await _check_playtype(message, chat_id):
         return
 
+    lang = await get_lang(chat_id)
+    _ = get_string(lang)
+
     # Detect file reply
     tg_audio = None
     tg_video = None
@@ -188,10 +110,8 @@ async def _handle_play(message: Message, video: bool = False):
         tg_audio = r.audio or r.voice
         tg_video = r.video or r.document if video else None
 
-    # Get URL/query from message
     url = await YouTube.url(message)
 
-    # Check if we have something to play
     if tg_audio is None and tg_video is None and url is None:
         if len(message.command) < 2:
             await message.reply_text(
@@ -202,7 +122,7 @@ async def _handle_play(message: Message, video: bool = False):
             )
             return
 
-    # Handle Telegram audio/video file
+    # ── Telegram file ──────────────────────────────────────────────────────────
     if tg_audio or tg_video:
         file_obj = tg_audio or tg_video
         fname = getattr(file_obj, "file_name", None) or "Telegram File"
@@ -214,21 +134,52 @@ async def _handle_play(message: Message, video: bool = False):
             duration = f"{h:02d}:{m:02d}:{s:02d}" if h else f"{m:02d}:{s:02d}"
 
         try:
-            file_path = await app.download_media(file_obj.file_id, file_name=f"downloads/tg_{file_obj.file_id}.file")
+            file_path = await app.download_media(
+                file_obj.file_id,
+                file_name=f"downloads/tg_{file_obj.file_id}.file",
+            )
         except Exception as e:
             return await message.reply_text(
                 f"<blockquote>{_BRAND}</blockquote>\n\n"
                 f"<blockquote>❌ ᴅᴏᴡɴʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ: {type(e).__name__}</blockquote>"
             )
 
-        already_active = await is_active_chat(chat_id)
-        _put_to_db(chat_id, chat_id, file_path, title, duration, user_name, "telegram", user_id,
-                   "video" if (video or tg_video) else "audio")
-        mode = "queued" if already_active else "playing"
-        return await _start_or_queue(message, chat_id, "telegram", title, duration, user_name, mode, video or bool(tg_video))
+        is_video_type = video or bool(tg_video)
+        streamtype = "video" if is_video_type else "audio"
 
-    # Handle YouTube URL or search
-    query = url if url else message.text.split(None, 1)[1] if len(message.command) > 1 else None
+        if await is_active_chat(chat_id):
+            await put_queue(
+                chat_id, chat_id, file_path, title, duration,
+                user_name, "telegram", user_id, streamtype,
+            )
+            position = len(db.get(chat_id)) - 1
+            btn = aq_markup(_, chat_id)
+            await app.send_message(
+                chat_id=chat_id,
+                text=_["queue_4"].format(position, title[:27], duration, user_name),
+                reply_markup=InlineKeyboardMarkup(btn),
+            )
+        else:
+            db[chat_id] = []
+            await JARVIS.join_call(chat_id, chat_id, file_path, video=is_video_type)
+            await put_queue(
+                chat_id, chat_id, file_path, title, duration,
+                user_name, "telegram", user_id, streamtype,
+            )
+            button = stream_markup(_, chat_id)
+            caption = _["stream_1"].format(
+                SUPPORT_CHAT, title[:23], duration, user_name
+            )
+            run = await _send_stream_msg(chat_id, caption, InlineKeyboardMarkup(button))
+            if db.get(chat_id):
+                db[chat_id][0]["mystic"] = run
+                db[chat_id][0]["markup"] = "tg"
+        return
+
+    # ── YouTube URL or search query ────────────────────────────────────────────
+    query = url if url else (
+        message.text.split(None, 1)[1] if len(message.command) > 1 else None
+    )
 
     if not query:
         return await message.reply_text(
@@ -236,26 +187,58 @@ async def _handle_play(message: Message, video: bool = False):
             f"<blockquote>❌ ɴᴏ ǫᴜᴇʀʏ ᴘʀᴏᴠɪᴅᴇᴅ.</blockquote>"
         )
 
-    # Check if it's a YouTube live stream
+    # ── Live stream check ──────────────────────────────────────────────────────
     if "youtube.com" in query or "youtu.be" in query:
         try:
-            is_live = await YouTube.check_live(query)
-            if is_live:
-                vidid = YouTube.ytid(query) if hasattr(YouTube, "ytid") else query.split("v=")[-1].split("&")[0]
-                title, duration_min, duration_sec, thumbnail, vidid2 = await YouTube.details(vidid, videoid=True)
+            if await YouTube.check_live(query):
+                vidid = query.split("v=")[-1].split("&")[0].split("/")[-1]
+                title, duration_min, _, thumbnail, vidid2 = await YouTube.details(vidid, videoid=True)
                 if vidid2:
                     vidid = vidid2
-                _put_to_db(chat_id, chat_id, f"live_{vidid}", title, "Live", user_name, vidid, user_id,
-                           "video" if video else "audio")
-                already_active = await is_active_chat(chat_id)
-                mode = "queued" if already_active else "playing"
-                return await _start_or_queue(message, chat_id, vidid, title, "LIVE", user_name, mode, video)
+
+                if await is_active_chat(chat_id):
+                    await put_queue(
+                        chat_id, chat_id, f"live_{vidid}", title, "Live",
+                        user_name, vidid, user_id, "video" if video else "audio",
+                    )
+                    position = len(db.get(chat_id)) - 1
+                    btn = aq_markup(_, chat_id)
+                    await app.send_message(
+                        chat_id=chat_id,
+                        text=_["queue_4"].format(position, title[:27], "Live", user_name),
+                        reply_markup=InlineKeyboardMarkup(btn),
+                    )
+                else:
+                    db[chat_id] = []
+                    n, link = await YouTube.video(query)
+                    if n == 0 or not link:
+                        return await message.reply_text(
+                            f"<blockquote>{_BRAND}</blockquote>\n\n"
+                            f"<blockquote>❌ ᴄᴀɴɴᴏᴛ ꜰᴇᴛᴄʜ ʟɪᴠᴇ ꜱᴛʀᴇᴀᴍ.</blockquote>"
+                        )
+                    await JARVIS.join_call(chat_id, chat_id, link, video=video)
+                    await put_queue(
+                        chat_id, chat_id, f"live_{vidid}", title, "Live",
+                        user_name, vidid, user_id, "video" if video else "audio",
+                    )
+                    button = stream_markup(_, chat_id)
+                    caption = _["stream_1"].format(
+                        f"https://t.me/{BOT_USERNAME.lstrip('@')}?start=info_{vidid}",
+                        title[:23], "Live", user_name,
+                    )
+                    run = await _send_stream_msg(chat_id, caption, InlineKeyboardMarkup(button))
+                    if db.get(chat_id):
+                        db[chat_id][0]["mystic"] = run
+                        db[chat_id][0]["markup"] = "tg"
+                return
         except Exception:
             pass
 
-    # Search/details — silently get top result
+    # ── Normal YouTube search/URL ──────────────────────────────────────────────
     try:
-        title, duration_min, duration_sec, thumbnail, vidid = await YouTube.details(query, videoid=False)
+        title, duration_min, duration_sec, thumbnail, vidid = await YouTube.details(
+            query, videoid=False
+        )
     except Exception as e:
         return await message.reply_text(
             f"<blockquote>{_BRAND}</blockquote>\n\n"
@@ -272,72 +255,66 @@ async def _handle_play(message: Message, video: bool = False):
         return await message.reply_text(
             f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>❌ ᴛʀᴀᴄᴋ ɪꜱ ᴛᴏᴏ ʟᴏɴɢ.\n"
-            f"{_EM['dot']} ᴍᴀx ᴅᴜʀᴀᴛɪᴏɴ: <code>{DURATION_LIMIT // 60} ᴍɪɴᴜᴛᴇꜱ</code></blockquote>"
+            f"{_EM['dot']} ᴍᴀx: <code>{DURATION_LIMIT // 60} ᴍɪɴᴜᴛᴇꜱ</code></blockquote>"
         )
 
-    # Pre-warm the CDN URL cache immediately after we have the vidid
+    # Pre-warm CDN URL cache as soon as we have the vidid
     asyncio.create_task(_trigger_bg_cache(vidid))
 
-    already_active = await is_active_chat(chat_id)
-
-    if already_active:
-        _put_to_db(chat_id, chat_id, f"vid_{vidid}", title, duration_min, user_name, vidid, user_id,
-                   "video" if video else "audio")
-        return await _start_or_queue(message, chat_id, vidid, title, duration_min, user_name, "queued", video)
-
-    # First track — download and play
+    # ── Download ───────────────────────────────────────────────────────────────
     try:
-        file_path, direct = await YouTube.download(vidid, None, videoid=True, video=video)
+        file_path, direct = await YouTube.download(
+            vidid, None, videoid=True, video=video
+        )
     except Exception as e:
         return await message.reply_text(
             f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>❌ ᴅᴏᴡɴʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ.\n{_EM['dot']} {type(e).__name__}</blockquote>"
         )
 
-    _put_to_db(chat_id, chat_id, file_path, title, duration_min, user_name, vidid, user_id,
-               "video" if video else "audio")
-    await _start_or_queue(message, chat_id, vidid, title, duration_min, user_name, "playing", video)
+    if not file_path:
+        return await message.reply_text(
+            f"<blockquote>{_BRAND}</blockquote>\n\n"
+            f"<blockquote>❌ ᴅᴏᴡɴʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ — ᴛʀʏ ᴀɢᴀɪɴ.</blockquote>"
+        )
 
+    streamtype = "video" if video else "audio"
+    stored_file = file_path if direct else f"vid_{vidid}"
+    title_t = title.title()
 
-async def _start_or_queue(message: Message, chat_id, vidid, title, duration, user_mention, mode, video):
-    if mode == "queued":
-        text = _stream_notification(title, duration, user_mention, vidid, chat_id, mode="queued")
-        try:
-            await send_msg_invert_preview(
-                app, chat_id, text, reply_markup=_queued_kb()
-            )
-        except Exception:
-            try:
-                await message.reply_text(text, reply_markup=_queued_kb())
-            except Exception:
-                pass
-        return
-
-    # Playing — join the voice chat
-    try:
-        q = db.get(chat_id)
-        if not q:
-            return
-        link = q[0]["file"]
-        await JARVIS.join_call(chat_id, chat_id, link, video=video)
-        text = _stream_notification(title, duration, user_mention, vidid, chat_id, mode="playing")
-        try:
-            await send_msg_invert_preview(
-                app, chat_id, text, reply_markup=_playing_kb(chat_id)
-            )
-        except Exception:
-            try:
-                await message.reply_text(text, reply_markup=_playing_kb(chat_id))
-            except Exception:
-                pass
-    except Exception as e:
-        try:
-            await message.reply_text(
-                f"<blockquote>{_BRAND}</blockquote>\n\n"
-                f"<blockquote>❌ ᴄᴀɴɴᴏᴛ ᴊᴏɪɴ ᴠᴏɪᴄᴇ ᴄʜᴀᴛ.\n{_EM['dot']} {str(e)[:100]}</blockquote>"
-            )
-        except Exception:
-            pass
+    # ── Queue or Play ──────────────────────────────────────────────────────────
+    if await is_active_chat(chat_id):
+        await put_queue(
+            chat_id, chat_id, stored_file, title_t, duration_min,
+            user_name, vidid, user_id, streamtype,
+        )
+        position = len(db.get(chat_id)) - 1
+        btn = aq_markup(_, chat_id)
+        await app.send_message(
+            chat_id=chat_id,
+            text=_["queue_4"].format(position, title_t[:27], duration_min, user_name),
+            reply_markup=InlineKeyboardMarkup(btn),
+        )
+    else:
+        db[chat_id] = []
+        await JARVIS.join_call(
+            chat_id, chat_id, file_path, video=video, image=thumbnail
+        )
+        await put_queue(
+            chat_id, chat_id, stored_file, title_t, duration_min,
+            user_name, vidid, user_id, streamtype,
+        )
+        button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
+        caption = _["stream_1"].format(
+            f"https://t.me/{BOT_USERNAME.lstrip('@')}?start=info_{vidid}",
+            title_t[:23],
+            duration_min,
+            user_name,
+        )
+        run = await _send_stream_msg(chat_id, caption, InlineKeyboardMarkup(button))
+        if db.get(chat_id):
+            db[chat_id][0]["mystic"] = run
+            db[chat_id][0]["markup"] = "stream"
 
 
 # ── PLAY COMMAND ──────────────────────────────────────────────────────────────
