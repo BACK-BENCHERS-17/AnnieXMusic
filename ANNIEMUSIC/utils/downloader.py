@@ -424,14 +424,13 @@ async def fast_get_stream(vid: str) -> Optional[str]:
 
     Priority:
       1. Cached local file           → instant (0 ms)
-      2. Webserver cached CDN URL    → near-instant (~10 ms, hits internal cache)
-      3. Fresh SmartYTDL URL extract → ~2-5 s (jsless android_vr client)
-         → returns CDN URL immediately, kicks off background file download
-      4. Full local download fallback → slow (~15-30 s), only if URL extract fails
+      2. Webserver cache + SmartYTDL extraction run IN PARALLEL:
+         - Webserver hits  → returns immediately (~10 ms)
+         - Webserver miss  → SmartYTDL extraction already running → returns in 2-5 s
+      3. Full local download fallback → only if extraction fails completely
 
-    NTgCalls / pytgcalls can stream from remote HTTP URLs via ffmpeg, so returning
-    a CDN URL instead of a local file still plays instantly in VC.
-    Background download caches the file for the NEXT play of the same song.
+    Running steps 2a and 2b in parallel eliminates the 10-50 ms wasted waiting
+    for the webserver "cache miss" reply before starting extraction.
     """
     cached = file_exists(vid)
     if cached:
@@ -439,32 +438,57 @@ async def fast_get_stream(vid: str) -> Optional[str]:
 
     loop = asyncio.get_running_loop()
 
-    # ── Step 2: Check webserver URL cache (near-instant) ────────────────────
-    try:
-        result = await api_get_stream_url(vid)
-        if result:
-            cdn_url, ext = result
-            LOGGER(__name__).info(f"[FAST] Webserver cache hit for {vid}, streaming from CDN URL")
-            asyncio.create_task(_trigger_bg_cache(vid))
-            return cdn_url
-    except Exception as e:
-        LOGGER(__name__).debug(f"[FAST] Webserver URL cache miss for {vid}: {e}")
+    async def _webserver_check():
+        try:
+            result = await api_get_stream_url(vid)
+            if result:
+                cdn_url, ext = result
+                LOGGER(__name__).info(f"[FAST] Webserver cache hit for {vid}")
+                return cdn_url
+        except Exception as e:
+            LOGGER(__name__).debug(f"[FAST] Webserver URL cache miss for {vid}: {e}")
+        return None
 
-    # ── Step 3: Fresh URL extraction (~2-5 s with android_vr jsless client) ─
-    try:
-        info = await loop.run_in_executor(None, smart_extract_url, vid)
-        if info and info.get("url"):
-            LOGGER(__name__).info(
-                f"[FAST] Got fresh CDN URL for {vid} via {info.get('client', '?')}, "
-                f"streaming directly — bg download started"
-            )
-            asyncio.create_task(_trigger_bg_cache(vid))
-            return info["url"]
-    except Exception as e:
-        LOGGER(__name__).debug(f"[FAST] URL extraction failed for {vid}: {e}")
+    async def _extract():
+        try:
+            info = await loop.run_in_executor(None, smart_extract_url, vid)
+            if info and info.get("url"):
+                LOGGER(__name__).info(
+                    f"[FAST] SmartYTDL extracted URL for {vid} via {info.get('client', '?')}"
+                )
+                return info["url"]
+        except Exception as e:
+            LOGGER(__name__).debug(f"[FAST] URL extraction failed for {vid}: {e}")
+        return None
 
-    # ── Step 4: Full download fallback (slow) ────────────────────────────────
-    LOGGER(__name__).warning(f"[FAST] CDN URL unavailable for {vid}, falling back to full download")
+    # Race webserver cache check vs fresh extraction — both start at t=0.
+    # First non-None result wins. If webserver hits (~10 ms), extraction is cancelled.
+    # If webserver misses (~10-50 ms), extraction is already 50 ms into running.
+    tasks = [
+        asyncio.create_task(_webserver_check()),
+        asyncio.create_task(_extract()),
+    ]
+    url = None
+    for coro in asyncio.as_completed(tasks):
+        try:
+            result = await coro
+            if result:
+                url = result
+                break
+        except Exception:
+            pass
+
+    # Cancel any still-running tasks
+    for t in tasks:
+        if not t.done():
+            t.cancel()
+
+    if url:
+        asyncio.create_task(_trigger_bg_cache(vid))
+        return url
+
+    # ── Full download fallback (only if both extraction paths failed) ─────────
+    LOGGER(__name__).warning(f"[FAST] All URL methods failed for {vid}, falling back to full download")
     link_full = f"https://www.youtube.com/watch?v={vid}"
     path = await download_audio_concurrent(link_full)
     if path:
