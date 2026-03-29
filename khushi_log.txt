@@ -1,0 +1,15 @@
+[29-Mar-26 10:04:36 - INFO] - KHUSHI.core.mongo - KHUSHI: Connecting to MongoDB...
+[29-Mar-26 10:04:36 - INFO] - KHUSHI.core.mongo - KHUSHI: MongoDB connected. (DB: Annie)
+[29-Mar-26 10:04:36 - INFO] - ANNIEMUSIC.core.mongo - Connecting to your Mongo Database...
+[29-Mar-26 10:04:36 - INFO] - ANNIEMUSIC.core.mongo - Connected to your Mongo Database. (DB: Annie)
+[29-Mar-26 10:04:36 - INFO] - ANNIEMUSIC.core.dir - Directories Updated.
+[29-Mar-26 10:04:36 - INFO] - ANNIEMUSIC.core.git - Git Client Found [VPS DEPLOYER]
+[29-Mar-26 10:04:36 - INFO] - ANNIEMUSIC.core.git - Successfully updated from upstream repository.
+[29-Mar-26 10:04:36 - INFO] - ANNIEMUSIC.misc - ᴅᴀᴛᴀʙᴀsᴇ ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ💗
+[29-Mar-26 10:04:36 - INFO] - ANNIEMUSIC.core.bot - Bot client initialized.
+[29-Mar-26 10:04:38 - WARNING] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] Node.js NOT found — web_safari client may fail, android_vr will still work
+[29-Mar-26 10:04:38 - INFO] - KHUSHI.core.bot - KHUSHI Bot client initialized.
+[29-Mar-26 10:04:38 - INFO] - KHUSHI.misc - KHUSHI: In-memory DB initialized.
+[29-Mar-26 10:04:39 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[29-Mar-26 10:04:39 - INFO] - KHUSHI -   KHUSHI Bot  |  Independent Core  
+[29-Mar-26 10:04:39 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

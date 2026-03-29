@@ -287,41 +287,11 @@ async def welcome(client, message: Message):
 
             if member.id == app.id:
                 if message.chat.type != ChatType.SUPERGROUP:
-                    await message.reply_text(_["start_4"])
                     return await app.leave_chat(message.chat.id)
 
                 if message.chat.id in await blacklisted_chats():
-                    await message.reply_text(
-                        _["start_5"].format(
-                            app.mention,
-                            f"https://t.me/{app.username}?start=sudolist",
-                            config.SUPPORT_CHAT,
-                        ),
-                        disable_web_page_preview=True,
-                    )
                     return await app.leave_chat(message.chat.id)
 
-                out = start_panel(_)
-                UP, CPU, RAM, DISK = await bot_sys_stats()
-                adder = message.from_user
-                adder_mention = (
-                    f"<a href='tg://user?id={adder.id}'>{adder.first_name}</a>"
-                    if adder else "User"
-                )
-                try:
-                    await message.reply_photo(
-                        photo=random.choice(START_IMGS),
-                        caption=_["start_1"].format(
-                            adder_mention,
-                            f"<a href='https://t.me/{app.username}'>{app.name}</a>",
-                            UP, DISK, CPU, RAM,
-                            _OWNER_LINK
-                        ),
-                        reply_markup=InlineKeyboardMarkup(out),
-                        has_spoiler=True,
-                    )
-                except Exception:
-                    pass
                 await add_served_chat(message.chat.id)
                 await message.stop_propagation()
 

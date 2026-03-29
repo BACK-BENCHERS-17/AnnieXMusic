@@ -36,11 +36,18 @@ async def _send_stream_msg(
     reply_markup,
     has_spoiler: bool = False,
 ) -> object:
-    """Always use video-link mode — thumbnail image is permanently disabled."""
+    """
+    Thumbnail permanently disabled.
+    Sends the stream message with the video URL as a link preview shown ABOVE
+    the text (invert_media=True via send_msg_invert_preview).
+    """
+    # Embed the video URL as an invisible hyperlink at the start of the text.
+    # send_msg_invert_preview uses invert_media=True → preview appears at the TOP.
+    link_text = f'<a href="{THUMB_OFF_VIDEO_URL}">&#8203;</a>'
     return await send_msg_invert_preview(
         app,
         original_chat_id,
-        text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{caption}',
+        text=f"{link_text}{caption}",
         reply_markup=reply_markup,
     )
 
