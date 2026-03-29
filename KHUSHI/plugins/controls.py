@@ -43,7 +43,7 @@ _BRAND = (
 
 def _close():
     return InlineKeyboardMarkup([[
-        InlineKeyboardButton("✖ ᴄʟᴏꜱᴇ", callback_data="close")
+        InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close")
     ]])
 
 def _reply(text):

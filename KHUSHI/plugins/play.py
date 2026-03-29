@@ -46,23 +46,23 @@ THUMB_OFF_VIDEO_URL = "https://files.catbox.moe/4vr2jc.mp4"
 
 def _close_kb():
     return InlineKeyboardMarkup([[
-        InlineKeyboardButton("✖ ᴄʟᴏꜱᴇ", callback_data="close")
+        InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close")
     ]])
 
 
 def _playing_kb(chat_id):
     return InlineKeyboardMarkup([
         [
-            InlineKeyboardButton("⏸ ᴘᴀᴜꜱᴇ", callback_data=f"Pause|||{chat_id}"),
-            InlineKeyboardButton("⏭ ꜱᴋɪᴘ", callback_data=f"Skip|||{chat_id}"),
-            InlineKeyboardButton("⏹ ꜱᴛᴏᴘ", callback_data=f"Stop|||{chat_id}"),
+            InlineKeyboardButton("⏸˹ᴘᴀᴜꜱᴇ˼", callback_data=f"Pause|||{chat_id}"),
+            InlineKeyboardButton("⏭˹ꜱᴋɪᴘ˼", callback_data=f"Skip|||{chat_id}"),
+            InlineKeyboardButton("⏹˹ꜱᴛᴏᴘ˼", callback_data=f"Stop|||{chat_id}"),
         ],
     ])
 
 
 def _queued_kb():
     return InlineKeyboardMarkup([[
-        InlineKeyboardButton("✖ ᴄʟᴏꜱᴇ", callback_data="close")
+        InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close")
     ]])
 
 

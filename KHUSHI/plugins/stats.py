@@ -46,21 +46,21 @@ def _stats_keyboard(is_sudo: bool) -> InlineKeyboardMarkup:
     rows = []
     if is_sudo:
         rows.append([
-            InlineKeyboardButton("ᴏᴠᴇʀᴀʟʟ", callback_data="kstats:overview"),
-            InlineKeyboardButton("sʏsᴛᴇᴍ", callback_data="kstats:system"),
+            InlineKeyboardButton("˹ᴏᴠᴇʀᴀʟʟ˼", callback_data="kstats:overview"),
+            InlineKeyboardButton("˹sʏsᴛᴇᴍ˼", callback_data="kstats:system"),
         ])
     else:
         rows.append([
-            InlineKeyboardButton("ᴏᴠᴇʀᴀʟʟ sᴛᴀᴛs", callback_data="kstats:overview")
+            InlineKeyboardButton("˹ᴏᴠᴇʀᴀʟʟ sᴛᴀᴛs˼", callback_data="kstats:overview")
         ])
-    rows.append([InlineKeyboardButton("ᴄʟᴏsᴇ", callback_data="kstats:close")])
+    rows.append([InlineKeyboardButton("˹ᴄʟᴏsᴇ˼", callback_data="kstats:close")])
     return InlineKeyboardMarkup(rows)
 
 
 def _back_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([[
-        InlineKeyboardButton("ʙᴀᴄᴋ", callback_data="kstats:back"),
-        InlineKeyboardButton("ᴄʟᴏsᴇ", callback_data="kstats:close"),
+        InlineKeyboardButton("˹ʙᴀᴄᴋ˼", callback_data="kstats:back"),
+        InlineKeyboardButton("˹ᴄʟᴏsᴇ˼", callback_data="kstats:close"),
     ]])
 
 

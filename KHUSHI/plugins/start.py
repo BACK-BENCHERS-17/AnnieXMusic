@@ -49,11 +49,11 @@ HELP_TEXT = (
 def _start_kb(_):
     return InlineKeyboardMarkup([
         [
-            InlineKeyboardButton("📖 ʜᴇʟᴘ", callback_data="annie_help"),
-            InlineKeyboardButton("💬 ꜱᴜᴘᴘᴏʀᴛ", url=f"https://t.me/{SUPPORT_CHAT.lstrip('@')}"),
+            InlineKeyboardButton("˹ʜᴇʟᴘ˼", callback_data="annie_help"),
+            InlineKeyboardButton("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=f"https://t.me/{SUPPORT_CHAT.lstrip('@')}"),
         ],
         [
-            InlineKeyboardButton("➕ ᴀᴅᴅ ᴍᴇ ᴛᴏ ɢʀᴏᴜᴘ", url=f"https://t.me/{app.username}?startgroup=true"),
+            InlineKeyboardButton("˹ᴀᴅᴅ ᴛᴏ ɢʀᴏᴜᴘ˼", url=f"https://t.me/{app.username}?startgroup=true"),
         ],
     ])
 
@@ -87,7 +87,7 @@ async def khushi_help_cb(_, query):
     await query.edit_message_text(
         f"<blockquote>{_BRAND}</blockquote>\n\n" + HELP_TEXT,
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data="annie_back")]
+            [InlineKeyboardButton("˹ʙᴀᴄᴋ˼", callback_data="annie_back")]
         ]),
     )
 

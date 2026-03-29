@@ -50,6 +50,6 @@ async def khushi_ping(_, message: Message):
     await message.reply_text(
         text,
         reply_markup=InlineKeyboardMarkup([[
-            InlineKeyboardButton("💬 ꜱᴜᴘᴘᴏʀᴛ", url=f"https://t.me/{SUPPORT_CHAT.lstrip('@')}"),
+            InlineKeyboardButton("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=f"https://t.me/{SUPPORT_CHAT.lstrip('@')}"),
         ]]),
     )
