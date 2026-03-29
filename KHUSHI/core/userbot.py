@@ -54,7 +54,7 @@ class Userbot:
                 from KHUSHI import app
                 await app.send_message(
                     config.LOGGER_ID,
-                    f"<blockquote>✅ <b>KHUSHI Assistant {index}</b> started as {me.first_name}</blockquote>",
+                    f"<blockquote>✅ <b>Annie Assistant {index}</b> started as {me.first_name}</blockquote>",
                 )
             except Exception:
                 pass

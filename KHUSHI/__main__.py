@@ -74,7 +74,7 @@ async def _set_menu_button():
             payload = {
                 "menu_button": {
                     "type": "web_app",
-                    "text": "KHUSHI",
+                    "text": "ANNIE",
                     "web_app": {"url": WEB_URL},
                 }
             }
