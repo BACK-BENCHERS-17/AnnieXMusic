@@ -5,7 +5,6 @@ import time
 from pyrogram import filters, enums
 
 LOGGER = logging.getLogger(__name__)
-from pyrogram.enums import ChatType
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 from pyrogram.raw import functions as raw_func, types as raw_types
 from pyrogram.parser import Parser
@@ -19,11 +18,8 @@ from ANNIEMUSIC.utils import bot_sys_stats
 from ANNIEMUSIC.utils.database import (
     add_served_chat,
     add_served_user,
-    blacklisted_chats,
-    get_lang,
     get_served_chats,
     get_served_users,
-    is_banned_user,
     is_on_off,
 )
 from ANNIEMUSIC.utils.decorators.language import LanguageStart
@@ -33,7 +29,6 @@ from ANNIEMUSIC.utils.inline.help import first_page
 from ANNIEMUSIC.utils.reactions import react_to_command
 from ANNIEMUSIC.utils.font_styles import Fonts
 from config import BANNED_USERS, AYUV, HELP_IMG_URL, START_IMGS, STICKERS, PING_IMG_URL
-from strings import get_string
 
 # ── Effect ID ─────────────────────────────────────────────────────────────────
 MESSAGE_EFFECT_ID = 5159385139981059251
@@ -270,30 +265,3 @@ async def start_gp(client, message: Message, _):
     except Exception as ex:
         LOGGER.error("[start_gp] Unhandled exception: %s", ex, exc_info=True)
     return await add_served_chat(message.chat.id)
-
-
-@app.on_message(filters.new_chat_members, group=-1)
-async def welcome(client, message: Message):
-    for member in message.new_chat_members:
-        try:
-            language = await get_lang(message.chat.id)
-            _ = get_string(language)
-
-            if await is_banned_user(member.id):
-                try:
-                    await message.chat.ban_member(member.id)
-                except Exception:
-                    pass
-
-            if member.id == app.id:
-                if message.chat.type != ChatType.SUPERGROUP:
-                    return await app.leave_chat(message.chat.id)
-
-                if message.chat.id in await blacklisted_chats():
-                    return await app.leave_chat(message.chat.id)
-
-                await add_served_chat(message.chat.id)
-                await message.stop_propagation()
-
-        except Exception as ex:
-            print(ex)
