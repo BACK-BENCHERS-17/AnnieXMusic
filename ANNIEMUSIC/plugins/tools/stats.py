@@ -21,6 +21,16 @@ from ANNIEMUSIC.utils.inline.stats import (
 )
 from config import BANNED_USERS
 
+_E = {
+    "dot":   "<emoji id='5972072533833289156'>🔹</emoji>",
+    "music": "<emoji id='5188093600538057635'>🎵</emoji>",
+    "spark": "<emoji id='5042334757040423886'>⚡️</emoji>",
+    "time":  "<emoji id='4979027931234830344'>⏳</emoji>",
+    "crown": "<emoji id='6122692084806716730'>🌹</emoji>",
+    "fire":  "<emoji id='5039598514980520994'>❤️‍🔥</emoji>",
+    "snow":  "<emoji id='5449449325434266744'>❄️</emoji>",
+}
+
 _BRAND = (
     "<emoji id='5042192219960771668'>🧸</emoji>"
     "<emoji id='5210820276748566172'>🔤</emoji>"
@@ -31,12 +41,12 @@ _BRAND = (
 )
 
 
-def _bar(v, total=100, size=11):
+def _bar(v, size=11):
     try:
         pct = float(str(v).replace("%", ""))
     except Exception:
         pct = 0
-    filled = int((pct / total) * size)
+    filled = int((pct / 100) * size)
     return "▰" * filled + "▱" * (size - filled)
 
 
@@ -50,16 +60,16 @@ async def _main_text() -> str:
     return (
         f"<blockquote>{_BRAND}</blockquote>\n\n"
         "<blockquote>"
-        "┌────── ˹ ʙᴏᴛ sᴛᴀᴛs ˼─── ⏤‌‌●\n"
-        f"┆🌐 <b>sᴇʀᴠᴇᴅ ɢʀᴏᴜᴘs :</b> <code>{served_chats}</code>\n"
-        f"┆👤 <b>sᴇʀᴠᴇᴅ ᴜsᴇʀs :</b> <code>{served_users}</code>\n"
-        f"┆🎵 <b>ᴀᴄᴛɪᴠᴇ ᴀᴜᴅɪᴏ :</b> <code>{active_audio}</code>\n"
-        f"┆🎬 <b>ᴀᴄᴛɪᴠᴇ ᴠɪᴅᴇᴏ :</b> <code>{active_video}</code>\n"
+        "┌────── ˹ ᴀɴɴɪᴇ sᴛᴀᴛs ˼─── ⏤‌‌●\n"
+        f"┆{_E['dot']} <b>sᴇʀᴠᴇᴅ ɢʀᴏᴜᴘs :</b> <code>{served_chats}</code>\n"
+        f"┆{_E['dot']} <b>sᴇʀᴠᴇᴅ ᴜsᴇʀs :</b> <code>{served_users}</code>\n"
+        f"┆{_E['music']} <b>ᴀᴄᴛɪᴠᴇ ᴀᴜᴅɪᴏ :</b> <code>{active_audio}</code>\n"
+        f"┆{_E['music']} <b>ᴀᴄᴛɪᴠᴇ ᴠɪᴅᴇᴏ :</b> <code>{active_video}</code>\n"
         "├──────────────────────\n"
-        f"┆⏱ <b>ᴜᴘᴛɪᴍᴇ :</b> <code>{UP}</code>\n"
-        f"┆💻 <b>ᴄᴘᴜ :</b> [{_bar(CPU)}] <code>{CPU}</code>\n"
-        f"┆🧠 <b>ʀᴀᴍ :</b> [{_bar(RAM)}] <code>{RAM}</code>\n"
-        f"┆💾 <b>ᴅɪsᴋ :</b> [{_bar(DISK)}] <code>{DISK}</code>\n"
+        f"┆{_E['time']} <b>ᴜᴘᴛɪᴍᴇ :</b> <code>{UP}</code>\n"
+        f"┆{_E['spark']} <b>ᴄᴘᴜ :</b> [{_bar(CPU)}] <code>{CPU}</code>\n"
+        f"┆{_E['spark']} <b>ʀᴀᴍ :</b> [{_bar(RAM)}] <code>{RAM}</code>\n"
+        f"┆{_E['spark']} <b>ᴅɪsᴋ :</b> [{_bar(DISK)}] <code>{DISK}</code>\n"
         "└──────────────────────●"
         "</blockquote>"
     )
@@ -78,13 +88,13 @@ async def _overview_text() -> str:
         f"<blockquote>{_BRAND}</blockquote>\n\n"
         "<blockquote>"
         "┌────── ˹ ᴏᴠᴇʀᴀʟʟ sᴛᴀᴛs ˼─── ⏤‌‌●\n"
-        f"┆🌐 <b>sᴇʀᴠᴇᴅ ɢʀᴏᴜᴘs :</b> <code>{served_chats}</code>\n"
-        f"┆👤 <b>sᴇʀᴠᴇᴅ ᴜsᴇʀs :</b> <code>{served_users}</code>\n"
-        f"┆🎵 <b>ᴀᴄᴛɪᴠᴇ ᴀᴜᴅɪᴏ ᴄᴀʟʟs :</b> <code>{active_audio}</code>\n"
-        f"┆🎬 <b>ᴀᴄᴛɪᴠᴇ ᴠɪᴅᴇᴏ ᴄᴀʟʟs :</b> <code>{active_video}</code>\n"
-        f"┆👑 <b>sᴜᴅᴏᴇʀs :</b> <code>{sudoers}</code>\n"
-        f"┆🔨 <b>ɢʟᴏʙᴀʟ ʙᴀɴɴᴇᴅ :</b> <code>{gbanned}</code>\n"
-        f"┆🚫 <b>ʙʟᴏᴄᴋᴇᴅ ᴜsᴇʀs :</b> <code>{banned}</code>\n"
+        f"┆{_E['dot']} <b>sᴇʀᴠᴇᴅ ɢʀᴏᴜᴘs :</b> <code>{served_chats}</code>\n"
+        f"┆{_E['dot']} <b>sᴇʀᴠᴇᴅ ᴜsᴇʀs :</b> <code>{served_users}</code>\n"
+        f"┆{_E['music']} <b>ᴀᴄᴛɪᴠᴇ ᴀᴜᴅɪᴏ ᴄᴀʟʟs :</b> <code>{active_audio}</code>\n"
+        f"┆{_E['music']} <b>ᴀᴄᴛɪᴠᴇ ᴠɪᴅᴇᴏ ᴄᴀʟʟs :</b> <code>{active_video}</code>\n"
+        f"┆{_E['crown']} <b>sᴜᴅᴏᴇʀs :</b> <code>{sudoers}</code>\n"
+        f"┆{_E['fire']} <b>ɢʟᴏʙᴀʟ ʙᴀɴɴᴇᴅ :</b> <code>{gbanned}</code>\n"
+        f"┆{_E['snow']} <b>ʙʟᴏᴄᴋᴇᴅ ᴜsᴇʀs :</b> <code>{banned}</code>\n"
         "└──────────────────────●"
         "</blockquote>"
     )
@@ -96,10 +106,10 @@ async def _system_text() -> str:
         f"<blockquote>{_BRAND}</blockquote>\n\n"
         "<blockquote>"
         "┌────── ˹ sʏsᴛᴇᴍ sᴛᴀᴛs ˼─── ⏤‌‌●\n"
-        f"┆⏱ <b>ᴜᴘᴛɪᴍᴇ :</b> <code>{UP}</code>\n"
-        f"┆💻 <b>ᴄᴘᴜ :</b>  [{_bar(CPU)}]  <code>{CPU}</code>\n"
-        f"┆🧠 <b>ʀᴀᴍ :</b>  [{_bar(RAM)}]  <code>{RAM}</code>\n"
-        f"┆💾 <b>ᴅɪsᴋ :</b> [{_bar(DISK)}]  <code>{DISK}</code>\n"
+        f"┆{_E['time']} <b>ᴜᴘᴛɪᴍᴇ :</b> <code>{UP}</code>\n"
+        f"┆{_E['spark']} <b>ᴄᴘᴜ :</b>  [{_bar(CPU)}]  <code>{CPU}</code>\n"
+        f"┆{_E['spark']} <b>ʀᴀᴍ :</b>  [{_bar(RAM)}]  <code>{RAM}</code>\n"
+        f"┆{_E['spark']} <b>ᴅɪsᴋ :</b> [{_bar(DISK)}]  <code>{DISK}</code>\n"
         "└──────────────────────●"
         "</blockquote>"
     )
