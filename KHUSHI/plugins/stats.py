@@ -18,14 +18,18 @@ from ANNIEMUSIC.utils.database import (
 from config import BANNED_USERS
 
 _E = {
-    "dot":    "<emoji id='5972072533833289156'>🔹</emoji>",
-    "music":  "<emoji id='5188093600538057635'>🎵</emoji>",
-    "spark":  "<emoji id='5042334757040423886'>⚡️</emoji>",
-    "time":   "<emoji id='4979027931234830344'>⏳</emoji>",
-    "bear":   "<emoji id='5042192219960771668'>🧸</emoji>",
+    "globe":  "<emoji id='5316832074047441823'>🌐</emoji>",
+    "user":   "<emoji id='5316992572680320646'>👤</emoji>",
+    "music":  "<emoji id='5463107823946717464'>🎵</emoji>",
+    "video":  "<emoji id='5375464961822695044'>🎬</emoji>",
+    "time":   "<emoji id='5123230779593196220'>⏰</emoji>",
+    "cpu":    "<emoji id='5972055534352733289'>💻</emoji>",
+    "ram":    "<emoji id='5237799019329105246'>🧠</emoji>",
+    "disk":   "<emoji id='5462956611033117422'>📀</emoji>",
+    "crown":  "<emoji id='5039727497143387500'>👑</emoji>",
     "fire":   "<emoji id='5039598514980520994'>❤️‍🔥</emoji>",
-    "crown":  "<emoji id='6122692084806716730'>🌹</emoji>",
-    "snow":   "<emoji id='5449449325434266744'>❄️</emoji>",
+    "banned": "<emoji id='6307831155521494118'>💩</emoji>",
+    "block":  "<emoji id='5039671744172917707'>🚫</emoji>",
 }
 
 _BRAND = (
@@ -80,15 +84,15 @@ async def _main_text() -> str:
         f"<blockquote>{_BRAND}</blockquote>\n\n"
         "<blockquote>"
         "┌────── ˹ ᴀɴɴɪᴇ sᴛᴀᴛs ˼─── ⏤‌‌●\n"
-        f"┆{_E['dot']} <b>sᴇʀᴠᴇᴅ ɢʀᴏᴜᴘs :</b> <code>{served_chats}</code>\n"
-        f"┆{_E['dot']} <b>sᴇʀᴠᴇᴅ ᴜsᴇʀs :</b> <code>{served_users}</code>\n"
+        f"┆{_E['globe']} <b>sᴇʀᴠᴇᴅ ɢʀᴏᴜᴘs :</b> <code>{served_chats}</code>\n"
+        f"┆{_E['user']} <b>sᴇʀᴠᴇᴅ ᴜsᴇʀs :</b> <code>{served_users}</code>\n"
         f"┆{_E['music']} <b>ᴀᴄᴛɪᴠᴇ ᴀᴜᴅɪᴏ :</b> <code>{active_audio}</code>\n"
-        f"┆{_E['music']} <b>ᴀᴄᴛɪᴠᴇ ᴠɪᴅᴇᴏ :</b> <code>{active_video}</code>\n"
+        f"┆{_E['video']} <b>ᴀᴄᴛɪᴠᴇ ᴠɪᴅᴇᴏ :</b> <code>{active_video}</code>\n"
         "├──────────────────────\n"
         f"┆{_E['time']} <b>ᴜᴘᴛɪᴍᴇ :</b> <code>{UP}</code>\n"
-        f"┆{_E['spark']} <b>ᴄᴘᴜ :</b> [{_bar(CPU)}] <code>{CPU}</code>\n"
-        f"┆{_E['spark']} <b>ʀᴀᴍ :</b> [{_bar(RAM)}] <code>{RAM}</code>\n"
-        f"┆{_E['spark']} <b>ᴅɪsᴋ :</b> [{_bar(DISK)}] <code>{DISK}</code>\n"
+        f"┆{_E['cpu']} <b>ᴄᴘᴜ :</b> [{_bar(CPU)}] <code>{CPU}</code>\n"
+        f"┆{_E['ram']} <b>ʀᴀᴍ :</b> [{_bar(RAM)}] <code>{RAM}</code>\n"
+        f"┆{_E['disk']} <b>ᴅɪsᴋ :</b> [{_bar(DISK)}] <code>{DISK}</code>\n"
         "└──────────────────────●"
         "</blockquote>"
     )
@@ -107,13 +111,13 @@ async def _overview_text() -> str:
         f"<blockquote>{_BRAND}</blockquote>\n\n"
         "<blockquote>"
         "┌────── ˹ ᴏᴠᴇʀᴀʟʟ sᴛᴀᴛs ˼─── ⏤‌‌●\n"
-        f"┆{_E['dot']} <b>sᴇʀᴠᴇᴅ ɢʀᴏᴜᴘs :</b> <code>{served_chats}</code>\n"
-        f"┆{_E['dot']} <b>sᴇʀᴠᴇᴅ ᴜsᴇʀs :</b> <code>{served_users}</code>\n"
+        f"┆{_E['globe']} <b>sᴇʀᴠᴇᴅ ɢʀᴏᴜᴘs :</b> <code>{served_chats}</code>\n"
+        f"┆{_E['user']} <b>sᴇʀᴠᴇᴅ ᴜsᴇʀs :</b> <code>{served_users}</code>\n"
         f"┆{_E['music']} <b>ᴀᴄᴛɪᴠᴇ ᴀᴜᴅɪᴏ ᴄᴀʟʟs :</b> <code>{active_audio}</code>\n"
-        f"┆{_E['music']} <b>ᴀᴄᴛɪᴠᴇ ᴠɪᴅᴇᴏ ᴄᴀʟʟs :</b> <code>{active_video}</code>\n"
+        f"┆{_E['video']} <b>ᴀᴄᴛɪᴠᴇ ᴠɪᴅᴇᴏ ᴄᴀʟʟs :</b> <code>{active_video}</code>\n"
         f"┆{_E['crown']} <b>sᴜᴅᴏᴇʀs :</b> <code>{sudoers}</code>\n"
-        f"┆{_E['fire']} <b>ɢʟᴏʙᴀʟ ʙᴀɴɴᴇᴅ :</b> <code>{gbanned}</code>\n"
-        f"┆{_E['snow']} <b>ʙʟᴏᴄᴋᴇᴅ ᴜsᴇʀs :</b> <code>{banned}</code>\n"
+        f"┆{_E['banned']} <b>ɢʟᴏʙᴀʟ ʙᴀɴɴᴇᴅ :</b> <code>{gbanned}</code>\n"
+        f"┆{_E['block']} <b>ʙʟᴏᴄᴋᴇᴅ ᴜsᴇʀs :</b> <code>{banned}</code>\n"
         "└──────────────────────●"
         "</blockquote>"
     )
@@ -126,9 +130,9 @@ async def _system_text() -> str:
         "<blockquote>"
         "┌────── ˹ sʏsᴛᴇᴍ sᴛᴀᴛs ˼─── ⏤‌‌●\n"
         f"┆{_E['time']} <b>ᴜᴘᴛɪᴍᴇ :</b> <code>{UP}</code>\n"
-        f"┆{_E['spark']} <b>ᴄᴘᴜ :</b>  [{_bar(CPU)}]  <code>{CPU}</code>\n"
-        f"┆{_E['spark']} <b>ʀᴀᴍ :</b>  [{_bar(RAM)}]  <code>{RAM}</code>\n"
-        f"┆{_E['spark']} <b>ᴅɪsᴋ :</b> [{_bar(DISK)}]  <code>{DISK}</code>\n"
+        f"┆{_E['cpu']} <b>ᴄᴘᴜ :</b>  [{_bar(CPU)}]  <code>{CPU}</code>\n"
+        f"┆{_E['ram']} <b>ʀᴀᴍ :</b>  [{_bar(RAM)}]  <code>{RAM}</code>\n"
+        f"┆{_E['disk']} <b>ᴅɪsᴋ :</b> [{_bar(DISK)}]  <code>{DISK}</code>\n"
         "└──────────────────────●"
         "</blockquote>"
     )

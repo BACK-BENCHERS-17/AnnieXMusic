@@ -40,10 +40,10 @@ async def khushi_ping(_, message: Message):
         f"<blockquote>"
         f"<emoji id='5042334757040423886'>⚡️</emoji> <b>PING</b> : <code>{ms}ms</code>\n"
         f"<emoji id='5039598514980520994'>❤️‍🔥</emoji> <b>VC PING</b> : <code>{tgping}</code>\n\n"
-        f"<emoji id='5972072533833289156'>🔹</emoji> <b>UPTIME</b>  : <code>{UP}</code>\n"
-        f"<emoji id='5972072533833289156'>🔹</emoji> <b>CPU</b>  [{_bar(float(str(CPU).replace('%','')))}]  <code>{CPU}</code>\n"
-        f"<emoji id='5972072533833289156'>🔹</emoji> <b>RAM</b>  [{_bar(float(str(RAM).replace('%','')))}]  <code>{RAM}</code>\n"
-        f"<emoji id='5972072533833289156'>🔹</emoji> <b>DISK</b> [{_bar(float(str(DISK).replace('%','')))}]  <code>{DISK}</code>"
+        f"<emoji id='5123230779593196220'>⏰</emoji> <b>UPTIME</b>  : <code>{UP}</code>\n"
+        f"<emoji id='5972055534352733289'>💻</emoji> <b>CPU</b>  [{_bar(float(str(CPU).replace('%','')))}]  <code>{CPU}</code>\n"
+        f"<emoji id='5237799019329105246'>🧠</emoji> <b>RAM</b>  [{_bar(float(str(RAM).replace('%','')))}]  <code>{RAM}</code>\n"
+        f"<emoji id='5462956611033117422'>📀</emoji> <b>DISK</b> [{_bar(float(str(DISK).replace('%','')))}]  <code>{DISK}</code>"
         f"</blockquote>"
     )
 
