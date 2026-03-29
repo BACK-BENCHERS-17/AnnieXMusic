@@ -198,7 +198,7 @@ async def start_pm(client, message: Message, _):
         client, message, _img, _start_caption, _markup
     )
 
-    # Fallback: normal reply without effect if raw API fails
+    # Fallback 1: normal reply_photo without effect
     if not sent:
         try:
             await message.reply_photo(
@@ -206,6 +206,18 @@ async def start_pm(client, message: Message, _):
                 caption=_start_caption,
                 reply_markup=_markup,
                 has_spoiler=True,
+            )
+            sent = True
+        except Exception:
+            pass
+
+    # Fallback 2: text message when photo fails (e.g. URL blocked/invalid)
+    if not sent:
+        try:
+            await message.reply_text(
+                _start_caption,
+                reply_markup=_markup,
+                disable_web_page_preview=True,
             )
         except Exception:
             pass

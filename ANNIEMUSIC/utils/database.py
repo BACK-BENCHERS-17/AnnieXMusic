@@ -138,21 +138,33 @@ async def group_assistant(self, chat_id: int) -> int:
         )
     assistant = assistantdict.get(chat_id)
     if not assistant:
-        dbassistant = await assdb.find_one({"chat_id": chat_id})
+        try:
+            dbassistant = await assdb.find_one({"chat_id": chat_id})
+        except Exception:
+            dbassistant = None
         if not dbassistant:
-            assis = await set_calls_assistant(chat_id)
+            try:
+                assis = await set_calls_assistant(chat_id)
+            except Exception:
+                assis = min(assistants)
         else:
             assis = dbassistant["assistant"]
             if assis in assistants:
                 assistantdict[chat_id] = assis
                 assis = assis
             else:
-                assis = await set_calls_assistant(chat_id)
+                try:
+                    assis = await set_calls_assistant(chat_id)
+                except Exception:
+                    assis = min(assistants)
     else:
         if assistant in assistants:
             assis = assistant
         else:
-            assis = await set_calls_assistant(chat_id)
+            try:
+                assis = await set_calls_assistant(chat_id)
+            except Exception:
+                assis = min(assistants)
     if int(assis) == 1:
         return self.one
     elif int(assis) == 2:

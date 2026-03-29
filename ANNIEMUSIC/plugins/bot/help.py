@@ -36,18 +36,32 @@ async def helper_private(client: Client, update: Union[Message, types.CallbackQu
         try:
             await update.message.edit_caption(caption, reply_markup=keyboard)
         except Exception:
-            await update.message.reply_photo(
-                photo=HELP_IMG_URL,
-                caption=caption,
-                reply_markup=keyboard,
-            )
+            try:
+                await update.message.reply_photo(
+                    photo=HELP_IMG_URL,
+                    caption=caption,
+                    reply_markup=keyboard,
+                )
+            except Exception:
+                await update.message.reply_text(
+                    caption,
+                    reply_markup=keyboard,
+                    disable_web_page_preview=True,
+                )
     else:
         await update.delete()
-        await update.reply_photo(
-            photo=HELP_IMG_URL,
-            caption=caption,
-            reply_markup=keyboard
-        )
+        try:
+            await update.reply_photo(
+                photo=HELP_IMG_URL,
+                caption=caption,
+                reply_markup=keyboard
+            )
+        except Exception:
+            await update.reply_text(
+                caption,
+                reply_markup=keyboard,
+                disable_web_page_preview=True,
+            )
 
 # ────────────────────────────────────────────────  group /help notice ─
 
