@@ -54,7 +54,7 @@ async def _set_commands():
             {"command": "loop",    "description": "Loop track [1-10]"},
             {"command": "shuffle", "description": "Shuffle the queue"},
             {"command": "247",     "description": "Toggle 24/7 mode"},
-            {"command": "ping",    "description": "Bot status & system stats"},
+            {"command": "kping",   "description": "Bot status & system stats"},
             {"command": "kstart",  "description": "Start KHUSHI"},
             {"command": "khelp",   "description": "KHUSHI help menu"},
             {"command": "bc",      "description": "Broadcast (sudo only)"},
@@ -118,23 +118,41 @@ async def main():
     LOGGER("KHUSHI").info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
     # Populate banned sets
-    for uid in await get_banned_users():
-        BANNED_USERS.add(uid)
-    for uid in await get_gbanned():
-        BANNED_USERS.add(uid)
+    try:
+        for uid in await get_banned_users():
+            BANNED_USERS.add(uid)
+        for uid in await get_gbanned():
+            BANNED_USERS.add(uid)
+    except Exception as e:
+        LOGGER("KHUSHI").warning(f"Could not load banned users from DB (bot will still start): {e}")
 
-    # Start KHUSHI's own clients
+    # Start KHUSHI's bot client
     await app.start()
-    await userbot.start()
+
+    # Wire assistants into JARVIS before starting PyTgCalls
+    JARVIS.setup_clients(userbot)
+
+    # Start PyTgCalls (starts the Pyrogram assistant clients internally)
+    await JARVIS.start()
+
+    # Setup assistant metadata now that clients are running
+    await userbot.post_start()
 
     # Load sudo users
-    await sudo()
-
-    # Start PyTgCalls (KHUSHI's own JARVIS)
-    await JARVIS.start()
+    try:
+        await sudo()
+    except Exception as e:
+        LOGGER("KHUSHI").warning(f"Could not load sudo users from DB (bot will still start): {e}")
 
     # Load all KHUSHI plugins
     _load_plugins()
+
+    # Start background admin list refresh
+    try:
+        from KHUSHI.plugins.broadcast import _refresh_adminlist
+        asyncio.get_event_loop().create_task(_refresh_adminlist())
+    except Exception:
+        pass
 
     await _set_commands()
     await _set_menu_button()
@@ -149,6 +167,6 @@ async def main():
 
 if __name__ == "__main__":
     try:
-        asyncio.run(main())
+        asyncio.get_event_loop().run_until_complete(main())
     except KeyboardInterrupt:
         LOGGER("KHUSHI").info("Stopped by user.")

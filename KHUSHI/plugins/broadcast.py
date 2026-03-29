@@ -154,7 +154,8 @@ async def broadcast_cmd(_, message: Message):
 
 
 async def _refresh_adminlist():
-    while not await asyncio.sleep(10):
+    await asyncio.sleep(30)
+    while True:
         try:
             for chat_id in await get_active_chats():
                 if chat_id not in adminlist:
@@ -167,7 +168,5 @@ async def _refresh_adminlist():
                     for u in await get_authuser_names(chat_id):
                         adminlist[chat_id].append(await alpha_to_int(u))
         except Exception:
-            continue
-
-
-asyncio.create_task(_refresh_adminlist())
+            pass
+        await asyncio.sleep(10)
