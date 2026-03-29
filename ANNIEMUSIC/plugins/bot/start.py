@@ -172,9 +172,17 @@ async def start_pm(client, message: Message, _):
     served_chats_coro = get_served_chats()
     served_users_coro = get_served_users()
     stats_coro = bot_sys_stats()
-    served_chats, served_users, (UP, CPU, RAM, DISK) = await asyncio.gather(
-        served_chats_coro, served_users_coro, stats_coro
-    )
+    try:
+        served_chats, served_users, (UP, CPU, RAM, DISK) = await asyncio.gather(
+            served_chats_coro, served_users_coro, stats_coro
+        )
+    except Exception:
+        try:
+            UP, CPU, RAM, DISK = await bot_sys_stats()
+        except Exception:
+            UP = CPU = RAM = DISK = "N/A"
+        served_chats = []
+        served_users = []
 
     _start_caption = _["start_1"].format(
         message.from_user.mention,

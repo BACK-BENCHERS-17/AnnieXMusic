@@ -46,7 +46,10 @@ asyncio.create_task(auto_leave())
 
 async def auto_end():
     while not await asyncio.sleep(5):
-        ender = await is_autoend()
+        try:
+            ender = await is_autoend()
+        except Exception:
+            continue
         if not ender:
             continue
         for chat_id in autoend:

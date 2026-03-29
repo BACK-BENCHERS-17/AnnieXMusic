@@ -357,7 +357,10 @@ class Call:
 
     @capture_internal_err
     async def stream_call(self, link: str) -> None:
-        assistant = await group_assistant(self, config.LOGGER_ID)
+        try:
+            assistant = await group_assistant(self, config.LOGGER_ID)
+        except Exception:
+            return
         try:
             await assistant.play(config.LOGGER_ID, MediaStream(link))
             await asyncio.sleep(8)

@@ -85,6 +85,20 @@ KHUSHI/
 - **Workflow**: "KHUSHI Bot" — `python -m KHUSHI`
 - **Web**: KHUSHI/web/index.html branded as "KHUSHI Music Player"
 
+## Bug Fixes (March 2026 — Session 2)
+- **`/start` crash fix**: `asyncio.gather(get_served_chats, get_served_users, ...)` wrapped in try-except — MongoDB DNS failures no longer crash the handler, bot sends start message with fallback stats
+- **`stream_call` crash fix**: `group_assistant()` call in `ANNIEMUSIC/core/call.py` wrapped in try-except — MongoDB DNS failures no longer crash stream_call
+- **`auto_end` crash fix**: `is_autoend()` in `autoleave.py` wrapped in try-except — loop continues on DB failure instead of crashing
+- **KHUSHI fast stream module**: `KHUSHI/utils/fast_stream.py` created — full millisecond-level stream with parallel webserver+SmartYTDL race, YouTube search, and background caching
+
+## KHUSHI Fast Stream Module (`KHUSHI/utils/fast_stream.py`)
+Standalone fast stream engine for KHUSHI bot, mirrors ANNIEMUSIC's `fast_get_stream`:
+- `fast_get_stream(vid)` — Returns file path or CDN URL in ms (local→webserver→SmartYTDL→full download)
+- `search_youtube(query, limit)` — Async YouTube search returning title/url/duration/thumbnail
+- `search_and_stream(query)` — Combined search+stream: search YouTube → return (stream_path, info)
+- Background caching: auto-downloads to local after first stream URL extraction
+- Uses ANNIEMUSIC's SmartYTDL engine (android_vr, ios, web_safari multi-client bypass)
+
 ## Customizations (March 2026)
 - **KHUSHI Branding in Logs**: All `LOGGER("ANNIEMUSIC")` calls changed to `LOGGER("KHUSHI")` in `__main__.py`
 - **New Attractive UI**: All command buttons updated with premium emojis (🎵 ⏯ 🔀 🔁 ⏩ ⚡️ ❄️ 📻 📊 ⚙️ etc.)
