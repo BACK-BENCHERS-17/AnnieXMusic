@@ -29,6 +29,7 @@ from ANNIEMUSIC.utils.inline import (
 )
 from ANNIEMUSIC.utils.logger import play_logs
 from ANNIEMUSIC.utils.stream.stream import stream
+from ANNIEMUSIC.utils.downloader import _trigger_bg_cache
 
 
 @app.on_message(
@@ -554,6 +555,7 @@ async def play_command(
                     ),
                     reply_markup=InlineKeyboardMarkup(buttons),
                 )
+                asyncio.create_task(_trigger_bg_cache(track_id))
                 return await play_logs(message, streamtype="Searched on YouTube")
 
             else:
@@ -573,6 +575,7 @@ async def play_command(
                     ),
                     reply_markup=InlineKeyboardMarkup(buttons),
                 )
+                asyncio.create_task(_trigger_bg_cache(track_id))
                 return await play_logs(message, streamtype="URL Search Inline")
 
 
@@ -797,6 +800,7 @@ async def slider_queries(client, CallbackQuery, _):
         await CallbackQuery.edit_message_media(
             media=med, reply_markup=InlineKeyboardMarkup(buttons)
         )
+        asyncio.create_task(_trigger_bg_cache(vidid))
         await CallbackQuery.answer(_["playcb_2"])
 
     except Exception:

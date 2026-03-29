@@ -31,20 +31,23 @@ def dbb():
 async def sudo():
     global SUDOERS
     SUDOERS.add(OWNER_ID)
-    sudoersdb = mongodb.sudoers
-    data = await sudoersdb.find_one({"sudo": "sudo"}) or {}
-    sudoers = data.get("sudoers", [])
+    try:
+        sudoersdb = mongodb.sudoers
+        data = await sudoersdb.find_one({"sudo": "sudo"}) or {}
+        sudoers = data.get("sudoers", [])
 
-    if OWNER_ID not in sudoers:
-        sudoers.append(OWNER_ID)
-        await sudoersdb.update_one(
-            {"sudo": "sudo"}, {"$set": {"sudoers": sudoers}}, upsert=True
-        )
+        if OWNER_ID not in sudoers:
+            sudoers.append(OWNER_ID)
+            await sudoersdb.update_one(
+                {"sudo": "sudo"}, {"$set": {"sudoers": sudoers}}, upsert=True
+            )
 
-    for user_id in sudoers:
-        SUDOERS.add(user_id)
+        for user_id in sudoers:
+            SUDOERS.add(user_id)
 
-    LOGGER(__name__).info("sᴜᴅᴏ ᴜsᴇʀs ᴅᴏɴᴇ..")
+        LOGGER(__name__).info("sᴜᴅᴏ ᴜsᴇʀs ᴅᴏɴᴇ..")
+    except Exception as e:
+        LOGGER(__name__).warning(f"Could not load sudo users from DB (bot will still start): {e}")
 
     try:
         onoffdb = mongodb.onoffper
