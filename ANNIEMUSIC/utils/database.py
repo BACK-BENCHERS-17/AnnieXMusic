@@ -732,40 +732,17 @@ async def content_guard_off(chat_id: int):
     )
 
 
-_global_thumb: list = []  # empty = ON (default), [0] = 0 means OFF, [0] = 1 means ON
-
-
 async def is_thumb_enabled() -> bool:
-    """Global setting — True = thumbnail ON (default), False = video mode."""
-    if not _global_thumb:
-        get = await onoffdb.find_one({"on_off": 5})
-        if get:
-            _global_thumb.clear()
-            _global_thumb.append(0)
-            return False
-        else:
-            _global_thumb.clear()
-            _global_thumb.append(1)
-            return True
-    return _global_thumb[0] == 1
+    """Thumbnail permanently disabled — always video mode."""
+    return False
 
 
 async def thumb_on():
-    """Enable thumbnail globally."""
-    _global_thumb.clear()
-    _global_thumb.append(1)
-    exists = await is_on_off(5)
-    if exists:
-        await onoffdb.delete_one({"on_off": 5})
+    pass
 
 
 async def thumb_off():
-    """Disable thumbnail globally — video mode active."""
-    _global_thumb.clear()
-    _global_thumb.append(0)
-    exists = await is_on_off(5)
-    if not exists:
-        await onoffdb.insert_one({"on_off": 5})
+    pass
 
 
 # ── Global NSFW on/off (key 6 in onoffdb) ────────────────────────────────────

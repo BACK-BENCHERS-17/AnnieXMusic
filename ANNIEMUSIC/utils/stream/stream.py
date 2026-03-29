@@ -36,23 +36,13 @@ async def _send_stream_msg(
     reply_markup,
     has_spoiler: bool = False,
 ) -> object:
-    """Send photo or text+link based on global thumbnail setting."""
-    thumb_on = await is_thumb_enabled()
-    if thumb_on:
-        return await app.send_photo(
-            original_chat_id,
-            photo=photo,
-            caption=caption,
-            reply_markup=reply_markup,
-            has_spoiler=has_spoiler,
-        )
-    else:
-        return await send_msg_invert_preview(
-            app,
-            original_chat_id,
-            text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{caption}',
-            reply_markup=reply_markup,
-        )
+    """Always use video-link mode — thumbnail image is permanently disabled."""
+    return await send_msg_invert_preview(
+        app,
+        original_chat_id,
+        text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{caption}',
+        reply_markup=reply_markup,
+    )
 
 
 async def _stop_and_block(
