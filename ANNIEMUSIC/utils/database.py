@@ -799,3 +799,47 @@ async def set_global_nsfw_on():
     exists = await is_on_off(6)
     if exists:
         await onoffdb.delete_one({"on_off": 6})
+
+
+# ─── 24/7 Mode ────────────────────────────────────────────────────────────────
+_247_cache: dict = {}
+
+async def is_24_7(chat_id: int) -> bool:
+    if chat_id in _247_cache:
+        return _247_cache[chat_id]
+    get = await assistantdb.find_one({"chat_id": chat_id, "mode247": True})
+    _247_cache[chat_id] = bool(get)
+    return _247_cache[chat_id]
+
+
+async def enable_247(chat_id: int):
+    _247_cache[chat_id] = True
+    await assistantdb.update_one(
+        {"chat_id": chat_id}, {"$set": {"mode247": True}}, upsert=True
+    )
+
+
+async def disable_247(chat_id: int):
+    _247_cache[chat_id] = False
+    await assistantdb.update_one(
+        {"chat_id": chat_id}, {"$unset": {"mode247": 1}}, upsert=True
+    )
+
+
+# ─── Volume Control ───────────────────────────────────────────────────────────
+_vol_cache: dict = {}
+
+async def get_volume(chat_id: int) -> int:
+    if chat_id in _vol_cache:
+        return _vol_cache[chat_id]
+    get = await assistantdb.find_one({"chat_id": chat_id})
+    vol = get.get("volume", 100) if get else 100
+    _vol_cache[chat_id] = vol
+    return vol
+
+
+async def set_volume(chat_id: int, vol: int):
+    _vol_cache[chat_id] = vol
+    await assistantdb.update_one(
+        {"chat_id": chat_id}, {"$set": {"volume": vol}}, upsert=True
+    )
