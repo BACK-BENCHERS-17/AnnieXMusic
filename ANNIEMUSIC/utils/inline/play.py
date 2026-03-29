@@ -18,9 +18,10 @@ def _webapp_btn():
     """Return the Open Player button row."""
     return [[
         InlineKeyboardButton(
-            text="ᴀɴɴɪᴇ ᴘʟᴀʏᴇʀ",
+            text="🎵 ᴋʜᴜsʜɪ ᴘʟᴀʏᴇʀ",
             url="https://t.me/ANNIEXMUSICxBOT/annie",
             style="primary",
+            icon_custom_emoji_id="5188093600538057635",
         )
     ]]
 

@@ -85,6 +85,15 @@ KHUSHI/
 - **Workflow**: "KHUSHI Bot" — `python -m KHUSHI`
 - **Web**: KHUSHI/web/index.html branded as "KHUSHI Music Player"
 
+## Customizations (March 2026)
+- **KHUSHI Branding in Logs**: All `LOGGER("ANNIEMUSIC")` calls changed to `LOGGER("KHUSHI")` in `__main__.py`
+- **New Attractive UI**: All command buttons updated with premium emojis (🎵 ⏯ 🔀 🔁 ⏩ ⚡️ ❄️ 📻 📊 ⚙️ etc.)
+- **Premium Icon Support**: `icon_custom_emoji_id` added to help and start panel buttons
+- **Player Branding**: "ᴀɴɴɪᴇ ᴘʟᴀʏᴇʀ" → "🎵 ᴋʜᴜsʜɪ ᴘʟᴀʏᴇʀ" in player inline buttons
+- **Autoplay Messages**: "ᴀɴɴɪᴇ" → "ᴋʜᴜsʜɪ" in autoplay.py and callback.py visible messages
+- **Menu Button**: Bot menu button text changed from "ANNIE" to "KHUSHI"
+- **Welcome Removed**: Removed group welcome function and images (welcome.png, couple.png)
+
 ## Customizations (December 2025)
 - **Developer Branding**: Changed developer name to "⎯꯭̽ 𝚱 𝚮 𝐔 𝛅 𝚮 𝚰⥱" (PGL_B4CHI) everywhere
 - **Developer Link**: Updated all developer/support links to https://t.me/PGL_B4CHI

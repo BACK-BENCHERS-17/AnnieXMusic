@@ -1,5 +1,5 @@
 """
-Broadcast Plugin — Annie Music Bot
+Broadcast Plugin — KHUSHI Music Bot
 /broadcast  (or /bc) — SUDOERS only
 Flags:
   -pin        : pin in groups silently
