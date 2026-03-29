@@ -5,8 +5,8 @@ from datetime import datetime
 from pyrogram import filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
-from ANNIEMUSIC import app
-from ANNIEMUSIC.core.call import JARVIS
+from KHUSHI import app
+from KHUSHI.core.call import JARVIS
 from ANNIEMUSIC.utils import bot_sys_stats
 from config import BANNED_USERS, SUPPORT_CHAT
 

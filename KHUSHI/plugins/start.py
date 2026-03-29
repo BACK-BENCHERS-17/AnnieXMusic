@@ -3,7 +3,7 @@
 from pyrogram import filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
-from ANNIEMUSIC import app
+from KHUSHI import app
 from ANNIEMUSIC.utils.database import get_lang
 from config import BANNED_USERS, SUPPORT_CHAT
 from strings import get_string

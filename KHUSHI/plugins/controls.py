@@ -5,9 +5,9 @@ import random
 from pyrogram import filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
-from ANNIEMUSIC import app
-from ANNIEMUSIC.core.call import JARVIS
-from ANNIEMUSIC.misc import db
+from KHUSHI import app
+from KHUSHI.core.call import JARVIS
+from KHUSHI.misc import db
 from ANNIEMUSIC.utils import seconds_to_min
 from ANNIEMUSIC.utils.database import (
     disable_247,

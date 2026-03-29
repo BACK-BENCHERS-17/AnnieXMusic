@@ -6,8 +6,8 @@ from pyrogram import filters
 from pyrogram.errors import FloodWait
 from pyrogram.types import Message
 
-from ANNIEMUSIC import app
-from ANNIEMUSIC.misc import SUDOERS
+from KHUSHI import app
+from KHUSHI.misc import SUDOERS
 from ANNIEMUSIC.utils.database import (
     add_banned_user,
     add_gban_user,

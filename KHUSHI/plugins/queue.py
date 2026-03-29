@@ -3,8 +3,8 @@
 from pyrogram import filters
 from pyrogram.types import Message
 
-from ANNIEMUSIC import app
-from ANNIEMUSIC.misc import db
+from KHUSHI import app
+from KHUSHI.misc import db
 from ANNIEMUSIC.utils import seconds_to_min
 from ANNIEMUSIC.utils.database import get_cmode, is_active_chat
 from config import BANNED_USERS
