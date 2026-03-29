@@ -297,7 +297,7 @@ def _opts(client: str, cookie_file: Optional[str] = None) -> Dict:
         "no_warnings":        True,
         "nocheckcertificate": True,
         "source_address":     "0.0.0.0",
-        "socket_timeout":     20,
+        "socket_timeout":     8,
         "retries":            1,
         "extractor_args": {
             "youtube": {
@@ -511,7 +511,7 @@ def smart_extract_url(vid: str) -> Optional[Dict]:
         (lambda c: lambda: _client_extract(vid, c, cookie_file))(c)
         for c in clients
     ]
-    winner = _race(targets, timeout=15.0)
+    winner = _race(targets, timeout=10.0)
 
     if winner:
         _registry.mark_ok(winner["client"])

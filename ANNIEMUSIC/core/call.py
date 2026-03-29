@@ -81,6 +81,7 @@ def _is_cdn_url(path: str) -> bool:
 def dynamic_media_stream(path: str, video: bool = False, ffmpeg_params: str = None) -> MediaStream:
     ytdlp_args = None
     headers = None
+    _cdn_reconnect = ""
 
     if _needs_ytdlp(path):
         ytdlp_args = "--js-runtimes node"
@@ -88,6 +89,12 @@ def dynamic_media_stream(path: str, video: bool = False, ffmpeg_params: str = No
             ytdlp_args += f" --cookies {COOKIE_PATH}"
     elif _is_cdn_url(path):
         headers = _get_cdn_headers()
+        _cdn_reconnect = "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5"
+
+    if ffmpeg_params and _cdn_reconnect:
+        ffmpeg_params = f"{_cdn_reconnect} {ffmpeg_params}"
+    elif _cdn_reconnect and not ffmpeg_params:
+        ffmpeg_params = _cdn_reconnect
 
     if video:
         return MediaStream(
