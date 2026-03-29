@@ -19,7 +19,9 @@ from ANNIEMUSIC.utils.database import (
     is_maintenance,
 )
 from ANNIEMUSIC.utils.decorators import AdminRightsCheck
-from config import BANNED_USERS, DURATION_LIMIT, SUPPORT_CHAT, adminlist
+from ANNIEMUSIC.utils.downloader import _trigger_bg_cache
+from ANNIEMUSIC.utils.raw_send import send_msg_invert_preview
+from config import BANNED_USERS, BOT_USERNAME, DURATION_LIMIT, SUPPORT_CHAT, adminlist
 
 _BRAND = (
     "<emoji id='5042192219960771668'>🧸</emoji>"
@@ -69,6 +71,29 @@ def _queued_kb():
     return InlineKeyboardMarkup([[
         InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close")
     ]])
+
+
+def _stream_notification(title, duration, user_mention, vidid, chat_id, mode="queued"):
+    """Returns the stream notification text (invert_media preview style)."""
+    bot = BOT_USERNAME.lstrip("@")
+    title_display = title.title()[:35]
+    if len(title.title()) > 35:
+        title_display += "…"
+    link = f"https://t.me/{bot}?start=info_{vidid}"
+
+    if mode == "playing":
+        return (
+            f"<blockquote><b><a href='{link}'>{title_display}</a></b>"
+            f" | <code>{duration}</code></blockquote>\n"
+            f"<blockquote>{_EM['user']} {user_mention}</blockquote>"
+        )
+    else:
+        return (
+            f"<blockquote>{_EM['queue']} <b>ᴀᴅᴅᴇᴅ ᴛᴏ ǫᴜᴇᴜᴇ</b></blockquote>\n"
+            f"<blockquote><b><a href='{link}'>{title_display}</a></b>"
+            f" | <code>{duration}</code></blockquote>\n"
+            f"<blockquote>{_EM['user']} {user_mention}</blockquote>"
+        )
 
 
 async def _check_maintenance(message: Message) -> bool:
@@ -177,11 +202,6 @@ async def _handle_play(message: Message, video: bool = False):
             )
             return
 
-    mystic = await message.reply_text(
-        f"<blockquote>{_BRAND}</blockquote>\n\n"
-        f"<blockquote>{_EM['zap']} ꜱᴇᴀʀᴄʜɪɴɢ...</blockquote>"
-    )
-
     # Handle Telegram audio/video file
     if tg_audio or tg_video:
         file_obj = tg_audio or tg_video
@@ -194,26 +214,24 @@ async def _handle_play(message: Message, video: bool = False):
             duration = f"{h:02d}:{m:02d}:{s:02d}" if h else f"{m:02d}:{s:02d}"
 
         try:
-            dl_msg = await mystic.edit_text(
-                f"<blockquote>{_BRAND}</blockquote>\n\n"
-                f"<blockquote>{_EM['zap']} ᴅᴏᴡɴʟᴏᴀᴅɪɴɢ ᴛᴇʟᴇɢʀᴀᴍ ꜰɪʟᴇ...</blockquote>"
-            )
             file_path = await app.download_media(file_obj.file_id, file_name=f"downloads/tg_{file_obj.file_id}.file")
         except Exception as e:
-            return await mystic.edit_text(
+            return await message.reply_text(
                 f"<blockquote>{_BRAND}</blockquote>\n\n"
                 f"<blockquote>❌ ᴅᴏᴡɴʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ: {type(e).__name__}</blockquote>"
             )
 
+        already_active = await is_active_chat(chat_id)
         _put_to_db(chat_id, chat_id, file_path, title, duration, user_name, "telegram", user_id,
                    "video" if (video or tg_video) else "audio")
-        return await _start_or_queue(chat_id, mystic, title, duration, user_name, "queued" if await is_active_chat(chat_id) else "playing", video or bool(tg_video))
+        mode = "queued" if already_active else "playing"
+        return await _start_or_queue(message, chat_id, "telegram", title, duration, user_name, mode, video or bool(tg_video))
 
     # Handle YouTube URL or search
     query = url if url else message.text.split(None, 1)[1] if len(message.command) > 1 else None
 
     if not query:
-        return await mystic.edit_text(
+        return await message.reply_text(
             f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>❌ ɴᴏ ǫᴜᴇʀʏ ᴘʀᴏᴠɪᴅᴇᴅ.</blockquote>"
         )
@@ -230,89 +248,91 @@ async def _handle_play(message: Message, video: bool = False):
                 _put_to_db(chat_id, chat_id, f"live_{vidid}", title, "Live", user_name, vidid, user_id,
                            "video" if video else "audio")
                 already_active = await is_active_chat(chat_id)
-                return await _start_or_queue(chat_id, mystic, title, "LIVE", user_name,
-                                             "queued" if already_active else "playing", video)
+                mode = "queued" if already_active else "playing"
+                return await _start_or_queue(message, chat_id, vidid, title, "LIVE", user_name, mode, video)
         except Exception:
             pass
 
-    # Search/details
+    # Search/details — silently get top result
     try:
         title, duration_min, duration_sec, thumbnail, vidid = await YouTube.details(query, videoid=False)
     except Exception as e:
-        return await mystic.edit_text(
+        return await message.reply_text(
             f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>❌ ɴᴏᴛʜɪɴɢ ꜰᴏᴜɴᴅ.\n{_EM['dot']} {type(e).__name__}</blockquote>"
         )
 
     if str(duration_min) == "None" or not vidid:
-        return await mystic.edit_text(
+        return await message.reply_text(
             f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>❌ ᴄᴏᴜʟᴅ ɴᴏᴛ ꜰᴇᴛᴄʜ ᴛʀᴀᴄᴋ ᴅᴇᴛᴀɪʟꜱ.</blockquote>"
         )
 
     if duration_sec and duration_sec > DURATION_LIMIT:
-        return await mystic.edit_text(
+        return await message.reply_text(
             f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>❌ ᴛʀᴀᴄᴋ ɪꜱ ᴛᴏᴏ ʟᴏɴɢ.\n"
             f"{_EM['dot']} ᴍᴀx ᴅᴜʀᴀᴛɪᴏɴ: <code>{DURATION_LIMIT // 60} ᴍɪɴᴜᴛᴇꜱ</code></blockquote>"
         )
+
+    # Pre-warm the CDN URL cache immediately after we have the vidid
+    asyncio.create_task(_trigger_bg_cache(vidid))
 
     already_active = await is_active_chat(chat_id)
 
     if already_active:
         _put_to_db(chat_id, chat_id, f"vid_{vidid}", title, duration_min, user_name, vidid, user_id,
                    "video" if video else "audio")
-        return await _start_or_queue(chat_id, mystic, title, duration_min, user_name, "queued", video)
+        return await _start_or_queue(message, chat_id, vidid, title, duration_min, user_name, "queued", video)
 
-    # First track — download then play
-    await mystic.edit_text(
-        f"<blockquote>{_BRAND}</blockquote>\n\n"
-        f"<blockquote>{_EM['zap']} ᴅᴏᴡɴʟᴏᴀᴅɪɴɢ...</blockquote>"
-    )
+    # First track — download and play
     try:
-        file_path, direct = await YouTube.download(vidid, mystic, videoid=True, video=video)
+        file_path, direct = await YouTube.download(vidid, None, videoid=True, video=video)
     except Exception as e:
-        return await mystic.edit_text(
+        return await message.reply_text(
             f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>❌ ᴅᴏᴡɴʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ.\n{_EM['dot']} {type(e).__name__}</blockquote>"
         )
 
     _put_to_db(chat_id, chat_id, file_path, title, duration_min, user_name, vidid, user_id,
                "video" if video else "audio")
-    await _start_or_queue(chat_id, mystic, title, duration_min, user_name, "playing", video)
+    await _start_or_queue(message, chat_id, vidid, title, duration_min, user_name, "playing", video)
 
 
-async def _start_or_queue(chat_id, mystic, title, duration, user_name, mode, video):
+async def _start_or_queue(message: Message, chat_id, vidid, title, duration, user_mention, mode, video):
     if mode == "queued":
+        text = _stream_notification(title, duration, user_mention, vidid, chat_id, mode="queued")
         try:
-            await mystic.edit_text(
-                f"<blockquote>{_BRAND}</blockquote>\n\n"
-                f"<blockquote>"
-                f"{_EM['queue']} <b>ᴀᴅᴅᴇᴅ ᴛᴏ ǫᴜᴇᴜᴇ</b>\n\n"
-                f"{_EM['music']} <b>{title.title()[:40]}</b>\n"
-                f"{_EM['clock']} <b>ᴅᴜʀᴀᴛɪᴏɴ:</b> <code>{duration}</code>\n"
-                f"{_EM['user']} <b>ʙʏ:</b> {user_name}"
-                f"</blockquote>",
-                reply_markup=_queued_kb(),
+            await send_msg_invert_preview(
+                app, chat_id, text, reply_markup=_queued_kb()
             )
         except Exception:
-            pass
+            try:
+                await message.reply_text(text, reply_markup=_queued_kb())
+            except Exception:
+                pass
         return
 
-    # Playing — call JARVIS.join_call
+    # Playing — join the voice chat
     try:
         q = db.get(chat_id)
         if not q:
             return
         link = q[0]["file"]
         await JARVIS.join_call(chat_id, chat_id, link, video=video)
+        text = _stream_notification(title, duration, user_mention, vidid, chat_id, mode="playing")
         try:
-            await mystic.delete()
+            await send_msg_invert_preview(
+                app, chat_id, text, reply_markup=_playing_kb(chat_id)
+            )
         except Exception:
-            pass
+            try:
+                await message.reply_text(text, reply_markup=_playing_kb(chat_id))
+            except Exception:
+                pass
     except Exception as e:
         try:
-            await mystic.edit_text(
+            await message.reply_text(
                 f"<blockquote>{_BRAND}</blockquote>\n\n"
                 f"<blockquote>❌ ᴄᴀɴɴᴏᴛ ᴊᴏɪɴ ᴠᴏɪᴄᴇ ᴄʜᴀᴛ.\n{_EM['dot']} {str(e)[:100]}</blockquote>"
             )
