@@ -1,11 +1,15 @@
-"""KHUSHI — Start & Help Plugin with new premium UI."""
+"""KHUSHI — Start & Help Plugin with spoiler images."""
 
-from pyrogram import filters
+import random
+
+from pyrogram import enums, filters
+from pyrogram.parser import Parser
+from pyrogram.raw import functions as raw_func, types as raw_types
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from KHUSHI import app
 from ANNIEMUSIC.utils.database import get_lang
-from config import BANNED_USERS, SUPPORT_CHAT
+from config import BANNED_USERS, HELP_IMG_URL, START_IMGS, SUPPORT_CHAT
 from strings import get_string
 
 _BRAND = (
@@ -46,10 +50,10 @@ HELP_TEXT = (
 )
 
 
-def _start_kb(_):
+def _start_kb():
     return InlineKeyboardMarkup([
         [
-            InlineKeyboardButton("˹ʜᴇʟᴘ˼", callback_data="annie_help"),
+            InlineKeyboardButton("˹ʜᴇʟᴘ˼", callback_data="khushi_help"),
             InlineKeyboardButton("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=f"https://t.me/{SUPPORT_CHAT.lstrip('@')}"),
         ],
         [
@@ -58,49 +62,143 @@ def _start_kb(_):
     ])
 
 
+def _help_kb():
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("˹ʙᴀᴄᴋ˼", callback_data="khushi_back")]
+    ])
+
+
+async def _send_spoiler_photo(
+    client,
+    message: Message,
+    photo_url: str,
+    caption: str,
+    markup: InlineKeyboardMarkup,
+) -> bool:
+    """Send a spoiler photo via raw API, with 2 fallbacks."""
+    # Tier 1 — raw API (spoiler flag at server level)
+    try:
+        peer = await client.resolve_peer(message.chat.id)
+        parser = Parser(client)
+        parsed = await parser.parse(caption, mode=enums.ParseMode.HTML)
+        text = parsed.get("message", "")
+        entities = parsed.get("entities") or []
+        raw_markup = await markup.write(client) if markup else None
+        media = raw_types.InputMediaPhotoExternal(url=photo_url, spoiler=True)
+        await client.invoke(
+            raw_func.messages.SendMedia(
+                peer=peer,
+                media=media,
+                message=text,
+                random_id=random.randint(-(2**63), 2**63 - 1),
+                reply_markup=raw_markup,
+                entities=entities,
+            )
+        )
+        return True
+    except Exception:
+        pass
+
+    # Tier 2 — high-level reply_photo with has_spoiler
+    try:
+        await message.reply_photo(
+            photo=photo_url,
+            caption=caption,
+            reply_markup=markup,
+            has_spoiler=True,
+        )
+        return True
+    except Exception:
+        pass
+
+    return False
+
+
+# ── /kstart ──────────────────────────────────────────────────────────────────
+
 @app.on_message(filters.command("kstart") & ~BANNED_USERS)
-async def khushi_start(_, message: Message):
+async def khushi_start(client, message: Message):
     try:
         lang = await get_lang(message.from_user.id)
-        _ = get_string(lang)
     except Exception:
-        _ = get_string("en")
+        lang = "en"
 
-    text = f"<blockquote>{_BRAND}</blockquote>\n\n" + START_TEXT.format(
-        mention=message.from_user.mention,
-        bot=app.mention,
+    caption = (
+        f"<blockquote>{_BRAND}</blockquote>\n\n"
+        + START_TEXT.format(
+            mention=message.from_user.mention,
+            bot=app.mention,
+        )
     )
-    await message.reply_text(text, reply_markup=_start_kb(_), disable_web_page_preview=True)
+    markup = _start_kb()
+    img = random.choice(START_IMGS)
 
+    sent = await _send_spoiler_photo(client, message, img, caption, markup)
+
+    # Tier 3 — plain text fallback
+    if not sent:
+        await message.reply_text(
+            caption,
+            reply_markup=markup,
+            disable_web_page_preview=True,
+        )
+
+
+# ── /khelp ───────────────────────────────────────────────────────────────────
 
 @app.on_message(filters.command("khelp") & ~BANNED_USERS)
-async def khushi_help(_, message: Message):
-    await message.reply_text(
-        f"<blockquote>{_BRAND}</blockquote>\n\n" + HELP_TEXT,
-        disable_web_page_preview=True,
-    )
+async def khushi_help(client, message: Message):
+    caption = f"<blockquote>{_BRAND}</blockquote>\n\n" + HELP_TEXT
+    markup = _help_kb()
+
+    sent = await _send_spoiler_photo(client, message, HELP_IMG_URL, caption, markup)
+
+    if not sent:
+        await message.reply_text(
+            caption,
+            reply_markup=markup,
+            disable_web_page_preview=True,
+        )
 
 
-@app.on_callback_query(filters.regex("annie_help") & ~BANNED_USERS)
+# ── Callbacks ─────────────────────────────────────────────────────────────────
+
+@app.on_callback_query(filters.regex("khushi_help") & ~BANNED_USERS)
 async def khushi_help_cb(_, query):
     await query.answer()
-    await query.edit_message_text(
-        f"<blockquote>{_BRAND}</blockquote>\n\n" + HELP_TEXT,
-        reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("˹ʙᴀᴄᴋ˼", callback_data="annie_back")]
-        ]),
-    )
+    caption = f"<blockquote>{_BRAND}</blockquote>\n\n" + HELP_TEXT
+    try:
+        await query.message.edit_caption(caption, reply_markup=_help_kb())
+    except Exception:
+        try:
+            await query.edit_message_text(
+                caption,
+                reply_markup=_help_kb(),
+                disable_web_page_preview=True,
+            )
+        except Exception:
+            pass
 
 
-@app.on_callback_query(filters.regex("annie_back") & ~BANNED_USERS)
+@app.on_callback_query(filters.regex("khushi_back") & ~BANNED_USERS)
 async def khushi_back_cb(_, query):
     await query.answer()
-    try:
-        _ = get_string("en")
-    except Exception:
-        _ = {}
-    text = f"<blockquote>{_BRAND}</blockquote>\n\n" + START_TEXT.format(
-        mention=query.from_user.mention,
-        bot=app.mention,
+    caption = (
+        f"<blockquote>{_BRAND}</blockquote>\n\n"
+        + START_TEXT.format(
+            mention=query.from_user.mention,
+            bot=app.mention,
+        )
     )
-    await query.edit_message_text(text, reply_markup=_start_kb(_), disable_web_page_preview=True)
+    markup = _start_kb()
+    try:
+        await query.message.edit_caption(caption, reply_markup=markup)
+    except Exception:
+        try:
+            await query.edit_message_text(
+                caption,
+                reply_markup=markup,
+                disable_web_page_preview=True,
+            )
+        except Exception:
+            pass
