@@ -56,10 +56,22 @@ def _bar(v, size=11):
 
 
 async def _main_text() -> str:
-    served_chats = len(await get_served_chats())
-    served_users = len(await get_served_users())
-    active_audio = len(await get_active_chats())
-    active_video = len(await get_active_video_chats())
+    try:
+        served_chats = len(await get_served_chats())
+    except Exception:
+        served_chats = 0
+    try:
+        served_users = len(await get_served_users())
+    except Exception:
+        served_users = 0
+    try:
+        active_audio = len(await get_active_chats())
+    except Exception:
+        active_audio = 0
+    try:
+        active_video = len(await get_active_video_chats())
+    except Exception:
+        active_video = 0
     UP, CPU, RAM, DISK = await bot_sys_stats()
 
     return (
@@ -81,13 +93,34 @@ async def _main_text() -> str:
 
 
 async def _overview_text() -> str:
-    served_chats = len(await get_served_chats())
-    served_users = len(await get_served_users())
-    active_audio = len(await get_active_chats())
-    active_video = len(await get_active_video_chats())
-    sudoers      = len(await get_sudoers())
-    gbanned      = len(await get_gbanned())
-    banned       = len(await get_banned_users())
+    try:
+        served_chats = len(await get_served_chats())
+    except Exception:
+        served_chats = 0
+    try:
+        served_users = len(await get_served_users())
+    except Exception:
+        served_users = 0
+    try:
+        active_audio = len(await get_active_chats())
+    except Exception:
+        active_audio = 0
+    try:
+        active_video = len(await get_active_video_chats())
+    except Exception:
+        active_video = 0
+    try:
+        sudoers = len(await get_sudoers())
+    except Exception:
+        sudoers = 0
+    try:
+        gbanned = len(await get_gbanned())
+    except Exception:
+        gbanned = 0
+    try:
+        banned = len(await get_banned_users())
+    except Exception:
+        banned = 0
 
     return (
         f"<blockquote>{_BRAND}</blockquote>\n\n"

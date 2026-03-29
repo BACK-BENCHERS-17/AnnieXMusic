@@ -1140,3 +1140,20 @@ pymongo.errors.ConfigurationError: The DNS query name does not exist: _mongodb._
 [29-Mar-26 20:22:35 - INFO] - KHUSHI -   KHUSHI Bot  |  Independent Core  
 [29-Mar-26 20:22:35 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 [29-Mar-26 20:22:39 - WARNING] - KHUSHI.core.bot - FloodWait: waiting 887s...
+[29-Mar-26 20:33:15 - INFO] - KHUSHI - SIGTERM — shutting down...
+[29-Mar-26 20:33:23 - INFO] - KHUSHI.core.mongo - KHUSHI: Connecting to MongoDB...
+[29-Mar-26 20:33:23 - INFO] - KHUSHI.core.mongo - KHUSHI: MongoDB connected. (DB: Annie)
+[29-Mar-26 20:33:23 - INFO] - ANNIEMUSIC.core.mongo - Connecting to your Mongo Database...
+[29-Mar-26 20:33:23 - INFO] - ANNIEMUSIC.core.mongo - Connected to your Mongo Database. (DB: Annie)
+[29-Mar-26 20:33:23 - INFO] - ANNIEMUSIC.core.dir - Directories Updated.
+[29-Mar-26 20:33:23 - INFO] - ANNIEMUSIC.core.git - Git Client Found [VPS DEPLOYER]
+[29-Mar-26 20:33:23 - INFO] - ANNIEMUSIC.core.git - Successfully updated from upstream repository.
+[29-Mar-26 20:33:23 - INFO] - ANNIEMUSIC.misc - ᴅᴀᴛᴀʙᴀsᴇ ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ💗
+[29-Mar-26 20:33:23 - INFO] - ANNIEMUSIC.core.bot - Bot client initialized.
+[29-Mar-26 20:33:24 - WARNING] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] Node.js NOT found — web_safari client may fail, android_vr will still work
+[29-Mar-26 20:33:24 - INFO] - KHUSHI.core.bot - KHUSHI Bot client initialized.
+[29-Mar-26 20:33:24 - INFO] - KHUSHI.misc - KHUSHI: In-memory DB initialized.
+[29-Mar-26 20:33:24 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[29-Mar-26 20:33:24 - INFO] - KHUSHI -   KHUSHI Bot  |  Independent Core  
+[29-Mar-26 20:33:24 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[29-Mar-26 20:33:27 - WARNING] - KHUSHI.core.bot - FloodWait: waiting 239s...
