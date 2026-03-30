@@ -3,12 +3,6 @@ import os
 import random
 import string
 
-# ── Play banner image (cached after first upload to Telegram) ─────────────────
-_BANNER_PATH = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "assets", "play_banner.png")
-)
-_banner_file_id: str = None
-
 
 async def _safe_delete(message):
     try:
@@ -17,23 +11,6 @@ async def _safe_delete(message):
         pass
 
 
-async def _play_photo(message, caption: str, markup):
-    """Send play response with the banner image, caching the Telegram file_id."""
-    global _banner_file_id
-    photo = _banner_file_id or (_BANNER_PATH if os.path.exists(_BANNER_PATH) else None)
-    if photo:
-        try:
-            sent = await message.reply_photo(
-                photo=photo,
-                caption=caption,
-                reply_markup=markup,
-            )
-            if _banner_file_id is None and sent.photo:
-                _banner_file_id = sent.photo.file_id
-            return sent
-        except Exception:
-            pass
-    return await message.reply_text(caption, reply_markup=markup, disable_web_page_preview=True)
 
 from pyrogram import filters, enums
 from pyrogram.errors import FloodWait, RandomIdDuplicate
@@ -443,10 +420,33 @@ async def play_command(
     else:
         if len(message.command) < 2:
             buttons = botplaylist_markup(_)
-            return await mystic.edit_text(
-                _["play_18"],
-                reply_markup=InlineKeyboardMarkup(buttons),
+            _BRAND_HDR = (
+                "<emoji id='5042192219960771668'>🧸</emoji>"
+                "<emoji id='5210820276748566172'>🔤</emoji>"
+                "<emoji id='5213301251722203632'>🔤</emoji>"
+                "<emoji id='5213301251722203632'>🔤</emoji>"
+                "<emoji id='5213337333742454261'>🔤</emoji>"
+                "<emoji id='5211032856154885824'>🔤</emoji>"
             )
+            _usage_cap = (
+                f"<blockquote>{_BRAND_HDR}</blockquote>\n\n"
+                "<blockquote>"
+                "<emoji id='5463107823946717464'>🎵</emoji> <b>ᴜꜱᴀɢᴇ</b>\n"
+                "<emoji id='5972072533833289156'>🔹</emoji> /play [ꜱᴏɴɢ ɴᴀᴍᴇ / ᴜʀʟ]\n"
+                "🎬 /vplay [ᴠɪᴅᴇᴏ ɴᴀᴍᴇ / ᴜʀʟ]"
+                "</blockquote>"
+            )
+            vid_url = random.choice(config.PLAY_VID_URLS)
+            try:
+                await mystic.delete()
+                await message.reply_video(
+                    video=vid_url,
+                    caption=_usage_cap,
+                    reply_markup=InlineKeyboardMarkup(buttons),
+                )
+            except Exception:
+                await mystic.edit_text(_usage_cap, reply_markup=InlineKeyboardMarkup(buttons))
+            return
 
         slider = True
         query = message.text.split(None, 1)[1]
@@ -582,13 +582,13 @@ async def play_command(
                     "f" if fplay else "d",
                 )
                 await mystic.delete()
-                await _play_photo(
-                    message,
+                await message.reply_photo(
+                    photo=details["thumb"],
                     caption=_["play_10"].format(
                         details["title"].title(),
                         details["duration_min"],
                     ),
-                    markup=InlineKeyboardMarkup(buttons),
+                    reply_markup=InlineKeyboardMarkup(buttons),
                 )
                 asyncio.create_task(_trigger_bg_cache(track_id))
                 return await play_logs(message, streamtype="Searched on YouTube")
@@ -602,13 +602,13 @@ async def play_command(
                     "f" if fplay else "d",
                 )
                 await mystic.delete()
-                await _play_photo(
-                    message,
+                await message.reply_photo(
+                    photo=details["thumb"],
                     caption=_["play_10"].format(
                         details["title"],
                         details["duration_min"],
                     ),
-                    markup=InlineKeyboardMarkup(buttons),
+                    reply_markup=InlineKeyboardMarkup(buttons),
                 )
                 asyncio.create_task(_trigger_bg_cache(track_id))
                 return await play_logs(message, streamtype="URL Search Inline")
