@@ -62,6 +62,31 @@ async def _get_lang(user_id):
         return "en"
 
 
+async def _raw_edit(client, chat_id, msg_id, caption, markup) -> bool:
+    """Edit a message caption via raw MTProto (same parser as SendMedia, supports custom emoji)."""
+    try:
+        peer = await client.resolve_peer(chat_id)
+        parser = Parser(client)
+        parsed = await parser.parse(caption, mode=enums.ParseMode.HTML)
+        text = parsed.get("message", "")
+        entities = parsed.get("entities") or []
+        raw_markup = await markup.write(client) if markup else None
+        await client.invoke(
+            raw_func.messages.EditMessage(
+                peer=peer,
+                id=msg_id,
+                message=text,
+                entities=entities,
+                reply_markup=raw_markup,
+                no_webpage=True,
+            )
+        )
+        return True
+    except Exception as e:
+        _LOGGER.warning("[RAW_EDIT] failed: %s", e)
+        return False
+
+
 async def _try_send_photo(client, chat_id, photo_url, caption, markup) -> bool:
     """Try to send a photo with spoiler via raw API, then fallback."""
     try:
@@ -175,20 +200,23 @@ async def khushi_help_cb(client, query):
     keyboard = first_page(_)
     caption = _["help_1"].format(SUPPORT_CHAT)
 
-    safe_caption = _safe_text(caption)
-
-    edited = False
-    try:
-        await query.message.edit_caption(
-            safe_caption, reply_markup=keyboard, parse_mode=enums.ParseMode.HTML
-        )
-        edited = True
-    except Exception as e:
-        _LOGGER.warning("[HELP_CB] edit_caption failed: %s", e)
+    msg = query.message
+    edited = await _raw_edit(client, msg.chat.id, msg.id, caption, keyboard)
 
     if not edited:
+        safe_caption = _safe_text(caption)
         try:
-            await query.message.edit_text(
+            await msg.edit_caption(
+                safe_caption, reply_markup=keyboard, parse_mode=enums.ParseMode.HTML
+            )
+            edited = True
+        except Exception as e:
+            _LOGGER.warning("[HELP_CB] edit_caption failed: %s", e)
+
+    if not edited:
+        safe_caption = _safe_text(caption)
+        try:
+            await msg.edit_text(
                 safe_caption, reply_markup=keyboard,
                 parse_mode=enums.ParseMode.HTML,
                 disable_web_page_preview=True,
@@ -199,13 +227,14 @@ async def khushi_help_cb(client, query):
 
     if not edited:
         _LOGGER.warning("[HELP_CB] All edits failed — falling back to delete+send")
+        safe_caption = _safe_text(caption)
         try:
-            await query.message.delete()
+            await msg.delete()
         except Exception:
             pass
         try:
             await client.send_photo(
-                query.message.chat.id,
+                msg.chat.id,
                 photo=HELP_IMG_URL,
                 caption=safe_caption,
                 reply_markup=keyboard,
@@ -214,7 +243,7 @@ async def khushi_help_cb(client, query):
         except Exception:
             try:
                 await client.send_message(
-                    query.message.chat.id,
+                    msg.chat.id,
                     safe_caption,
                     reply_markup=keyboard,
                     parse_mode=enums.ParseMode.HTML,
