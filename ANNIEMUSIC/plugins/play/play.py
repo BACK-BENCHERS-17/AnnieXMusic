@@ -443,6 +443,7 @@ async def play_command(
                     video=vid_url,
                     caption=_usage_cap,
                     reply_markup=InlineKeyboardMarkup(buttons),
+                    has_spoiler=True,
                 )
             except Exception:
                 await mystic.edit_text(_usage_cap, reply_markup=InlineKeyboardMarkup(buttons))

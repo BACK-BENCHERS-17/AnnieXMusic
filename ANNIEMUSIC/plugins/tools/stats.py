@@ -19,7 +19,7 @@ from ANNIEMUSIC.utils.inline.stats import (
     build_back_keyboard,
     build_stats_keyboard,
 )
-from config import BANNED_USERS
+from config import BANNED_USERS, STATS_VID_URL
 
 _E = {
     "globe":  "<emoji id='5316832074047441823'>🌐</emoji>",
@@ -159,7 +159,14 @@ async def stats_command(client, message: Message, _):
     is_sudo = message.from_user.id in SUDOERS
     text = await _main_text()
     keyboard = build_stats_keyboard(_, is_sudo)
-    await message.reply_text(text, reply_markup=keyboard)
+    try:
+        await message.reply_video(
+            video=STATS_VID_URL,
+            caption=text,
+            reply_markup=keyboard,
+        )
+    except Exception:
+        await message.reply_text(text, reply_markup=keyboard)
 
 
 @app.on_callback_query(filters.regex(f"^{StatsCallbacks.SHOW_OVERVIEW}$") & ~BANNED_USERS)
