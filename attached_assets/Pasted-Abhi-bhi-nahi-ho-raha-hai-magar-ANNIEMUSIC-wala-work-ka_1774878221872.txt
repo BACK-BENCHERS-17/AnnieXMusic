@@ -1,0 +1,73 @@
+Abhi bhi nahi ho raha hai magar ANNIEMUSIC wala work karta hai
+
+The user says the song download is still not working but ANNIEMUSIC works. Let me check the logs first, then compare ANNIEMUSIC's song download with KHUSHI's to find the exact difference.
+
+Logs dekhta hoon aur ANNIEMUSIC ka song plugin bhi compare karta hoon:
+
+Checked system logs
+The error is still "Requested format is not available" even with my more permissive format strings. This is strange - the format strings bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best should work, but clearly they're not working.
+
+Let me look at this differently. The error message is:
+
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+This error happens because the YouTube clients being used (android_vr, etc.) are returning formats that don't match the format string.
+
+I think the real problem is that these specific YouTube clients only expose certain formats that don't even match the fallback bestaudio option, so I need to check what ANNIEMUSIC is actually doing differently for its downloads - what format string and client combination it's using to successfully bypass this issue. I need to trace through ANNIEMUSIC's YouTube download implementation to understand why it's failing where KHUSHI succeeds, especially given that the format string should have a solid fallback chain.
+
+Error bahut deep hai — sab clients fail ho rahe hain. ANNIEMUSIC ka exact download mechanism dekhta hoon:
+
+$ find ANNIEMUSIC -name "*.py" | xargs grep -l "download\|yt_dlp\|ytdl" 2>/dev/null | grep -v __pycache__ | grep -v ".pyc"
+$ python3 -c " import yt_dlp vid = 'hHuG7FIKgtc' opts = { 'quiet': True, 'no_warnings': True, 'skip_download': True, 'noplaylist': True, } with yt_dlp.YoutubeDL(opts) as ydl: info = ydl.extract_info(f'https://www.youtube.com/watch?v={vid}', download=False) fmts = info.get('formats', []) print('Available formats:') for f in fmts: print(f\" id={f.get('format_id')} ext={f.get('ext')} vcodec={f.get('vcodec')} acodec={f.get('acodec')} height={f.get('height')} abr={f.get('abr')}\") " 2>&1 | head -40
+Now I can see the available formats for this video. The issue is clear now:
+
+The formats available are:
+
+Audio: m4a (id=139, 140) and webm/opus (id=249, 251)
+Video: mp4, webm, mp4 (various heights)
+But when we use the android_vr client or other ytdl_smart clients, they might be restricted to certain formats. The default (no client specified) can see all formats, but android_vr client might only see a subset.
+
+The key issue is that the player_client restriction in get_base_ytdlp_opts is causing the format availability problem.
+
+When specific clients like android_vr are used, yt-dlp only sees a limited set of format IDs, which breaks the format selector. I should look at how ANNIEMUSIC's song plugin handles downloads to see if there's a different approach I'm missing.
+
+Formats available hain! Issue hai player_client restriction. ANNIEMUSIC ka song plugin dekhta hoon:
+
+Now I see the key insight!
+
+ANNIEMUSIC's song.py is IDENTICAL to KHUSHI's song.py in terms of the _dl_yt function. They both use get_base_ytdlp_opts which has player_client restrictions. So they should both have the same problem...
+
+But wait - the user says ANNIEMUSIC works. That means there must be a difference in the ytdl_smart.py between ANNIEMUSIC and KHUSHI. Let me check what's different in ANNIEMUSIC's ytdl_smart.py vs KHUSHI's ytdl_smart.py.
+
+So the real issue is that when player_client gets passed to the extractor args, it restricts which formats are available. The android_vr client specifically doesn't expose the formats that match bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best, even though those formats exist when I test yt_dlp without the client restriction. The client limitation is filtering out compatible formats.
+
+The fix is to bypass get_base_ytdlp_opts entirely for the song plugin and make a direct yt_dlp call without any player_client constraints, so it defaults to the client with full format access. Let me check if ANNIEMUSIC's ytdl_smart.py handles this differently than KHUSHI's version.
+
+ANNIEMUSIC ka ytdl_smart dekhna hai — same code hai lekin kuch difference hoga:
+
+$ diff <(grep -n "player_client\|_JSLESS\|ordered_clients\|android" ANNIEMUSIC/utils/ytdl_smart.py) <(grep -n "player_client\|_JSLESS\|ordered_clients\|android" KHUSHI/utils/ytdl_smart.py) | head -40
+$ grep -n "_JSLESS\|_CLIENT_ORDER\|ordered_clients\|player_client\|candidates" ANNIEMUSIC/utils/ytdl_smart.py | head -20
+Now I understand! The get_base_ytdlp_opts is using player_client restrictions. The player_client for these restricted clients (like android_vr) only exposes certain formats. The key issue is that android_vr client restricts the available formats.
+
+Let me test this directly to confirm - run yt-dlp with android_vr player_client and see what formats it gives:
+
+Test karta hoon — android_vr client ke saath formats kaisa dikhta hai:
+
+$ python3 -c " import yt_dlp vid = 'hHuG7FIKgtc' # Test with android_vr client (same as what smart_download uses) opts = { 'quiet': True, 'no_warnings': True, 'skip_download': True, 'extractor_args': {'youtube': {'player_client': ['android_vr']}}, } with yt_dlp.YoutubeDL(opts) as ydl: info = ydl.extract_info(f'https://www.youtube.com/watch?v={vid}', download=False) fmts = info.get('formats', []) print(f'android_vr -> {len(fmts)} formats:') for f in fmts: print(f\" id={f.get('format_id')} ext={f.get('ext')} vcodec={f.get('vcodec','none')} acodec={f.get('acodec','none')}\") " 2>&1 | head -30
+The formats ARE available with android_vr! Including m4a (id=139, 140) and webm opus (id=249, 251) audio. So the format bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best SHOULD work with android_vr.
+
+Wait, but then why is the error happening? Let me test the actual download directly:
+
+The issue might be in _client_download - let me look at that function more carefully. The _client_download in ytdl_smart.py uses the format from the caller. If smart_download is called with fmt="bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best", it should work...
+
+Actually, I think I found it - looking at how _dl_yt calls smart_download with the format string from _QUALITY_FMT[quality], the format should be getting passed through correctly to _client_download.
+
+Let me trace through _client_download more carefully to see where the actual failure is happening.
+
+Formats ARE available! Problem kuch aur hai. _client_download carefully dekhta hoon:
+
+socket_timeout: 8 bahut short hai aur skip: [hls] options problem create kar rahe hain. Song plugin ke liye direct clean yt-dlp call karna chahiye — bina smart_download restrictions ke. Test karta hoon pehle:
+
+$ python3 -c " import yt_dlp, os, time vid = 'hHuG7FIKgtc' out_dir = '/tmp/test_dl' os.makedirs(out_dir, exist_ok=True) ts = int(time.time()) opts = { 'format': 'bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best', 'outtmpl': os.path.join(out_dir, f'{vid}_{ts}.%(ext)s'), 'quiet': False, 'no_warnings': False, 'retries': 2, 'noplaylist': True, 'nocheckcertificate': True, 'merge_output_format': 'm4a', 'postprocessors': [], } with yt_dlp.YoutubeDL(opts) as ydl: info = ydl.extract_info(f'https://www.youtube.com/watch?v={vid}', download=True) print('SUCCESS! title:', info.get('title')) print('ext:', info.get('ext')) " 2>&1 | tail -10
+You've reached your daily free quota limit. It will reset at 12:00 AM UTC.
+
+You're out of 
