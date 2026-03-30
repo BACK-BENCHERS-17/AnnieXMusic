@@ -165,19 +165,45 @@ async def khushi_help_cb(client, query):
     keyboard = first_page(_)
     caption = _["help_1"].format(SUPPORT_CHAT)
 
+    from pyrogram.types import InputMediaPhoto
+
+    edited = False
     try:
-        await query.message.delete()
+        await query.message.edit_media(
+            InputMediaPhoto(media=HELP_IMG_URL, caption=caption),
+            reply_markup=keyboard,
+        )
+        edited = True
     except Exception:
         pass
 
-    sent = await _try_send_photo(client, query.message.chat.id, HELP_IMG_URL, caption, keyboard)
-    if not sent:
-        await client.send_message(
-            query.message.chat.id,
-            caption,
-            reply_markup=keyboard,
-            disable_web_page_preview=True,
-        )
+    if not edited:
+        try:
+            await query.message.edit_caption(caption, reply_markup=keyboard)
+            edited = True
+        except Exception:
+            pass
+
+    if not edited:
+        try:
+            await query.message.edit_text(caption, reply_markup=keyboard, disable_web_page_preview=True)
+            edited = True
+        except Exception:
+            pass
+
+    if not edited:
+        try:
+            await query.message.delete()
+        except Exception:
+            pass
+        sent = await _try_send_photo(client, query.message.chat.id, HELP_IMG_URL, caption, keyboard)
+        if not sent:
+            await client.send_message(
+                query.message.chat.id,
+                caption,
+                reply_markup=keyboard,
+                disable_web_page_preview=True,
+            )
 
 
 # ── Category button callbacks — show specific help section ────────────────────
@@ -237,19 +263,47 @@ async def back_to_main_cb(client, query):
         + START_TEXT.format(mention=query.from_user.mention, bot=app.mention)
     )
     markup = _start_kb()
+    img = random.choice(START_IMGS)
+
+    from pyrogram.types import InputMediaPhoto
+
+    edited = False
     try:
-        await query.message.delete()
+        await query.message.edit_media(
+            InputMediaPhoto(media=img, caption=caption),
+            reply_markup=markup,
+        )
+        edited = True
     except Exception:
         pass
-    img = random.choice(START_IMGS)
-    sent = await _try_send_photo(client, query.message.chat.id, img, caption, markup)
-    if not sent:
-        await client.send_message(
-            query.message.chat.id,
-            caption,
-            reply_markup=markup,
-            disable_web_page_preview=True,
-        )
+
+    if not edited:
+        try:
+            await query.message.edit_caption(caption, reply_markup=markup)
+            edited = True
+        except Exception:
+            pass
+
+    if not edited:
+        try:
+            await query.message.edit_text(caption, reply_markup=markup, disable_web_page_preview=True)
+            edited = True
+        except Exception:
+            pass
+
+    if not edited:
+        try:
+            await query.message.delete()
+        except Exception:
+            pass
+        sent = await _try_send_photo(client, query.message.chat.id, img, caption, markup)
+        if not sent:
+            await client.send_message(
+                query.message.chat.id,
+                caption,
+                reply_markup=markup,
+                disable_web_page_preview=True,
+            )
 
 
 # ── Start back button ─────────────────────────────────────────────────────────
