@@ -35,7 +35,7 @@ _EM = {
     "audio": "<emoji id='5463107823946717464'>🎵</emoji>",
     "video": "<emoji id='5944753741512052670'>📷</emoji>",
     "wait":  "⏳",
-    "ok":    "✅",
+    "ok":    "<emoji id='5852871561983299073'>✅</emoji>",
     "err":   "❌",
     "dot":   "<emoji id='5972072533833289156'>🔹</emoji>",
 }
@@ -209,6 +209,7 @@ async def song_cmd(client, message: Message):
                 photo=info["thumbnail"],
                 caption=caption,
                 reply_markup=_quality_markup(key),
+                has_spoiler=True,
             )
             _pending[key]["picker_id"] = picker.id
         else:
@@ -306,6 +307,7 @@ async def song_dl_cb(client, cb: CallbackQuery):
                 video=file_path,
                 caption=caption_send,
                 supports_streaming=True,
+                has_spoiler=True,
             )
         else:
             await cb.message.reply_audio(
