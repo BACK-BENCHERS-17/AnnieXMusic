@@ -14,6 +14,7 @@ from KHUSHI.utils.database import (
     get_banned_count,
     get_banned_users,
     get_served_chats,
+    get_sudoers,
     is_banned_user,
     is_maintenance,
     maintenance_off,
@@ -157,3 +158,41 @@ async def del_sudo(_, message: Message):
     await _rm(user.id)
     SUDOERS.discard(user.id)
     await message.reply_text(_r(f"✅ <b>ꜱᴜᴅᴏ ʀᴇᴠᴏᴋᴇᴅ</b> : {user.mention}"))
+
+
+# ── SUDOLIST ───────────────────────────────────────────────────────────────────
+@app.on_message(
+    filters.command(["sudolist", "sudoers"], prefixes=["/", "!", "."]) & SUDOERS
+)
+async def sudolist_cmd(client, message: Message):
+    try:
+        sudo_ids = await get_sudoers()
+    except Exception:
+        sudo_ids = list(SUDOERS)
+
+    if not sudo_ids:
+        return await message.reply_text(_r("❌ ɴᴏ ꜱᴜᴅᴏᴇʀꜱ ꜰᴏᴜɴᴅ."))
+
+    lines = []
+    count = 0
+    for uid in sudo_ids:
+        count += 1
+        try:
+            user = await app.get_users(uid)
+            name = user.first_name or "Unknown"
+            uname = f"@{user.username}" if user.username else f"<code>{uid}</code>"
+            lines.append(f"┆{_dot} {name} [{uname}]")
+        except Exception:
+            lines.append(f"┆{_dot} <code>{uid}</code>")
+
+    body = "\n".join(lines)
+    text = (
+        f"<blockquote>"
+        f"┌────── ˹ ꜱᴜᴅᴏ ʟɪꜱᴛ ˼─── ⏤‌‌●\n"
+        f"┆{_zap} <b>ᴛᴏᴛᴀʟ :</b> <code>{count}</code>\n"
+        f"├──────────────────────\n"
+        f"{body}\n"
+        f"└──────────────────────●"
+        f"</blockquote>"
+    )
+    await message.reply_text(_BRAND + "\n\n" + text)

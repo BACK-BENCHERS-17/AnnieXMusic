@@ -33,13 +33,33 @@ from KHUSHI.utils.inline.settings import (
 )
 from config import BANNED_USERS
 
+_BRAND = (
+    "<emoji id='5042192219960771668'>🧸</emoji>"
+    "<emoji id='5210820276748566172'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5213337333742454261'>🔤</emoji>"
+    "<emoji id='5211032856154885824'>🔤</emoji>"
+)
+
+def _settings_text(chat_id: int, chat_title: str) -> str:
+    return (
+        f"<blockquote>{_BRAND}</blockquote>\n\n"
+        "<blockquote>"
+        "┌────── ˹ ⚙️ ꜱᴇᴛᴛɪɴɢs ˼─── ⏤‌‌●\n"
+        f"┆🌐 <b>ɢʀᴏᴜᴘ :</b> {chat_title}\n"
+        f"┆🆔 <b>ᴄʜᴀᴛ ɪᴅ :</b> <code>{chat_id}</code>\n"
+        "└──────────────────────●"
+        "</blockquote>"
+    )
+
 
 @app.on_message(filters.command(["settings", "setting"]) & filters.group & ~BANNED_USERS)
 @language
 async def settings_cmd(client, message: Message, _):
     buttons = setting_markup(_)
     await message.reply_text(
-        _["setting_1"].format(app.mention, message.chat.id, message.chat.title),
+        _settings_text(message.chat.id, message.chat.title or ""),
         reply_markup=InlineKeyboardMarkup(buttons),
     )
 
@@ -54,7 +74,7 @@ async def settings_back_cb(client, callback: CallbackQuery, _):
     buttons = setting_markup(_)
     try:
         return await callback.edit_message_text(
-            _["setting_1"].format(app.mention, callback.message.chat.id, callback.message.chat.title),
+            _settings_text(callback.message.chat.id, callback.message.chat.title or ""),
             reply_markup=InlineKeyboardMarkup(buttons),
         )
     except MessageNotModified:

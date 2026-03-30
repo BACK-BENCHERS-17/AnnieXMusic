@@ -5,10 +5,10 @@ from pyrogram.errors import MessageNotModified
 from pyrogram.types import CallbackQuery, InlineKeyboardMarkup, Message
 
 from KHUSHI import app
+from KHUSHI.misc import SUDOERS
 from KHUSHI.utils.database import get_lang, set_lang
-from KHUSHI.utils.decorators import AdminActual
 from KHUSHI.utils.decorators_annie.admins import ActualAdminCB
-from KHUSHI.utils.decorators_annie.language import language, languageCB
+from KHUSHI.utils.decorators_annie.language import language
 from KHUSHI.utils.inline import InlineKeyboardButton
 from config import BANNED_USERS
 from strings import languages_present
@@ -37,9 +37,10 @@ def _lang_markup(_, current_lang: str) -> InlineKeyboardMarkup:
     for i in range(0, len(items), 2):
         row = []
         for code, name in items[i:i+2]:
+            flag = _LANG_FLAGS.get(code, "🌐")
             tick = "✅ " if code == current_lang else ""
             row.append(InlineKeyboardButton(
-                text=f"{tick}{name}",
+                text=f"{tick}{flag} {name}",
                 callback_data=f"set_lang_{code}",
                 style="success" if code == current_lang else "primary",
             ))
@@ -62,13 +63,27 @@ def _lang_text(_) -> str:
     )
 
 
+async def _is_admin(chat_id: int, user_id: int) -> bool:
+    """True if user is a sudoer or has any admin privileges in the chat."""
+    if user_id in SUDOERS:
+        return True
+    try:
+        member = await app.get_chat_member(chat_id, user_id)
+        return bool(member.privileges)
+    except Exception:
+        return False
+
+
 @app.on_message(
     filters.command(["language", "lang", "setlang"], prefixes=["/", ".", "!"])
     & filters.group
     & ~BANNED_USERS
 )
-@AdminActual
+@language
 async def language_cmd(client, message: Message, _):
+    user_id = message.from_user.id if message.from_user else None
+    if not user_id or not await _is_admin(message.chat.id, user_id):
+        return await message.reply_text(_["general_4"])
     current = await get_lang(message.chat.id)
     await message.reply_text(
         _lang_text(_),
@@ -99,13 +114,14 @@ async def set_lang_cb(client, callback: CallbackQuery, _):
     from strings import get_string
     code = callback.matches[0].group(1)
     if code not in languages_present:
-        return await callback.answer("❌ Invalid language.", show_alert=True)
+        return await callback.answer("❌ ɪɴᴠᴀʟɪᴅ ʟᴀɴɢᴜᴀɢᴇ.", show_alert=True)
     current = await get_lang(callback.message.chat.id)
     if current == code:
         return await callback.answer(_["lang_4"], show_alert=True)
     await set_lang(callback.message.chat.id, code)
     new_lang = get_string(code)
-    await callback.answer(f"✅ {languages_present[code]}")
+    flag = _LANG_FLAGS.get(code, "🌐")
+    await callback.answer(f"✅ {flag} {languages_present[code]}")
     try:
         await callback.edit_message_text(
             _lang_text(new_lang),
