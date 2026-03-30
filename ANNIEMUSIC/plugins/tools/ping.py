@@ -50,3 +50,8 @@ async def ping_com(client, message: Message, _):
             )
         except Exception:
             pass
+
+    try:
+        await message.delete()
+    except Exception:
+        pass

@@ -100,3 +100,7 @@ async def khushi_ping(client, message: Message):
     ]])
 
     await _send_ping_photo(client, message, caption, markup)
+    try:
+        await message.delete()
+    except Exception:
+        pass

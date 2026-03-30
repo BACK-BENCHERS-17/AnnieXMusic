@@ -1,6 +1,39 @@
 import asyncio
+import os
 import random
 import string
+
+# ── Play banner image (cached after first upload to Telegram) ─────────────────
+_BANNER_PATH = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "assets", "play_banner.png")
+)
+_banner_file_id: str = None
+
+
+async def _safe_delete(message):
+    try:
+        await message.delete()
+    except Exception:
+        pass
+
+
+async def _play_photo(message, caption: str, markup):
+    """Send play response with the banner image, caching the Telegram file_id."""
+    global _banner_file_id
+    photo = _banner_file_id or (_BANNER_PATH if os.path.exists(_BANNER_PATH) else None)
+    if photo:
+        try:
+            sent = await message.reply_photo(
+                photo=photo,
+                caption=caption,
+                reply_markup=markup,
+            )
+            if _banner_file_id is None and sent.photo:
+                _banner_file_id = sent.photo.file_id
+            return sent
+        except Exception:
+            pass
+    return await message.reply_text(caption, reply_markup=markup, disable_web_page_preview=True)
 
 from pyrogram import filters, enums
 from pyrogram.errors import FloodWait, RandomIdDuplicate
@@ -76,6 +109,8 @@ async def play_command(
             message.chat.id,
             _["play_2"].format(channel) if channel else random.choice(AYU),
         )
+
+    asyncio.create_task(_safe_delete(message))
 
     plist_id, plist_type, spotify, slider = None, None, None, None
     internal_type, log_label = None, None
@@ -547,13 +582,13 @@ async def play_command(
                     "f" if fplay else "d",
                 )
                 await mystic.delete()
-                await message.reply_photo(
-                    photo=details["thumb"],
+                await _play_photo(
+                    message,
                     caption=_["play_10"].format(
                         details["title"].title(),
                         details["duration_min"],
                     ),
-                    reply_markup=InlineKeyboardMarkup(buttons),
+                    markup=InlineKeyboardMarkup(buttons),
                 )
                 asyncio.create_task(_trigger_bg_cache(track_id))
                 return await play_logs(message, streamtype="Searched on YouTube")
@@ -567,13 +602,13 @@ async def play_command(
                     "f" if fplay else "d",
                 )
                 await mystic.delete()
-                await message.reply_photo(
-                    photo=details["thumb"],
+                await _play_photo(
+                    message,
                     caption=_["play_10"].format(
                         details["title"],
                         details["duration_min"],
                     ),
-                    reply_markup=InlineKeyboardMarkup(buttons),
+                    markup=InlineKeyboardMarkup(buttons),
                 )
                 asyncio.create_task(_trigger_bg_cache(track_id))
                 return await play_logs(message, streamtype="URL Search Inline")
