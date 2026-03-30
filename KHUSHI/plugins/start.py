@@ -167,13 +167,13 @@ async def khushi_help_pm(client, message: Message):
         await message.delete()
     except Exception:
         pass
-    safe_caption = _safe_text(caption)
-    sent = await _try_send_photo(client, message.chat.id, HELP_IMG_URL, safe_caption, keyboard)
+    sent = await _try_send_photo(client, message.chat.id, HELP_IMG_URL, caption, keyboard)
     if not sent:
         await client.send_message(
             message.chat.id,
-            safe_caption,
+            caption,
             reply_markup=keyboard,
+            parse_mode=enums.ParseMode.HTML,
             disable_web_page_preview=True,
         )
 
@@ -204,20 +204,18 @@ async def khushi_help_cb(client, query):
     edited = await _raw_edit(client, msg.chat.id, msg.id, caption, keyboard)
 
     if not edited:
-        safe_caption = _safe_text(caption)
         try:
             await msg.edit_caption(
-                safe_caption, reply_markup=keyboard, parse_mode=enums.ParseMode.HTML
+                caption, reply_markup=keyboard, parse_mode=enums.ParseMode.HTML
             )
             edited = True
         except Exception as e:
             _LOGGER.warning("[HELP_CB] edit_caption failed: %s", e)
 
     if not edited:
-        safe_caption = _safe_text(caption)
         try:
             await msg.edit_text(
-                safe_caption, reply_markup=keyboard,
+                caption, reply_markup=keyboard,
                 parse_mode=enums.ParseMode.HTML,
                 disable_web_page_preview=True,
             )
@@ -272,16 +270,15 @@ async def help_section_cb(client, query):
     if not help_text:
         return await query.answer("ɪɴᴠᴀʟɪᴅ ʜᴇʟᴘ ᴛᴏᴘɪᴄ.", show_alert=True)
 
-    safe_help = _safe_text(help_text)
     back_kb = help_back_markup(_, current_page)
     try:
         await query.message.edit_caption(
-            safe_help, reply_markup=back_kb, parse_mode=enums.ParseMode.HTML
+            help_text, reply_markup=back_kb, parse_mode=enums.ParseMode.HTML
         )
     except Exception:
         try:
             await query.message.edit_text(
-                safe_help, reply_markup=back_kb,
+                help_text, reply_markup=back_kb,
                 parse_mode=enums.ParseMode.HTML,
                 disable_web_page_preview=True,
             )
@@ -297,7 +294,7 @@ async def help_back_cb(client, query):
     lang = await _get_lang(query.from_user.id)
     _ = get_string(lang)
     keyboard = first_page(_)
-    caption = _safe_text(_["help_1"].format(SUPPORT_CHAT))
+    caption = _["help_1"].format(SUPPORT_CHAT)
     try:
         await query.message.edit_caption(
             caption, reply_markup=keyboard, parse_mode=enums.ParseMode.HTML

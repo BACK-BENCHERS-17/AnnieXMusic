@@ -34,7 +34,7 @@ async def helper_private(client: Client, update: Union[Message, types.CallbackQu
     _ = get_string(language)
 
     keyboard = first_page(_)
-    caption = _safe_text(_["help_1"].format(SUPPORT_CHAT))
+    caption = _["help_1"].format(SUPPORT_CHAT)
 
     if is_cb:
         await update.answer()

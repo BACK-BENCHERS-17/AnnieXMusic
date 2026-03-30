@@ -3,7 +3,7 @@
 _ANNIE = '<blockquote><emoji id="5042192219960771668">🧸</emoji><emoji id="5210820276748566172">🔤</emoji><emoji id="5213301251722203632">🔤</emoji><emoji id="5213301251722203632">🔤</emoji><emoji id="5211032856154885824">🔤</emoji><emoji id="5213337333742454261">🔤</emoji></blockquote>\n\n'
 
 HELP_1 = _ANNIE + """
-<blockquote><b><emoji id="5188093600538057635">🎵</emoji> ᴘʟᴀʏ ᴄᴏᴍᴍᴀɴᴅs</b></blockquote>
+<blockquote><b><emoji id="5463107823946717464">🎵</emoji> ᴘʟᴀʏ ᴄᴏᴍᴍᴀɴᴅs</b></blockquote>
 
 <blockquote>
 <b>• /play</b> <code>[song name / link]</code>
