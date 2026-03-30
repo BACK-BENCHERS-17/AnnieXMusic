@@ -3422,3 +3422,14 @@ pyrogram.errors.exceptions.bad_request_400.DocumentInvalid: Telegram says: [400 
 [30-Mar-26 11:38:42 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 [30-Mar-26 11:38:42 - INFO] - KHUSHI -   KHUSHI is LIVE!
 [30-Mar-26 11:38:42 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[30-Mar-26 11:49:44 - INFO] - KHUSHI.core.mongo - KHUSHI: Connecting to MongoDB...
+[30-Mar-26 11:49:44 - INFO] - KHUSHI.core.mongo - KHUSHI: MongoDB connected. (DB: Annie)
+[30-Mar-26 11:49:47 - WARNING] - KHUSHI.utils.ytdl_smart - [SmartYTDL] Node.js NOT found — web_safari client may fail, android_vr will still work
+[30-Mar-26 11:49:48 - INFO] - KHUSHI.core.bot - KHUSHI Bot client initialized.
+[30-Mar-26 11:49:48 - INFO] - KHUSHI.misc - KHUSHI: In-memory DB initialized.
+[30-Mar-26 11:49:49 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[30-Mar-26 11:49:49 - INFO] - KHUSHI -   KHUSHI Bot  |  Independent Core  
+[30-Mar-26 11:49:49 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[30-Mar-26 11:49:56 - INFO] - KHUSHI.core.bot - KHUSHI Bot started as Semex (@WordSeekUBot)
+[30-Mar-26 11:49:56 - INFO] - KHUSHI.core.bot - KHUSHI: No PFP — using default.
+[30-Mar-26 11:49:56 - INFO] - KHUSHI.core.call - Starting PyTgCalls Clients...

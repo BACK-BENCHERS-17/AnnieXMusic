@@ -3,7 +3,7 @@
 _ANNIE = '<blockquote><emoji id="5042192219960771668">🧸</emoji><emoji id="5210820276748566172">🔤</emoji><emoji id="5213301251722203632">🔤</emoji><emoji id="5213301251722203632">🔤</emoji><emoji id="5211032856154885824">🔤</emoji><emoji id="5213337333742454261">🔤</emoji></blockquote>\n\n'
 
 HELP_1 = _ANNIE + """
-<blockquote><b>🎵 ᴘʟᴀʏ ᴄᴏᴍᴍᴀɴᴅs</b></blockquote>
+<blockquote><b><emoji id="5463107823946717464">🎵</emoji> ᴘʟᴀʏ ᴄᴏᴍᴍᴀɴᴅs</b></blockquote>
 
 <blockquote>
 <b>• /play</b> <code>[song name / link]</code>
@@ -26,7 +26,7 @@ HELP_1 = _ANNIE + """
 """
 
 HELP_2 = _ANNIE + """
-<blockquote><b>⏯ ᴘʟᴀʏʙᴀᴄᴋ ᴄᴏɴᴛʀᴏʟs</b></blockquote>
+<blockquote><b><emoji id="6199299341996268244">🎵</emoji> ᴘʟᴀʏʙᴀᴄᴋ ᴄᴏɴᴛʀᴏʟs</b></blockquote>
 
 <blockquote>
 <b>• /pause</b>   ↳ ᴘᴀᴜsᴇ ᴛʜᴇ sᴛʀᴇᴀᴍ
@@ -42,7 +42,7 @@ HELP_2 = _ANNIE + """
 """
 
 HELP_3 = _ANNIE + """
-<blockquote><b>🔀 ǫᴜᴇᴜᴇ ᴍᴀɴᴀɢᴇᴍᴇɴᴛ</b></blockquote>
+<blockquote><b><emoji id="5129905231785624480">🔀</emoji> ǫᴜᴇᴜᴇ ᴍᴀɴᴀɢᴇᴍᴇɴᴛ</b></blockquote>
 
 <blockquote>
 <b>• /queue</b>    ↳ ᴠɪᴇᴡ ᴄᴜʀʀᴇɴᴛ ǫᴜᴇᴜᴇ ʟɪsᴛ
@@ -54,7 +54,7 @@ HELP_3 = _ANNIE + """
 """
 
 HELP_4 = _ANNIE + """
-<blockquote><b>🔁 ʟᴏᴏᴘ ᴍᴏᴅᴇ</b></blockquote>
+<blockquote><b><emoji id="6030657343744644592">🔁</emoji> ʟᴏᴏᴘ ᴍᴏᴅᴇ</b></blockquote>
 
 <blockquote>
 <b>• /loop</b>               ↳ ᴛᴏɢɢʟᴇ ʟᴏᴏᴘ ᴏɴ/ᴏꜰꜰ
@@ -67,7 +67,7 @@ HELP_4 = _ANNIE + """
 """
 
 HELP_5 = _ANNIE + """
-<blockquote><b>⏩ sᴇᴇᴋ ᴄᴏɴᴛʀᴏʟs</b></blockquote>
+<blockquote><b><emoji id="6192553546102085729">⏩</emoji> sᴇᴇᴋ ᴄᴏɴᴛʀᴏʟs</b></blockquote>
 
 <blockquote>
 <b>• /seek</b> <code>[seconds]</code>   ↳ ꜰᴏʀᴡᴀʀᴅ ʙʏ sᴇᴄᴏɴᴅs
@@ -78,7 +78,7 @@ HELP_5 = _ANNIE + """
 """
 
 HELP_6 = _ANNIE + """
-<blockquote><b>🎵 sᴘᴇᴇᴅ ᴄᴏɴᴛʀᴏʟ</b></blockquote>
+<blockquote><b><emoji id="5938473438468378529">🎶</emoji> sᴘᴇᴇᴅ ᴄᴏɴᴛʀᴏʟ</b></blockquote>
 
 <blockquote>
 <b>• /speed</b> <code>[value]</code>
@@ -92,7 +92,7 @@ HELP_6 = _ANNIE + """
 """
 
 HELP_7 = _ANNIE + """
-<blockquote><b>❄️ ᴀᴜᴛʜᴏʀɪᴢᴇᴅ ᴜsᴇʀs</b></blockquote>
+<blockquote><b><emoji id="5449449325434266744">❄️</emoji> ᴀᴜᴛʜᴏʀɪᴢᴇᴅ ᴜsᴇʀs</b></blockquote>
 
 <blockquote>
 <b>• /auth</b> <code>[user]</code>         ↳ ɢɪᴠᴇ ᴜsᴇʀ ᴀᴅᴍɪɴ-ʟɪᴋᴇ ᴍᴜsɪᴄ ʀɪɢʜᴛs
@@ -104,7 +104,7 @@ HELP_7 = _ANNIE + """
 """
 
 HELP_8 = _ANNIE + """
-<blockquote><b>📻 ʟɪᴠᴇ sᴛʀᴇᴀᴍɪɴɢ</b></blockquote>
+<blockquote><b><emoji id="5258217809250372293">🎥</emoji> ʟɪᴠᴇ sᴛʀᴇᴀᴍɪɴɢ</b></blockquote>
 
 <blockquote>
 <b>• /play</b> <code>[YouTube live URL]</code>   ↳ sᴛʀᴇᴀᴍ ʟɪᴠᴇ ʏᴏᴜᴛᴜʙᴇ
@@ -116,7 +116,7 @@ HELP_8 = _ANNIE + """
 """
 
 HELP_9 = _ANNIE + """
-<blockquote><b>📊 ʙᴏᴛ sᴛᴀᴛs & ɪɴꜰᴏ</b></blockquote>
+<blockquote><b><emoji id="4958506272551863292">📊</emoji> ʙᴏᴛ sᴛᴀᴛs & ɪɴꜰᴏ</b></blockquote>
 
 <blockquote>
 <b>• /ping</b>       ↳ ᴄʜᴇᴄᴋ ʙᴏᴛ ʀᴇsᴘᴏɴsᴇ ᴛɪᴍᴇ
@@ -129,7 +129,7 @@ HELP_9 = _ANNIE + """
 """
 
 HELP_10 = _ANNIE + """
-<blockquote><b>⚙️ sᴇᴛᴛɪɴɢs & ᴍᴏᴅᴇs</b></blockquote>
+<blockquote><b><emoji id="5258096772776991776">⚙️</emoji> sᴇᴛᴛɪɴɢs & ᴍᴏᴅᴇs</b></blockquote>
 
 <blockquote>
 <b>• /playmode</b>        ↳ ᴛᴏɢɢʟᴇ ᴀᴅᴍɪɴ-ᴏɴʟʏ ᴘʟᴀʏ ᴍᴏᴅᴇ
@@ -143,7 +143,7 @@ HELP_10 = _ANNIE + """
 """
 
 HELP_11 = _ANNIE + """
-<blockquote><b>📥 ᴅᴏᴡɴʟᴏᴀᴅ</b></blockquote>
+<blockquote><b><emoji id="5776182936638329359">📥</emoji> ᴅᴏᴡɴʟᴏᴀᴅ</b></blockquote>
 
 <blockquote>
 <b>• /song</b> <code>[song name or YouTube URL]</code>
