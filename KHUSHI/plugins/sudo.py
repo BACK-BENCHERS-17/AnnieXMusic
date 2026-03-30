@@ -8,7 +8,7 @@ from pyrogram.types import Message
 
 from KHUSHI import app
 from KHUSHI.misc import SUDOERS
-from ANNIEMUSIC.utils.database import (
+from KHUSHI.utils.database import (
     add_banned_user,
     add_gban_user,
     get_banned_count,
@@ -21,7 +21,7 @@ from ANNIEMUSIC.utils.database import (
     remove_banned_user,
     remove_gban_user,
 )
-from ANNIEMUSIC.utils.extraction import extract_user
+from KHUSHI.utils.extraction import extract_user
 from config import BANNED_USERS, OWNER_ID
 
 _BRAND = (
@@ -133,7 +133,7 @@ async def maint(_, message: Message):
     filters.command(["addsudo"], prefixes=["/", "!", "."]) & filters.user(OWNER_ID)
 )
 async def add_sudo(_, message: Message):
-    from ANNIEMUSIC.utils.database import add_sudo as _add
+    from KHUSHI.utils.database import add_sudo as _add
     if not message.reply_to_message and len(message.command) < 2:
         return await message.reply_text(_r("ᴜꜱᴀɢᴇ: /addsudo [user | reply]"))
     user = await extract_user(message)
@@ -148,7 +148,7 @@ async def add_sudo(_, message: Message):
     filters.command(["delsudo", "rmsudo"], prefixes=["/", "!", "."]) & filters.user(OWNER_ID)
 )
 async def del_sudo(_, message: Message):
-    from ANNIEMUSIC.utils.database import remove_sudo as _rm
+    from KHUSHI.utils.database import remove_sudo as _rm
     if not message.reply_to_message and len(message.command) < 2:
         return await message.reply_text(_r("ᴜꜱᴀɢᴇ: /delsudo [user | reply]"))
     user = await extract_user(message)

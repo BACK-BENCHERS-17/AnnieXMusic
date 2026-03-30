@@ -4,7 +4,7 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from KHUSHI import app
 from KHUSHI.misc import SUDOERS, db
-from ANNIEMUSIC.utils.database import (
+from KHUSHI.utils.database import (
     get_authuser_names,
     get_cmode,
     get_lang,
@@ -14,7 +14,7 @@ from ANNIEMUSIC.utils.database import (
     is_nonadmin_chat,
     is_skipmode,
 )
-from ANNIEMUSIC.utils.formatters import int_to_alpha
+from KHUSHI.utils.formatters import int_to_alpha
 from config import SUPPORT_CHAT, adminlist, confirmer
 from strings import get_string
 
@@ -150,3 +150,7 @@ def KhushiActualAdmin(mystic):
         return await mystic(client, message, _)
 
     return wrapper
+
+
+AdminRightsCheck = KhushiAdminCheck
+AdminActual = KhushiActualAdmin

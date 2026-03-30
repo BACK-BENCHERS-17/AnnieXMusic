@@ -15,8 +15,8 @@ import config
 from strings import get_string
 from KHUSHI import LOGGER, YouTube, app
 from KHUSHI.misc import db
-from ANNIEMUSIC.utils.cookie_handler import COOKIE_PATH
-from ANNIEMUSIC.utils.database import (
+from KHUSHI.utils.cookie_handler import COOKIE_PATH
+from KHUSHI.utils.database import (
     add_active_chat,
     add_active_video_chat,
     get_lang,
@@ -30,14 +30,14 @@ from ANNIEMUSIC.utils.database import (
     remove_active_video_chat,
     set_loop,
 )
-from ANNIEMUSIC.utils.exceptions import AssistantErr
-from ANNIEMUSIC.utils.formatters import check_duration, seconds_to_min, speed_converter
-from ANNIEMUSIC.utils.prefetch import trigger_prefetch, cancel_prefetch
-from ANNIEMUSIC.utils.inline import stream_markup, stream_markup_timer, add_to_channel_markup, InlineKeyboardButton as StyledBtn
-from ANNIEMUSIC.utils.stream.autoclear import auto_clean
-from ANNIEMUSIC.utils.thumbnails import get_thumb
-from ANNIEMUSIC.utils.errors import capture_internal_err, send_large_error
-from ANNIEMUSIC.utils.raw_send import send_msg_invert_preview
+from KHUSHI.utils.exceptions import AssistantErr
+from KHUSHI.utils.formatters import check_duration, seconds_to_min, speed_converter
+from KHUSHI.utils.prefetch import trigger_prefetch, cancel_prefetch
+from KHUSHI.utils.inline import stream_markup, stream_markup_timer, add_to_channel_markup, InlineKeyboardButton as StyledBtn
+from KHUSHI.utils.stream.autoclear import auto_clean
+from KHUSHI.utils.thumbnails import get_thumb
+from KHUSHI.utils.errors import capture_internal_err, send_large_error
+from KHUSHI.utils.raw_send import send_msg_invert_preview
 
 THUMB_OFF_VIDEO_URL = "https://files.catbox.moe/4vr2jc.mp4"
 
@@ -48,7 +48,7 @@ autoplay_history: dict[int, list] = {}  # per-chat played video IDs history
 def _get_cdn_headers() -> dict:
     """Return CDN headers that match the current best SmartYTDL client (dynamic)."""
     try:
-        from ANNIEMUSIC.utils.ytdl_smart import get_cdn_headers as _smart_headers
+        from KHUSHI.utils.ytdl_smart import get_cdn_headers as _smart_headers
         return _smart_headers()
     except Exception:
         return {
@@ -246,7 +246,7 @@ class Call:
         If autoplay is ON → trigger autoplay using last played song as context.
         If autoplay is OFF → stop stream and leave VC normally.
         """
-        from ANNIEMUSIC.utils.database import is_autoplay
+        from KHUSHI.utils.database import is_autoplay
         if last_song and await is_autoplay(chat_id):
             # Re-insert the last song so play() can pop it and use it for autoplay search
             if not db.get(chat_id):
@@ -391,7 +391,7 @@ class Call:
 
         # Auto-convert cached webm to m4a before playing (better VC compatibility)
         if os.path.exists(link) and link.endswith(".webm"):
-            from ANNIEMUSIC.utils.downloader import _convert_webm_to_m4a, extract_video_id
+            from KHUSHI.utils.downloader import _convert_webm_to_m4a, extract_video_id
             vid = extract_video_id(link)
             LOGGER(__name__).info(f"[PLAY] Converting cached webm→m4a for better VC compat | {vid}")
             converted = await _convert_webm_to_m4a(link, vid)
@@ -650,7 +650,7 @@ class Call:
                         original_chat_id = popped.get("chat_id", chat_id)
                         from youtubesearchpython.__future__ import VideosSearch
                         import config as _cfg
-                        from ANNIEMUSIC.utils.formatters import time_to_seconds as _tts
+                        from KHUSHI.utils.formatters import time_to_seconds as _tts
 
                         # Build / update per-chat history (keep last 25 songs)
                         _hist = autoplay_history.setdefault(chat_id, [])
@@ -739,7 +739,7 @@ class Call:
 
                             # Fast path: CDN URL extraction → instant VC stream,
                             # background download caches for future plays
-                            from ANNIEMUSIC.utils.downloader import fast_get_stream
+                            from KHUSHI.utils.downloader import fast_get_stream
                             ap_file = await fast_get_stream(ap_vidid)
                             if ap_file:
                                 ap_stream = dynamic_media_stream(
@@ -1227,7 +1227,7 @@ class Call:
             )
 
             async def _bg_retry():
-                from ANNIEMUSIC.core.userbot import assistants
+                from KHUSHI.core.userbot import assistants
                 for attempt in range(20):  # retry up to 20 times, every 15s = max 5 min
                     await asyncio.sleep(15)
                     fresh = self._recreate_pytgcalls(index)

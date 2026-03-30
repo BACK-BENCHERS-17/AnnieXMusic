@@ -8,8 +8,8 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 from KHUSHI import app
 from KHUSHI.core.call import JARVIS
 from KHUSHI.misc import db
-from ANNIEMUSIC.utils import seconds_to_min
-from ANNIEMUSIC.utils.database import (
+from KHUSHI.utils import seconds_to_min
+from KHUSHI.utils.database import (
     disable_247,
     enable_247,
     get_loop,
@@ -23,7 +23,7 @@ from ANNIEMUSIC.utils.database import (
     set_volume,
 )
 from KHUSHI.utils.decorators import KhushiAdminCheck as AdminRightsCheck
-from ANNIEMUSIC.utils.stream.autoclear import auto_clean
+from KHUSHI.utils.stream.autoclear import auto_clean
 from config import BANNED_USERS
 
 _EM = {

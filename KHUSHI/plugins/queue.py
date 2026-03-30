@@ -5,8 +5,8 @@ from pyrogram.types import Message
 
 from KHUSHI import app
 from KHUSHI.misc import db
-from ANNIEMUSIC.utils import seconds_to_min
-from ANNIEMUSIC.utils.database import get_cmode, is_active_chat
+from KHUSHI.utils import seconds_to_min
+from KHUSHI.utils.database import get_cmode, is_active_chat
 from config import BANNED_USERS
 
 _BRAND = (

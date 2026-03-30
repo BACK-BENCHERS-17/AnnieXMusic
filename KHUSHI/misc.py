@@ -49,7 +49,7 @@ async def sudo():
     try:
         onoffdb = mongodb.onoffper
         await onoffdb.delete_one({"on_off": 1})
-        from ANNIEMUSIC.utils.database import maintenance
+        from KHUSHI.utils.database import maintenance
         maintenance.clear()
         maintenance.append(2)
         LOGGER(__name__).info("KHUSHI: Maintenance mode reset on startup.")

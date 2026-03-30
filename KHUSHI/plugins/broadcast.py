@@ -8,11 +8,11 @@ from pyrogram.types import Message
 
 from KHUSHI import app
 from KHUSHI.misc import SUDOERS
-from ANNIEMUSIC.utils.database import get_served_chats, get_served_users
+from KHUSHI.utils.database import get_served_chats, get_served_users
 from config import adminlist
 from pyrogram.enums import ChatMembersFilter
-from ANNIEMUSIC.utils.database import get_active_chats, get_authuser_names
-from ANNIEMUSIC.utils.formatters import alpha_to_int
+from KHUSHI.utils.database import get_active_chats, get_authuser_names
+from KHUSHI.utils.formatters import alpha_to_int
 
 _BRAND = (
     "<blockquote>"

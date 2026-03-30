@@ -16,8 +16,8 @@ import config
 from KHUSHI import LOGGER, app, userbot
 from KHUSHI.core.call import JARVIS
 from KHUSHI.misc import sudo
-from ANNIEMUSIC.utils.database import get_banned_users, get_gbanned
-from ANNIEMUSIC.utils.weburl import WEB_URL
+from KHUSHI.utils.database import get_banned_users, get_gbanned
+from KHUSHI.utils.weburl import WEB_URL
 from config import BANNED_USERS
 
 _PLUGIN_DIR = os.path.join(os.path.dirname(__file__), "plugins")
@@ -87,7 +87,7 @@ async def _set_menu_button():
 
 async def _graceful_shutdown():
     try:
-        from ANNIEMUSIC.utils.database import get_active_chats
+        from KHUSHI.utils.database import get_active_chats
         for cid in await get_active_chats():
             try:
                 await JARVIS.stop_stream(cid)

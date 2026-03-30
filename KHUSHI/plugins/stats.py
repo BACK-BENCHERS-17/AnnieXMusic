@@ -5,8 +5,8 @@ from pyrogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMa
 
 from KHUSHI import app
 from KHUSHI.misc import SUDOERS
-from ANNIEMUSIC.utils import bot_sys_stats
-from ANNIEMUSIC.utils.database import (
+from KHUSHI.utils import bot_sys_stats
+from KHUSHI.utils.database import (
     get_active_chats,
     get_active_video_chats,
     get_banned_users,

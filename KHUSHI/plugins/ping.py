@@ -10,7 +10,7 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from KHUSHI import app
 from KHUSHI.core.call import JARVIS
-from ANNIEMUSIC.utils import bot_sys_stats
+from KHUSHI.utils import bot_sys_stats
 from config import BANNED_USERS, PING_IMG_URL, START_IMGS, SUPPORT_CHAT
 
 _BRAND = (

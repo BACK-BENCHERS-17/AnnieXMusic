@@ -9,7 +9,7 @@ from strings import get_string
 from KHUSHI import YouTube, app
 from KHUSHI.core.call import JARVIS
 from KHUSHI.misc import SUDOERS, db
-from ANNIEMUSIC.utils.database import (
+from KHUSHI.utils.database import (
     get_lang,
     get_playtype,
     is_active_chat,
@@ -17,11 +17,11 @@ from ANNIEMUSIC.utils.database import (
     is_maintenance,
 )
 from KHUSHI.utils.decorators import KhushiAdminCheck as AdminRightsCheck
-from ANNIEMUSIC.utils.downloader import _trigger_bg_cache
-from ANNIEMUSIC.utils.inline import aq_markup, stream_markup
-from ANNIEMUSIC.utils.raw_send import send_msg_invert_preview
-from ANNIEMUSIC.utils.stream.queue import put_queue
-from ANNIEMUSIC.utils.thumbnails import get_thumb
+from KHUSHI.utils.downloader import _trigger_bg_cache
+from KHUSHI.utils.inline import aq_markup, stream_markup
+from KHUSHI.utils.raw_send import send_msg_invert_preview
+from KHUSHI.utils.stream.queue import put_queue
+from KHUSHI.utils.thumbnails import get_thumb
 from config import BANNED_USERS, BOT_USERNAME, DURATION_LIMIT, SUPPORT_CHAT, adminlist
 
 THUMB_OFF_VIDEO_URL = "https://files.catbox.moe/4vr2jc.mp4"
@@ -363,7 +363,7 @@ async def kseek(_, message: Message, lang, chat_id):
             f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>❌ ᴘʀᴏᴠɪᴅᴇ ᴠᴀʟɪᴅ ꜱᴇᴄᴏɴᴅꜱ.</blockquote>"
         )
-    from ANNIEMUSIC.utils.formatters import seconds_to_min
+    from KHUSHI.utils.formatters import seconds_to_min
     file_path = check[0].get("file", "")
     total = check[0].get("seconds", 0)
     if secs < 0 or secs >= int(total):

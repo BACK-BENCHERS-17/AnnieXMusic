@@ -18,13 +18,13 @@ from typing import Dict, List, Optional, Tuple
 import aiohttp
 from youtubesearchpython.__future__ import VideosSearch
 
-from ANNIEMUSIC.utils.ytdl_smart import (
+from KHUSHI.utils.ytdl_smart import (
     smart_extract_url,
     smart_download,
     get_cdn_headers,
     get_base_ytdlp_opts,
 )
-from ANNIEMUSIC.core.dir import DOWNLOAD_DIR as _DOWNLOAD_DIR
+from KHUSHI.core.dir import DOWNLOAD_DIR as _DOWNLOAD_DIR
 
 _log = logging.getLogger("KHUSHI.fast_stream")
 
@@ -52,7 +52,7 @@ def _file_exists(vid: str) -> Optional[str]:
 
 async def _webserver_url(vid: str) -> Optional[str]:
     try:
-        from ANNIEMUSIC.utils.internal_secret import get_secret
+        from KHUSHI.utils.internal_secret import get_secret
         params = {"v": vid, "key": get_secret()}
         timeout = aiohttp.ClientTimeout(total=8)
         async with aiohttp.ClientSession(timeout=timeout) as sess:

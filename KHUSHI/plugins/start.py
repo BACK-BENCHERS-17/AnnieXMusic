@@ -8,7 +8,7 @@ from pyrogram.raw import functions as raw_func, types as raw_types
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from KHUSHI import app
-from ANNIEMUSIC.utils.database import get_lang
+from KHUSHI.utils.database import get_lang
 from config import BANNED_USERS, HELP_IMG_URL, START_IMGS, SUPPORT_CHAT
 from strings import get_string
 
