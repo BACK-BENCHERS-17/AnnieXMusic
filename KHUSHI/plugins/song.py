@@ -18,7 +18,7 @@ from youtubesearchpython.__future__ import VideosSearch
 
 from KHUSHI import app
 from KHUSHI.core.dir import DOWNLOAD_DIR
-from KHUSHI.utils.ytdl_smart import get_base_ytdlp_opts
+from KHUSHI.utils.ytdl_smart import get_base_ytdlp_opts, smart_download
 from config import BANNED_USERS
 
 _SONG_DL_DIR = os.path.join(DOWNLOAD_DIR, "song_dl")
@@ -50,8 +50,8 @@ _QUALITY_LABELS = {
 _QUALITY_FMT = {
     "a128":   "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
     "a_best": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
-    "v360":   "bestvideo[height<=360][ext=mp4]+bestaudio[ext=m4a]/best[height<=360][ext=mp4]/best[height<=360]",
-    "v720":   "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/best[height<=720][ext=mp4]/best[height<=720]",
+    "v360":   "bestvideo[height<=360]+bestaudio/best[height<=360]/bestvideo+bestaudio/best",
+    "v720":   "bestvideo[height<=720]+bestaudio/best[height<=720]/bestvideo+bestaudio/best",
 }
 
 _IS_AUDIO = {"a128", "a_best"}
@@ -98,18 +98,23 @@ async def _search_yt(query: str) -> Optional[dict]:
 
 
 def _dl_yt(vid_id: str, quality: str) -> Optional[str]:
+    # ── Audio: use smart_download (client rotation + Invidious fallback) ───────
+    if quality in _IS_AUDIO:
+        return smart_download(vid_id, _SONG_DL_DIR, fmt=_QUALITY_FMT[quality])
+
+    # ── Video: yt-dlp with permissive format fallbacks ─────────────────────────
     fmt = _QUALITY_FMT[quality]
     ts = int(time.time())
     out_tmpl = os.path.join(_SONG_DL_DIR, f"{vid_id}_{quality}_{ts}.%(ext)s")
     opts = get_base_ytdlp_opts(_SONG_DL_DIR)
     opts.update({
-        "format":   fmt,
-        "outtmpl":  out_tmpl,
-        "quiet":    True,
-        "no_warnings": True,
-        "retries":  3,
-        "merge_output_format": "mp4" if quality in _IS_VIDEO else "m4a",
-        "postprocessors": [],
+        "format":              fmt,
+        "outtmpl":             out_tmpl,
+        "quiet":               True,
+        "no_warnings":         True,
+        "retries":             5,
+        "merge_output_format": "mp4",
+        "postprocessors":      [],
     })
     try:
         with yt_dlp.YoutubeDL(opts) as ydl:
@@ -118,7 +123,7 @@ def _dl_yt(vid_id: str, quality: str) -> Optional[str]:
                 return None
             prepared = ydl.prepare_filename(info)
             base = os.path.splitext(prepared)[0]
-            for ext in ("mp4", "m4a", "webm", "mkv", "opus", "mp3"):
+            for ext in ("mp4", "webm", "mkv", "m4a", "opus", "mp3"):
                 path = f"{base}.{ext}"
                 if os.path.exists(path) and os.path.getsize(path) > 0:
                     return path
