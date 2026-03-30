@@ -1,7 +1,6 @@
 """KHUSHI — Sudo Commands: gban, block, blchat, sudoers, maintenance."""
 
 import asyncio
-import random
 
 from pyrogram import enums, filters
 from pyrogram.errors import FloodWait
@@ -24,7 +23,7 @@ from KHUSHI.utils.database import (
     remove_gban_user,
 )
 from KHUSHI.utils.extraction import extract_user
-from config import BANNED_USERS, OWNER_ID, START_IMGS
+from config import BANNED_USERS, OWNER_ID
 
 _BRAND = (
     "<blockquote>"
@@ -163,9 +162,13 @@ async def del_sudo(_, message: Message):
 
 # ── SUDOLIST ───────────────────────────────────────────────────────────────────
 
+_SUDOLIST_PHOTO = "https://files.catbox.moe/11mmhp.jpg"
+
 _SUDOLIST_CAPTION = (
-    f"<b><emoji id='5409029744693897259'>🎁</emoji> ᴄʜᴇᴄᴋ ᴛʜᴇ ꜱᴜᴅᴏ ʟɪꜱᴛ ᴠɪᴀ ᴛʜᴇ ʙᴜᴛᴛᴏɴ ʙᴇʟᴏᴡ.</b>\n\n"
-    f"<b><emoji id='5972072533833289156'>🔹</emoji> ɴᴏᴛᴇ:</b>  ᴏɴʟʏ ꜱᴜᴅᴏᴇʀꜱ ᴄᴀɴ ᴠɪᴇᴡ."
+    "<blockquote>"
+    "<b><emoji id='5409029744693897259'>🎁</emoji> ᴄʜᴇᴄᴋ ᴛʜᴇ ꜱᴜᴅᴏ ʟɪꜱᴛ ᴠɪᴀ ᴛʜᴇ ʙᴜᴛᴛᴏɴ ʙᴇʟᴏᴡ.</b>\n\n"
+    "<b><emoji id='5972072533833289156'>🔹</emoji> ɴᴏᴛᴇ:</b>  ᴏɴʟʏ ꜱᴜᴅᴏᴇʀꜱ ᴄᴀɴ ᴠɪᴇᴡ."
+    "</blockquote>"
 )
 
 
@@ -175,7 +178,7 @@ _SUDOLIST_CAPTION = (
 async def sudolist_cmd(client, message: Message):
     keyboard = [[InlineKeyboardButton("๏ ᴠɪᴇᴡ ꜱᴜᴅᴏʟɪꜱᴛ ๏", callback_data="sudo_list_view")]]
     await message.reply_photo(
-        photo=random.choice(START_IMGS),
+        photo=_SUDOLIST_PHOTO,
         caption=_SUDOLIST_CAPTION,
         parse_mode=enums.ParseMode.HTML,
         reply_markup=InlineKeyboardMarkup(keyboard),
@@ -194,10 +197,13 @@ async def view_sudo_list_cb(client, query: CallbackQuery):
         owner_mention = f"<code>{OWNER_ID}</code>"
 
     caption = (
-        f"<b>˹ ʟɪꜱᴛ ᴏꜰ ʙᴏᴛ ᴍᴏᴅᴇʀᴀᴛᴏʀꜱ ˼</b>\n\n"
+        "<blockquote>"
+        "<b>˹ ʟɪꜱᴛ ᴏꜰ ʙᴏᴛ ᴍᴏᴅᴇʀᴀᴛᴏʀꜱ ˼</b>\n\n"
         f"<b><emoji id='6122692084806716730'>🌹</emoji> Oᴡɴᴇʀ</b> ➥ {owner_mention}\n\n"
     )
-    keyboard = []
+    keyboard = [[
+        InlineKeyboardButton("๏ ᴠɪᴇᴡ Oᴡɴᴇʀ ๏", url=f"tg://openmessage?user_id={OWNER_ID}")
+    ]]
 
     try:
         sudo_ids = await get_sudoers()
@@ -224,6 +230,7 @@ async def view_sudo_list_cb(client, query: CallbackQuery):
     if count == 0:
         caption += "<i>ɴᴏ ᴀᴅᴅɪᴛɪᴏɴᴀʟ ꜱᴜᴅᴏᴇʀꜱ ʏᴇᴛ.</i>"
 
+    caption += "</blockquote>"
     keyboard.append([InlineKeyboardButton("๏ ʙᴀᴄᴋ ๏", callback_data="sudo_list_back")])
     await query.message.edit_caption(
         caption=caption,
