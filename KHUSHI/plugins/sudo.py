@@ -1,10 +1,11 @@
 """KHUSHI — Sudo Commands: gban, block, blchat, sudoers, maintenance."""
 
 import asyncio
+import random
 
-from pyrogram import filters
+from pyrogram import enums, filters
 from pyrogram.errors import FloodWait
-from pyrogram.types import Message
+from pyrogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from KHUSHI import app
 from KHUSHI.misc import SUDOERS
@@ -23,7 +24,7 @@ from KHUSHI.utils.database import (
     remove_gban_user,
 )
 from KHUSHI.utils.extraction import extract_user
-from config import BANNED_USERS, OWNER_ID
+from config import BANNED_USERS, OWNER_ID, START_IMGS
 
 _BRAND = (
     "<blockquote>"
@@ -161,38 +162,81 @@ async def del_sudo(_, message: Message):
 
 
 # ── SUDOLIST ───────────────────────────────────────────────────────────────────
+
+_SUDOLIST_CAPTION = (
+    f"<b><emoji id='5409029744693897259'>🎁</emoji> ᴄʜᴇᴄᴋ ᴛʜᴇ ꜱᴜᴅᴏ ʟɪꜱᴛ ᴠɪᴀ ᴛʜᴇ ʙᴜᴛᴛᴏɴ ʙᴇʟᴏᴡ.</b>\n\n"
+    f"<b><emoji id='5972072533833289156'>🔹</emoji> ɴᴏᴛᴇ:</b>  ᴏɴʟʏ ꜱᴜᴅᴏᴇʀꜱ ᴄᴀɴ ᴠɪᴇᴡ."
+)
+
+
 @app.on_message(
-    filters.command(["sudolist", "sudoers"], prefixes=["/", "!", "."]) & SUDOERS
+    filters.command(["sudolist", "sudoers"], prefixes=["/", "!", "."]) & ~BANNED_USERS
 )
 async def sudolist_cmd(client, message: Message):
+    keyboard = [[InlineKeyboardButton("๏ ᴠɪᴇᴡ ꜱᴜᴅᴏʟɪꜱᴛ ๏", callback_data="sudo_list_view")]]
+    await message.reply_photo(
+        photo=random.choice(START_IMGS),
+        caption=_SUDOLIST_CAPTION,
+        parse_mode=enums.ParseMode.HTML,
+        reply_markup=InlineKeyboardMarkup(keyboard),
+    )
+
+
+@app.on_callback_query(filters.regex("^sudo_list_view$"))
+async def view_sudo_list_cb(client, query: CallbackQuery):
+    if query.from_user.id not in SUDOERS:
+        return await query.answer("ᴏɴʟʏ ꜱᴜᴅᴏᴇʀꜱ ᴄᴀɴ ᴀᴄᴄᴇꜱꜱ ᴛʜɪꜱ.", show_alert=True)
+
+    try:
+        owner = await app.get_users(OWNER_ID)
+        owner_mention = owner.mention
+    except Exception:
+        owner_mention = f"<code>{OWNER_ID}</code>"
+
+    caption = (
+        f"<b>˹ ʟɪꜱᴛ ᴏꜰ ʙᴏᴛ ᴍᴏᴅᴇʀᴀᴛᴏʀꜱ ˼</b>\n\n"
+        f"<b><emoji id='6122692084806716730'>🌹</emoji> Oᴡɴᴇʀ</b> ➥ {owner_mention}\n\n"
+    )
+    keyboard = []
+
     try:
         sudo_ids = await get_sudoers()
     except Exception:
         sudo_ids = list(SUDOERS)
 
-    if not sudo_ids:
-        return await message.reply_text(_r("❌ ɴᴏ ꜱᴜᴅᴏᴇʀꜱ ꜰᴏᴜɴᴅ."))
-
-    lines = []
     count = 0
     for uid in sudo_ids:
-        count += 1
+        if int(uid) == int(OWNER_ID):
+            continue
         try:
             user = await app.get_users(uid)
-            name = user.first_name or "Unknown"
-            uname = f"@{user.username}" if user.username else f"<code>{uid}</code>"
-            lines.append(f"┆{_dot} {name} [{uname}]")
+            count += 1
+            caption += f"<b><emoji id='5409029744693897259'>🎁</emoji> ꜱᴜᴅᴏ {count} »</b> {user.mention}\n"
+            keyboard.append([
+                InlineKeyboardButton(
+                    f"๏ ᴠɪᴇᴡ ꜱᴜᴅᴏ {count} ๏",
+                    url=f"tg://openmessage?user_id={uid}",
+                )
+            ])
         except Exception:
-            lines.append(f"┆{_dot} <code>{uid}</code>")
+            continue
 
-    body = "\n".join(lines)
-    text = (
-        f"<blockquote>"
-        f"┌────── ˹ ꜱᴜᴅᴏ ʟɪꜱᴛ ˼─── ⏤‌‌●\n"
-        f"┆{_zap} <b>ᴛᴏᴛᴀʟ :</b> <code>{count}</code>\n"
-        f"├──────────────────────\n"
-        f"{body}\n"
-        f"└──────────────────────●"
-        f"</blockquote>"
+    if count == 0:
+        caption += "<i>ɴᴏ ᴀᴅᴅɪᴛɪᴏɴᴀʟ ꜱᴜᴅᴏᴇʀꜱ ʏᴇᴛ.</i>"
+
+    keyboard.append([InlineKeyboardButton("๏ ʙᴀᴄᴋ ๏", callback_data="sudo_list_back")])
+    await query.message.edit_caption(
+        caption=caption,
+        parse_mode=enums.ParseMode.HTML,
+        reply_markup=InlineKeyboardMarkup(keyboard),
     )
-    await message.reply_text(_BRAND + "\n\n" + text)
+
+
+@app.on_callback_query(filters.regex("^sudo_list_back$"))
+async def back_sudo_list_cb(client, query: CallbackQuery):
+    keyboard = [[InlineKeyboardButton("๏ ᴠɪᴇᴡ ꜱᴜᴅᴏʟɪꜱᴛ ๏", callback_data="sudo_list_view")]]
+    await query.message.edit_caption(
+        caption=_SUDOLIST_CAPTION,
+        parse_mode=enums.ParseMode.HTML,
+        reply_markup=InlineKeyboardMarkup(keyboard),
+    )

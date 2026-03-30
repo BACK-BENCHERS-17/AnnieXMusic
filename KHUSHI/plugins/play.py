@@ -1,6 +1,7 @@
 """KHUSHI — Play Plugin: direct VC stream, same notification as AnnieMusic."""
 
 import asyncio
+import random
 
 from pyrogram import filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
@@ -22,7 +23,7 @@ from KHUSHI.utils.inline import aq_markup, stream_markup
 from KHUSHI.utils.raw_send import send_msg_invert_preview
 from KHUSHI.utils.stream.queue import put_queue
 from KHUSHI.utils.thumbnails import get_thumb
-from config import BANNED_USERS, BOT_USERNAME, DURATION_LIMIT, SUPPORT_CHAT, adminlist
+from config import AYU, BANNED_USERS, BOT_USERNAME, DURATION_LIMIT, SUPPORT_CHAT, adminlist
 
 THUMB_OFF_VIDEO_URL = "https://files.catbox.moe/4vr2jc.mp4"
 
@@ -122,6 +123,9 @@ async def _handle_play(message: Message, video: bool = False):
             )
             return
 
+    # ── Loading indicator ──────────────────────────────────────────────────────
+    mystic = await message.reply_text(random.choice(AYU))
+
     # ── Telegram file ──────────────────────────────────────────────────────────
     if tg_audio or tg_video:
         file_obj = tg_audio or tg_video
@@ -139,13 +143,18 @@ async def _handle_play(message: Message, video: bool = False):
                 file_name=f"downloads/tg_{file_obj.file_id}.file",
             )
         except Exception as e:
-            return await message.reply_text(
+            return await mystic.edit_text(
                 f"<blockquote>{_BRAND}</blockquote>\n\n"
                 f"<blockquote>❌ ᴅᴏᴡɴʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ: {type(e).__name__}</blockquote>"
             )
 
         is_video_type = video or bool(tg_video)
         streamtype = "video" if is_video_type else "audio"
+
+        try:
+            await mystic.delete()
+        except Exception:
+            pass
 
         if await is_active_chat(chat_id):
             await put_queue(
@@ -182,7 +191,7 @@ async def _handle_play(message: Message, video: bool = False):
     )
 
     if not query:
-        return await message.reply_text(
+        return await mystic.edit_text(
             f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>❌ ɴᴏ ǫᴜᴇʀʏ ᴘʀᴏᴠɪᴅᴇᴅ.</blockquote>"
         )
@@ -195,6 +204,11 @@ async def _handle_play(message: Message, video: bool = False):
                 title, duration_min, _, thumbnail, vidid2 = await YouTube.details(vidid, videoid=True)
                 if vidid2:
                     vidid = vidid2
+
+                try:
+                    await mystic.delete()
+                except Exception:
+                    pass
 
                 if await is_active_chat(chat_id):
                     await put_queue(
@@ -240,19 +254,19 @@ async def _handle_play(message: Message, video: bool = False):
             query, videoid=False
         )
     except Exception as e:
-        return await message.reply_text(
+        return await mystic.edit_text(
             f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>❌ ɴᴏᴛʜɪɴɢ ꜰᴏᴜɴᴅ.\n{_EM['dot']} {type(e).__name__}</blockquote>"
         )
 
     if str(duration_min) == "None" or not vidid:
-        return await message.reply_text(
+        return await mystic.edit_text(
             f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>❌ ᴄᴏᴜʟᴅ ɴᴏᴛ ꜰᴇᴛᴄʜ ᴛʀᴀᴄᴋ ᴅᴇᴛᴀɪʟꜱ.</blockquote>"
         )
 
     if duration_sec and duration_sec > DURATION_LIMIT:
-        return await message.reply_text(
+        return await mystic.edit_text(
             f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>❌ ᴛʀᴀᴄᴋ ɪꜱ ᴛᴏᴏ ʟᴏɴɢ.\n"
             f"{_EM['dot']} ᴍᴀx: <code>{DURATION_LIMIT // 60} ᴍɪɴᴜᴛᴇꜱ</code></blockquote>"
@@ -267,16 +281,21 @@ async def _handle_play(message: Message, video: bool = False):
             vidid, None, videoid=True, video=video
         )
     except Exception as e:
-        return await message.reply_text(
+        return await mystic.edit_text(
             f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>❌ ᴅᴏᴡɴʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ.\n{_EM['dot']} {type(e).__name__}</blockquote>"
         )
 
     if not file_path:
-        return await message.reply_text(
+        return await mystic.edit_text(
             f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>❌ ᴅᴏᴡɴʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ — ᴛʀʏ ᴀɢᴀɪɴ.</blockquote>"
         )
+
+    try:
+        await mystic.delete()
+    except Exception:
+        pass
 
     streamtype = "video" if video else "audio"
     stored_file = file_path if direct else f"vid_{vidid}"
