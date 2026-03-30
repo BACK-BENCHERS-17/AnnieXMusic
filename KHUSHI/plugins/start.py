@@ -1,6 +1,7 @@
-"""KHUSHI — Start & Help Plugin with spoiler images."""
+"""KHUSHI — Start & Help Plugin with spoiler images & category-based help menu."""
 
 import random
+import re
 
 from pyrogram import enums, filters
 from pyrogram.parser import Parser
@@ -9,8 +10,14 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from KHUSHI import app
 from KHUSHI.utils.database import get_lang
+from KHUSHI.utils.inline.help import (
+    first_page,
+    help_back_markup,
+    private_help_panel,
+)
+from KHUSHI.utils.inline.start import private_panel
 from config import BANNED_USERS, HELP_IMG_URL, START_IMGS, SUPPORT_CHAT
-from strings import get_string
+from strings import get_string, helpers
 
 _BRAND = (
     "<emoji id='5042192219960771668'>🧸</emoji>"
@@ -30,28 +37,6 @@ START_TEXT = (
     "<emoji id='5972072533833289156'>🔹</emoji> ɴꜱꜰᴡ ꜰɪʟᴛᴇʀ, ᴄᴏɴᴛᴇɴᴛ ɢᴜᴀʀᴅ</blockquote>"
 )
 
-HELP_TEXT = (
-    "<blockquote><b>📌 ᴄᴏᴍᴍᴀɴᴅꜱ</b>\n\n"
-    "<emoji id='5042334757040423886'>⚡️</emoji> <b>ᴍᴜꜱɪᴄ</b>\n"
-    "  /play — ꜱᴛʀᴇᴀᴍ ᴀᴜᴅɪᴏ ɪɴ ᴠᴏɪᴄᴇ ᴄʜᴀᴛ\n"
-    "  /vplay — ꜱᴛʀᴇᴀᴍ ᴠɪᴅᴇᴏ ɪɴ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ\n"
-    "  /pause  /resume  /skip  /stop\n"
-    "  /queue — ꜱʜᴏᴡ ᴄᴜʀʀᴇɴᴛ ǫᴜᴇᴜᴇ\n"
-    "  /loop [0-10]  /shuffle  /seek [ꜱᴇᴄ]\n"
-    "  /volume [0-200]  /speed [0.5-4.0]\n"
-    "  /247 — 24/7 ᴍᴏᴅᴇ ᴛᴏɢɢʟᴇ\n\n"
-    "<emoji id='5042334757040423886'>⚡️</emoji> <b>ɪɴꜰᴏ</b>\n"
-    "  /ping — ʙᴏᴛ ꜱᴛᴀᴛᴜꜱ & ꜱʏꜱᴛᴇᴍ ꜱᴛᴀᴛꜱ\n"
-    "  /stats — ᴅᴇᴛᴀɪʟᴇᴅ ꜱᴛᴀᴛꜱ\n\n"
-    "<emoji id='5042334757040423886'>⚡️</emoji> <b>ᴘʀᴏᴛᴇᴄᴛɪᴏɴ</b>\n"
-    "  /nsfw on|off — ᴄᴏɴᴛᴇɴᴛ ɢᴜᴀʀᴅ\n"
-    "  /auth  /unauth — ᴍᴜꜱɪᴄ ʙᴏᴛ ᴀᴅᴍɪɴꜱ\n\n"
-    "<emoji id='5042334757040423886'>⚡️</emoji> <b>ꜱᴜᴅᴏ ᴏɴʟʏ</b>\n"
-    "  /gban  /ungban  /block  /unblock\n"
-    "  /bc — ʙʀᴏᴀᴅᴄᴀꜱᴛ\n"
-    "  /maintenance  /restart</blockquote>"
-)
-
 
 def _start_kb():
     return InlineKeyboardMarkup([
@@ -65,10 +50,11 @@ def _start_kb():
     ])
 
 
-def _help_kb():
-    return InlineKeyboardMarkup([
-        [InlineKeyboardButton("˹ʙᴀᴄᴋ˼", callback_data="khushi_back")]
-    ])
+async def _get_lang(user_id):
+    try:
+        return await get_lang(user_id)
+    except Exception:
+        return "en"
 
 
 async def _send_spoiler_photo(
@@ -79,7 +65,6 @@ async def _send_spoiler_photo(
     markup: InlineKeyboardMarkup,
 ) -> bool:
     """3-tier spoiler photo sender."""
-    # Tier 1 — raw API
     try:
         peer = await client.resolve_peer(message.chat.id)
         parser = Parser(client)
@@ -102,7 +87,6 @@ async def _send_spoiler_photo(
     except Exception:
         pass
 
-    # Tier 2 — high-level
     try:
         await message.reply_photo(
             photo=photo_url,
@@ -121,11 +105,7 @@ async def _send_spoiler_photo(
 
 @app.on_message(filters.command(["start", "kstart"]) & ~BANNED_USERS)
 async def khushi_start(client, message: Message):
-    try:
-        lang = await get_lang(message.from_user.id)
-    except Exception:
-        lang = "en"
-
+    lang = await _get_lang(message.from_user.id)
     caption = (
         f"<blockquote>{_BRAND}</blockquote>\n\n"
         + START_TEXT.format(
@@ -143,32 +123,141 @@ async def khushi_start(client, message: Message):
 
 # ── /help & /khelp ────────────────────────────────────────────────────────────
 
-@app.on_message(filters.command(["help", "khelp"]) & ~BANNED_USERS)
-async def khushi_help(client, message: Message):
-    caption = f"<blockquote>{_BRAND}</blockquote>\n\n" + HELP_TEXT
-    markup = _help_kb()
+@app.on_message(filters.command(["help", "khelp"]) & filters.private & ~BANNED_USERS)
+async def khushi_help_cmd(client, message: Message):
+    lang = await _get_lang(message.from_user.id)
+    _ = get_string(lang)
+    keyboard = first_page(_)
+    caption = _["help_1"].format(SUPPORT_CHAT)
+    await message.delete()
+    try:
+        await message.reply_photo(
+            photo=HELP_IMG_URL,
+            caption=caption,
+            reply_markup=keyboard,
+        )
+    except Exception:
+        await message.reply_text(caption, reply_markup=keyboard, disable_web_page_preview=True)
 
-    sent = await _send_spoiler_photo(client, message, HELP_IMG_URL, caption, markup)
-    if not sent:
-        await message.reply_text(caption, reply_markup=markup, disable_web_page_preview=True)
+
+@app.on_message(filters.command(["help", "khelp"]) & filters.group & ~BANNED_USERS)
+async def khushi_help_group(client, message: Message):
+    lang = await _get_lang(message.from_user.id)
+    _ = get_string(lang)
+    keyboard = InlineKeyboardMarkup(private_help_panel(_))
+    await message.reply_text(
+        _["help_2"],
+        reply_markup=keyboard,
+        disable_web_page_preview=True,
+    )
 
 
-# ── Callbacks — accept both old (annie_*) and new (khushi_*) names ────────────
+# ── Help button callback — open category list ─────────────────────────────────
 
-@app.on_callback_query(filters.regex("^(khushi_help|annie_help)$") & ~BANNED_USERS)
+@app.on_callback_query(filters.regex("^(khushi_help|annie_help|open_help)$") & ~BANNED_USERS)
 async def khushi_help_cb(_, query):
     await query.answer()
-    caption = f"<blockquote>{_BRAND}</blockquote>\n\n" + HELP_TEXT
+    lang = await _get_lang(query.from_user.id)
+    _ = get_string(lang)
+    keyboard = first_page(_)
+    caption = _["help_1"].format(SUPPORT_CHAT)
     try:
-        await query.message.edit_caption(caption, reply_markup=_help_kb())
+        await query.message.edit_caption(caption, reply_markup=keyboard)
+    except Exception:
+        try:
+            await query.message.reply_photo(
+                photo=HELP_IMG_URL,
+                caption=caption,
+                reply_markup=keyboard,
+            )
+        except Exception:
+            await query.edit_message_text(
+                caption, reply_markup=keyboard, disable_web_page_preview=True
+            )
+
+
+# ── Category button callbacks — show specific help section ────────────────────
+
+@app.on_callback_query(filters.regex(r"^help_callback hb(\d+)_p(\d+)$") & ~BANNED_USERS)
+async def help_section_cb(_, query):
+    match = re.match(r"help_callback hb(\d+)_p(\d+)", query.data)
+    if not match:
+        return await query.answer("Invalid callback.", show_alert=True)
+
+    number = int(match.group(1))
+    current_page = int(match.group(2))
+    await query.answer()
+
+    lang = await _get_lang(query.from_user.id)
+    _ = get_string(lang)
+
+    help_text = getattr(helpers, f"HELP_{number}", None)
+    if not help_text:
+        return await query.answer("ɪɴᴠᴀʟɪᴅ ʜᴇʟᴘ ᴛᴏᴘɪᴄ.", show_alert=True)
+
+    try:
+        await query.message.edit_caption(
+            help_text,
+            reply_markup=help_back_markup(_, current_page),
+        )
+    except Exception:
+        await query.edit_message_text(
+            help_text,
+            reply_markup=help_back_markup(_, current_page),
+            disable_web_page_preview=True,
+        )
+
+
+# ── Back button — return to category list ─────────────────────────────────────
+
+@app.on_callback_query(filters.regex(r"^help_back_(\d+)$") & ~BANNED_USERS)
+async def help_back_cb(_, query):
+    page = query.data.split("_")[-1]
+    await query.answer()
+
+    lang = await _get_lang(query.from_user.id)
+    _ = get_string(lang)
+    keyboard = first_page(_)
+    caption = _["help_1"].format(SUPPORT_CHAT)
+
+    try:
+        await query.message.edit_caption(caption, reply_markup=keyboard)
     except Exception:
         try:
             await query.edit_message_text(
-                caption, reply_markup=_help_kb(), disable_web_page_preview=True
+                caption, reply_markup=keyboard, disable_web_page_preview=True
             )
         except Exception:
             pass
 
+
+# ── Back to main start panel ──────────────────────────────────────────────────
+
+@app.on_callback_query(filters.regex("^back_to_main$") & ~BANNED_USERS)
+async def back_to_main_cb(_, query):
+    await query.answer()
+    lang = await _get_lang(query.from_user.id)
+    _ = get_string(lang)
+    caption = (
+        f"<blockquote>{_BRAND}</blockquote>\n\n"
+        + START_TEXT.format(
+            mention=query.from_user.mention,
+            bot=app.mention,
+        )
+    )
+    markup = _start_kb()
+    try:
+        await query.message.edit_caption(caption, reply_markup=markup)
+    except Exception:
+        try:
+            await query.edit_message_text(
+                caption, reply_markup=markup, disable_web_page_preview=True
+            )
+        except Exception:
+            pass
+
+
+# ── Back from start → back ────────────────────────────────────────────────────
 
 @app.on_callback_query(filters.regex("^(khushi_back|annie_back)$") & ~BANNED_USERS)
 async def khushi_back_cb(_, query):
@@ -190,3 +279,13 @@ async def khushi_back_cb(_, query):
             )
         except Exception:
             pass
+
+
+# ── Close button ──────────────────────────────────────────────────────────────
+
+@app.on_callback_query(filters.regex("^close$") & ~BANNED_USERS)
+async def close_message(_, query):
+    try:
+        await query.message.delete()
+    except Exception:
+        await query.answer()
