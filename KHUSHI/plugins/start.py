@@ -6,6 +6,12 @@ import re
 
 _LOGGER = logging.getLogger(__name__)
 
+
+def _safe_text(text: str) -> str:
+    """Strip <emoji id="..."> custom-emoji wrappers, keep fallback unicode char."""
+    return re.sub(r'<emoji id=["\'][^"\']*["\']>(.*?)</emoji>', r'\1', text, flags=re.DOTALL)
+
+
 from pyrogram import enums, filters
 from pyrogram.parser import Parser
 from pyrogram.raw import functions as raw_func, types as raw_types
@@ -136,11 +142,12 @@ async def khushi_help_pm(client, message: Message):
         await message.delete()
     except Exception:
         pass
-    sent = await _try_send_photo(client, message.chat.id, HELP_IMG_URL, caption, keyboard)
+    safe_caption = _safe_text(caption)
+    sent = await _try_send_photo(client, message.chat.id, HELP_IMG_URL, safe_caption, keyboard)
     if not sent:
         await client.send_message(
             message.chat.id,
-            caption,
+            safe_caption,
             reply_markup=keyboard,
             disable_web_page_preview=True,
         )
@@ -168,29 +175,21 @@ async def khushi_help_cb(client, query):
     keyboard = first_page(_)
     caption = _["help_1"].format(SUPPORT_CHAT)
 
+    safe_caption = _safe_text(caption)
+
     edited = False
     try:
-        await query.message.edit_media(
-            InputMediaPhoto(media=HELP_IMG_URL, caption=caption, parse_mode=enums.ParseMode.HTML),
-            reply_markup=keyboard,
+        await query.message.edit_caption(
+            safe_caption, reply_markup=keyboard, parse_mode=enums.ParseMode.HTML
         )
         edited = True
     except Exception as e:
-        _LOGGER.warning("[HELP_CB] edit_media failed: %s", e)
-
-    if not edited:
-        try:
-            await query.message.edit_caption(
-                caption, reply_markup=keyboard, parse_mode=enums.ParseMode.HTML
-            )
-            edited = True
-        except Exception as e:
-            _LOGGER.warning("[HELP_CB] edit_caption failed: %s", e)
+        _LOGGER.warning("[HELP_CB] edit_caption failed: %s", e)
 
     if not edited:
         try:
             await query.message.edit_text(
-                caption, reply_markup=keyboard,
+                safe_caption, reply_markup=keyboard,
                 parse_mode=enums.ParseMode.HTML,
                 disable_web_page_preview=True,
             )
@@ -204,12 +203,19 @@ async def khushi_help_cb(client, query):
             await query.message.delete()
         except Exception:
             pass
-        sent = await _try_send_photo(client, query.message.chat.id, HELP_IMG_URL, caption, keyboard)
-        if not sent:
+        try:
+            await client.send_photo(
+                query.message.chat.id,
+                photo=HELP_IMG_URL,
+                caption=safe_caption,
+                reply_markup=keyboard,
+                parse_mode=enums.ParseMode.HTML,
+            )
+        except Exception:
             try:
                 await client.send_message(
                     query.message.chat.id,
-                    caption,
+                    safe_caption,
                     reply_markup=keyboard,
                     parse_mode=enums.ParseMode.HTML,
                     disable_web_page_preview=True,
@@ -237,15 +243,16 @@ async def help_section_cb(client, query):
     if not help_text:
         return await query.answer("ɪɴᴠᴀʟɪᴅ ʜᴇʟᴘ ᴛᴏᴘɪᴄ.", show_alert=True)
 
+    safe_help = _safe_text(help_text)
     back_kb = help_back_markup(_, current_page)
     try:
         await query.message.edit_caption(
-            help_text, reply_markup=back_kb, parse_mode=enums.ParseMode.HTML
+            safe_help, reply_markup=back_kb, parse_mode=enums.ParseMode.HTML
         )
     except Exception:
         try:
             await query.message.edit_text(
-                help_text, reply_markup=back_kb,
+                safe_help, reply_markup=back_kb,
                 parse_mode=enums.ParseMode.HTML,
                 disable_web_page_preview=True,
             )
@@ -261,7 +268,7 @@ async def help_back_cb(client, query):
     lang = await _get_lang(query.from_user.id)
     _ = get_string(lang)
     keyboard = first_page(_)
-    caption = _["help_1"].format(SUPPORT_CHAT)
+    caption = _safe_text(_["help_1"].format(SUPPORT_CHAT))
     try:
         await query.message.edit_caption(
             caption, reply_markup=keyboard, parse_mode=enums.ParseMode.HTML

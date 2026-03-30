@@ -1,8 +1,13 @@
 import re
 from typing import Union
 
+
+def _safe_text(text: str) -> str:
+    """Strip <emoji id="..."> custom-emoji wrappers, keep fallback unicode char."""
+    return re.sub(r'<emoji id=["\'][^"\']*["\']>(.*?)</emoji>', r'\1', text, flags=re.DOTALL)
+
 from pyrogram import Client, enums, filters, types
-from pyrogram.types import InlineKeyboardMarkup, InputMediaPhoto, Message
+from pyrogram.types import InlineKeyboardMarkup, Message
 
 from ANNIEMUSIC import app
 from ANNIEMUSIC.utils.database import get_lang
@@ -29,27 +34,18 @@ async def helper_private(client: Client, update: Union[Message, types.CallbackQu
     _ = get_string(language)
 
     keyboard = first_page(_)
-    caption = _["help_1"].format(SUPPORT_CHAT)
+    caption = _safe_text(_["help_1"].format(SUPPORT_CHAT))
 
     if is_cb:
         await update.answer()
         edited = False
         try:
-            await update.message.edit_media(
-                InputMediaPhoto(media=HELP_IMG_URL, caption=caption, parse_mode=enums.ParseMode.HTML),
-                reply_markup=keyboard,
+            await update.message.edit_caption(
+                caption, reply_markup=keyboard, parse_mode=enums.ParseMode.HTML
             )
             edited = True
         except Exception:
             pass
-        if not edited:
-            try:
-                await update.message.edit_caption(
-                    caption, reply_markup=keyboard, parse_mode=enums.ParseMode.HTML
-                )
-                edited = True
-            except Exception:
-                pass
         if not edited:
             try:
                 await update.message.edit_text(
@@ -66,12 +62,14 @@ async def helper_private(client: Client, update: Union[Message, types.CallbackQu
             await update.reply_photo(
                 photo=HELP_IMG_URL,
                 caption=caption,
-                reply_markup=keyboard
+                reply_markup=keyboard,
+                parse_mode=enums.ParseMode.HTML,
             )
         except Exception:
             await update.reply_text(
                 caption,
                 reply_markup=keyboard,
+                parse_mode=enums.ParseMode.HTML,
                 disable_web_page_preview=True,
             )
 
