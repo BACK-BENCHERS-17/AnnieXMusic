@@ -22,7 +22,7 @@ from ANNIEMUSIC.utils.database import (
     set_loop,
     set_volume,
 )
-from ANNIEMUSIC.utils.decorators import AdminRightsCheck
+from KHUSHI.utils.decorators import KhushiAdminCheck as AdminRightsCheck
 from ANNIEMUSIC.utils.stream.autoclear import auto_clean
 from config import BANNED_USERS
 

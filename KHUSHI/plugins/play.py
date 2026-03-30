@@ -16,7 +16,7 @@ from ANNIEMUSIC.utils.database import (
     is_autoplay,
     is_maintenance,
 )
-from ANNIEMUSIC.utils.decorators import AdminRightsCheck
+from KHUSHI.utils.decorators import KhushiAdminCheck as AdminRightsCheck
 from ANNIEMUSIC.utils.downloader import _trigger_bg_cache
 from ANNIEMUSIC.utils.inline import aq_markup, stream_markup
 from ANNIEMUSIC.utils.raw_send import send_msg_invert_preview

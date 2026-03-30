@@ -1247,3 +1247,54 @@ pymongo.errors.ConfigurationError: The DNS query name does not exist: _mongodb._
 [29-Mar-26 20:53:43 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 [29-Mar-26 20:53:43 - INFO] - KHUSHI -   KHUSHI is LIVE!
 [29-Mar-26 20:53:43 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[30-Mar-26 06:52:19 - INFO] - KHUSHI.core.mongo - KHUSHI: Connecting to MongoDB...
+[30-Mar-26 06:52:19 - INFO] - KHUSHI.core.mongo - KHUSHI: MongoDB connected. (DB: Annie)
+[30-Mar-26 06:52:21 - INFO] - ANNIEMUSIC.core.mongo - Connecting to your Mongo Database...
+[30-Mar-26 06:52:21 - INFO] - ANNIEMUSIC.core.mongo - Connected to your Mongo Database. (DB: Annie)
+[30-Mar-26 06:52:21 - INFO] - ANNIEMUSIC.core.dir - Directories Updated.
+[30-Mar-26 06:52:21 - INFO] - ANNIEMUSIC.core.git - Git Client Found [VPS DEPLOYER]
+[30-Mar-26 06:52:21 - INFO] - ANNIEMUSIC.core.git - Successfully updated from upstream repository.
+[30-Mar-26 06:52:21 - INFO] - ANNIEMUSIC.misc - ᴅᴀᴛᴀʙᴀsᴇ ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ💗
+[30-Mar-26 06:52:21 - INFO] - ANNIEMUSIC.core.bot - Bot client initialized.
+[30-Mar-26 06:52:23 - WARNING] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] Node.js NOT found — web_safari client may fail, android_vr will still work
+[30-Mar-26 06:52:23 - INFO] - KHUSHI.core.bot - KHUSHI Bot client initialized.
+[30-Mar-26 06:52:23 - INFO] - KHUSHI.misc - KHUSHI: In-memory DB initialized.
+[30-Mar-26 06:52:25 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[30-Mar-26 06:52:25 - INFO] - KHUSHI -   KHUSHI Bot  |  Independent Core  
+[30-Mar-26 06:52:25 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[30-Mar-26 06:55:08 - INFO] - KHUSHI - SIGTERM — shutting down...
+[30-Mar-26 06:55:10 - ERROR] - asyncio - Task exception was never retrieved
+future: <Task finished name='Task-563' coro=<Session.restart() done, defined at /home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/session/session.py:271> exception=ProgrammingError('Cannot operate on a closed database.')>
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/session/session.py", line 277, in restart
+    await self.start()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/session/session.py", line 222, in start
+    raise e
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/session/session.py", line 192, in start
+    api_id=await self.client.storage.api_id(),
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/storage/sqlite_storage.py", line 414, in api_id
+    return await self._accessor("sessions", "api_id", value)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/storage/sqlite_storage.py", line 402, in _accessor
+    return await self._get(table, attr) if value is object else await self._set(table, attr, value)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/storage/sqlite_storage.py", line 395, in _get
+    return self.conn.execute(f"SELECT {attr} FROM {table}").fetchone()[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.ProgrammingError: Cannot operate on a closed database.
+[30-Mar-26 06:55:13 - INFO] - KHUSHI.core.mongo - KHUSHI: Connecting to MongoDB...
+[30-Mar-26 06:55:13 - INFO] - KHUSHI.core.mongo - KHUSHI: MongoDB connected. (DB: Annie)
+[30-Mar-26 06:55:13 - INFO] - ANNIEMUSIC.core.mongo - Connecting to your Mongo Database...
+[30-Mar-26 06:55:13 - INFO] - ANNIEMUSIC.core.mongo - Connected to your Mongo Database. (DB: Annie)
+[30-Mar-26 06:55:13 - INFO] - ANNIEMUSIC.core.dir - Directories Updated.
+[30-Mar-26 06:55:13 - INFO] - ANNIEMUSIC.core.git - Git Client Found [VPS DEPLOYER]
+[30-Mar-26 06:55:13 - INFO] - ANNIEMUSIC.core.git - Successfully updated from upstream repository.
+[30-Mar-26 06:55:13 - INFO] - ANNIEMUSIC.misc - ᴅᴀᴛᴀʙᴀsᴇ ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ💗
+[30-Mar-26 06:55:13 - INFO] - ANNIEMUSIC.core.bot - Bot client initialized.
+[30-Mar-26 06:55:13 - WARNING] - ANNIEMUSIC.utils.ytdl_smart - [SmartYTDL] Node.js NOT found — web_safari client may fail, android_vr will still work
+[30-Mar-26 06:55:13 - INFO] - KHUSHI.core.bot - KHUSHI Bot client initialized.
+[30-Mar-26 06:55:13 - INFO] - KHUSHI.misc - KHUSHI: In-memory DB initialized.
+[30-Mar-26 06:55:14 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[30-Mar-26 06:55:14 - INFO] - KHUSHI -   KHUSHI Bot  |  Independent Core  
+[30-Mar-26 06:55:14 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

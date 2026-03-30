@@ -40,6 +40,9 @@ HELP_TEXT = (
     "  /loop [0-10]  /shuffle  /seek [ꜱᴇᴄ]\n"
     "  /volume [0-200]  /speed [0.5-4.0]\n"
     "  /247 — 24/7 ᴍᴏᴅᴇ ᴛᴏɢɢʟᴇ\n\n"
+    "<emoji id='5042334757040423886'>⚡️</emoji> <b>ɪɴꜰᴏ</b>\n"
+    "  /ping — ʙᴏᴛ ꜱᴛᴀᴛᴜꜱ & ꜱʏꜱᴛᴇᴍ ꜱᴛᴀᴛꜱ\n"
+    "  /stats — ᴅᴇᴛᴀɪʟᴇᴅ ꜱᴛᴀᴛꜱ\n\n"
     "<emoji id='5042334757040423886'>⚡️</emoji> <b>ᴘʀᴏᴛᴇᴄᴛɪᴏɴ</b>\n"
     "  /nsfw on|off — ᴄᴏɴᴛᴇɴᴛ ɢᴜᴀʀᴅ\n"
     "  /auth  /unauth — ᴍᴜꜱɪᴄ ʙᴏᴛ ᴀᴅᴍɪɴꜱ\n\n"
@@ -75,8 +78,8 @@ async def _send_spoiler_photo(
     caption: str,
     markup: InlineKeyboardMarkup,
 ) -> bool:
-    """Send a spoiler photo via raw API, with 2 fallbacks."""
-    # Tier 1 — raw API (spoiler flag at server level)
+    """3-tier spoiler photo sender."""
+    # Tier 1 — raw API
     try:
         peer = await client.resolve_peer(message.chat.id)
         parser = Parser(client)
@@ -99,7 +102,7 @@ async def _send_spoiler_photo(
     except Exception:
         pass
 
-    # Tier 2 — high-level reply_photo with has_spoiler
+    # Tier 2 — high-level
     try:
         await message.reply_photo(
             photo=photo_url,
@@ -114,9 +117,9 @@ async def _send_spoiler_photo(
     return False
 
 
-# ── /kstart ──────────────────────────────────────────────────────────────────
+# ── /start & /kstart ──────────────────────────────────────────────────────────
 
-@app.on_message(filters.command("kstart") & ~BANNED_USERS)
+@app.on_message(filters.command(["start", "kstart"]) & ~BANNED_USERS)
 async def khushi_start(client, message: Message):
     try:
         lang = await get_lang(message.from_user.id)
@@ -134,36 +137,25 @@ async def khushi_start(client, message: Message):
     img = random.choice(START_IMGS)
 
     sent = await _send_spoiler_photo(client, message, img, caption, markup)
-
-    # Tier 3 — plain text fallback
     if not sent:
-        await message.reply_text(
-            caption,
-            reply_markup=markup,
-            disable_web_page_preview=True,
-        )
+        await message.reply_text(caption, reply_markup=markup, disable_web_page_preview=True)
 
 
-# ── /khelp ───────────────────────────────────────────────────────────────────
+# ── /help & /khelp ────────────────────────────────────────────────────────────
 
-@app.on_message(filters.command("khelp") & ~BANNED_USERS)
+@app.on_message(filters.command(["help", "khelp"]) & ~BANNED_USERS)
 async def khushi_help(client, message: Message):
     caption = f"<blockquote>{_BRAND}</blockquote>\n\n" + HELP_TEXT
     markup = _help_kb()
 
     sent = await _send_spoiler_photo(client, message, HELP_IMG_URL, caption, markup)
-
     if not sent:
-        await message.reply_text(
-            caption,
-            reply_markup=markup,
-            disable_web_page_preview=True,
-        )
+        await message.reply_text(caption, reply_markup=markup, disable_web_page_preview=True)
 
 
-# ── Callbacks ─────────────────────────────────────────────────────────────────
+# ── Callbacks — accept both old (annie_*) and new (khushi_*) names ────────────
 
-@app.on_callback_query(filters.regex("khushi_help") & ~BANNED_USERS)
+@app.on_callback_query(filters.regex("^(khushi_help|annie_help)$") & ~BANNED_USERS)
 async def khushi_help_cb(_, query):
     await query.answer()
     caption = f"<blockquote>{_BRAND}</blockquote>\n\n" + HELP_TEXT
@@ -172,15 +164,13 @@ async def khushi_help_cb(_, query):
     except Exception:
         try:
             await query.edit_message_text(
-                caption,
-                reply_markup=_help_kb(),
-                disable_web_page_preview=True,
+                caption, reply_markup=_help_kb(), disable_web_page_preview=True
             )
         except Exception:
             pass
 
 
-@app.on_callback_query(filters.regex("khushi_back") & ~BANNED_USERS)
+@app.on_callback_query(filters.regex("^(khushi_back|annie_back)$") & ~BANNED_USERS)
 async def khushi_back_cb(_, query):
     await query.answer()
     caption = (
@@ -196,9 +186,7 @@ async def khushi_back_cb(_, query):
     except Exception:
         try:
             await query.edit_message_text(
-                caption,
-                reply_markup=markup,
-                disable_web_page_preview=True,
+                caption, reply_markup=markup, disable_web_page_preview=True
             )
         except Exception:
             pass
