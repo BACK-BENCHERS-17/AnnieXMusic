@@ -1,4 +1,4 @@
-"""KHUSHI — Stats Plugin (works in DM & Group)."""
+"""KHUSHI — Stats Plugin."""
 
 from pyrogram import filters
 from pyrogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
@@ -22,10 +22,10 @@ _E = {
     "user":   "<emoji id='5316992572680320646'>👤</emoji>",
     "music":  "<emoji id='5463107823946717464'>🎵</emoji>",
     "video":  "<emoji id='5375464961822695044'>🎬</emoji>",
-    "time":   "<emoji id='5123230779593196220'>⏰</emoji>",
-    "cpu":    "<emoji id='5972055534352733289'>💻</emoji>",
-    "ram":    "<emoji id='5237799019329105246'>🧠</emoji>",
-    "disk":   "<emoji id='5462956611033117422'>📀</emoji>",
+    "time":   "<emoji id='6337029193603225180'>🕔</emoji>",
+    "cpu":    "<emoji id='5215186239853964761'>🖥</emoji>",
+    "ram":    "<emoji id='5834767463081840315'>🔵</emoji>",
+    "disk":   "<emoji id='5116468787377341336'>💬</emoji>",
     "crown":  "<emoji id='5039727497143387500'>👑</emoji>",
     "fire":   "<emoji id='5039598514980520994'>❤️‍🔥</emoji>",
     "banned": "<emoji id='6307831155521494118'>💩</emoji>",
@@ -46,12 +46,12 @@ def _stats_keyboard(is_sudo: bool) -> InlineKeyboardMarkup:
     rows = []
     if is_sudo:
         rows.append([
-            InlineKeyboardButton("˹ᴏᴠᴇʀᴀʟʟ˼", callback_data="kstats:overview"),
-            InlineKeyboardButton("˹sʏsᴛᴇᴍ˼", callback_data="kstats:system"),
+            InlineKeyboardButton("˹ᴏᴠᴇʀᴀʟʟ˼",  callback_data="kstats:overview"),
+            InlineKeyboardButton("˹sʏsᴛᴇᴍ˼",    callback_data="kstats:system"),
         ])
     else:
         rows.append([
-            InlineKeyboardButton("˹ᴏᴠᴇʀᴀʟʟ sᴛᴀᴛs˼", callback_data="kstats:overview")
+            InlineKeyboardButton("˹ᴏᴠᴇʀᴀʟʟ sᴛᴀᴛs˼", callback_data="kstats:overview"),
         ])
     rows.append([InlineKeyboardButton("˹ᴄʟᴏsᴇ˼", callback_data="kstats:close")])
     return InlineKeyboardMarkup(rows)
@@ -59,54 +59,76 @@ def _stats_keyboard(is_sudo: bool) -> InlineKeyboardMarkup:
 
 def _back_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([[
-        InlineKeyboardButton("˹ʙᴀᴄᴋ˼", callback_data="kstats:back"),
+        InlineKeyboardButton("˹ʙᴀᴄᴋ˼",  callback_data="kstats:back"),
         InlineKeyboardButton("˹ᴄʟᴏsᴇ˼", callback_data="kstats:close"),
     ]])
 
 
-def _bar(v, size=11):
-    try:
-        pct = float(str(v).replace("%", ""))
-    except Exception:
-        pct = 0
-    filled = int((pct / 100) * size)
-    return "▰" * filled + "▱" * (size - filled)
-
-
 async def _main_text() -> str:
-    served_chats = len(await get_served_chats())
-    served_users = len(await get_served_users())
-    active_audio = len(await get_active_chats())
-    active_video = len(await get_active_video_chats())
+    try:
+        served_chats = len(await get_served_chats())
+    except Exception:
+        served_chats = 0
+    try:
+        served_users = len(await get_served_users())
+    except Exception:
+        served_users = 0
+    try:
+        active_audio = len(await get_active_chats())
+    except Exception:
+        active_audio = 0
+    try:
+        active_video = len(await get_active_video_chats())
+    except Exception:
+        active_video = 0
     UP, CPU, RAM, DISK = await bot_sys_stats()
-
     return (
         f"<blockquote>{_BRAND}</blockquote>\n\n"
         "<blockquote>"
-        "┌────── ˹ ᴀɴɴɪᴇ sᴛᴀᴛs ˼─── ⏤‌‌●\n"
+        "┌────── ˹ ᴋʜᴜsʜɪ sᴛᴀᴛs ˼─── ⏤‌‌●\n"
         f"┆{_E['globe']} <b>sᴇʀᴠᴇᴅ ɢʀᴏᴜᴘs :</b> <code>{served_chats}</code>\n"
         f"┆{_E['user']} <b>sᴇʀᴠᴇᴅ ᴜsᴇʀs :</b> <code>{served_users}</code>\n"
         f"┆{_E['music']} <b>ᴀᴄᴛɪᴠᴇ ᴀᴜᴅɪᴏ :</b> <code>{active_audio}</code>\n"
         f"┆{_E['video']} <b>ᴀᴄᴛɪᴠᴇ ᴠɪᴅᴇᴏ :</b> <code>{active_video}</code>\n"
         "├──────────────────────\n"
         f"┆{_E['time']} <b>ᴜᴘᴛɪᴍᴇ :</b> <code>{UP}</code>\n"
-        f"┆{_E['cpu']} <b>ᴄᴘᴜ :</b> [{_bar(CPU)}] <code>{CPU}</code>\n"
-        f"┆{_E['ram']} <b>ʀᴀᴍ :</b> [{_bar(RAM)}] <code>{RAM}</code>\n"
-        f"┆{_E['disk']} <b>ᴅɪsᴋ :</b> [{_bar(DISK)}] <code>{DISK}</code>\n"
+        f"┆{_E['cpu']} <b>ᴄᴘᴜ :</b> <code>{CPU}</code>\n"
+        f"┆{_E['ram']} <b>ʀᴀᴍ :</b> <code>{RAM}</code>\n"
+        f"┆{_E['disk']} <b>ᴅɪsᴋ :</b> <code>{DISK}</code>\n"
         "└──────────────────────●"
         "</blockquote>"
     )
 
 
 async def _overview_text() -> str:
-    served_chats = len(await get_served_chats())
-    served_users = len(await get_served_users())
-    active_audio = len(await get_active_chats())
-    active_video = len(await get_active_video_chats())
-    sudoers      = len(await get_sudoers())
-    gbanned      = len(await get_gbanned())
-    banned       = len(await get_banned_users())
-
+    try:
+        served_chats = len(await get_served_chats())
+    except Exception:
+        served_chats = 0
+    try:
+        served_users = len(await get_served_users())
+    except Exception:
+        served_users = 0
+    try:
+        active_audio = len(await get_active_chats())
+    except Exception:
+        active_audio = 0
+    try:
+        active_video = len(await get_active_video_chats())
+    except Exception:
+        active_video = 0
+    try:
+        sudoers = len(await get_sudoers())
+    except Exception:
+        sudoers = 0
+    try:
+        gbanned = len(await get_gbanned())
+    except Exception:
+        gbanned = 0
+    try:
+        banned = len(await get_banned_users())
+    except Exception:
+        banned = 0
     return (
         f"<blockquote>{_BRAND}</blockquote>\n\n"
         "<blockquote>"
@@ -130,9 +152,9 @@ async def _system_text() -> str:
         "<blockquote>"
         "┌────── ˹ sʏsᴛᴇᴍ sᴛᴀᴛs ˼─── ⏤‌‌●\n"
         f"┆{_E['time']} <b>ᴜᴘᴛɪᴍᴇ :</b> <code>{UP}</code>\n"
-        f"┆{_E['cpu']} <b>ᴄᴘᴜ :</b>  [{_bar(CPU)}]  <code>{CPU}</code>\n"
-        f"┆{_E['ram']} <b>ʀᴀᴍ :</b>  [{_bar(RAM)}]  <code>{RAM}</code>\n"
-        f"┆{_E['disk']} <b>ᴅɪsᴋ :</b> [{_bar(DISK)}]  <code>{DISK}</code>\n"
+        f"┆{_E['cpu']} <b>ᴄᴘᴜ :</b> <code>{CPU}</code>\n"
+        f"┆{_E['ram']} <b>ʀᴀᴍ :</b> <code>{RAM}</code>\n"
+        f"┆{_E['disk']} <b>ᴅɪsᴋ :</b> <code>{DISK}</code>\n"
         "└──────────────────────●"
         "</blockquote>"
     )
