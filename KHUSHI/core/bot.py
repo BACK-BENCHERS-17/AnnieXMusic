@@ -51,7 +51,7 @@ class KhushiBot(Client):
                     f"ɪᴅ : <code>{self.id}</code>\n"
                     f"ɴᴀᴍᴇ : {self.name}\n"
                     f"ᴜꜱᴇʀɴᴀᴍᴇ : @{self.username}\n"
-                    f"ᴍᴏᴅᴇ : <b>KHUSHI</b></blockquote>"
+                    f"ᴍᴏᴅᴇ : <b>ANNIE</b></blockquote>"
                 ),
             )
         except Exception as e:

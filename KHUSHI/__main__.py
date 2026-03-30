@@ -43,21 +43,23 @@ def _load_plugins():
 async def _set_commands():
     try:
         cmds = [
-            {"command": "play",    "description": "Stream audio in voice chat"},
-            {"command": "vplay",   "description": "Stream video in video chat"},
-            {"command": "pause",   "description": "Pause playback"},
-            {"command": "resume",  "description": "Resume playback"},
-            {"command": "skip",    "description": "Skip current track"},
-            {"command": "stop",    "description": "Stop & clear queue"},
-            {"command": "queue",   "description": "Show current queue"},
-            {"command": "volume",  "description": "Set volume [0-200]"},
-            {"command": "loop",    "description": "Loop track [1-10]"},
-            {"command": "shuffle", "description": "Shuffle the queue"},
-            {"command": "247",     "description": "Toggle 24/7 mode"},
-            {"command": "kping",   "description": "Bot status & system stats"},
-            {"command": "kstart",  "description": "Start KHUSHI"},
-            {"command": "khelp",   "description": "KHUSHI help menu"},
-            {"command": "bc",      "description": "Broadcast (sudo only)"},
+            {"command": "play",      "description": "ꜱᴛʀᴇᴀᴍ ᴀᴜᴅɪᴏ ɪɴ ᴠᴏɪᴄᴇ ᴄʜᴀᴛ"},
+            {"command": "vplay",     "description": "ꜱᴛʀᴇᴀᴍ ᴠɪᴅᴇᴏ ɪɴ ᴠɪᴅᴇᴏ ᴄʜᴀᴛ"},
+            {"command": "pause",     "description": "ᴘᴀᴜꜱᴇ ᴘʟᴀʏʙᴀᴄᴋ"},
+            {"command": "resume",    "description": "ʀᴇꜱᴜᴍᴇ ᴘʟᴀʏʙᴀᴄᴋ"},
+            {"command": "skip",      "description": "ꜱᴋɪᴘ ᴄᴜʀʀᴇɴᴛ ᴛʀᴀᴄᴋ"},
+            {"command": "stop",      "description": "ꜱᴛᴏᴘ & ᴄʟᴇᴀʀ ǫᴜᴇᴜᴇ"},
+            {"command": "queue",     "description": "ꜱʜᴏᴡ ᴄᴜʀʀᴇɴᴛ ǫᴜᴇᴜᴇ"},
+            {"command": "volume",    "description": "ꜱᴇᴛ ᴠᴏʟᴜᴍᴇ [0-200]"},
+            {"command": "loop",      "description": "ʟᴏᴏᴘ ᴛʀᴀᴄᴋ [1-10]"},
+            {"command": "shuffle",   "description": "ꜱʜᴜꜰꜰʟᴇ ᴛʜᴇ ǫᴜᴇᴜᴇ"},
+            {"command": "247",       "description": "ᴛᴏɢɢʟᴇ 24/7 ᴍᴏᴅᴇ"},
+            {"command": "ping",      "description": "ʙᴏᴛ ꜱᴛᴀᴛᴜꜱ & ꜱʏꜱᴛᴇᴍ ꜱᴛᴀᴛꜱ"},
+            {"command": "start",     "description": "ꜱᴛᴀʀᴛ ᴀɴɴɪᴇ"},
+            {"command": "help",      "description": "ᴀɴɴɪᴇ ʜᴇʟᴘ ᴍᴇɴᴜ"},
+            {"command": "language",  "description": "ᴄʜᴀɴɢᴇ ʙᴏᴛ ʟᴀɴɢᴜᴀɢᴇ"},
+            {"command": "stats",     "description": "ʙᴏᴛ ꜱᴛᴀᴛɪꜱᴛɪᴄꜱ"},
+            {"command": "bc",        "description": "ʙʀᴏᴀᴅᴄᴀꜱᴛ (ꜱᴜᴅᴏ ᴏɴʟʏ)"},
         ]
         url = f"https://api.telegram.org/bot{config.BOT_TOKEN}/setMyCommands"
         r = requests.post(url, json={"commands": cmds}, timeout=10)
@@ -74,7 +76,7 @@ async def _set_menu_button():
             payload = {
                 "menu_button": {
                     "type": "web_app",
-                    "text": "KHUSHI",
+                    "text": "ANNIE",
                     "web_app": {"url": WEB_URL},
                 }
             }

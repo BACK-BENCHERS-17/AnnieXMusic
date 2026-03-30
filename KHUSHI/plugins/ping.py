@@ -69,7 +69,7 @@ async def _send_ping_photo(client, message: Message, caption: str, markup: Inlin
     await message.reply_text(caption, reply_markup=markup, disable_web_page_preview=True)
 
 
-@app.on_message(filters.command(["kping", "ping"], prefixes=["/", "."]) & ~BANNED_USERS)
+@app.on_message(filters.command(["ping"], prefixes=["/", "."]) & ~BANNED_USERS)
 async def khushi_ping(client, message: Message):
     start = datetime.now()
     try:

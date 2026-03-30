@@ -123,9 +123,9 @@ async def _try_send_photo(client, chat_id, photo_url, caption, markup) -> bool:
     return False
 
 
-# ── /start & /kstart ──────────────────────────────────────────────────────────
+# ── /start ────────────────────────────────────────────────────────────────────
 
-@app.on_message(filters.command(["start", "kstart"]) & filters.private & ~BANNED_USERS)
+@app.on_message(filters.command(["start"]) & filters.private & ~BANNED_USERS)
 async def khushi_start_private(client, message: Message):
     caption = (
         f"<blockquote>{_BRAND}</blockquote>\n\n"
@@ -138,7 +138,7 @@ async def khushi_start_private(client, message: Message):
         await message.reply_text(caption, reply_markup=markup, disable_web_page_preview=True)
 
 
-@app.on_message(filters.command(["start", "kstart"]) & filters.group & ~BANNED_USERS)
+@app.on_message(filters.command(["start"]) & filters.group & ~BANNED_USERS)
 async def khushi_start_group(client, message: Message):
     lang = await _get_lang(message.from_user.id)
     _ = get_string(lang)
@@ -155,9 +155,9 @@ async def khushi_start_group(client, message: Message):
     )
 
 
-# ── /help & /khelp ────────────────────────────────────────────────────────────
+# ── /help ─────────────────────────────────────────────────────────────────────
 
-@app.on_message(filters.command(["help", "khelp"]) & filters.private & ~BANNED_USERS)
+@app.on_message(filters.command(["help"]) & filters.private & ~BANNED_USERS)
 async def khushi_help_pm(client, message: Message):
     lang = await _get_lang(message.from_user.id)
     _ = get_string(lang)
@@ -178,7 +178,7 @@ async def khushi_help_pm(client, message: Message):
         )
 
 
-@app.on_message(filters.command(["help", "khelp"]) & filters.group & ~BANNED_USERS)
+@app.on_message(filters.command(["help"]) & filters.group & ~BANNED_USERS)
 async def khushi_help_group(client, message: Message):
     lang = await _get_lang(message.from_user.id)
     _ = get_string(lang)

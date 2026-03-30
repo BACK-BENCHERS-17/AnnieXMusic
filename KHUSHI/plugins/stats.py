@@ -85,7 +85,7 @@ async def _main_text() -> str:
     return (
         f"<blockquote>{_BRAND}</blockquote>\n\n"
         "<blockquote>"
-        "┌────── ˹ ᴋʜᴜsʜɪ sᴛᴀᴛs ˼─── ⏤‌‌●\n"
+        "┌────── ˹ ᴀɴɴɪᴇ sᴛᴀᴛs ˼─── ⏤‌‌●\n"
         f"┆{_E['globe']} <b>sᴇʀᴠᴇᴅ ɢʀᴏᴜᴘs :</b> <code>{served_chats}</code>\n"
         f"┆{_E['user']} <b>sᴇʀᴠᴇᴅ ᴜsᴇʀs :</b> <code>{served_users}</code>\n"
         f"┆{_E['music']} <b>ᴀᴄᴛɪᴠᴇ ᴀᴜᴅɪᴏ :</b> <code>{active_audio}</code>\n"
