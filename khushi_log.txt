@@ -3950,3 +3950,6 @@ pyrogram.errors.exceptions.bad_request_400.DocumentInvalid: Telegram says: [400 
 [30-Mar-26 13:31:22 - INFO] - KHUSHI -   KHUSHI is LIVE!
 [30-Mar-26 13:31:22 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 [30-Mar-26 13:31:51 - WARNING] - KHUSHI.utils.ytdl_smart - [SmartYTDL] All yt-dlp clients failed download for hHuG7FIKgtc → Invidious
+[30-Mar-26 13:32:08 - ERROR] - KHUSHI.utils.ytdl_smart - [SmartYTDL] ALL download methods failed for hHuG7FIKgtc
+[30-Mar-26 13:32:33 - WARNING] - KHUSHI.utils.ytdl_smart - [SmartYTDL] All yt-dlp clients failed download for hHuG7FIKgtc → Invidious
+[30-Mar-26 13:32:47 - ERROR] - KHUSHI.utils.ytdl_smart - [SmartYTDL] ALL download methods failed for hHuG7FIKgtc
