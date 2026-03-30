@@ -17,7 +17,9 @@ def InlineKeyboardButton(*args, **kwargs):
             except ValueError:
                 kwargs.pop("icon_custom_emoji_id", None)
 
-    return OriginalIKB(*args, **kwargs)
+    btn = OriginalIKB(*args, **kwargs)
+    btn.style = None
+    return btn
 
 from .extras import *
 from .help import *
