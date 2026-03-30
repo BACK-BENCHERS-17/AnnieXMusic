@@ -339,16 +339,19 @@ async def vplay_cmd(_, message: Message):
 
 # ── SEEK COMMAND ──────────────────────────────────────────────────────────────
 @app.on_message(
-    filters.command(["seek", "cseek"], prefixes=["/", ".", "!"])
+    filters.command(["seek", "cseek", "seekback", "cseekback"], prefixes=["/", ".", "!"])
     & filters.group
     & ~BANNED_USERS
 )
 @AdminRightsCheck
 async def kseek(_, message: Message, lang, chat_id):
+    cmd = message.command[0].lower().lstrip("/!.")
+    is_back = "back" in cmd
     if len(message.command) < 2:
+        usage = "/seekback [ꜱᴇᴄᴏɴᴅꜱ]" if is_back else "/seek [ꜱᴇᴄᴏɴᴅꜱ]"
         return await message.reply_text(
             f"<blockquote>{_BRAND}</blockquote>\n\n"
-            f"<blockquote>{_EM['dot']} ᴜꜱᴀɢᴇ: /seek [ꜱᴇᴄᴏɴᴅꜱ]</blockquote>"
+            f"<blockquote>{_EM['dot']} ᴜꜱᴀɢᴇ: {usage}</blockquote>"
         )
     check = db.get(chat_id)
     if not check:
@@ -357,7 +360,7 @@ async def kseek(_, message: Message, lang, chat_id):
             f"<blockquote>⚠️ ɴᴏᴛʜɪɴɢ ɪꜱ ᴘʟᴀʏɪɴɢ.</blockquote>"
         )
     try:
-        secs = int(message.command[1])
+        secs_arg = int(message.command[1])
     except ValueError:
         return await message.reply_text(
             f"<blockquote>{_BRAND}</blockquote>\n\n"
@@ -366,6 +369,11 @@ async def kseek(_, message: Message, lang, chat_id):
     from KHUSHI.utils.formatters import seconds_to_min
     file_path = check[0].get("file", "")
     total = check[0].get("seconds", 0)
+    if is_back:
+        current = check[0].get("played", 0)
+        secs = max(0, int(current) - abs(secs_arg))
+    else:
+        secs = secs_arg
     if secs < 0 or secs >= int(total):
         return await message.reply_text(
             f"<blockquote>{_BRAND}</blockquote>\n\n"
@@ -374,12 +382,13 @@ async def kseek(_, message: Message, lang, chat_id):
     dur = seconds_to_min(total)
     played = seconds_to_min(secs)
     mode = check[0].get("streamtype", "audio")
+    action_word = "ꜱᴇᴇᴋᴇᴅ ʙᴀᴄᴋ" if is_back else "ꜱᴇᴇᴋᴇᴅ"
     try:
         await JARVIS.seek_stream(chat_id, file_path, played, dur, mode)
         check[0]["played"] = secs
         await message.reply_text(
             f"<blockquote>{_BRAND}</blockquote>\n\n"
-            f"<blockquote>{_EM['zap']} <b>ꜱᴇᴇᴋᴇᴅ</b> ᴛᴏ <code>{played}</code></blockquote>"
+            f"<blockquote>{_EM['zap']} <b>{action_word}</b> ᴛᴏ <code>{played}</code></blockquote>"
         )
     except Exception as e:
         await message.reply_text(
