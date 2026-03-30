@@ -3358,3 +3358,39 @@ pyrogram.errors.exceptions.bad_request_400.DocumentInvalid: Telegram says: [400 
 [30-Mar-26 09:14:04 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 [30-Mar-26 09:14:04 - INFO] - KHUSHI -   KHUSHI is LIVE!
 [30-Mar-26 09:14:04 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[30-Mar-26 09:18:30 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] edit_caption hb2 failed: Telegram says: [400 DOCUMENT_INVALID] - The specified document is invalid. (caused by "messages.EditMessage")
+[30-Mar-26 09:18:30 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] edit_text hb2 failed: Telegram says: [400 DOCUMENT_INVALID] - The specified document is invalid. (caused by "messages.EditMessage")
+[30-Mar-26 09:18:30 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] hb2 — falling back to delete+send
+[30-Mar-26 09:18:45 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] edit_caption hb11 failed: Telegram says: [400 DOCUMENT_INVALID] - The specified document is invalid. (caused by "messages.EditMessage")
+[30-Mar-26 09:18:45 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] edit_text hb11 failed: Telegram says: [400 DOCUMENT_INVALID] - The specified document is invalid. (caused by "messages.EditMessage")
+[30-Mar-26 09:18:45 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] hb11 — falling back to delete+send
+[30-Mar-26 09:18:50 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] edit_caption hb11 failed: Telegram says: [400 DOCUMENT_INVALID] - The specified document is invalid. (caused by "messages.EditMessage")
+[30-Mar-26 09:18:50 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] edit_text hb11 failed: Telegram says: [400 DOCUMENT_INVALID] - The specified document is invalid. (caused by "messages.EditMessage")
+[30-Mar-26 09:18:50 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] hb11 — falling back to delete+send
+[30-Mar-26 09:18:54 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] edit_caption hb10 failed: Telegram says: [400 DOCUMENT_INVALID] - The specified document is invalid. (caused by "messages.EditMessage")
+[30-Mar-26 09:18:54 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] edit_text hb10 failed: Telegram says: [400 DOCUMENT_INVALID] - The specified document is invalid. (caused by "messages.EditMessage")
+[30-Mar-26 09:18:54 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] hb10 — falling back to delete+send
+[30-Mar-26 09:19:03 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] edit_caption hb2 failed: Telegram says: [400 DOCUMENT_INVALID] - The specified document is invalid. (caused by "messages.EditMessage")
+[30-Mar-26 09:19:03 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] edit_text hb2 failed: Telegram says: [400 DOCUMENT_INVALID] - The specified document is invalid. (caused by "messages.EditMessage")
+[30-Mar-26 09:19:03 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] hb2 — falling back to delete+send
+[30-Mar-26 09:19:14 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] edit_caption hb2 failed: Telegram says: [400 DOCUMENT_INVALID] - The specified document is invalid. (caused by "messages.EditMessage")
+[30-Mar-26 09:19:14 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] edit_text hb2 failed: Telegram says: [400 DOCUMENT_INVALID] - The specified document is invalid. (caused by "messages.EditMessage")
+[30-Mar-26 09:19:14 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] hb2 — falling back to delete+send
+[30-Mar-26 09:28:57 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] Racing 8 clients for 7rkH2TcTnm8 | order: ['android_vr', 'ios', 'android', 'mweb']
+[30-Mar-26 09:29:05 - WARNING] - KHUSHI.utils.ytdl_smart - [SmartYTDL] All yt-dlp clients failed for 7rkH2TcTnm8 → Invidious
+[30-Mar-26 09:29:05 - WARNING] - KHUSHI.utils.ytdl_smart - [SmartYTDL] All yt-dlp clients failed download for 7rkH2TcTnm8 → Invidious
+[30-Mar-26 09:29:20 - ERROR] - KHUSHI.utils.ytdl_smart - [SmartYTDL] ALL download methods failed for 7rkH2TcTnm8
+[30-Mar-26 09:29:21 - ERROR] - KHUSHI.utils.ytdl_smart - [SmartYTDL] ALL extract methods failed for 7rkH2TcTnm8
+[30-Mar-26 09:29:21 - WARNING] - KHUSHI.utils.downloader - [FAST] All URL methods failed for 7rkH2TcTnm8, falling back to full download
+[30-Mar-26 09:29:22 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] Racing 8 clients for 7rkH2TcTnm8 | order: ['android_vr', 'ios', 'android', 'mweb']
+[30-Mar-26 09:29:28 - WARNING] - KHUSHI.utils.ytdl_smart - [SmartYTDL] All yt-dlp clients failed for 7rkH2TcTnm8 → Invidious
+[30-Mar-26 09:29:28 - WARNING] - KHUSHI.utils.ytdl_smart - [SmartYTDL] All yt-dlp clients failed download for 7rkH2TcTnm8 → Invidious
+[30-Mar-26 09:29:43 - ERROR] - KHUSHI.utils.ytdl_smart - [SmartYTDL] ALL extract methods failed for 7rkH2TcTnm8
+[30-Mar-26 09:29:44 - ERROR] - KHUSHI.utils.ytdl_smart - [SmartYTDL] ALL download methods failed for 7rkH2TcTnm8
+[30-Mar-26 09:29:44 - ERROR] - KHUSHI.utils.downloader - [DL] All methods failed for 7rkH2TcTnm8
+[30-Mar-26 11:30:45 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] edit_caption hb2 failed: Telegram says: [400 DOCUMENT_INVALID] - The specified document is invalid. (caused by "messages.EditMessage")
+[30-Mar-26 11:30:45 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] edit_text hb2 failed: Telegram says: [400 DOCUMENT_INVALID] - The specified document is invalid. (caused by "messages.EditMessage")
+[30-Mar-26 11:30:45 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] hb2 — falling back to delete+send
+[30-Mar-26 11:31:35 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] edit_caption hb10 failed: Telegram says: [400 DOCUMENT_INVALID] - The specified document is invalid. (caused by "messages.EditMessage")
+[30-Mar-26 11:31:35 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] edit_text hb10 failed: Telegram says: [400 DOCUMENT_INVALID] - The specified document is invalid. (caused by "messages.EditMessage")
+[30-Mar-26 11:31:35 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] hb10 — falling back to delete+send
