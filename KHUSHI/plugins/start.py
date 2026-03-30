@@ -1,7 +1,10 @@
 """KHUSHI — Start & Help Plugin."""
 
+import logging
 import random
 import re
+
+_LOGGER = logging.getLogger(__name__)
 
 from pyrogram import enums, filters
 from pyrogram.parser import Parser
@@ -172,8 +175,8 @@ async def khushi_help_cb(client, query):
             reply_markup=keyboard,
         )
         edited = True
-    except Exception:
-        pass
+    except Exception as e:
+        _LOGGER.warning("[HELP_CB] edit_media failed: %s", e)
 
     if not edited:
         try:
@@ -181,8 +184,8 @@ async def khushi_help_cb(client, query):
                 caption, reply_markup=keyboard, parse_mode=enums.ParseMode.HTML
             )
             edited = True
-        except Exception:
-            pass
+        except Exception as e:
+            _LOGGER.warning("[HELP_CB] edit_caption failed: %s", e)
 
     if not edited:
         try:
@@ -192,10 +195,11 @@ async def khushi_help_cb(client, query):
                 disable_web_page_preview=True,
             )
             edited = True
-        except Exception:
-            pass
+        except Exception as e:
+            _LOGGER.warning("[HELP_CB] edit_text failed: %s", e)
 
     if not edited:
+        _LOGGER.warning("[HELP_CB] All edits failed — falling back to delete+send")
         try:
             await query.message.delete()
         except Exception:
@@ -210,8 +214,8 @@ async def khushi_help_cb(client, query):
                     parse_mode=enums.ParseMode.HTML,
                     disable_web_page_preview=True,
                 )
-            except Exception:
-                pass
+            except Exception as e:
+                _LOGGER.error("[HELP_CB] send_message also failed: %s", e)
 
 
 # ── Category button callbacks — show specific help section ────────────────────
