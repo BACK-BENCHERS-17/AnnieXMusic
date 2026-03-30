@@ -22,7 +22,7 @@ HELP_1 = _ANNIE + """
   ↳ sᴇᴛ ᴛᴀʀɢᴇᴛ ᴄʜᴀɴɴᴇʟ ꜰᴏʀ ᴘʟᴀʏʙᴀᴄᴋ
 </blockquote>
 
-<blockquote>🔹 sᴜᴘᴘᴏʀᴛs: ʏᴏᴜᴛᴜʙᴇ, sᴘᴏᴛɪꜰʏ, sᴏᴜɴᴅᴄʟᴏᴜᴅ, ʀᴇssᴏ, ᴀᴘᴘʟᴇ ᴍᴜsɪᴄ, ᴅɪʀᴇᴄᴛ ʟɪɴᴋs, ᴛᴇʟᴇɢʀᴀᴍ ꜰɪʟᴇs</blockquote>
+<blockquote><emoji id="5972072533833289156">🔹</emoji> sᴜᴘᴘᴏʀᴛs: ʏᴏᴜᴛᴜʙᴇ, sᴘᴏᴛɪꜰʏ, sᴏᴜɴᴅᴄʟᴏᴜᴅ, ʀᴇssᴏ, ᴀᴘᴘʟᴇ ᴍᴜsɪᴄ, ᴅɪʀᴇᴄᴛ ʟɪɴᴋs, ᴛᴇʟᴇɢʀᴀᴍ ꜰɪʟᴇs</blockquote>
 """
 
 HELP_2 = _ANNIE + """
@@ -38,7 +38,7 @@ HELP_2 = _ANNIE + """
 <b>• /player</b>  ↳ ɪɴᴛᴇʀᴀᴄᴛɪᴠᴇ ᴘʟᴀʏᴇʀ ᴘᴀɴᴇʟ
 </blockquote>
 
-<blockquote>❄️ ᴀᴅᴅ <b>c</b> ᴘʀᴇꜰɪx ꜰᴏʀ ᴄʜᴀɴɴᴇʟ ᴘʟᴀʏʙᴀᴄᴋ <code>(e.g. /cpause)</code></blockquote>
+<blockquote><emoji id="5449449325434266744">❄️</emoji> ᴀᴅᴅ <b>c</b> ᴘʀᴇꜰɪx ꜰᴏʀ ᴄʜᴀɴɴᴇʟ ᴘʟᴀʏʙᴀᴄᴋ <code>(e.g. /cpause)</code></blockquote>
 """
 
 HELP_3 = _ANNIE + """
@@ -50,7 +50,7 @@ HELP_3 = _ANNIE + """
 <b>• /skip</b> <code>[N]</code>  ↳ sᴋɪᴘ ᴛᴏ ᴛʀᴀᴄᴋ ɴ ɪɴ ǫᴜᴇᴜᴇ
 </blockquote>
 
-<blockquote>🔹 ǫᴜᴇᴜᴇ ᴄᴀᴘᴀᴄɪᴛʏ ɪs ᴜɴʟɪᴍɪᴛᴇᴅ — sᴛᴀᴄᴋ ᴀs ᴍᴀɴʏ ᴛʀᴀᴄᴋs ᴀs ʏᴏᴜ ᴡᴀɴᴛ!</blockquote>
+<blockquote><emoji id="5972072533833289156">🔹</emoji> ǫᴜᴇᴜᴇ ᴄᴀᴘᴀᴄɪᴛʏ ɪs ᴜɴʟɪᴍɪᴛᴇᴅ — sᴛᴀᴄᴋ ᴀs ᴍᴀɴʏ ᴛʀᴀᴄᴋs ᴀs ʏᴏᴜ ᴡᴀɴᴛ!</blockquote>
 """
 
 HELP_4 = _ANNIE + """
@@ -63,7 +63,7 @@ HELP_4 = _ANNIE + """
 <b>• /loop</b> <code>[count]</code>        ↳ ʟᴏᴏᴘ ɴ ᴛɪᴍᴇs
 </blockquote>
 
-<blockquote>⚡️ ᴄᴏᴍʙɪɴᴇ ᴡɪᴛʜ ᴀᴜᴛᴏᴘʟᴀʏ ꜰᴏʀ ᴄᴏɴᴛɪɴᴜᴏᴜs ᴍᴜsɪᴄ ᴇxᴘᴇʀɪᴇɴᴄᴇ!</blockquote>
+<blockquote><emoji id="5042334757040423886">⚡️</emoji> ᴄᴏᴍʙɪɴᴇ ᴡɪᴛʜ ᴀᴜᴛᴏᴘʟᴀʏ ꜰᴏʀ ᴄᴏɴᴛɪɴᴜᴏᴜs ᴍᴜsɪᴄ ᴇxᴘᴇʀɪᴇɴᴄᴇ!</blockquote>
 """
 
 HELP_5 = _ANNIE + """
@@ -74,7 +74,7 @@ HELP_5 = _ANNIE + """
 <b>• /seekback</b> <code>[seconds]</code> ↳ ʙᴀᴄᴋᴡᴀʀᴅ ʙʏ sᴇᴄᴏɴᴅs
 </blockquote>
 
-<blockquote>🔹 ᴇxᴀᴍᴘʟᴇ: <code>/seek 30</code> — sᴋɪᴘs ꜰᴏʀᴡᴀʀᴅ 30 sᴇᴄᴏɴᴅs ɪɴ ᴛʜᴇ ᴄᴜʀʀᴇɴᴛ ᴛʀᴀᴄᴋ</blockquote>
+<blockquote><emoji id="5972072533833289156">🔹</emoji> ᴇxᴀᴍᴘʟᴇ: <code>/seek 30</code> — sᴋɪᴘs ꜰᴏʀᴡᴀʀᴅ 30 sᴇᴄᴏɴᴅs ɪɴ ᴛʜᴇ ᴄᴜʀʀᴇɴᴛ ᴛʀᴀᴄᴋ</blockquote>
 """
 
 HELP_6 = _ANNIE + """
@@ -88,7 +88,7 @@ HELP_6 = _ANNIE + """
   <code>0.25 | 0.5 | 0.75 | 1.0 | 1.25 | 1.5 | 1.75 | 2.0</code>
 </blockquote>
 
-<blockquote>⚡️ ᴅᴇꜰᴀᴜʟᴛ sᴘᴇᴇᴅ ɪs <code>1.0x</code> — ɴᴏʀᴍᴀʟ ᴘʟᴀʏʙᴀᴄᴋ</blockquote>
+<blockquote><emoji id="5042334757040423886">⚡️</emoji> ᴅᴇꜰᴀᴜʟᴛ sᴘᴇᴇᴅ ɪs <code>1.0x</code> — ɴᴏʀᴍᴀʟ ᴘʟᴀʏʙᴀᴄᴋ</blockquote>
 """
 
 HELP_7 = _ANNIE + """
@@ -100,7 +100,7 @@ HELP_7 = _ANNIE + """
 <b>• /authusers</b>             ↳ ʟɪsᴛ ᴀʟʟ ᴀᴜᴛʜ ᴜsᴇʀs
 </blockquote>
 
-<blockquote>🔹 ᴀᴜᴛʜ ᴜsᴇʀs ᴄᴀɴ ᴄᴏɴᴛʀᴏʟ ᴍᴜsɪᴄ ᴡɪᴛʜᴏᴜᴛ ʙᴇɪɴɢ ɢʀᴏᴜᴘ ᴀᴅᴍɪɴ</blockquote>
+<blockquote><emoji id="5972072533833289156">🔹</emoji> ᴀᴜᴛʜ ᴜsᴇʀs ᴄᴀɴ ᴄᴏɴᴛʀᴏʟ ᴍᴜsɪᴄ ᴡɪᴛʜᴏᴜᴛ ʙᴇɪɴɢ ɢʀᴏᴜᴘ ᴀᴅᴍɪɴ</blockquote>
 """
 
 HELP_8 = _ANNIE + """
@@ -112,7 +112,7 @@ HELP_8 = _ANNIE + """
 <b>• /vplay</b> <code>[live URL]</code>          ↳ ᴠɪᴅᴇᴏ ʟɪᴠᴇ sᴛʀᴇᴀᴍ
 </blockquote>
 
-<blockquote>⚡️ sᴜᴘᴘᴏʀᴛs: ʏᴏᴜᴛᴜʙᴇ ʟɪᴠᴇ, ᴛᴡɪᴛᴄʜ, ᴍ3ᴜ8, ᴅɪʀᴇᴄᴛ ʀᴛᴍᴘ ꜱᴛʀᴇᴀᴍs</blockquote>
+<blockquote><emoji id="5042334757040423886">⚡️</emoji> sᴜᴘᴘᴏʀᴛs: ʏᴏᴜᴛᴜʙᴇ ʟɪᴠᴇ, ᴛᴡɪᴛᴄʜ, ᴍ3ᴜ8, ᴅɪʀᴇᴄᴛ ʀᴛᴍᴘ ꜱᴛʀᴇᴀᴍs</blockquote>
 """
 
 HELP_9 = _ANNIE + """
@@ -125,7 +125,7 @@ HELP_9 = _ANNIE + """
 <b>• /active</b>     ↳ sʜᴏᴡ ᴀᴄᴛɪᴠᴇ sᴛʀᴇᴀᴍɪɴɢ ᴄʜᴀᴛs
 </blockquote>
 
-<blockquote>❤️‍🔥 ᴀʟʟ sᴛᴀᴛs ᴀʀᴇ ʀᴇᴀʟ-ᴛɪᴍᴇ ᴀɴᴅ ᴜᴘᴅᴀᴛᴇᴅ ʟɪᴠᴇ</blockquote>
+<blockquote><emoji id="5039598514980520994">❤️‍🔥</emoji> ᴀʟʟ sᴛᴀᴛs ᴀʀᴇ ʀᴇᴀʟ-ᴛɪᴍᴇ ᴀɴᴅ ᴜᴘᴅᴀᴛᴇᴅ ʟɪᴠᴇ</blockquote>
 """
 
 HELP_10 = _ANNIE + """
@@ -139,7 +139,7 @@ HELP_10 = _ANNIE + """
 <b>• /language</b>        ↳ ᴄʜᴀɴɢᴇ ʙᴏᴛ ʟᴀɴɢᴜᴀɢᴇ
 </blockquote>
 
-<blockquote>❄️ ᴀʟʟ sᴇᴛᴛɪɴɢs ᴀʀᴇ ᴘᴇʀ-ɢʀᴏᴜᴘ ᴀɴᴅ sᴀᴠᴇᴅ ɪɴ ᴅᴀᴛᴀʙᴀsᴇ</blockquote>
+<blockquote><emoji id="5449449325434266744">❄️</emoji> ᴀʟʟ sᴇᴛᴛɪɴɢs ᴀʀᴇ ᴘᴇʀ-ɢʀᴏᴜᴘ ᴀɴᴅ sᴀᴠᴇᴅ ɪɴ ᴅᴀᴛᴀʙᴀsᴇ</blockquote>
 """
 
 HELP_11 = _ANNIE + """
@@ -153,11 +153,11 @@ HELP_11 = _ANNIE + """
    ↳ sᴀᴍᴇ ᴀs /sᴏɴɢ (sʜᴏʀᴛ ᴀʟɪᴀs)
 </blockquote>
 
-<blockquote>🔹 <b>ǫᴜᴀʟɪᴛɪᴇs ᴀᴠᴀɪʟᴀʙʟᴇ:</b>
-• 🎵 ᴀᴜᴅɪᴏ 128ᴋ — ʟɪɢʜᴛ ᴀᴜᴅɪᴏ
-• 🎵 ᴀᴜᴅɪᴏ ʙᴇsᴛ — ʜɪɢʜᴇsᴛ ǫᴜᴀʟɪᴛʏ ᴀᴜᴅɪᴏ
-• 📹 ᴠɪᴅᴇᴏ 360ᴘ — sᴛᴀɴᴅᴀʀᴅ ᴠɪᴅᴇᴏ
-• 📹 ᴠɪᴅᴇᴏ 720ᴘ — ʜᴅ ᴠɪᴅᴇᴏ</blockquote>
+<blockquote><emoji id="5972072533833289156">🔹</emoji> <b>ǫᴜᴀʟɪᴛɪᴇs ᴀᴠᴀɪʟᴀʙʟᴇ:</b>
+• <emoji id="5463107823946717464">🎵</emoji> ᴀᴜᴅɪᴏ 128ᴋ — ʟɪɢʜᴛ ᴀᴜᴅɪᴏ
+• <emoji id="5463107823946717464">🎵</emoji> ᴀᴜᴅɪᴏ ʙᴇsᴛ — ʜɪɢʜᴇsᴛ ǫᴜᴀʟɪᴛʏ ᴀᴜᴅɪᴏ
+• <emoji id="5258217809250372293">🎥</emoji> ᴠɪᴅᴇᴏ 360ᴘ — sᴛᴀɴᴅᴀʀᴅ ᴠɪᴅᴇᴏ
+• <emoji id="5258217809250372293">🎥</emoji> ᴠɪᴅᴇᴏ 720ᴘ — ʜᴅ ᴠɪᴅᴇᴏ</blockquote>
 
-<blockquote>⚡️ ᴡᴏʀᴋs ɪɴ ᴘʀɪᴠᴀᴛᴇ ᴄʜᴀᴛ ᴏɴʟʏ · 48 ᴍʙ ʟɪᴍɪᴛ · ʏᴏᴜᴛᴜʙᴇ ꜱᴜᴘᴘᴏʀᴛ</blockquote>
+<blockquote><emoji id="5042334757040423886">⚡️</emoji> ᴡᴏʀᴋs ɪɴ ᴘʀɪᴠᴀᴛᴇ ᴄʜᴀᴛ ᴏɴʟʏ · 48 ᴍʙ ʟɪᴍɪᴛ · ʏᴏᴜᴛᴜʙᴇ ꜱᴜᴘᴘᴏʀᴛ</blockquote>
 """
