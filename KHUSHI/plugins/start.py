@@ -275,15 +275,16 @@ async def help_section_cb(client, query):
         await query.message.edit_caption(
             help_text, reply_markup=back_kb, parse_mode=enums.ParseMode.HTML
         )
-    except Exception:
+    except Exception as e:
+        _LOGGER.warning("[HELP_SEC] edit_caption hb%d failed: %s", number, e)
         try:
             await query.message.edit_text(
                 help_text, reply_markup=back_kb,
                 parse_mode=enums.ParseMode.HTML,
                 disable_web_page_preview=True,
             )
-        except Exception:
-            pass
+        except Exception as e2:
+            _LOGGER.error("[HELP_SEC] edit_text hb%d also failed: %s", number, e2)
 
 
 # ── Back to category list ─────────────────────────────────────────────────────
