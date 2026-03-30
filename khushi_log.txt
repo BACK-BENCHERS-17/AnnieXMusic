@@ -2982,3 +2982,119 @@ Traceback (most recent call last):
   File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
     raise getattr(
 pyrogram.errors.exceptions.bad_request_400.DocumentInvalid: Telegram says: [400 DOCUMENT_INVALID] - The specified document is invalid. (caused by "messages.SendMessage")
+[30-Mar-26 08:12:46 - INFO] - KHUSHI.core.mongo - KHUSHI: Connecting to MongoDB...
+[30-Mar-26 08:12:46 - INFO] - KHUSHI.core.mongo - KHUSHI: MongoDB connected. (DB: Annie)
+[30-Mar-26 08:12:48 - WARNING] - KHUSHI.utils.ytdl_smart - [SmartYTDL] Node.js NOT found — web_safari client may fail, android_vr will still work
+[30-Mar-26 08:12:49 - INFO] - KHUSHI.core.bot - KHUSHI Bot client initialized.
+[30-Mar-26 08:12:49 - INFO] - KHUSHI.misc - KHUSHI: In-memory DB initialized.
+[30-Mar-26 08:12:49 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[30-Mar-26 08:12:49 - INFO] - KHUSHI -   KHUSHI Bot  |  Independent Core  
+[30-Mar-26 08:12:49 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[30-Mar-26 08:12:55 - INFO] - KHUSHI.core.bot - KHUSHI Bot started as Semex (@WordSeekUBot)
+[30-Mar-26 08:12:55 - INFO] - KHUSHI.core.bot - KHUSHI: No PFP — using default.
+[30-Mar-26 08:12:55 - INFO] - KHUSHI.core.call - Starting PyTgCalls Clients...
+[30-Mar-26 08:12:56 - INFO] - KHUSHI.core.call - Client 1 started successfully.
+[30-Mar-26 08:12:56 - INFO] - KHUSHI.core.userbot - KHUSHI Assistant 1 started as ㅤ-𐌁 Λ ᥴ Ҝ ㅤ𐌁 ꫀ 𐌽 𐌂 ͱ꧊፝֟ ꫀ ᰻⃪᱂ ร
+[30-Mar-26 08:12:56 - INFO] - KHUSHI.misc - KHUSHI: Sudo users loaded.
+[30-Mar-26 08:12:56 - INFO] - KHUSHI.misc - KHUSHI: Maintenance mode reset on startup.
+[30-Mar-26 08:12:56 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.broadcast
+[30-Mar-26 08:12:56 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.controls
+[30-Mar-26 08:12:56 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.ping
+[30-Mar-26 08:12:56 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.play
+[30-Mar-26 08:12:56 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.queue
+[30-Mar-26 08:12:56 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.start
+[30-Mar-26 08:12:56 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.stats
+[30-Mar-26 08:12:56 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.sudo
+[30-Mar-26 08:12:56 - INFO] - KHUSHI - KHUSHI: 8/8 plugins loaded.
+[30-Mar-26 08:12:57 - INFO] - KHUSHI - ✅ Bot commands registered.
+[30-Mar-26 08:12:57 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[30-Mar-26 08:12:57 - INFO] - KHUSHI -   KHUSHI is LIVE!
+[30-Mar-26 08:12:57 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[30-Mar-26 08:13:01 - ERROR] - pyrogram.dispatcher - Unexpected exception raised in CallbackQueryHandler:
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/dispatcher.py", line 383, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/home/runner/workspace/KHUSHI/plugins/start.py", line 201, in khushi_help_cb
+    await client.send_message(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/methods/messages/send_message.py", line 323, in send_message
+    r = await self.invoke(rpc, business_connection_id=business_connection_id)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/methods/advanced/invoke.py", line 107, in invoke
+    r = await session.invoke(
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.DocumentInvalid: Telegram says: [400 DOCUMENT_INVALID] - The specified document is invalid. (caused by "messages.SendMessage")
+[30-Mar-26 08:13:06 - ERROR] - pyrogram.dispatcher - Unexpected exception raised in CallbackQueryHandler:
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/dispatcher.py", line 383, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/home/runner/workspace/KHUSHI/plugins/start.py", line 201, in khushi_help_cb
+    await client.send_message(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/methods/messages/send_message.py", line 323, in send_message
+    r = await self.invoke(rpc, business_connection_id=business_connection_id)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/methods/advanced/invoke.py", line 107, in invoke
+    r = await session.invoke(
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.DocumentInvalid: Telegram says: [400 DOCUMENT_INVALID] - The specified document is invalid. (caused by "messages.SendMessage")
+[30-Mar-26 08:14:09 - ERROR] - pyrogram.dispatcher - Unexpected exception raised in MessageHandler:
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/dispatcher.py", line 383, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/home/runner/workspace/KHUSHI/plugins/start.py", line 138, in khushi_help_pm
+    await client.send_message(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/methods/messages/send_message.py", line 323, in send_message
+    r = await self.invoke(rpc, business_connection_id=business_connection_id)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/methods/advanced/invoke.py", line 107, in invoke
+    r = await session.invoke(
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.DocumentInvalid: Telegram says: [400 DOCUMENT_INVALID] - The specified document is invalid. (caused by "messages.SendMessage")
+[30-Mar-26 08:18:10 - INFO] - KHUSHI.core.mongo - KHUSHI: Connecting to MongoDB...
+[30-Mar-26 08:18:10 - INFO] - KHUSHI.core.mongo - KHUSHI: MongoDB connected. (DB: Annie)
+[30-Mar-26 08:18:10 - WARNING] - KHUSHI.utils.ytdl_smart - [SmartYTDL] Node.js NOT found — web_safari client may fail, android_vr will still work
+[30-Mar-26 08:18:11 - INFO] - KHUSHI.core.bot - KHUSHI Bot client initialized.
+[30-Mar-26 08:18:11 - INFO] - KHUSHI.misc - KHUSHI: In-memory DB initialized.
+[30-Mar-26 08:18:11 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[30-Mar-26 08:18:11 - INFO] - KHUSHI -   KHUSHI Bot  |  Independent Core  
+[30-Mar-26 08:18:11 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[30-Mar-26 08:18:16 - INFO] - KHUSHI.core.bot - KHUSHI Bot started as Semex (@WordSeekUBot)
+[30-Mar-26 08:18:16 - INFO] - KHUSHI.core.bot - KHUSHI: No PFP — using default.
+[30-Mar-26 08:18:16 - INFO] - KHUSHI.core.call - Starting PyTgCalls Clients...
+[30-Mar-26 08:18:17 - INFO] - KHUSHI.core.call - Client 1 started successfully.
+[30-Mar-26 08:18:18 - INFO] - KHUSHI.core.userbot - KHUSHI Assistant 1 started as ㅤ-𐌁 Λ ᥴ Ҝ ㅤ𐌁 ꫀ 𐌽 𐌂 ͱ꧊፝֟ ꫀ ᰻⃪᱂ ร
+[30-Mar-26 08:18:18 - INFO] - KHUSHI.misc - KHUSHI: Sudo users loaded.
+[30-Mar-26 08:18:18 - INFO] - KHUSHI.misc - KHUSHI: Maintenance mode reset on startup.
+[30-Mar-26 08:18:18 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.broadcast
+[30-Mar-26 08:18:18 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.controls
+[30-Mar-26 08:18:18 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.ping
+[30-Mar-26 08:18:18 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.play
+[30-Mar-26 08:18:18 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.queue
+[30-Mar-26 08:18:18 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.start
+[30-Mar-26 08:18:18 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.stats
+[30-Mar-26 08:18:18 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.sudo
+[30-Mar-26 08:18:18 - INFO] - KHUSHI - KHUSHI: 8/8 plugins loaded.
+[30-Mar-26 08:18:18 - INFO] - KHUSHI - ✅ Bot commands registered.
+[30-Mar-26 08:18:19 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[30-Mar-26 08:18:19 - INFO] - KHUSHI -   KHUSHI is LIVE!
+[30-Mar-26 08:18:19 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

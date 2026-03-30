@@ -6,7 +6,7 @@ import re
 from pyrogram import enums, filters
 from pyrogram.parser import Parser
 from pyrogram.raw import functions as raw_func, types as raw_types
-from pyrogram.types import InlineKeyboardMarkup, Message
+from pyrogram.types import InlineKeyboardMarkup, InputMediaPhoto, Message
 
 from KHUSHI import app
 from KHUSHI.utils.database import get_lang
@@ -165,12 +165,10 @@ async def khushi_help_cb(client, query):
     keyboard = first_page(_)
     caption = _["help_1"].format(SUPPORT_CHAT)
 
-    from pyrogram.types import InputMediaPhoto
-
     edited = False
     try:
         await query.message.edit_media(
-            InputMediaPhoto(media=HELP_IMG_URL, caption=caption),
+            InputMediaPhoto(media=HELP_IMG_URL, caption=caption, parse_mode=enums.ParseMode.HTML),
             reply_markup=keyboard,
         )
         edited = True
@@ -179,14 +177,20 @@ async def khushi_help_cb(client, query):
 
     if not edited:
         try:
-            await query.message.edit_caption(caption, reply_markup=keyboard)
+            await query.message.edit_caption(
+                caption, reply_markup=keyboard, parse_mode=enums.ParseMode.HTML
+            )
             edited = True
         except Exception:
             pass
 
     if not edited:
         try:
-            await query.message.edit_text(caption, reply_markup=keyboard, disable_web_page_preview=True)
+            await query.message.edit_text(
+                caption, reply_markup=keyboard,
+                parse_mode=enums.ParseMode.HTML,
+                disable_web_page_preview=True,
+            )
             edited = True
         except Exception:
             pass
@@ -198,12 +202,16 @@ async def khushi_help_cb(client, query):
             pass
         sent = await _try_send_photo(client, query.message.chat.id, HELP_IMG_URL, caption, keyboard)
         if not sent:
-            await client.send_message(
-                query.message.chat.id,
-                caption,
-                reply_markup=keyboard,
-                disable_web_page_preview=True,
-            )
+            try:
+                await client.send_message(
+                    query.message.chat.id,
+                    caption,
+                    reply_markup=keyboard,
+                    parse_mode=enums.ParseMode.HTML,
+                    disable_web_page_preview=True,
+                )
+            except Exception:
+                pass
 
 
 # ── Category button callbacks — show specific help section ────────────────────
@@ -227,10 +235,16 @@ async def help_section_cb(client, query):
 
     back_kb = help_back_markup(_, current_page)
     try:
-        await query.message.edit_caption(help_text, reply_markup=back_kb)
+        await query.message.edit_caption(
+            help_text, reply_markup=back_kb, parse_mode=enums.ParseMode.HTML
+        )
     except Exception:
         try:
-            await query.message.edit_text(help_text, reply_markup=back_kb, disable_web_page_preview=True)
+            await query.message.edit_text(
+                help_text, reply_markup=back_kb,
+                parse_mode=enums.ParseMode.HTML,
+                disable_web_page_preview=True,
+            )
         except Exception:
             pass
 
@@ -245,10 +259,16 @@ async def help_back_cb(client, query):
     keyboard = first_page(_)
     caption = _["help_1"].format(SUPPORT_CHAT)
     try:
-        await query.message.edit_caption(caption, reply_markup=keyboard)
+        await query.message.edit_caption(
+            caption, reply_markup=keyboard, parse_mode=enums.ParseMode.HTML
+        )
     except Exception:
         try:
-            await query.message.edit_text(caption, reply_markup=keyboard, disable_web_page_preview=True)
+            await query.message.edit_text(
+                caption, reply_markup=keyboard,
+                parse_mode=enums.ParseMode.HTML,
+                disable_web_page_preview=True,
+            )
         except Exception:
             pass
 
@@ -265,12 +285,10 @@ async def back_to_main_cb(client, query):
     markup = _start_kb()
     img = random.choice(START_IMGS)
 
-    from pyrogram.types import InputMediaPhoto
-
     edited = False
     try:
         await query.message.edit_media(
-            InputMediaPhoto(media=img, caption=caption),
+            InputMediaPhoto(media=img, caption=caption, parse_mode=enums.ParseMode.HTML),
             reply_markup=markup,
         )
         edited = True
@@ -279,14 +297,20 @@ async def back_to_main_cb(client, query):
 
     if not edited:
         try:
-            await query.message.edit_caption(caption, reply_markup=markup)
+            await query.message.edit_caption(
+                caption, reply_markup=markup, parse_mode=enums.ParseMode.HTML
+            )
             edited = True
         except Exception:
             pass
 
     if not edited:
         try:
-            await query.message.edit_text(caption, reply_markup=markup, disable_web_page_preview=True)
+            await query.message.edit_text(
+                caption, reply_markup=markup,
+                parse_mode=enums.ParseMode.HTML,
+                disable_web_page_preview=True,
+            )
             edited = True
         except Exception:
             pass
@@ -298,12 +322,16 @@ async def back_to_main_cb(client, query):
             pass
         sent = await _try_send_photo(client, query.message.chat.id, img, caption, markup)
         if not sent:
-            await client.send_message(
-                query.message.chat.id,
-                caption,
-                reply_markup=markup,
-                disable_web_page_preview=True,
-            )
+            try:
+                await client.send_message(
+                    query.message.chat.id,
+                    caption,
+                    reply_markup=markup,
+                    parse_mode=enums.ParseMode.HTML,
+                    disable_web_page_preview=True,
+                )
+            except Exception:
+                pass
 
 
 # ── Start back button ─────────────────────────────────────────────────────────
@@ -317,10 +345,16 @@ async def khushi_back_cb(client, query):
     )
     markup = _start_kb()
     try:
-        await query.message.edit_caption(caption, reply_markup=markup)
+        await query.message.edit_caption(
+            caption, reply_markup=markup, parse_mode=enums.ParseMode.HTML
+        )
     except Exception:
         try:
-            await query.message.edit_text(caption, reply_markup=markup, disable_web_page_preview=True)
+            await query.message.edit_text(
+                caption, reply_markup=markup,
+                parse_mode=enums.ParseMode.HTML,
+                disable_web_page_preview=True,
+            )
         except Exception:
             pass
 

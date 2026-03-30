@@ -1,8 +1,8 @@
 import re
 from typing import Union
 
-from pyrogram import Client, filters, types
-from pyrogram.types import InlineKeyboardMarkup, Message
+from pyrogram import Client, enums, filters, types
+from pyrogram.types import InlineKeyboardMarkup, InputMediaPhoto, Message
 
 from ANNIEMUSIC import app
 from ANNIEMUSIC.utils.database import get_lang
@@ -33,11 +33,10 @@ async def helper_private(client: Client, update: Union[Message, types.CallbackQu
 
     if is_cb:
         await update.answer()
-        from pyrogram.types import InputMediaPhoto
         edited = False
         try:
             await update.message.edit_media(
-                InputMediaPhoto(media=HELP_IMG_URL, caption=caption),
+                InputMediaPhoto(media=HELP_IMG_URL, caption=caption, parse_mode=enums.ParseMode.HTML),
                 reply_markup=keyboard,
             )
             edited = True
@@ -45,7 +44,9 @@ async def helper_private(client: Client, update: Union[Message, types.CallbackQu
             pass
         if not edited:
             try:
-                await update.message.edit_caption(caption, reply_markup=keyboard)
+                await update.message.edit_caption(
+                    caption, reply_markup=keyboard, parse_mode=enums.ParseMode.HTML
+                )
                 edited = True
             except Exception:
                 pass
@@ -54,6 +55,7 @@ async def helper_private(client: Client, update: Union[Message, types.CallbackQu
                 await update.message.edit_text(
                     caption,
                     reply_markup=keyboard,
+                    parse_mode=enums.ParseMode.HTML,
                     disable_web_page_preview=True,
                 )
             except Exception:
