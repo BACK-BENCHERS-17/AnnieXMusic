@@ -365,6 +365,47 @@ def _client_download(vid: str, client: str, out_dir: str,
     return None
 
 
+def _direct_download(vid: str, out_dir: str, fmt: str,
+                     cookie_file: Optional[str] = None) -> Optional[str]:
+    """
+    Download without any player_client restriction.
+    yt-dlp will auto-select its default clients (android_vr in 2026).
+    This is the most reliable path — no extractor_args means full format access.
+    """
+    ts = int(time.time())
+    o: Dict = {
+        "format":             fmt,
+        "outtmpl":            os.path.join(out_dir, f"{vid}_{ts}.%(ext)s"),
+        "quiet":              True,
+        "no_warnings":        True,
+        "noplaylist":         True,
+        "overwrites":         True,
+        "continuedl":         True,
+        "noprogress":         True,
+        "nocheckcertificate": True,
+        "source_address":     "0.0.0.0",
+        "socket_timeout":     30,
+        "retries":            2,
+    }
+    if cookie_file:
+        o["cookiefile"] = cookie_file
+    if _PROXY:
+        o["proxy"] = _PROXY
+    try:
+        with yt_dlp.YoutubeDL(o) as ydl:
+            ydl.extract_info(f"https://www.youtube.com/watch?v={vid}", download=True)
+        for ext in ("m4a", "webm", "opus", "ogg", "mp3", "mp4"):
+            for fname in os.listdir(out_dir):
+                if fname.startswith(f"{vid}_{ts}") and fname.endswith(f".{ext}"):
+                    p = os.path.join(out_dir, fname)
+                    if os.path.getsize(p) > 1024:
+                        _log.info(f"[SmartYTDL] direct_download ok: {p}")
+                        return p
+    except Exception as e:
+        _log.debug(f"[SmartYTDL] direct_download {vid}: {e}")
+    return None
+
+
 # ── Race helper — first thread to put a result wins ───────────────────────────
 def _race(targets, timeout: float = 22.0) -> Optional[any]:
     result_q: queue.Queue = queue.Queue()
@@ -490,12 +531,15 @@ def smart_extract_url(vid: str) -> Optional[Dict]:
     Priority: android_vr (jsless) → web_safari → ios → android → others → Invidious
     No cookies required for primary clients.
     """
+    # Do NOT pass cookies to yt-dlp unless necessary — expired/invalid cookies force
+    # the "tv downgraded" client which returns only image formats (no audio/video).
+    # Try cookieless first; use cookies only for the per-client fallback race.
     cookie_file = _find_cookie_file()
 
     # Fast path — try cached best client first (avoids full race on repeated plays)
     best = _registry.get_best()
     if best:
-        res = _client_extract(vid, best, cookie_file)
+        res = _client_extract(vid, best, None)  # no cookies on fast path
         if res:
             _registry.mark_ok(best)
             _log.info(f"[SmartYTDL] Fast-path client='{best}' for {vid}")
@@ -531,11 +575,31 @@ def smart_extract_url(vid: str) -> Optional[Dict]:
 def smart_download(vid: str, out_dir: str,
                    fmt: str = _AUDIO_FMT) -> Optional[str]:
     """
-    Download YouTube audio.
-    Priority: android_vr → web_safari → ios → android → others → Invidious
-    No cookies required for primary clients.
+    Download YouTube audio/video.
+    Priority:
+      0. Direct (no player_client restriction) — fastest, most compatible
+      1. Cached best client
+      2. Race all yt-dlp clients
+      3. Invidious fallback
     """
     cookie_file = _find_cookie_file()
+
+    # PRIMARY: no player_client restriction, no cookies — yt-dlp picks its best default client.
+    # Expired/invalid cookies force the "tv downgraded" client which has no audio formats,
+    # so we always try cookieless first, then retry with cookies only if needed.
+    p = _direct_download(vid, out_dir, fmt, cookie_file=None)
+    if p:
+        _log.info(f"[SmartYTDL] direct_download (no-cookie) succeeded for {vid}")
+        return p
+
+    # Retry with cookies in case the video requires authentication
+    if cookie_file:
+        p = _direct_download(vid, out_dir, fmt, cookie_file=cookie_file)
+        if p:
+            _log.info(f"[SmartYTDL] direct_download (with-cookie) succeeded for {vid}")
+            return p
+
+    _log.info(f"[SmartYTDL] direct_download failed for {vid}, trying per-client race")
 
     # Fast path — cached best client
     best = _registry.get_best()
