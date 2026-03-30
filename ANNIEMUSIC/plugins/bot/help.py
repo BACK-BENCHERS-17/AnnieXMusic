@@ -33,21 +33,31 @@ async def helper_private(client: Client, update: Union[Message, types.CallbackQu
 
     if is_cb:
         await update.answer()
+        from pyrogram.types import InputMediaPhoto
+        edited = False
         try:
-            await update.message.edit_caption(caption, reply_markup=keyboard)
+            await update.message.edit_media(
+                InputMediaPhoto(media=HELP_IMG_URL, caption=caption),
+                reply_markup=keyboard,
+            )
+            edited = True
         except Exception:
+            pass
+        if not edited:
             try:
-                await update.message.reply_photo(
-                    photo=HELP_IMG_URL,
-                    caption=caption,
-                    reply_markup=keyboard,
-                )
+                await update.message.edit_caption(caption, reply_markup=keyboard)
+                edited = True
             except Exception:
-                await update.message.reply_text(
+                pass
+        if not edited:
+            try:
+                await update.message.edit_text(
                     caption,
                     reply_markup=keyboard,
                     disable_web_page_preview=True,
                 )
+            except Exception:
+                pass
     else:
         await update.delete()
         try:
