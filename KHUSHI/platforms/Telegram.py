@@ -6,7 +6,6 @@ from typing import Optional, Union
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Voice
 
 import config
-from KHUSHI import app
 from KHUSHI.utils.formatters import (
     check_duration,
     convert_bytes,
@@ -80,6 +79,7 @@ class TeleAPI:
         return os.path.join(base, f"{int(time.time())}.dat")
 
     async def download(self, _, message, mystic, fname: str) -> bool:
+        from KHUSHI import app
         lower = [0, 8, 17, 38, 64, 77, 96]
         higher = [5, 10, 20, 40, 66, 80, 99]
         checker = [5, 10, 20, 40, 66, 80, 99]

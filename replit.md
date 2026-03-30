@@ -58,32 +58,49 @@ python -m ANNIEMUSIC
 - ffmpeg
 - libGL, libGLU, mesa (for OpenCV)
 
-## KHUSHI Folder (New Bot Package — March 2026)
-A brand-new, super-fast parallel bot package with new UI.
+## KHUSHI — Main Bot Package (Migrated March 2026)
+The bot has been fully migrated from ANNIEMUSIC to KHUSHI. KHUSHI is now fully self-contained with its own core, platforms, and utils.
 
 ### Structure
 ```
 KHUSHI/
-├── __init__.py       # Imports ANNIEMUSIC's core (reuses app, JARVIS, platforms, DB)
+├── __init__.py       # Fully independent core — own app, userbot, platforms
 ├── __main__.py       # Entry point — run with: python -m KHUSHI
+├── core/             # Bot core (bot.py, userbot.py, call.py, mongo.py)
+├── platforms/        # YouTube, Spotify, Apple, SoundCloud, Resso, Telegram, Carbon
 ├── plugins/
-│   ├── start.py      # /kstart /khelp — new premium UI with blockquotes & emojis
+│   ├── start.py      # /kstart /khelp — premium UI with blockquotes & emojis
 │   ├── ping.py       # /kping — super UI with progress bars
-│   ├── controls.py   # pause/resume/skip/stop/loop/shuffle/volume/247 — new UI
-│   ├── queue.py      # /queue — new premium queue card UI
+│   ├── controls.py   # pause/resume/skip/stop/loop/shuffle/volume/247
+│   ├── queue.py      # /queue — premium queue card UI
+│   ├── play.py       # /play /vplay — full YouTube/Spotify/SoundCloud/etc.
 │   ├── broadcast.py  # /bc /broadcast — -nf -pin -pinloud -user flags
 │   └── sudo.py       # gban/ungban/block/unblock/maintenance/addsudo/delsudo
+├── utils/            # Full utils — database, formatters, inline, stream, decorators
 ├── web/
-│   └── index.html    # Copied from ANNIEMUSIC/utils/web/ + KHUSHI branding
-├── webserver.py      # Thin wrapper — serves KHUSHI/web/ using main webserver APIs
-└── assets/           # Copied from ANNIEMUSIC/assets/
+│   └── index.html    # KHUSHI web player
+├── webserver.py      # Thin wrapper — serves KHUSHI/web/ using main webserver
+└── assets/           # Assets (images, fonts)
 ```
 
-### Key Features (New vs ANNIEMUSIC)
+### Migration Notes (Circular Import Fixes — March 2026)
+All `from KHUSHI import app/userbot` at module level were converted to lazy imports inside functions to eliminate circular imports during package initialization:
+- `KHUSHI/platforms/Telegram.py` — lazy import in `download()`
+- `KHUSHI/utils/decorators.py` — lazy import in `KhushiAdminCheck` and `KhushiActualAdmin` wrappers
+- `KHUSHI/utils/channelplay.py` — lazy import in `get_channeplayCB()`
+- `KHUSHI/utils/database.py` — lazy import in `get_client()`
+- `KHUSHI/utils/extraction.py` — lazy import in `extract_user()`
+- `KHUSHI/utils/errors.py` — lazy import in `send_large_error()`, `handle_trace()`, `capture_err` wrapper
+- `KHUSHI/utils/inline/help.py` — lazy import in `private_help_panel()`
+- `KHUSHI/utils/inline/start.py` — created fresh with lazy imports (was missing)
+- Root `webserver.py` — all `ANNIEMUSIC.*` imports changed to `KHUSHI.*`
+
+### Key Features
+- **Fully self-contained**: No dependency on ANNIEMUSIC folder
 - **New UI**: All messages use `<blockquote>`, premium emojis, progress bars
-- **Super Fast**: Fewer plugins, fewer imports, 64 workers
+- **8/8 plugins loading successfully**
 - **Workflow**: "KHUSHI Bot" — `python -m KHUSHI`
-- **Web**: KHUSHI/web/index.html branded as "KHUSHI Music Player"
+- **Web player**: KHUSHI/web/index.html
 
 ## Bug Fixes (March 2026 — Session 2)
 - **`/start` crash fix**: `asyncio.gather(get_served_chats, get_served_users, ...)` wrapped in try-except — MongoDB DNS failures no longer crash the handler, bot sends start message with fallback stats

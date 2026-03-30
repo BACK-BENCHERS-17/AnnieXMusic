@@ -2,7 +2,6 @@
 
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-from KHUSHI import app
 from KHUSHI.misc import SUDOERS, db
 from KHUSHI.utils.database import (
     get_authuser_names,
@@ -20,8 +19,9 @@ from strings import get_string
 
 
 def KhushiAdminCheck(mystic):
-    """AdminRightsCheck using KHUSHI's app (not ANNIEMUSIC's)."""
+    """AdminRightsCheck using KHUSHI's app."""
     async def wrapper(client, message):
+        from KHUSHI import app
         # Maintenance check
         try:
             if await is_maintenance():
@@ -113,6 +113,7 @@ def KhushiAdminCheck(mystic):
 def KhushiActualAdmin(mystic):
     """AdminActual using KHUSHI's app."""
     async def wrapper(client, message):
+        from KHUSHI import app
         try:
             if await is_maintenance():
                 if message.from_user.id not in SUDOERS:

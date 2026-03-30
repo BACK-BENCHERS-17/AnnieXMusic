@@ -7,7 +7,6 @@ from datetime import datetime
 import aiofiles
 from pyrogram.errors.exceptions.forbidden_403 import ChatWriteForbidden
 
-from KHUSHI import app
 from config import LOGGER_ID, DEBUG_IGNORE_LOG
 from KHUSHI.utils.exceptions import is_ignored_error
 from KHUSHI.utils.pastebin import ANNIEBIN
@@ -19,6 +18,7 @@ DEBUG_LOG_FILE = "ignored_errors.log"
 # ========== Paste Fallback ==========
 
 async def send_large_error(text: str, caption: str, filename: str):
+    from KHUSHI import app
     try:
         paste_url = await ANNIEBIN(text)
         if paste_url:
@@ -48,6 +48,7 @@ def format_traceback(err, tb, label: str, extras: dict = None) -> str:
     return "\n".join(parts)
 
 async def handle_trace(err, tb, label, filename, extras=None):
+    from KHUSHI import app
     if is_ignored_error(err):
         await log_ignored_error(err, tb, label, extras)
         return
@@ -86,6 +87,7 @@ def capture_err(func):
     """
     @wraps(func)
     async def wrapper(client, message, *args, **kwargs):
+        from KHUSHI import app
         try:
             return await func(client, message, *args, **kwargs)
         except ChatWriteForbidden:

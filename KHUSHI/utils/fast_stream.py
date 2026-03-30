@@ -6,7 +6,7 @@ Flow:
   2. Race webserver cache vs SmartYTDL extract → ~10-50 ms on hit
   3. Full yt-dlp download fallback → ~10-25 s
 
-Uses ANNIEMUSIC's SmartYTDL engine for multi-client YouTube bypass (2026).
+Uses KHUSHI's SmartYTDL engine for multi-client YouTube bypass (2026).
 """
 
 import asyncio

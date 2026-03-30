@@ -1,10 +1,9 @@
 from pyrogram.enums import MessageEntityType
 from pyrogram.types import Message, User
 
-from KHUSHI import app
-
 
 async def extract_user(m: Message) -> User:
+    from KHUSHI import app
     if m.reply_to_message:
         return m.reply_to_message.from_user
     msg_entities = m.entities[1] if m.text.startswith("/") else m.entities[0]

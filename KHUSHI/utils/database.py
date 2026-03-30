@@ -1,7 +1,6 @@
 import random
 from typing import Dict, List, Union
 
-from KHUSHI import userbot
 from KHUSHI.core.mongo import mongodb
 
 authdb = mongodb.adminauth
@@ -48,6 +47,7 @@ async def get_assistant_number(chat_id: int) -> str:
 
 
 async def get_client(assistant: int):
+    from KHUSHI import userbot
     if int(assistant) == 1:
         return userbot.one
     elif int(assistant) == 2:

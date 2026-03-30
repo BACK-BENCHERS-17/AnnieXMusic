@@ -13,8 +13,8 @@ from urllib.parse import urlparse, parse_qs
 _repo_root = os.path.dirname(os.path.abspath(__file__))
 if _repo_root not in sys.path:
     sys.path.insert(0, _repo_root)
-from ANNIEMUSIC.utils.ytdl_smart import smart_extract_url, smart_download, get_stream_opts, get_cdn_headers
-from ANNIEMUSIC.utils.internal_secret import get_secret
+from KHUSHI.utils.ytdl_smart import smart_extract_url, smart_download, get_stream_opts, get_cdn_headers
+from KHUSHI.utils.internal_secret import get_secret
 
 _INTERNAL_KEY = get_secret()   # random per-process, never logged
 _DOWNLOAD_DIR = os.path.join(os.path.dirname(__file__), "downloads")
@@ -28,7 +28,7 @@ _local_file_lock = threading.Lock()
 _local_dl_locks: dict = {}
 _local_dl_lock_guard = threading.Lock()
 
-WEB_DIR = os.path.join(os.path.dirname(__file__), 'ANNIEMUSIC', 'utils', 'web')
+WEB_DIR = os.path.join(os.path.dirname(__file__), 'KHUSHI', 'web')
 app = Flask(__name__)
 _boot_time = time.time()
 
@@ -243,7 +243,7 @@ def index():
 @app.route("/api/status")
 def api_status():
     try:
-        from ANNIEMUSIC.misc import db, _boot_
+        from KHUSHI.misc import db, _boot_
         boot_time = _boot_
     except Exception:
         db = {}
@@ -995,8 +995,8 @@ def api_botinfo():
     except Exception:
         BOT_NAME = "Annie X Music"
         BOT_USERNAME = "ANNIEXMUSICxBOT"
-    has_pfp = os.path.isfile("ANNIEMUSIC/assets/bot_pfp.png")
-    has_upic = os.path.isfile("ANNIEMUSIC/assets/upic.png")
+    has_pfp = os.path.isfile("KHUSHI/assets/assets/bot_pfp.png")
+    has_upic = os.path.isfile("KHUSHI/assets/assets/upic.png")
     pfp_url = "/api/botpfp" if (has_pfp or has_upic) else None
     return jsonify({
         "name":     BOT_NAME,
@@ -1009,8 +1009,8 @@ def api_botinfo():
 @app.route("/api/botpfp")
 def api_botpfp():
     """Serve bot profile picture."""
-    pfp_path = "ANNIEMUSIC/assets/bot_pfp.png"
-    upic_path = "ANNIEMUSIC/assets/upic.png"
+    pfp_path = "KHUSHI/assets/assets/bot_pfp.png"
+    upic_path = "KHUSHI/assets/assets/upic.png"
     if os.path.isfile(pfp_path):
         return send_file(pfp_path, mimetype="image/png")
     elif os.path.isfile(upic_path):
@@ -2799,10 +2799,10 @@ def api_docs_alias():
 
 if __name__ == "__main__":
     port = int(os.environ.get("WEB_PORT") or 5000)
-    from ANNIEMUSIC.utils.weburl import WEB_URL
+    from KHUSHI.utils.weburl import WEB_URL
     if WEB_URL:
-        print(f"[AnnieXMusic Web] 🎵 Player URL: {WEB_URL}")
-        print("[AnnieXMusic Web] ✅ Mini App button will auto-appear in /start and play messages")
+        print(f"[KHUSHI Web] 🎵 Player URL: {WEB_URL}")
+        print("[KHUSHI Web] ✅ Mini App button will auto-appear in /start and play messages")
     else:
-        print("[AnnieXMusic Web] ⚠️  No WEB_APP_URL detected. Set WEB_APP_URL env var for Mini App buttons.")
+        print("[KHUSHI Web] ⚠️  No WEB_APP_URL detected. Set WEB_APP_URL env var for Mini App buttons.")
     app.run(host="0.0.0.0", port=port, debug=False)

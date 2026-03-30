@@ -1,6 +1,5 @@
 from . import InlineKeyboardButton
 from pyrogram.types import InlineKeyboardMarkup
-from KHUSHI import app
 
 TOTAL_SECTIONS = 11
 SKIP_SECTIONS = set()
@@ -115,6 +114,7 @@ def help_back_markup(_, current_page: int):
 
 
 def private_help_panel(_):
+    from KHUSHI import app
     return [
         [
             InlineKeyboardButton(
