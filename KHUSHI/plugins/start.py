@@ -271,20 +271,44 @@ async def help_section_cb(client, query):
         return await query.answer("ɪɴᴠᴀʟɪᴅ ʜᴇʟᴘ ᴛᴏᴘɪᴄ.", show_alert=True)
 
     back_kb = help_back_markup(_, current_page)
+    safe_help_text = _safe_text(help_text)
+
+    edited = False
     try:
         await query.message.edit_caption(
             help_text, reply_markup=back_kb, parse_mode=enums.ParseMode.HTML
         )
+        edited = True
     except Exception as e:
         _LOGGER.warning("[HELP_SEC] edit_caption hb%d failed: %s", number, e)
+
+    if not edited:
         try:
             await query.message.edit_text(
                 help_text, reply_markup=back_kb,
                 parse_mode=enums.ParseMode.HTML,
                 disable_web_page_preview=True,
             )
+            edited = True
         except Exception as e2:
-            _LOGGER.error("[HELP_SEC] edit_text hb%d also failed: %s", number, e2)
+            _LOGGER.warning("[HELP_SEC] edit_text hb%d failed: %s", number, e2)
+
+    if not edited:
+        _LOGGER.warning("[HELP_SEC] hb%d — falling back to delete+send", number)
+        try:
+            await query.message.delete()
+        except Exception:
+            pass
+        try:
+            await client.send_message(
+                query.message.chat.id,
+                safe_help_text,
+                reply_markup=back_kb,
+                parse_mode=enums.ParseMode.HTML,
+                disable_web_page_preview=True,
+            )
+        except Exception as e3:
+            _LOGGER.error("[HELP_SEC] send_message hb%d also failed: %s", number, e3)
 
 
 # ── Back to category list ─────────────────────────────────────────────────────
@@ -296,19 +320,44 @@ async def help_back_cb(client, query):
     _ = get_string(lang)
     keyboard = first_page(_)
     caption = _["help_1"].format(SUPPORT_CHAT)
+
+    edited = False
     try:
         await query.message.edit_caption(
             caption, reply_markup=keyboard, parse_mode=enums.ParseMode.HTML
         )
+        edited = True
     except Exception:
+        pass
+
+    if not edited:
         try:
             await query.message.edit_text(
                 caption, reply_markup=keyboard,
                 parse_mode=enums.ParseMode.HTML,
                 disable_web_page_preview=True,
             )
+            edited = True
         except Exception:
             pass
+
+    if not edited:
+        try:
+            await query.message.delete()
+        except Exception:
+            pass
+        sent = await _try_send_photo(client, query.message.chat.id, HELP_IMG_URL, caption, keyboard)
+        if not sent:
+            try:
+                await client.send_message(
+                    query.message.chat.id,
+                    _safe_text(caption),
+                    reply_markup=keyboard,
+                    parse_mode=enums.ParseMode.HTML,
+                    disable_web_page_preview=True,
+                )
+            except Exception as e:
+                _LOGGER.error("[HELP_BACK] send_message also failed: %s", e)
 
 
 # ── Back to main start panel ──────────────────────────────────────────────────
