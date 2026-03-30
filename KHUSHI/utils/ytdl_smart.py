@@ -647,14 +647,8 @@ def get_cdn_headers() -> Dict:
 
 
 def get_base_ytdlp_opts(out_dir: str) -> Dict:
-    best = _registry.get_best() or "android_vr"
-    ua = _CLIENT_UA.get(best, _DEFAULT_UA)
-    # Use top 3 clients from ordered list; prefer jsless ones
-    candidates = _registry.ordered_clients()[:3]
-    cookie_file = _find_cookie_file()
-    needs_js = any(c not in _JSLESS_CLIENTS for c in candidates)
-    runtimes = _js_runtimes() if needs_js and _NODE_PATH else {}
-
+    # Do NOT pass cookies — expired/invalid cookies force the "tv downgraded" client
+    # which only returns image formats. Cookieless android_vr gives full format access.
     o = {
         "outtmpl":            os.path.join(out_dir, "%(id)s.%(ext)s"),
         "quiet":              True,
@@ -667,31 +661,15 @@ def get_base_ytdlp_opts(out_dir: str) -> Dict:
         "source_address":     "0.0.0.0",
         "socket_timeout":     30,
         "retries":            3,
-        "extractor_args": {
-            "youtube": {
-                "player_client": candidates,
-                "skip": ["hls", "translated_subs"],
-            }
-        },
-        "http_headers": {"User-Agent": ua},
     }
-    if runtimes:
-        o["js_runtimes"] = runtimes
-    if cookie_file:
-        o["cookiefile"] = cookie_file
     if _PROXY:
         o["proxy"] = _PROXY
     return o
 
 
 def get_stream_opts() -> Dict:
-    best = _registry.get_best() or "android_vr"
-    ua = _CLIENT_UA.get(best, _DEFAULT_UA)
-    candidates = _registry.ordered_clients()[:3]
-    cookie_file = _find_cookie_file()
-    needs_js = any(c not in _JSLESS_CLIENTS for c in candidates)
-    runtimes = _js_runtimes() if needs_js and _NODE_PATH else {}
-
+    # Do NOT pass cookies — expired/invalid cookies cause "tv downgraded" client
+    # which returns only image formats. Cookieless android_vr works reliably.
     o = {
         "quiet":              True,
         "no_warnings":        True,
@@ -701,18 +679,7 @@ def get_stream_opts() -> Dict:
         "source_address":     "0.0.0.0",
         "socket_timeout":     20,
         "retries":            2,
-        "extractor_args": {
-            "youtube": {
-                "player_client": candidates,
-                "skip": ["hls", "translated_subs"],
-            }
-        },
-        "http_headers": {"User-Agent": ua},
     }
-    if runtimes:
-        o["js_runtimes"] = runtimes
-    if cookie_file:
-        o["cookiefile"] = cookie_file
     if _PROXY:
         o["proxy"] = _PROXY
     return o
