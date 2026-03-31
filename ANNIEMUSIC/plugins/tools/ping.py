@@ -11,6 +11,12 @@ from ANNIEMUSIC import app
 from ANNIEMUSIC.core.call import JARVIS
 from ANNIEMUSIC.utils import bot_sys_stats
 
+_SUPPORT_URL = (
+    SUPPORT_CHAT
+    if SUPPORT_CHAT.startswith("http")
+    else f"https://t.me/{SUPPORT_CHAT.lstrip('@')}"
+)
+
 _BRAND = (
     "<emoji id='5042192219960771668'>🧸</emoji>"
     "<emoji id='5210820276748566172'>🔤</emoji>"
@@ -100,10 +106,7 @@ async def ping_com(client, message: Message):
     )
 
     markup = InlineKeyboardMarkup([[
-        InlineKeyboardButton(
-            "˹sᴜᴘᴘᴏʀᴛ˼",
-            url=f"https://t.me/{SUPPORT_CHAT.lstrip('@')}",
-        ),
+        InlineKeyboardButton("˹sᴜᴘᴘᴏʀᴛ˼", url=_SUPPORT_URL),
     ]])
 
     await _send_ping_photo(client, message, caption, markup)

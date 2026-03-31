@@ -39,11 +39,11 @@ async def _set_bot_commands():
         resp = requests.post(url, json={"commands": commands}, timeout=10)
         data = resp.json()
         if data.get("ok"):
-            LOGGER("KHUSHI").info("✅ Bot commands registered.")
+            LOGGER("ANNIEMUSIC").info("✅ Bot commands registered.")
         else:
-            LOGGER("KHUSHI").warning(f"⚠️  setMyCommands error: {data.get('description')}")
+            LOGGER("ANNIEMUSIC").warning(f"⚠️  setMyCommands error: {data.get('description')}")
     except Exception as e:
-        LOGGER("KHUSHI").warning(f"⚠️  Could not set bot commands: {e}")
+        LOGGER("ANNIEMUSIC").warning(f"⚠️  Could not set bot commands: {e}")
 
 
 async def _set_menu_button():
@@ -54,7 +54,7 @@ async def _set_menu_button():
             payload = {
                 "menu_button": {
                     "type": "web_app",
-                    "text": "KHUSHI",
+                    "text": "ANNIEMUSIC",
                     "web_app": {"url": WEB_URL},
                 }
             }
@@ -69,17 +69,17 @@ async def _set_menu_button():
         resp = requests.post(url, json=payload, timeout=10)
         data = resp.json()
         if data.get("ok"):
-            LOGGER("KHUSHI").info(log_msg)
+            LOGGER("ANNIEMUSIC").info(log_msg)
         else:
-            LOGGER("KHUSHI").warning(f"⚠️  Menu button API error: {data.get('description')}")
+            LOGGER("ANNIEMUSIC").warning(f"⚠️  Menu button API error: {data.get('description')}")
     except Exception as e:
-        LOGGER("KHUSHI").warning(f"⚠️  Could not set menu button: {e}")
+        LOGGER("ANNIEMUSIC").warning(f"⚠️  Could not set menu button: {e}")
 
 
 async def _graceful_shutdown():
     """Gracefully stop all Pyrogram clients so Telegram closes the sessions.
     This prevents AUTH_KEY_DUPLICATED on the next bot restart."""
-    LOGGER("KHUSHI").info("Received shutdown signal — gracefully stopping clients...")
+    LOGGER("ANNIEMUSIC").info("Received shutdown signal — gracefully stopping clients...")
     try:
         await userbot.stop()
     except Exception:
@@ -88,7 +88,7 @@ async def _graceful_shutdown():
         await app.stop()
     except Exception:
         pass
-    LOGGER("KHUSHI").info("All clients stopped. Exiting.")
+    LOGGER("ANNIEMUSIC").info("All clients stopped. Exiting.")
 
 
 async def init():
@@ -100,7 +100,7 @@ async def init():
 
     # Register SIGTERM handler for graceful shutdown (prevents AUTH_KEY_DUPLICATED on restart)
     def _sigterm_handler():
-        LOGGER("KHUSHI").info("SIGTERM received — scheduling graceful shutdown.")
+        LOGGER("ANNIEMUSIC").info("SIGTERM received — scheduling graceful shutdown.")
         asyncio.ensure_future(_graceful_shutdown())
 
     try:
@@ -119,7 +119,7 @@ async def init():
         LOGGER(__name__).error("ᴀssɪsᴛᴀɴᴛ sᴇssɪᴏɴ ɴᴏᴛ ғɪʟʟᴇᴅ, ᴘʟᴇᴀsᴇ ғɪʟʟ ᴀ ᴘʏʀᴏɢʀᴀᴍ sᴇssɪᴏɴ...")
         exit()
 
-    LOGGER("KHUSHI").info("▶️ Using android_embed client — no PO token needed, verified 2026.")
+    LOGGER("ANNIEMUSIC").info("▶️ Using android_embed client — no PO token needed, verified 2026.")
 
     await sudo()
 
@@ -142,7 +142,7 @@ async def init():
     for all_module in ALL_MODULES:
         importlib.import_module("ANNIEMUSIC.plugins" + all_module)
 
-    LOGGER("KHUSHI.plugins").info("ᴋʜᴜsʜɪ's ᴍᴏᴅᴜʟᴇs ʟᴏᴀᴅᴇᴅ...")
+    LOGGER("ANNIEMUSIC.plugins").info("ᴀɴɴɪᴇ's ᴍᴏᴅᴜʟᴇs ʟᴏᴀᴅᴇᴅ...")
 
     JARVIS.setup_clients(userbot)
     await JARVIS.start()
@@ -151,19 +151,19 @@ async def init():
     try:
         await JARVIS.stream_call("http://docs.evostream.com/sample_content/assets/sintel1m720p.mp4")
     except NoActiveGroupCall:
-        LOGGER("KHUSHI").error(
-            "ᴘʟᴇᴀsᴇ ᴛᴜʀɴ ᴏɴ ᴛʜᴇ ᴠᴏɪᴄᴇ ᴄʜᴀᴛ ᴏғ ʏᴏᴜʀ ʟᴏɢ ɢʀᴏᴜᴘ/ᴄʜᴀɴɴᴇʟ.\n\nᴋʜᴜsʜɪ ʙᴏᴛ sᴛᴏᴘᴘᴇᴅ..."
+        LOGGER("ANNIEMUSIC").error(
+            "ᴘʟᴇᴀsᴇ ᴛᴜʀɴ ᴏɴ ᴛʜᴇ ᴠᴏɪᴄᴇ ᴄʜᴀᴛ ᴏғ ʏᴏᴜʀ ʟᴏɢ ɢʀᴏᴜᴘ/ᴄʜᴀɴɴᴇʟ.\n\nᴀɴɴɪᴇᴍᴜsɪᴄ ʙᴏᴛ sᴛᴏᴘᴘᴇᴅ..."
         )
         exit()
     except:
         pass
 
     await JARVIS.decorators()
-    LOGGER("KHUSHI").info("ᴋʜᴜsʜɪ ᴍᴜsɪᴄ ʙᴏᴛ sᴛᴀʀᴛᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ...")
+    LOGGER("ANNIEMUSIC").info("ᴀɴɴɪᴇᴍᴜsɪᴄ ʙᴏᴛ sᴛᴀʀᴛᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ...")
     await idle()
     await app.stop()
     await userbot.stop()
-    LOGGER("KHUSHI").info("sᴛᴏᴘᴘɪɴɢ ᴋʜᴜsʜɪ ᴍᴜsɪᴄ ʙᴏᴛ ...")
+    LOGGER("ANNIEMUSIC").info("sᴛᴏᴘᴘɪɴɢ ᴀɴɴɪᴇᴍᴜsɪᴄ ʙᴏᴛ ...")
 
 
 if __name__ == "__main__":
