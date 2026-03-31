@@ -21,7 +21,7 @@ from KHUSHI import app
 from KHUSHI.utils.database import get_lang
 from KHUSHI.utils.inline import InlineKeyboardButton
 from KHUSHI.utils.inline.help import first_page, help_back_markup, private_help_panel
-from config import BANNED_USERS, HELP_IMG_URL, START_IMGS, SUPPORT_CHAT
+from config import BANNED_USERS, HELP_IMG_URL, START_IMGS, SUPPORT_CHAT, SUPPORT_CHANNEL
 from strings import get_string, helpers
 
 _BRAND = (
@@ -140,19 +140,90 @@ async def khushi_start_private(client, message: Message):
 
 @app.on_message(filters.command(["start"]) & filters.group & ~BANNED_USERS)
 async def khushi_start_group(client, message: Message):
-    lang = await _get_lang(message.from_user.id)
-    _ = get_string(lang)
-    markup = InlineKeyboardMarkup([[
-        InlineKeyboardButton(
-            "˹ᴏᴘᴇɴ ɪɴ ᴘᴍ˼",
-            url=f"https://t.me/{app.username}?start=start",
-        )
-    ]])
-    await message.reply_text(
-        f"<blockquote>ʜᴇʏ! sᴇɴᴅ ᴍᴇ /ꜱᴛᴀʀᴛ ɪɴ <b>ᴘʀɪᴠᴀᴛᴇ</b> ᴛᴏ ꜱᴇᴇ ᴍʏ ɪɴꜰᴏ.</blockquote>",
-        reply_markup=markup,
-        disable_web_page_preview=True,
+    grp = message.chat.title or "ᴛʜɪꜱ ɢʀᴏᴜᴩ"
+    mention = message.from_user.mention if message.from_user else "ʏᴏᴜ"
+    caption = (
+        f"<blockquote>{_BRAND}</blockquote>\n\n"
+        "<blockquote>"
+        "<emoji id='5039598514980520994'>❤️‍🔥</emoji>"
+        f" ɴᴀᴍᴀsᴛᴇ {mention}!\n\n"
+        "<emoji id='5972072533833289156'>🔹</emoji>"
+        f" <b>{grp}</b> ᴍᴇɪɴ ᴡᴇʟᴄᴏᴍᴇ ʜᴀɪ!\n"
+        "<emoji id='5972072533833289156'>🔹</emoji>"
+        " ᴍᴇɪɴ ᴀᴀᴘᴋᴇ ɢʀᴏᴜᴘ ᴋᴀ ᴍᴜꜱɪᴄ ʙᴏᴛ ʜᴏᴏɴ.\n\n"
+        "<emoji id='5042334757040423886'>⚡️</emoji>"
+        " <b>ǫᴜɪᴄᴋ ᴄᴏᴍᴍᴀɴᴅꜱ</b>\n"
+        "<emoji id='5972072533833289156'>🔹</emoji>"
+        " <code>/play [ɢᴀᴀɴᴀ]</code> — VC ᴍᴇɪɴ ʙᴀᴊᴀᴏ\n"
+        "<emoji id='5972072533833289156'>🔹</emoji>"
+        " <code>/reco</code> — ʜɪɴᴅɪ / ᴘᴜɴᴊᴀʙɪ ꜱᴜɢɢᴇꜱᴛɪᴏɴꜱ\n"
+        "<emoji id='5972072533833289156'>🔹</emoji>"
+        " <code>/help</code> — ᴘᴜʀᴀ ʜᴇʟᴘ ᴅᴇᴋʜᴏ"
+        "</blockquote>"
     )
+    markup = InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton("˹ʜᴇʟᴘ˼", url=f"https://t.me/{app.username}?start=start"),
+            InlineKeyboardButton("˹sᴜᴩᴘᴏʀᴛ˼", url=SUPPORT_CHAT),
+        ],
+        [
+            InlineKeyboardButton("˹ᴄʜᴀɴɴᴇʟ˼", url=SUPPORT_CHANNEL),
+            InlineKeyboardButton("˹ᴀᴅᴅ ᴍᴇ˼", url=f"https://t.me/{app.username}?startgroup=true"),
+        ],
+    ])
+    img = random.choice(START_IMGS)
+    sent = await _try_send_photo(client, message.chat.id, img, caption, markup)
+    if not sent:
+        await message.reply_text(caption, reply_markup=markup, disable_web_page_preview=True)
+
+
+# ── Bot added to group — welcome message ─────────────────────────────────────
+
+@app.on_message(filters.new_chat_members)
+async def bot_added_to_group(client, message: Message):
+    """Send a rich welcome card when this bot itself is added to a group."""
+    if not message.new_chat_members:
+        return
+    bot_id = (await client.get_me()).id
+    is_bot_added = any(m.id == bot_id for m in message.new_chat_members)
+    if not is_bot_added:
+        return
+
+    grp = message.chat.title or "ᴀᴀᴘᴋᴀ ɢʀᴏᴜᴩ"
+    adder = message.from_user.mention if message.from_user else "ᴀᴅᴍɪɴ"
+
+    caption = (
+        f"<blockquote>{_BRAND}</blockquote>\n\n"
+        "<blockquote>"
+        "<emoji id='5039598514980520994'>❤️‍🔥</emoji>"
+        f" <b>ʜᴇʟʟᴏ {grp}!</b>\n\n"
+        "<emoji id='5972072533833289156'>🔹</emoji>"
+        f" ᴛʜᴀɴᴋ ʏᴏᴜ {adder} ꜰᴏʀ ᴀᴅᴅɪɴɢ ᴍᴇ!\n\n"
+        "<emoji id='5042334757040423886'>⚡️</emoji>"
+        " <b>ᴍᴇʀɪ ᴩᴏᴡᴇʀ</b>\n"
+        "<emoji id='5972072533833289156'>🔹</emoji> 🎵 ʜɪɴᴅɪ · ᴩᴜɴᴊᴀʙɪ · ʙᴏʟʟʏᴡᴏᴏᴅ · ɪɴᴛᴇʀɴᴀᴛɪᴏɴᴀʟ\n"
+        "<emoji id='5972072533833289156'>🔹</emoji> ᴜʟᴛʀᴀ ᴩᴏꜱᴛ VC ꜱᴛʀᴇᴀᴍɪɴɢ\n"
+        "<emoji id='5972072533833289156'>🔹</emoji> ʏᴏᴜᴛᴜʙᴇ · ꜱᴩᴏᴛɪꜰʏ · ꜱᴏᴜɴᴅᴄʟᴏᴜᴅ\n"
+        "<emoji id='5972072533833289156'>🔹</emoji> ɢʀᴏᴜᴩ ꜱᴇᴄᴜʀɪᴛʏ + ʜᴜ ᴍᴏᴅᴇʀᴀᴛɪᴏɴ\n\n"
+        "<emoji id='5039827436737397847'>✨</emoji>"
+        " <code>/play [ɢᴀᴀɴᴀ ᴋᴀ ɴᴀᴀᴍ]</code> ꜱᴇ ʙᴀᴊᴀᴏ!\n"
+        "<b>ᴍᴜᴊʜᴇ ᴀᴅᴍɪɴ ʙᴀɴᴀᴏ ᴛᴀᴋɪ ᴍᴀɪɴ VC ᵴᴜɴᴀ ꜱᴀᴋᴏᴏɴ.</b>"
+        "</blockquote>"
+    )
+    markup = InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton("˹ʜᴇʟᴘ˼", url=f"https://t.me/{app.username}?start=start"),
+            InlineKeyboardButton("˹sᴜᴩᴘᴏʀᴛ˼", url=SUPPORT_CHAT),
+        ],
+        [
+            InlineKeyboardButton("˹ᴄʜᴀɴɴᴇʟ˼", url=SUPPORT_CHANNEL),
+            InlineKeyboardButton("˹ᴀᴅᴅ ᴛᴏ ɢʀᴏᴜᴩ˼", url=f"https://t.me/{app.username}?startgroup=true"),
+        ],
+    ])
+    img = random.choice(START_IMGS)
+    sent = await _try_send_photo(client, message.chat.id, img, caption, markup)
+    if not sent:
+        await message.reply_text(caption, reply_markup=markup, disable_web_page_preview=True)
 
 
 # ── /help ─────────────────────────────────────────────────────────────────────

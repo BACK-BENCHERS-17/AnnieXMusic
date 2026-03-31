@@ -109,7 +109,8 @@ async def _handle_play(message: Message, video: bool = False):
     tg_video = None
     if message.reply_to_message:
         r = message.reply_to_message
-        tg_audio = r.audio or r.voice
+        # Audio mode: also accept video replies (audio will be extracted by downloader)
+        tg_audio = r.audio or r.voice or (r.video if not video else None)
         tg_video = r.video or r.document if video else None
 
     url = await YouTube.url(message)
@@ -480,6 +481,107 @@ async def kspeed(_, message: Message, lang, chat_id):
             f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>❌ ꜱᴘᴇᴇᴅ ᴄʜᴀɴɢᴇ ꜰᴀɪʟᴇᴅ: {type(e).__name__}</blockquote>"
         )
+
+
+# ── RELATED SONG PLAY CALLBACK (rp:{song_name}) ───────────────────────────────
+@app.on_callback_query(filters.regex(r"^rp:") & ~BANNED_USERS)
+async def related_play_cb(client, query):
+    """Play a related-song suggestion from the queue-end buttons."""
+    await query.answer("ᴘʟᴀʏɪɴɢ… 🎵", show_alert=False)
+    song_name = query.data[3:]
+    chat_id = query.message.chat.id
+    user = query.from_user
+    user_name = user.first_name or user.username or "ᴜꜱᴇʀ"
+    user_id = user.id
+
+    # Delete the suggestion card
+    try:
+        await query.message.delete()
+    except Exception:
+        pass
+
+    lang = await get_lang(chat_id)
+    _ = get_string(lang)
+
+    mystic = await client.send_message(chat_id, random.choice(AYU))
+
+    # ── YouTube search ────────────────────────────────────────────────────────
+    try:
+        title, duration_min, duration_sec, thumbnail, vidid = await YouTube.details(
+            song_name, videoid=False
+        )
+    except Exception as e:
+        return await mystic.edit_text(
+            f"<blockquote>{_BRAND}</blockquote>\n\n"
+            f"<blockquote>❌ ɴᴏᴛʜɪɴɢ ꜰᴏᴜɴᴅ.\n{_EM['dot']} {type(e).__name__}</blockquote>"
+        )
+
+    if not vidid:
+        return await mystic.edit_text(
+            f"<blockquote>{_BRAND}</blockquote>\n\n"
+            f"<blockquote>❌ ᴄᴏᴜʟᴅ ɴᴏᴛ ꜰᴇᴛᴄʜ ᴛʀᴀᴄᴋ ᴅᴇᴛᴀɪʟꜱ.</blockquote>"
+        )
+
+    if duration_sec and duration_sec > DURATION_LIMIT:
+        return await mystic.edit_text(
+            f"<blockquote>{_BRAND}</blockquote>\n\n"
+            f"<blockquote>❌ ᴛʀᴀᴄᴋ ᴛᴏᴏ ʟᴏɴɢ.</blockquote>"
+        )
+
+    asyncio.create_task(_trigger_bg_cache(vidid))
+
+    # ── Download ──────────────────────────────────────────────────────────────
+    try:
+        file_path, direct = await YouTube.download(vidid, None, videoid=True, video=False)
+    except Exception as e:
+        return await mystic.edit_text(
+            f"<blockquote>{_BRAND}</blockquote>\n\n"
+            f"<blockquote>❌ ᴅᴏᴡɴʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ.\n{_EM['dot']} {type(e).__name__}</blockquote>"
+        )
+
+    if not file_path:
+        return await mystic.edit_text(
+            f"<blockquote>{_BRAND}</blockquote>\n\n"
+            f"<blockquote>❌ ᴅᴏᴡɴʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ — ᴛʀʏ ᴀɢᴀɪɴ.</blockquote>"
+        )
+
+    try:
+        await mystic.delete()
+    except Exception:
+        pass
+
+    stored_file = file_path if direct else f"vid_{vidid}"
+    title_t = title.title()
+
+    # ── Queue or Play ─────────────────────────────────────────────────────────
+    if await is_active_chat(chat_id):
+        await put_queue(
+            chat_id, chat_id, stored_file, title_t, duration_min,
+            user_name, vidid, user_id, "audio",
+        )
+        position = len(db.get(chat_id)) - 1
+        btn = aq_markup(_, chat_id)
+        await client.send_message(
+            chat_id=chat_id,
+            text=_["queue_4"].format(position, title_t[:27], duration_min, user_name),
+            reply_markup=InlineKeyboardMarkup(btn),
+        )
+    else:
+        db[chat_id] = []
+        await JARVIS.join_call(chat_id, chat_id, file_path, video=False, image=thumbnail)
+        await put_queue(
+            chat_id, chat_id, stored_file, title_t, duration_min,
+            user_name, vidid, user_id, "audio",
+        )
+        button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
+        caption = _["stream_1"].format(
+            f"https://t.me/{BOT_USERNAME.lstrip('@')}?start=info_{vidid}",
+            title_t[:23], duration_min, user_name,
+        )
+        run = await _send_stream_msg(chat_id, caption, InlineKeyboardMarkup(button))
+        if db.get(chat_id):
+            db[chat_id][0]["mystic"] = run
+            db[chat_id][0]["markup"] = "stream"
 
 
 # ── CLOSE CALLBACK ────────────────────────────────────────────────────────────

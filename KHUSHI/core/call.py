@@ -133,6 +133,89 @@ def _check_connected(assistant) -> bool:
         return True
 
 
+# ── Related song picker (used when queue ends) ────────────────────────────────
+_RECO_POOL = {
+    "bollywood": [
+        "Tum Hi Ho", "Channa Mereya", "Ae Dil Hai Mushkil", "Kesariya Brahmastra",
+        "Phir Bhi Tumko Chaahunga", "Bekhayali", "Hawayein", "Pachtaoge",
+        "Zaalima", "Tera Ban Jaunga", "Ik Vaari Aa Rockstar", "Kabira",
+        "Tujhe Kitna Chahne Lage", "Ve Maahi", "Dil Diyan Gallan",
+        "Agar Tum Saath Ho", "Khairiyat", "Hasi Ban Gaye", "Galliyan",
+    ],
+    "punjabi": [
+        "Lahore Guru Randhawa", "Morni Banke", "Kala Chashma", "Proper Patola",
+        "Illegal Weapon", "Jatt Da Muqabla", "Backbone", "Coka Sukh E",
+        "Ban Ja Rani", "Naah Harrdy Sandhu", "Nach Punjaban", "Lover Diljit",
+        "Yeah Baby Garry Sandhu", "Paani Paani Badshah", "Burjkhalifa",
+        "Devil Karan Aujla", "Slowly Slowly Guru Randhawa", "Suit Suit",
+    ],
+    "hiphop": [
+        "DIVINE Mirchi", "Emiway Machayenge", "MC Stan Insaan",
+        "Gully Boy Asli Hip Hop", "Sher Aaya Sher", "Azadi Gully Boy",
+        "With You AP Dhillon", "Excuses AP Dhillon", "Arjan Vailly Animal",
+        "Softly Karan Aujla", "Not Ur Friend Karan Aujla",
+    ],
+    "sad": [
+        "Judaai Atif Aslam", "Jo Bhi Main Rockstar", "Dil Ko Karar Aaya",
+        "Woh Lamhe", "Teri Yaad Atif Aslam", "Kya Hua Tera Wada",
+        "Phir Mohabbat", "Tera Hone Laga Hoon", "Ae Zindagi Gale Laga Le",
+    ],
+    "party": [
+        "Balam Pichkari", "Sheila Ki Jawani", "Abhi Toh Party Shuru Hui Hai",
+        "Kar Gayi Chull", "Nachde Ne Saare", "Gallan Goodiyaan",
+        "Genda Phool Badshah", "Alcoholia", "Kamariya Mitron",
+    ],
+    "romantic": [
+        "Pehla Nasha", "Dil Ko Maine Di Kasam", "Tera Zikr", "Hasi Ban Gaye",
+        "Kuch Is Tarah Atif Aslam", "Aankhon Mein Teri", "Zindagi Do Pal Ki",
+    ],
+}
+
+_HINDI_KEYWORDS = {"tum", "dil", "pyaar", "tera", "mera", "hai", "nahi", "aur", "main",
+                   "hum", "kya", "ye", "yeh", "jaan", "zindagi", "aaja", "mere", "tu",
+                   "tere", "sun", "aa", "kaho", "mujhe", "meri", "kuch"}
+_PUNJABI_KEYWORDS = {"jatt", "punjabi", "ni", "vi", "das", "ik", "oye", "yaar", "pagg",
+                     "nachi", "gabru", "bandhe", "kudi", "munda", "wala", "wali", "chandigarh"}
+_HIPHOP_KEYWORDS = {"rap", "hip", "hop", "flow", "beat", "bars", "divine", "emiway",
+                    "mc", "gully", "drip", "swag", "diss"}
+_PARTY_KEYWORDS = {"party", "dance", "beat", "dj", "remix", "club", "nonstop", "mashup"}
+_SAD_KEYWORDS = {"sad", "bekhayali", "judaai", "woh", "rona", "dard", "door", "alvida",
+                 "tanha", "tanhai", "bewafa", "bichad"}
+
+
+import random as _rnd
+
+
+def _pick_related_songs(last_title: str, n: int = 4) -> list:
+    tl = last_title.lower()
+    words = set(tl.split())
+
+    # Score each genre based on keyword overlap
+    if words & _PUNJABI_KEYWORDS:
+        primary = "punjabi"
+    elif words & _HIPHOP_KEYWORDS:
+        primary = "hiphop"
+    elif words & _PARTY_KEYWORDS:
+        primary = "party"
+    elif words & _SAD_KEYWORDS:
+        primary = "sad"
+    elif words & _HINDI_KEYWORDS:
+        primary = "bollywood"
+    else:
+        primary = "bollywood"
+
+    primary_pool = _RECO_POOL[primary][:]
+    # Mix in some from bollywood/punjabi for variety
+    secondary = "punjabi" if primary != "punjabi" else "bollywood"
+    mixed_pool = primary_pool + _rnd.sample(_RECO_POOL[secondary], min(4, len(_RECO_POOL[secondary])))
+
+    # Remove the last played song if it's in the pool
+    mixed_pool = [s for s in mixed_pool if last_title.lower() not in s.lower()]
+
+    _rnd.shuffle(mixed_pool)
+    return mixed_pool[:n]
+
+
 class Call:
     def __init__(self):
         self.one = None
@@ -853,28 +936,64 @@ class Call:
                 try:
                     language = await get_lang(chat_id)
                     _ = get_string(language)
-                except:
+                except Exception:
                     _ = get_string("en")
-                
+
                 try:
+                    from pyrogram.types import InlineKeyboardMarkup
+                    last_title = popped.get("title", "") if popped else ""
+                    _sugg = _pick_related_songs(last_title, 4)
+
+                    # Build 2-per-row song suggestion buttons
+                    _rows = []
+                    for _i in range(0, len(_sugg), 2):
+                        _row = []
+                        for _s in _sugg[_i:_i+2]:
+                            _lbl = (_s[:21] + "…") if len(_s) > 21 else _s
+                            _row.append(StyledBtn(
+                                text=f"▶ {_lbl}",
+                                callback_data=f"rp:{_s[:40]}",
+                            ))
+                        _rows.append(_row)
+                    # Bottom row: add-me + close
+                    _rows.append([
+                        StyledBtn(
+                            text="✚ ᴀᴅᴅ ᴍᴇ ʙᴀʙʏ ✚",
+                            url=f"https://t.me/{app.username}?startgroup=true",
+                            style="primary",
+                        ),
+                        StyledBtn(
+                            text=_["CLOSE_BUTTON"],
+                            callback_data="close",
+                            style="danger",
+                        ),
+                    ])
+
+                    _AROW = (
+                        "<emoji id='5042192219960771668'>🧸</emoji>"
+                        "<emoji id='5210820276748566172'>🔤</emoji>"
+                        "<emoji id='5213301251722203632'>🔤</emoji>"
+                        "<emoji id='5213301251722203632'>🔤</emoji>"
+                        "<emoji id='5211032856154885824'>🔤</emoji>"
+                        "<emoji id='5213337333742454261'>🔤</emoji>"
+                    )
+                    _last_short = (last_title[:32] + "…") if len(last_title) > 32 else last_title
+                    _end_text = (
+                        f"<blockquote>{_AROW}</blockquote>\n\n"
+                        "<blockquote>"
+                        "<emoji id='5039827436737397847'>✨</emoji>"
+                        " <b>ǫᴜᴇᴜᴇ ᴇɴᴅᴇᴅ!</b>\n"
+                        + (f"<emoji id='5972072533833289156'>🔹</emoji> ʟᴀsᴛ: <b>{_last_short}</b>\n" if _last_short else "")
+                        + "\n<emoji id='5042334757040423886'>⚡️</emoji>"
+                        " <b>ʏᴏᴜ ᴍɪɢʜᴛ ʟɪᴋᴇ ᴛʜᴇꜱᴇ:</b>"
+                        "</blockquote>"
+                    )
                     await app.send_message(
                         chat_id,
-                        text=(
-                            "<emoji id='5463107823946717464'>🎵</emoji>"
-                            " <b>ᴀɴɴɪᴇ ✘ ᴍᴜsɪᴄ</b> "
-                            "<emoji id='5463107823946717464'>🎵</emoji>\n"
-                            "<b>┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄</b>\n"
-                            "<blockquote>"
-                            "<emoji id='5039827436737397847'>✨</emoji>"
-                            " <b>ᴀʟʟ sᴏɴɢs ғɪɴɪsʜᴇᴅ!</b>"
-                            " <b>ʙᴏᴛ ʟᴇғᴛ ᴠᴏɪᴄᴇ ᴄʜᴀᴛ.</b>\n\n"
-                            "<emoji id='5042334757040423886'>⚡️</emoji>"
-                            " <b>ᴘʟᴀʏ ᴀɢᴀɪɴ ᴀɴᴅ ᴇɴᴊᴏʏ sᴏɴɢs!</b>"
-                            "</blockquote>"
-                        ),
-                        reply_markup=add_to_channel_markup(_, app.username),
+                        text=_end_text,
+                        reply_markup=InlineKeyboardMarkup(_rows),
                     )
-                except:
+                except Exception:
                     pass
                 return
         except:

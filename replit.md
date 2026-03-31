@@ -1,7 +1,7 @@
-# AnnieMusic Telegram Bot
+# KHUSHI — Telegram Music Bot
 
 ## Overview
-AnnieMusic is a Telegram Music Bot that streams audio/video in Telegram group voice chats. It supports multiple music platforms including YouTube, Spotify, SoundCloud, Apple Music, and Resso.
+KHUSHI is a feature-rich Telegram music bot built with Pyrogram + PyTgCalls targeting Indian users. It streams audio/video in group voice chats with a focus on Hindi/Punjabi/Bollywood music. Supports YouTube, Spotify, SoundCloud, Apple Music, and Resso.
 
 ## Project Structure
 ```
