@@ -5680,3 +5680,42 @@ pyrogram.errors.exceptions.bad_request_400.DocumentInvalid: Telegram says: [400 
 [31-Mar-26 15:49:11 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 [31-Mar-26 15:49:11 - INFO] - KHUSHI -   KHUSHI is LIVE!
 [31-Mar-26 15:49:11 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[31-Mar-26 15:50:09 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] edit_caption hb14 failed: Telegram says: [400 MESSAGE_NOT_MODIFIED] - The message was not modified because you tried to edit it using the same content. (caused by "messages.EditMessage")
+[31-Mar-26 15:50:09 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] edit_text hb14 failed: Telegram says: [400 MESSAGE_NOT_MODIFIED] - The message was not modified because you tried to edit it using the same content. (caused by "messages.EditMessage")
+[31-Mar-26 15:50:09 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] hb14 — falling back to delete+send
+[31-Mar-26 15:54:18 - ERROR] - pyrogram.dispatcher - Unexpected exception raised in MessageHandler:
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/dispatcher.py", line 383, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/home/runner/workspace/KHUSHI/plugins/reco.py", line 296, in reco_cmd
+    sent = await message.reply_text(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/types/messages_and_media/message.py", line 4451, in reply
+    return await self._client.send_message(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/methods/messages/send_message.py", line 323, in send_message
+    r = await self.invoke(rpc, business_connection_id=business_connection_id)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/methods/advanced/invoke.py", line 107, in invoke
+    r = await session.invoke(
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.DocumentInvalid: Telegram says: [400 DOCUMENT_INVALID] - The specified document is invalid. (caused by "messages.SendMessage")
+[31-Mar-26 15:54:41 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] direct_download ok: /home/runner/workspace/downloads/song_dl/hHuG7FIKgtc_1774972476.m4a
+[31-Mar-26 15:54:41 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] direct_download (no-cookie) succeeded for hHuG7FIKgtc
+[31-Mar-26 15:57:23 - INFO] - KHUSHI.core.mongo - KHUSHI: Connecting to MongoDB...
+[31-Mar-26 15:57:23 - INFO] - KHUSHI.core.mongo - KHUSHI: MongoDB connected. (DB: Annie)
+[31-Mar-26 15:57:25 - WARNING] - KHUSHI.utils.ytdl_smart - [SmartYTDL] Node.js NOT found — web_safari client may fail, android_vr will still work
+[31-Mar-26 15:57:25 - INFO] - KHUSHI.core.bot - KHUSHI Bot client initialized.
+[31-Mar-26 15:57:25 - INFO] - KHUSHI.misc - KHUSHI: In-memory DB initialized.
+[31-Mar-26 15:57:30 - INFO] - KHUSHI.core.mongo - KHUSHI: Connecting to MongoDB...
+[31-Mar-26 15:57:30 - INFO] - KHUSHI.core.mongo - KHUSHI: MongoDB connected. (DB: Annie)
+[31-Mar-26 15:57:32 - WARNING] - KHUSHI.utils.ytdl_smart - [SmartYTDL] Node.js NOT found — web_safari client may fail, android_vr will still work
+[31-Mar-26 15:57:32 - INFO] - KHUSHI.core.bot - KHUSHI Bot client initialized.
+[31-Mar-26 15:57:33 - INFO] - KHUSHI.misc - KHUSHI: In-memory DB initialized.

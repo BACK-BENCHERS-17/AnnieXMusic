@@ -341,7 +341,7 @@ async def help_section_cb(client, query):
     if not help_text:
         return await query.answer("ɪɴᴠᴀʟɪᴅ ʜᴇʟᴘ ᴛᴏᴘɪᴄ.", show_alert=True)
 
-    back_kb = help_back_markup(_, current_page)
+    back_kb = help_back_markup(_, number)
     safe_help_text = _safe_text(help_text)
 
     edited = False
@@ -380,6 +380,67 @@ async def help_section_cb(client, query):
             )
         except Exception as e3:
             _LOGGER.error("[HELP_SEC] send_message hb%d also failed: %s", number, e3)
+
+
+# ── Next / Prev section navigation (loop) ────────────────────────────────────
+
+@app.on_callback_query(filters.regex(r"^help_nav_(\d+)$") & ~BANNED_USERS)
+async def help_nav_cb(client, query):
+    match = re.match(r"help_nav_(\d+)", query.data)
+    if not match:
+        return await query.answer()
+
+    section = int(match.group(1))
+    await query.answer()
+
+    lang = await _get_lang(query.from_user.id)
+    _ = get_string(lang)
+
+    help_text = getattr(helpers, f"HELP_{section}", None)
+    if not help_text:
+        return await query.answer("ɪɴᴠᴀʟɪᴅ sᴇᴄᴛɪᴏɴ.", show_alert=True)
+
+    nav_kb = help_back_markup(_, section)
+    safe_help_text = _safe_text(help_text)
+
+    edited = False
+    try:
+        await query.message.edit_caption(
+            help_text, reply_markup=nav_kb, parse_mode=enums.ParseMode.HTML
+        )
+        edited = True
+    except Exception:
+        pass
+
+    if not edited:
+        try:
+            await query.message.edit_text(
+                help_text, reply_markup=nav_kb,
+                parse_mode=enums.ParseMode.HTML,
+                disable_web_page_preview=True,
+            )
+            edited = True
+        except Exception:
+            pass
+
+    if not edited:
+        edited = await _raw_edit(client, query.message.chat.id, query.message.id, help_text, nav_kb)
+
+    if not edited:
+        try:
+            await query.message.delete()
+        except Exception:
+            pass
+        try:
+            await client.send_message(
+                query.message.chat.id,
+                safe_help_text,
+                reply_markup=nav_kb,
+                parse_mode=enums.ParseMode.HTML,
+                disable_web_page_preview=True,
+            )
+        except Exception as e:
+            _LOGGER.error("[HELP_NAV] send_message failed: %s", e)
 
 
 # ── Back to category list ─────────────────────────────────────────────────────

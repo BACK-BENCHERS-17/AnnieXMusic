@@ -115,26 +115,36 @@ def second_page(_):
 
 
 def action_sub_menu(_, current_page: int):
-    return help_back_markup(_, current_page)
+    return help_nav_markup(_, current_page)
+
+
+def help_nav_markup(_, section: int):
+    """Navigation markup shown inside a help section — Back to menu + Next (loops)."""
+    next_s = (section % TOTAL_SECTIONS) + 1
+    prev_s = ((section - 2) % TOTAL_SECTIONS) + 1
+    return InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton(
+                text="˹ᴍᴇɴᴜ˼",
+                callback_data="help_back_1",
+                style="primary",
+            ),
+            InlineKeyboardButton(
+                text=f"◀ {prev_s}",
+                callback_data=f"help_nav_{prev_s}",
+                style="default",
+            ),
+            InlineKeyboardButton(
+                text=f"{next_s} ▶",
+                callback_data=f"help_nav_{next_s}",
+                style="success",
+            ),
+        ]
+    ])
 
 
 def help_back_markup(_, current_page: int):
-    return InlineKeyboardMarkup(
-        [
-            [
-                InlineKeyboardButton(
-                    text=_["BACK_BUTTON"],
-                    callback_data=f"help_back_{current_page}",
-                    style="primary",
-                ),
-                InlineKeyboardButton(
-                    text=_["CLOSE_BUTTON"],
-                    callback_data="close",
-                    style="danger",
-                ),
-            ]
-        ]
-    )
+    return help_nav_markup(_, current_page)
 
 
 def private_help_panel(_):
