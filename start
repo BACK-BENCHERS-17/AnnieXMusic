@@ -1,4 +1,0 @@
-python3 -m pip install -q -U "yt-dlp[default] @ git+https://github.com/yt-dlp/yt-dlp.git"
-python3 -m pip install -q -U -r requirements.txt
-yt-dlp --rm-cache-dir
-python3 -m KHUSHI

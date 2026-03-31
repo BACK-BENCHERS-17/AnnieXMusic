@@ -1,14 +1,19 @@
 .env
-.cache
-log.txt
+.cache/
 .DS_Store
-*.session
-raw_files/
-cache/
-downloads/
-__pycache__/
-*.session-journal
 .pythonlibs/
+.upm/
+.agents/
+.local/
+
+# Logs
+log.txt
+*.log
+khushi_log.txt
+unknown_errors.txt
+
+# Python
+__pycache__/
 *.pyc
 *.pyo
 *.egg-info/
@@ -16,6 +21,21 @@ dist/
 build/
 myenv/
 venv/
-__pycache__/
-*.pyc
 
+# Sessions
+*.session
+*.session-journal
+
+# Downloads / temp files
+downloads/
+cache/
+raw_files/
+couples/
+
+# Cookies (sensitive)
+youtube_cookies.txt
+cookies.txt
+
+# Replit internals
+replit.md
+package-lock.json
