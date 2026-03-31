@@ -94,8 +94,7 @@ async def antilink_cmd(client, message: Message, lang, chat_id):
         return await message.reply_text(
             _reply(
                 f"{_EM['shield']} <b>Anti-Link</b>\n\n"
-                f"{_EM['dot']} <b>Status:</b> <b>{state}</b>\n"
-                f"{_EM['dot']} <b>Default:</b> {_EM['off']} <b>Off</b>\n\n"
+                f"{_EM['dot']} <b>Status:</b> <b>{state}</b>\n\n"
                 f"{_EM['dot']} Automatically deletes any links, Telegram invite URLs, "
                 f"or external URLs shared by non-admins — stops spam and unwanted "
                 f"promotions from entering the group."
@@ -133,7 +132,6 @@ async def antiflood_cmd(client, message: Message, lang, chat_id):
             _reply(
                 f"{_EM['zap']} <b>Anti-Flood</b>\n\n"
                 f"{_EM['dot']} <b>Status:</b> <b>{state}</b>\n"
-                f"{_EM['dot']} <b>Default:</b> {_EM['off']} <b>Off</b>\n"
                 f"{_EM['dot']} <b>Limit:</b> <code>{limit}</code> messages per 5 seconds\n\n"
                 f"{_EM['dot']} Detects users who send too many messages in a short time "
                 f"and automatically deletes the flood messages — keeps the chat calm and "
