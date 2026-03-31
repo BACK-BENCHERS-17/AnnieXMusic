@@ -1,0 +1,126 @@
+[31-Mar-26 19:50:49 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] Using cookies from
+YOUTUBE_COOKIES_B64 env var
+[31-Mar-26 19:50:49 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] Racing 8 clients for hHuG7FIKgtc | order: ['android_vr', 'ios', 'android', 'mweb']
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+[31-Mar-26 19:50:58 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] client='web_creator' won for hHuG7FIKgtc
+[31-Mar-26 19:50:58 - INFO] - KHUSHI.utils.downloader - [FAST] SmartYTDL extracted URL
+for hHuG7FIKgtc via web_creator
+[31-Mar-26 19:50:59 - INFO] - KHUSHI.core.call - [PLAY] chat=-1003862964494 | CDN URL stream | video=False
+[31-Mar-26 19:51:00 - INFO] - KHUSHI.core.call - [PLAY] Peer pre-warmed for chat=-1003862964494
+[31-Mar-26 19:51:02 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] direct_download ok: /home/khushi/ANNIE/downloads/hHuG7FIKgtc_1774986649.m4a
+[31-Mar-26 19:51:02 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] direct_download (no-cookie) succeeded for hHuG7FIKgtc
+[31-Mar-26 19:51:02 - INFO] - KHUSHI.utils.downloader - [BG-CACHE] Cached for next play: /home/khushi/ANNIE/downloads/hHuG7FIKgtc_1774986649.m4a
+[31-Mar-26 19:56:53 - ERROR] - pyrogram.dispatcher - Unhandled exception: Telegram says: [400 DOCUMENT_INVALID] (caused by "messages.SendMessage") Pyrogram 2.3.69 thinks: The document is invalid
+Traceback (most recent call last):
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/dispatcher.py", line
+383, in _dispatch_to_handlers
+    await self._execute_handler(handler, *args)
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/dispatcher.py", line
+410, in _execute_handler
+    await handler.callback(self.client, *args)
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/handlers/message_handler.py", line 154, in resolve_future_or_callback
+    await self.original_callback(client, message, *args)
+  File "/home/khushi/ANNIE/KHUSHI/plugins/reco.py", line 298, in reco_cmd
+    sent = await message.reply_text(
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/types/messages_and_media/message.py", line 1611, in reply_text
+    return await self._client.send_message(
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/methods/messages/send_message.py", line 212, in send_message
+    r = await self.invoke(rpc)
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 80, in invoke
+    r = await self.session.invoke(
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/session/session.py",
+line 420, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/session/session.py",
+line 377, in send
+    RPCError.raise_it(result, type(data))
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 93, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.DocumentInvalid: Telegram says: [400 DOCUMENT_INVALID] (caused by "messages.SendMessage") Pyrogram 2.3.69 thinks: The document is invalid
+[31-Mar-26 19:57:03 - ERROR] - pyrogram.dispatcher - Unhandled exception: Telegram says: [400 DOCUMENT_INVALID] (caused by "messages.SendMessage") Pyrogram 2.3.69 thinks: The document is invalid
+Traceback (most recent call last):
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/dispatcher.py", line
+383, in _dispatch_to_handlers
+    await self._execute_handler(handler, *args)
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/dispatcher.py", line
+410, in _execute_handler
+    await handler.callback(self.client, *args)
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/handlers/message_handler.py", line 154, in resolve_future_or_callback
+    await self.original_callback(client, message, *args)
+  File "/home/khushi/ANNIE/KHUSHI/plugins/reco.py", line 298, in reco_cmd
+    sent = await message.reply_text(
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/types/messages_and_media/message.py", line 1611, in reply_text
+    return await self._client.send_message(
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/methods/messages/send_message.py", line 212, in send_message
+    r = await self.invoke(rpc)
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 80, in invoke
+    r = await self.session.invoke(
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/session/session.py",
+line 420, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/session/session.py",
+line 377, in send
+    RPCError.raise_it(result, type(data))
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 93, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.DocumentInvalid: Telegram says: [400 DOCUMENT_INVALID] (caused by "messages.SendMessage") Pyrogram 2.3.69 thinks: The document is invalid
+[31-Mar-26 19:57:18 - ERROR] - pyrogram.dispatcher - Unhandled exception: Telegram says: [400 DOCUMENT_INVALID] (caused by "messages.SendMessage") Pyrogram 2.3.69 thinks: The document is invalid
+Traceback (most recent call last):
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/dispatcher.py", line
+383, in _dispatch_to_handlers
+    await self._execute_handler(handler, *args)
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/dispatcher.py", line
+410, in _execute_handler
+    await handler.callback(self.client, *args)
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/handlers/message_handler.py", line 154, in resolve_future_or_callback
+    await self.original_callback(client, message, *args)
+  File "/home/khushi/ANNIE/KHUSHI/utils/decorators.py", line 213, in wrapper
+    return await mystic(client, message, _, chat_id)
+  File "/home/khushi/ANNIE/KHUSHI/plugins/reco.py", line 326, in rconfig_cmd
+    return await message.reply_text(
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/types/messages_and_media/message.py", line 1611, in reply_text
+    return await self._client.send_message(
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/methods/messages/send_message.py", line 212, in send_message
+    r = await self.invoke(rpc)
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 80, in invoke
+    r = await self.session.invoke(
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/session/session.py",
+line 420, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/session/session.py",
+line 377, in send
+    RPCError.raise_it(result, type(data))
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 93, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.DocumentInvalid: Telegram says: [400 DOCUMENT_INVALID] (caused by "messages.SendMessage") Pyrogram 2.3.69 thinks: The document is invalid
+[31-Mar-26 20:00:52 - ERROR] - pyrogram.dispatcher - Unhandled exception: Telegram says: [400 DOCUMENT_INVALID] (caused by "messages.SendMessage") Pyrogram 2.3.69 thinks: The document is invalid
+Traceback (most recent call last):
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/dispatcher.py", line
+383, in _dispatch_to_handlers
+    await self._execute_handler(handler, *args)
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/dispatcher.py", line
+410, in _execute_handler
+    await handler.callback(self.client, *args)
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/handlers/message_handler.py", line 154, in resolve_future_or_callback
+    await self.original_callback(client, message, *args)
+  File "/home/khushi/ANNIE/KHUSHI/utils/decorators.py", line 213, in wrapper
+    return await mystic(client, message, _, chat_id)
+  File "/home/khushi/ANNIE/KHUSHI/plugins/reco.py", line 356, in rconfig_cmd
+    return await message.reply_text(
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/types/messages_and_media/message.py", line 1611, in reply_text
+    return await self._client.send_message(
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/methods/messages/send_message.py", line 212, in send_message
+    r = await self.invoke(rpc)
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/methods/advanced/invoke.py", line 80, in invoke
+    r = await self.session.invoke(
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/session/session.py",
+line 420, in invoke
+    return await self.send(query, timeout=timeout)
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/session/session.py",
+line 377, in send
+    RPCError.raise_it(result, type(data))
+  File "/home/khushi/.local/lib/python3.10/site-packages/pyrogram/errors/rpc_error.py", line 93, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.DocumentInvalid: Telegram says: [400 DOCUMENT_INVALID] (caused by "messages.SendMessage") Pyrogram 2.3.69 thinks: The document is invalid

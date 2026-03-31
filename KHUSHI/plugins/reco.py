@@ -1,6 +1,7 @@
 """KHUSHI — Song Recommendation Plugin: /reco, /rconfig."""
 
 import asyncio
+import html
 import random
 
 from pyrogram import filters
@@ -261,15 +262,18 @@ async def reco_cmd(client, message: Message):
 
         picks = random.sample(songs_pool, min(count, len(songs_pool)))
 
+    # HTML-escape all song titles before embedding in HTML message
+    safe_picks = [html.escape(s) for s in picks]
+
     lines = "\n".join(
         f"{_EM['dot']} <b>{i+1}.</b> <code>{s}</code>"
-        for i, s in enumerate(picks)
+        for i, s in enumerate(safe_picks)
     )
 
     header = (
         f"{_EM['fire']} <b>˹ ꜱᴏɴɢ ꜱᴜɢɢᴇꜱᴛɪᴏɴꜱ ˼</b>\n"
         + (
-            f"{_EM['mic']} ꜰᴏʀ: <b>{query}</b>\n"
+            f"{_EM['mic']} ꜰᴏʀ: <b>{html.escape(query)}</b>\n"
             if query
             else f"{_EM['zap']} ɢᴇɴʀᴇ: <code>{genre}</code>\n"
         )
@@ -295,10 +299,18 @@ async def reco_cmd(client, message: Message):
         InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close"),
     ])
 
-    sent = await message.reply_text(
-        _reply(header),
-        reply_markup=InlineKeyboardMarkup(song_rows),
-    )
+    try:
+        sent = await message.reply_text(
+            _reply(header),
+            reply_markup=InlineKeyboardMarkup(song_rows),
+        )
+    except Exception as e:
+        await message.reply_text(
+            f"<blockquote>{_BRAND}</blockquote>\n\n"
+            f"<blockquote>{_EM['fire']} <b>˹ ꜱᴏɴɢ ꜱᴜɢɢᴇꜱᴛɪᴏɴꜱ ˼</b>\n\n"
+            f"{lines}</blockquote>"
+        )
+        return
 
     # Auto-delete after 120 seconds
     async def _auto_del():
