@@ -4805,3 +4805,223 @@ KHUSHI.utils.exceptions.AssistantErr: <b>ᴀssɪsᴛᴀɴᴛ ᴄᴀɴɴᴏᴛ �
 [31-Mar-26 11:24:18 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 [31-Mar-26 11:24:18 - INFO] - KHUSHI -   KHUSHI is LIVE!
 [31-Mar-26 11:24:18 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[31-Mar-26 11:25:36 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] edit_caption hb13 failed: Telegram says: [400 DOCUMENT_INVALID] - The specified document is invalid. (caused by "messages.EditMessage")
+[31-Mar-26 11:25:36 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] edit_text hb13 failed: Telegram says: [400 DOCUMENT_INVALID] - The specified document is invalid. (caused by "messages.EditMessage")
+[31-Mar-26 11:25:36 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] hb13 — falling back to delete+send
+[31-Mar-26 11:28:00 - INFO] - KHUSHI.core.mongo - KHUSHI: Connecting to MongoDB...
+[31-Mar-26 11:28:00 - INFO] - KHUSHI.core.mongo - KHUSHI: MongoDB connected. (DB: Annie)
+[31-Mar-26 11:28:03 - WARNING] - KHUSHI.utils.ytdl_smart - [SmartYTDL] Node.js NOT found — web_safari client may fail, android_vr will still work
+[31-Mar-26 11:28:03 - INFO] - KHUSHI.core.bot - KHUSHI Bot client initialized.
+[31-Mar-26 11:28:03 - INFO] - KHUSHI.misc - KHUSHI: In-memory DB initialized.
+[31-Mar-26 11:28:05 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[31-Mar-26 11:28:05 - INFO] - KHUSHI -   KHUSHI Bot  |  Independent Core  
+[31-Mar-26 11:28:05 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[31-Mar-26 11:28:11 - INFO] - KHUSHI.core.bot - KHUSHI Bot started as Semex (@WordSeekUBot)
+[31-Mar-26 11:28:11 - INFO] - KHUSHI.core.bot - KHUSHI: No PFP — using default.
+[31-Mar-26 11:28:11 - INFO] - KHUSHI.core.call - Starting PyTgCalls Clients...
+[31-Mar-26 11:28:12 - INFO] - KHUSHI.core.call - Client 1 started successfully.
+[31-Mar-26 11:28:12 - INFO] - KHUSHI.core.userbot - KHUSHI Assistant 1 started as ㅤ-𐌁 Λ ᥴ Ҝ ㅤ𐌁 ꫀ 𐌽 𐌂 ͱ꧊፝֟ ꫀ ᰻⃪᱂ ร
+[31-Mar-26 11:28:12 - INFO] - KHUSHI.misc - KHUSHI: Sudo users loaded.
+[31-Mar-26 11:28:12 - INFO] - KHUSHI.misc - KHUSHI: Maintenance mode reset on startup.
+[31-Mar-26 11:28:12 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.auth
+[31-Mar-26 11:28:12 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.autoend
+[31-Mar-26 11:28:12 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.autoplay
+[31-Mar-26 11:28:12 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.broadcast
+[31-Mar-26 11:28:12 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.channelplay
+[31-Mar-26 11:28:12 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.controls
+[31-Mar-26 11:28:12 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.language
+[31-Mar-26 11:28:12 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.nsfw
+[31-Mar-26 11:28:12 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.ping
+[31-Mar-26 11:28:12 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.play
+[31-Mar-26 11:28:12 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.playmode
+[31-Mar-26 11:28:12 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.queue
+[31-Mar-26 11:28:12 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.reco
+[31-Mar-26 11:28:12 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.security
+[31-Mar-26 11:28:12 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.settings
+[31-Mar-26 11:28:12 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.song
+[31-Mar-26 11:28:12 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.start
+[31-Mar-26 11:28:12 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.stats
+[31-Mar-26 11:28:12 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.sudo
+[31-Mar-26 11:28:12 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.vctools
+[31-Mar-26 11:28:12 - INFO] - KHUSHI - KHUSHI: 20/20 plugins loaded.
+[31-Mar-26 11:28:13 - INFO] - KHUSHI - ✅ Bot commands registered.
+[31-Mar-26 11:28:13 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[31-Mar-26 11:28:13 - INFO] - KHUSHI -   KHUSHI is LIVE!
+[31-Mar-26 11:28:13 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[31-Mar-26 11:31:40 - INFO] - KHUSHI.core.mongo - KHUSHI: Connecting to MongoDB...
+[31-Mar-26 11:31:40 - INFO] - KHUSHI.core.mongo - KHUSHI: MongoDB connected. (DB: Annie)
+[31-Mar-26 11:31:43 - WARNING] - KHUSHI.utils.ytdl_smart - [SmartYTDL] Node.js NOT found — web_safari client may fail, android_vr will still work
+[31-Mar-26 11:31:43 - INFO] - KHUSHI.core.bot - KHUSHI Bot client initialized.
+[31-Mar-26 11:31:43 - INFO] - KHUSHI.misc - KHUSHI: In-memory DB initialized.
+[31-Mar-26 11:31:45 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[31-Mar-26 11:31:45 - INFO] - KHUSHI -   KHUSHI Bot  |  Independent Core  
+[31-Mar-26 11:31:45 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[31-Mar-26 11:31:51 - INFO] - KHUSHI.core.bot - KHUSHI Bot started as Semex (@WordSeekUBot)
+[31-Mar-26 11:31:51 - INFO] - KHUSHI.core.bot - KHUSHI: No PFP — using default.
+[31-Mar-26 11:31:51 - INFO] - KHUSHI.core.call - Starting PyTgCalls Clients...
+[31-Mar-26 11:31:53 - INFO] - KHUSHI.core.call - Client 1 started successfully.
+[31-Mar-26 11:31:53 - INFO] - KHUSHI.core.userbot - KHUSHI Assistant 1 started as ㅤ-𐌁 Λ ᥴ Ҝ ㅤ𐌁 ꫀ 𐌽 𐌂 ͱ꧊፝֟ ꫀ ᰻⃪᱂ ร
+[31-Mar-26 11:31:53 - INFO] - KHUSHI.misc - KHUSHI: Sudo users loaded.
+[31-Mar-26 11:31:53 - INFO] - KHUSHI.misc - KHUSHI: Maintenance mode reset on startup.
+[31-Mar-26 11:31:53 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.auth
+[31-Mar-26 11:31:53 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.autoend
+[31-Mar-26 11:31:53 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.autoplay
+[31-Mar-26 11:31:53 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.broadcast
+[31-Mar-26 11:31:53 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.channelplay
+[31-Mar-26 11:31:53 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.controls
+[31-Mar-26 11:31:53 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.language
+[31-Mar-26 11:31:53 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.nsfw
+[31-Mar-26 11:31:53 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.ping
+[31-Mar-26 11:31:53 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.play
+[31-Mar-26 11:31:53 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.playmode
+[31-Mar-26 11:31:53 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.queue
+[31-Mar-26 11:31:53 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.reco
+[31-Mar-26 11:31:53 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.security
+[31-Mar-26 11:31:53 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.settings
+[31-Mar-26 11:31:53 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.song
+[31-Mar-26 11:31:53 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.start
+[31-Mar-26 11:31:53 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.stats
+[31-Mar-26 11:31:53 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.sudo
+[31-Mar-26 11:31:53 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.vctools
+[31-Mar-26 11:31:53 - INFO] - KHUSHI - KHUSHI: 20/20 plugins loaded.
+[31-Mar-26 11:31:54 - INFO] - KHUSHI - ✅ Bot commands registered.
+[31-Mar-26 11:31:55 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[31-Mar-26 11:31:55 - INFO] - KHUSHI -   KHUSHI is LIVE!
+[31-Mar-26 11:31:55 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[31-Mar-26 12:22:43 - INFO] - KHUSHI.core.mongo - KHUSHI: Connecting to MongoDB...
+[31-Mar-26 12:22:43 - INFO] - KHUSHI.core.mongo - KHUSHI: MongoDB connected. (DB: Annie)
+[31-Mar-26 12:22:46 - WARNING] - KHUSHI.utils.ytdl_smart - [SmartYTDL] Node.js NOT found — web_safari client may fail, android_vr will still work
+[31-Mar-26 12:22:47 - INFO] - KHUSHI.core.bot - KHUSHI Bot client initialized.
+[31-Mar-26 12:22:47 - INFO] - KHUSHI.misc - KHUSHI: In-memory DB initialized.
+[31-Mar-26 12:22:48 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[31-Mar-26 12:22:48 - INFO] - KHUSHI -   KHUSHI Bot  |  Independent Core  
+[31-Mar-26 12:22:48 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[31-Mar-26 12:22:54 - INFO] - KHUSHI.core.bot - KHUSHI Bot started as Semex (@WordSeekUBot)
+[31-Mar-26 12:22:54 - INFO] - KHUSHI.core.bot - KHUSHI: No PFP — using default.
+[31-Mar-26 12:22:54 - INFO] - KHUSHI.core.call - Starting PyTgCalls Clients...
+[31-Mar-26 12:22:55 - INFO] - KHUSHI.core.call - Client 1 started successfully.
+[31-Mar-26 12:22:55 - INFO] - KHUSHI.core.userbot - KHUSHI Assistant 1 started as ㅤ-𐌁 Λ ᥴ Ҝ ㅤ𐌁 ꫀ 𐌽 𐌂 ͱ꧊፝֟ ꫀ ᰻⃪᱂ ร
+[31-Mar-26 12:22:55 - INFO] - KHUSHI.misc - KHUSHI: Sudo users loaded.
+[31-Mar-26 12:22:55 - INFO] - KHUSHI.misc - KHUSHI: Maintenance mode reset on startup.
+[31-Mar-26 12:22:55 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.auth
+[31-Mar-26 12:22:55 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.autoend
+[31-Mar-26 12:22:55 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.autoplay
+[31-Mar-26 12:22:55 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.broadcast
+[31-Mar-26 12:22:55 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.channelplay
+[31-Mar-26 12:22:55 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.controls
+[31-Mar-26 12:22:55 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.language
+[31-Mar-26 12:22:55 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.nsfw
+[31-Mar-26 12:22:55 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.ping
+[31-Mar-26 12:22:55 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.play
+[31-Mar-26 12:22:55 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.playmode
+[31-Mar-26 12:22:55 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.queue
+[31-Mar-26 12:22:55 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.reco
+[31-Mar-26 12:22:55 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.security
+[31-Mar-26 12:22:55 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.settings
+[31-Mar-26 12:22:55 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.song
+[31-Mar-26 12:22:55 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.start
+[31-Mar-26 12:22:55 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.stats
+[31-Mar-26 12:22:55 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.sudo
+[31-Mar-26 12:22:55 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.vctools
+[31-Mar-26 12:22:55 - INFO] - KHUSHI - KHUSHI: 20/20 plugins loaded.
+[31-Mar-26 12:22:56 - INFO] - KHUSHI - ✅ Bot commands registered.
+[31-Mar-26 12:22:57 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[31-Mar-26 12:22:57 - INFO] - KHUSHI -   KHUSHI is LIVE!
+[31-Mar-26 12:22:57 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[31-Mar-26 12:24:57 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] Racing 8 clients for nfs8NYg7yQM | order: ['android_vr', 'ios', 'android', 'mweb']
+[31-Mar-26 12:25:04 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] direct_download ok: /home/runner/workspace/downloads/nfs8NYg7yQM_1774959897.m4a
+[31-Mar-26 12:25:04 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] direct_download (no-cookie) succeeded for nfs8NYg7yQM
+[31-Mar-26 12:25:04 - INFO] - KHUSHI.utils.downloader - [BG-CACHE] Cached for next play: /home/runner/workspace/downloads/nfs8NYg7yQM_1774959897.m4a
+[31-Mar-26 12:25:07 - WARNING] - KHUSHI.utils.ytdl_smart - [SmartYTDL] All yt-dlp clients failed for nfs8NYg7yQM → Invidious
+[31-Mar-26 12:25:20 - ERROR] - KHUSHI.utils.ytdl_smart - [SmartYTDL] ALL extract methods failed for nfs8NYg7yQM
+[31-Mar-26 12:25:20 - WARNING] - KHUSHI.utils.downloader - [FAST] All URL methods failed for nfs8NYg7yQM, falling back to full download
+[31-Mar-26 12:25:20 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] Racing 8 clients for nfs8NYg7yQM | order: ['android_vr', 'ios', 'android', 'mweb']
+[31-Mar-26 12:25:24 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] direct_download ok: /home/runner/workspace/downloads/nfs8NYg7yQM_1774959920.m4a
+[31-Mar-26 12:25:24 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] direct_download (no-cookie) succeeded for nfs8NYg7yQM
+[31-Mar-26 12:25:24 - INFO] - KHUSHI.utils.downloader - [SMART] Direct download ok: /home/runner/workspace/downloads/nfs8NYg7yQM_1774959920.m4a
+[31-Mar-26 12:25:24 - INFO] - KHUSHI.utils.downloader - [FAST] Fallback download done: /home/runner/workspace/downloads/nfs8NYg7yQM_1774959920.m4a
+[31-Mar-26 12:25:24 - INFO] - KHUSHI.core.call - [PLAY] chat=-1003862964494 | file=/home/runner/workspace/downloads/nfs8NYg7yQM_1774959920.m4a | size=3750075B | video=False
+[31-Mar-26 12:25:25 - INFO] - KHUSHI.core.call - [PLAY] Peer pre-warmed for chat=-1003862964494
+[31-Mar-26 12:25:27 - WARNING] - KHUSHI.utils.ytdl_smart - [SmartYTDL] All yt-dlp clients failed for nfs8NYg7yQM → Invidious
+[31-Mar-26 12:25:38 - ERROR] - KHUSHI.utils.ytdl_smart - [SmartYTDL] ALL extract methods failed for nfs8NYg7yQM
+[31-Mar-26 12:26:07 - WARNING] - KHUSHI.core.call - [PLAY] TelegramServerError attempt 1/3 | chat=-1003862964494 | link=/home/runner/workspace/downloads/nfs8NYg7yQM_1774959920.m4a | err=
+[31-Mar-26 12:26:07 - INFO] - KHUSHI.core.call - [PLAY] Waiting 1s before retry 2/3
+[31-Mar-26 12:26:50 - WARNING] - KHUSHI.core.call - [PLAY] TelegramServerError attempt 2/3 | chat=-1003862964494 | link=/home/runner/workspace/downloads/nfs8NYg7yQM_1774959920.m4a | err=
+[31-Mar-26 12:26:50 - INFO] - KHUSHI.core.call - [PLAY] Waiting 2s before retry 3/3
+[31-Mar-26 12:27:23 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] edit_caption hb13 failed: Telegram says: [400 DOCUMENT_INVALID] - The specified document is invalid. (caused by "messages.EditMessage")
+[31-Mar-26 12:27:23 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] edit_text hb13 failed: Telegram says: [400 DOCUMENT_INVALID] - The specified document is invalid. (caused by "messages.EditMessage")
+[31-Mar-26 12:27:23 - WARNING] - KHUSHI.plugins.start - [HELP_SEC] hb13 — falling back to delete+send
+[31-Mar-26 12:27:34 - WARNING] - KHUSHI.core.call - [PLAY] TelegramServerError attempt 3/3 | chat=-1003862964494 | link=/home/runner/workspace/downloads/nfs8NYg7yQM_1774959920.m4a | err=
+[31-Mar-26 12:27:34 - WARNING] - KHUSHI.core.call - [PLAY] All retries failed. Attempting VC reset for chat=-1003862964494
+[31-Mar-26 12:27:34 - ERROR] - KHUSHI.core.call - [PLAY] VC reset failed for chat=-1003862964494: The userbot is not in a call
+[31-Mar-26 12:27:34 - ERROR] - KHUSHI.errors - [join_call] AssistantErr: <b>Tᴇʟᴇɢʀᴀᴍ sᴇʀᴠᴇʀ ᴇʀʀᴏʀ</b>
+
+ᴛᴇʟᴇɢʀᴀᴍ ɪs ʜᴀᴠɪɴɢ sᴏᴍᴇ ɪɴᴛᴇʀɴᴀʟ ᴘʀᴏʙʟᴇᴍs, ᴘʟᴇᴀsᴇ ᴛʀʏ ᴘʟᴀʏɪɴɢ ᴀɢᴀɪɴ ᴏʀ ʀᴇsᴛᴀʀᴛ ᴛʜᴇ ᴠɪᴅᴇᴏᴄʜᴀᴛ ᴏғ ʏᴏᴜʀ ɢʀᴏᴜᴘ.
+Traceback (most recent call last):
+  File "/home/runner/workspace/KHUSHI/core/call.py", line 418, in join_call
+    await assistant.play(chat_id, stream)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/statictypes.py", line 96, in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/mtproto_required.py", line 23, in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/mutex.py", line 12, in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/methods/stream/play.py", line 81, in play
+    await self._connect_call(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/methods/internal/connect_call.py", line 128, in _connect_call
+    await self._wait_connect[chat_id]
+ntgcalls.TelegramServerError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/workspace/KHUSHI/utils/errors.py", line 138, in wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/KHUSHI/core/call.py", line 525, in join_call
+    raise AssistantErr(_["call_10"])
+KHUSHI.utils.exceptions.AssistantErr: <b>Tᴇʟᴇɢʀᴀᴍ sᴇʀᴠᴇʀ ᴇʀʀᴏʀ</b>
+
+ᴛᴇʟᴇɢʀᴀᴍ ɪs ʜᴀᴠɪɴɢ sᴏᴍᴇ ɪɴᴛᴇʀɴᴀʟ ᴘʀᴏʙʟᴇᴍs, ᴘʟᴇᴀsᴇ ᴛʀʏ ᴘʟᴀʏɪɴɢ ᴀɢᴀɪɴ ᴏʀ ʀᴇsᴛᴀʀᴛ ᴛʜᴇ ᴠɪᴅᴇᴏᴄʜᴀᴛ ᴏғ ʏᴏᴜʀ ɢʀᴏᴜᴘ.
+
+[31-Mar-26 12:27:34 - ERROR] - pyrogram.dispatcher - Unexpected exception raised in MessageHandler:
+Traceback (most recent call last):
+  File "/home/runner/workspace/KHUSHI/core/call.py", line 418, in join_call
+    await assistant.play(chat_id, stream)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/statictypes.py", line 96, in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/mtproto_required.py", line 23, in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/mutex.py", line 12, in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/methods/stream/play.py", line 81, in play
+    await self._connect_call(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/methods/internal/connect_call.py", line 128, in _connect_call
+    await self._wait_connect[chat_id]
+ntgcalls.TelegramServerError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/dispatcher.py", line 383, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/home/runner/workspace/KHUSHI/plugins/play.py", line 367, in play_cmd
+    await _handle_play(message, video=False)
+  File "/home/runner/workspace/KHUSHI/plugins/play.py", line 340, in _handle_play
+    await JARVIS.join_call(
+  File "/home/runner/workspace/KHUSHI/utils/errors.py", line 145, in wrapper
+    raise err
+  File "/home/runner/workspace/KHUSHI/utils/errors.py", line 138, in wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/KHUSHI/core/call.py", line 525, in join_call
+    raise AssistantErr(_["call_10"])
+KHUSHI.utils.exceptions.AssistantErr: <b>Tᴇʟᴇɢʀᴀᴍ sᴇʀᴠᴇʀ ᴇʀʀᴏʀ</b>
+
+ᴛᴇʟᴇɢʀᴀᴍ ɪs ʜᴀᴠɪɴɢ sᴏᴍᴇ ɪɴᴛᴇʀɴᴀʟ ᴘʀᴏʙʟᴇᴍs, ᴘʟᴇᴀsᴇ ᴛʀʏ ᴘʟᴀʏɪɴɢ ᴀɢᴀɪɴ ᴏʀ ʀᴇsᴛᴀʀᴛ ᴛʜᴇ ᴠɪᴅᴇᴏᴄʜᴀᴛ ᴏғ ʏᴏᴜʀ ɢʀᴏᴜᴘ.

@@ -1,0 +1,321 @@
+Security wala nahi hai sayad KHUSHI mai aur nsfw bhi add kar do ye dono bhi
+
+Aur bhi cmds add karne hai
+
+Latest Features
+
+Auto Song Suggestions
+
+/reco — Get instant song suggestions (admins).
+/rconfig — Configure auto-reco country, language and mood.
+
+Suggestion menu gets auto-deleted after 120 seconds to keep chat clean
+
+Voice/Video Chat Tools
+
+/vcinfo — List to access current VC participants (speaking / muted).
+/vclogger on|off — Log users joining/leaving VC.
+/volume [1-200] — Change assistant volume (experimental).
+/mutevc — Mute the assistant in VC.
+/unmutevc — Unmute the assistant in VC.
+
+Jaise ki ye sab aur bohot chiz kharab ui likhe hai bit mai usko attractive aur best banao aur play wala bina query k agar chalate hai toh usmai image add karo aur buttons bhi support aur close ka aur jo reference chaiye top bots k le lena best rahega web pai search kar k aur ping jab karte hai use toh niche button mai sahi url nahi hai https://t.me/https://t.me/AnnieSupportGroup
+
+Help k ander jate hai toh ˹ɢ-ᴄᴧsᴛ˼ aise mai sab rahna chaiye aur jo jo cmd hai sab work karna chaiye aur bc or broadcast jab karenge toh button nichea rahega toh button bhi bc hona chaiye aur ye only owner use kar sakta hai cmd sudo user bhi nahi
+
+Bahut kaam hai, pehle KHUSHI ka full structure explore karta hoon taaki sab cheez sahi se add kar sakun:
+
+Let me now look at more of the existing KHUSHI code to understand what's there and what needs to be added:
+
+security plugin - not found → need to create
+
+nsfw plugin - not found → need to create (can reference ANNIEMUSIC's Kishu/nsfw_filter.py)
+
+Ping URL bug fix (line 99 in ping.py)
+
+New commands: reco, rconfig, vcinfo, vclogger, mutevc, unmutevc
+
+Play without query → show image + buttons
+
+Help → show cmds in ˹ᴄᴀᴛᴇɢᴏʀʏ˼ style
+
+Broadcast → button should be broadcastable, OWNER only (not sudoers)
+
+Now I'm diving into the file structure to see what's currently implemented and what gaps exist.
+
+Let me read more key files in parallel:
+
+Now I have a clearer picture. Let me understand the scope of work:
+
+Security plugin - missing from KHUSHI plugins → need to create
+
+NSFW filter - missing → need to create (reference ANNIEMUSIC's)
+
+Ping URL bug - Line 99 SUPPORT_CHAT.lstrip('@') same bug as ANNIEMUSIC
+
+New commands: /reco, /rconfig, /vcinfo, /vclogger, /mutevc, /unmutevc (volume already exists)
+
+Play without query → show image + buttons (support + close)
+
+Help → display commands grouped by category with that stylized formatting
+
+Broadcast → make buttons broadcastable but restrict to owner only, not sudoers
+
+This is substantial work. I need to map out a systematic approach and start by examining the key files to understand the existing patterns—the ping and play plugins, plus how the inline utilities structure the help display.
+
+Now I'm looking at the start.py file to see how the help panel is currently built, and checking config.py to confirm the OWNER_ID setup.
+
+Bahut kaam hai, sab ek session plan mein karta hoon. Pehle baaki key files padh leta hoon:
+
+Now I have enough context. Let me create a session plan:
+
+Tasks to complete:
+
+Fix ping URL bug (SUPPORT_CHAT.lstrip('@') → safe URL)
+
+Create security plugin for KHUSHI
+
+Create NSFW filter plugin for KHUSHI
+
+Add new commands: /reco, /rconfig, /vcinfo, /vclogger, /mutevc, /unmutevc
+
+Fix play without query → show image + support + close buttons
+
+Fix broadcast → OWNER only (not sudoers), buttons should be broadcastable
+
+Help → ensure all cmds show in ˹ᴄᴀᴛᴇɢᴏʀʏ˼ style
+
+Review play.py to understand the no-query behavior and determine what the security plugin needs to handle
+
+Sab kuch clear hai. Ab session plan bana ke implement karta hoon:
+
+Now I have a comprehensive understanding. Let me create a session plan and implement everything systematically.
+
+Session Plan:
+
+Fix ping.py URL bug - SUPPORT_CHAT already full URL, lstrip('@') breaks it
+
+Fix broadcast.py - OWNER only (not SUDOERS), add button support to broadcast
+
+Fix play.py no-query - show image with support+close buttons instead of plain text
+
+Create security.py - antiflood, antilink, antispam protection plugin
+
+Create nsfw.py - NSFW filter plugin (reference ANNIEMUSIC's nsfw_filter.py)
+
+Create reco.py - /reco, /rconfig commands
+
+Create vctools.py - /vcinfo, /vclogger, /mutevc, /unmutevc
+
+Update help - add new sections for security, nsfw, vc tools, reco
+
+Update strings - add help button labels and command strings for new plugins
+
+I'll tackle the simpler fixes first, then move through the new plugins systematically. For the security plugin, I'm thinking about rate limiting for anti-flood protection, link detection for antilink, and message filtering for antispam.
+
+Looking at what ANNIEMUSIC actually has for NSFW filtering, it's just stub functions that always return false—so there's no real implementation there. I need to decide whether to build something functional or keep it minimal like the reference implementation.
+
+For the security plugin, I'm thinking of a more complete feature set: antilink to block non-admin links, antiflood with configurable thresholds, and maybe captcha verification for new members. For NSFW detection, I'll use a keyword-based filter for text since a real ML model would be overkill, and for images I'll just add a flag-based system that admins can toggle. Now I'm mapping out the full implementation plan: fixing the existing plugins first, then building the security and NSFW modules, followed by the recommendation and voice tools features.
+
+Let me read a few more files to understand the database and KHUSHI's full play.py:
+
+Now I have a clear picture of everything. Let me create the session plan and start implementing.
+
+Bug Fixes:
+
+ping.py line 99: url=f"https://t.me/{SUPPORT_CHAT.lstrip('@')}" → SUPPORT_CHAT is already https://t.me/... so need to use SUPPORT_CHAT.rstrip('/').split('/')[-1] like start.py does
+
+play.py line 66: same issue with SUPPORT_CHAT.lstrip('@') in maintenance message3. broadcast.py: change SUDOERS filter to filters.user(OWNER_ID) filter
+
+Now I need to add five new plugins: security with antilink and antiflood features, nsfw for keyword filtering, reco for recommendation commands, vctools for voice chat utilities, and enhance the play command with image and button support. I'll also update the help documentation to cover all these new sections.
+
+Let me start fixing the SUPPORT_CHAT URL extraction...
+
+Fixing the broadcast command to use proper filter syntax and add inline button support when messages are broadcast... Looking at the broadcast plugin code, when it finishes it just sends a plain text message—the user probably wants an action button on those completion messages, like a "Close" button. Or maybe they want the ability to add inline buttons to the broadcast itself, either through a flag or as a default button linking to a channel or support group.
+
+I'll go with adding a "Close" button to the broadcast status messages and implementing a -btn flag that lets users attach a support link button to the broadcast content. For the owner-only restriction, I just need to swap the SUDOERS filter to OWNER_ID.
+
+Now implementing the changes across the ping plugin, broadcast plugin, and play plugin...
+
+I also need to create new security and NSFW filter plugins, plus the recommendation and voice chat tools. The help system will need updates in the language strings and the inline help module.
+
+For the security and NSFW features, I'm planning to use MongoDB since it's already set up...
+
+Ab main sab kuch implement karta hoon. Pehle all bugs fix, phir naye plugins:
+
+Now I have all the context I need. Let me implement everything systematically:
+
+Plan:
+
+Fix ping.py URL bug
+Fix play.py - no-query → show image + buttons, fix URL bug
+Fix broadcast.py - OWNER only, add close button + -btn flag
+Create security.py plugin
+Create nsfw.py plugin
+Create reco.py plugin
+Create vctools.py plugin
+Update database.py with new collection functions
+Update help strings and buttons
+Let me start implementing. I'll do multiple files at once.
+
+For the help system - the user said "help k ander jate hai toh ˹ɢ-ᴄᴧsᴛ˼ aise mai sab rahna chaiye" - they want the help categories shown in the ˹category˼ format.
+
+I need to update the help button labels in en.yml to use the ˹ᴄᴀᴛᴇɢᴏʀʏ˼ format instead of plain text, and make sure all commands referenced in help are actually working. Let me start by fixing the bugs in ping.py and play.py, then update the help strings.
+
+Fixing button labels... I need to create several new plugin modules for security features, NSFW filtering, music recommendations, and voice chat tools, each with their own command handlers and message processing logic.
+
+Now I'm setting up the database layer by defining the MongoDB collection methods I'll need for storing configuration like antilink status, flood protection thresholds, and NSFW settings across different chat groups.
+
+I'm reconsidering the scope here—this is quite a bit of work spanning multiple plugins, bug fixes, and help documentation updates. Let me focus on implementing everything systematically and efficiently, starting with a helper function to safely handle URLs for the support chat fix.
+
+Now I'm looking at the play command implementation for when there's no query but an image is provided, setting up the photo response with appropriate buttons and captions.
+
+Updating the help sections...
+
+I see there are already more help button entries defined than the current TOTAL_SECTIONS value indicates, so I need to check what's actually being used and update the formatting to match the special bracket style throughout.
+
+Now I have all the information I need. Let me implement everything in a systematic way.
+
+The help system uses callbacks like help_callback hb1_p1 which triggers the start.py handler to show help content for section hb1.Let me check how the help_callback works in start.py:
+
+Let me check how help callbacks work and what strings exist:
+
+Let me check how help_callback handler works and the string format:
+
+Now I understand the help system. The help content comes from helpers.HELP_1, helpers.HELP_2, etc. in strings/helpers.py. Let me check that file.
+
+Help content helpers.HELP_* se aata hai. Let me check that file and then implement everything:
+
+Now I have a complete picture. Let me implement everything now. I'll do all the work in parallel where possible.
+
+Summary of tasks:
+
+Fix KHUSHI/plugins/ping.py - URL bug (line 99)
+Fix KHUSHI/plugins/play.py - URL bug (line 66) + no-query → image+buttons
+Fix KHUSHI/plugins/broadcast.py - Owner only, close button4. Create KHUSHI/plugins/security.py - antilink, antiflood
+Create KHUSHI/plugins/nsfw.py - NSFW filter6.
+Create KHUSHI/plugins/reco.py - /reco, /rconfig
+Create KHUSHI/plugins/vctools.py - /vcinfo, /vclogger, /mutevc, /unmutevc
+Update strings/helpers.py - add HELP_12-15 for new sections
+Update KHUSHI/utils/inline/help.py - add new buttons, update format
+Update strings/langs/en.yml - update H_B strings to ˹format˼, add H_B_12-15
+Let me start implementing everything now. I'll batch the work efficiently.
+
+Now I'm looking at some fixes needed across existing files. For the URL handling in ping.py and play.py, I need to check if SUPPORT_CHAT is already a full URL before wrapping it with the Telegram domain. In broadcast.py, I should restrict access to just the owner and add a close button to success messages. For the play.py no-query section, I'll replace the text response with a photo message that includes support and close buttons. Let me start reading through the files to implement these changes.
+
+Ab sab kuch implement karta hoon. First read all files that need editing:
+
+Optimized Agent memory
+Now I have everything I need. Let me now implement all the changes. I'll work on multiple files in parallel:
+
+Fix ping.py - URL bug
+
+Fix broadcast.py - Owner only + close button
+
+Fix play.py - URL bug + no-query image
+
+Create security.py
+
+Create nsfw.py
+
+Create reco.py
+
+Create vctools.py
+
+Update strings/helpers.py - add HELP_12-15
+
+Update KHUSHI/utils/inline/help.py - add new buttons
+
+Update strings/langs/en.yml - update H_B labels
+
+Implementing all the changes now...
+
+Sab samajh aa gaya. Ab ek saath sab kuch implement karta hoon:
+
+Now let me fix the duplicate import issue in broadcast.py and update the filter:
+
+Good, broadcast.py is clean now. Let me update the handler filter and the done messages to have close buttons:
+
+Now fix the OWNER_ID filter and add close buttons to broadcast done messages:
+
+Good. Now let me fix play.py - two changes:
+
+Fix SUPPORT_CHAT URL on line 66
+No-query → show image with support+close buttons
+Let me read the play.py fully to understand exactly what needs to change:
+
+Now fix play.py - read the relevant sections first:
+
+Now I'll fix the two issues in play.py:
+
+SUPPORT_CHAT URL bug (line 66)
+No-query → image with support+close buttonsI also need to import START_IMGS and PING_IMG_URL if they aren't imported yet. Let me check what's already imported:
+Now fix play.py - both the URL bug and the no-query image with buttons:
+
+Good. Now fix the no-query section to send an image. Let me also check what's imported in play.py to know if START_IMGS and PING_IMG_URL are already there:
+
+Now fix the no-query play section to show image + buttons:
+
+START_IMGS and PING_IMG_URL are not imported in play.py. I need to add them to the import. Let me also update the no-query section to send a photo.
+
+Let me update the import and the no-query section:
+
+START_IMGS import aur no-query section dono fix karo:
+
+Now let me fix the no-query section in play.py to send an image with buttons instead of plain text:
+
+Good. Now let me create the new plugins:
+
+security.py2. nsfw.py3. reco.py4. vctools.pyAnd also update strings/helpers.py and KHUSHI/utils/inline/help.py and strings/langs/en.yml.Let me write all these files now. I'll implement them in parallel.For security.py, I'll implement:- /antilink on|off - detect and delete links from non-admins- /antiflood [count] on|off - flood protection
+For nsfw.py:
+
+/nsfw on|off - toggle NSFW content filter- Message handler to detect NSFW keywords
+For reco.py, I need to add song recommendation commands that pull random suggestions or search-based results, plus a config command for customizing recommendation behavior. For vctools.py, I'm building voice chat utilities including participant info, event logging, and mute controls for the assistant. I'll use MongoDB directly in each plugin for storing settings, and I need to check how the existing codebase handles member permission checks.
+
+Now create all the new plugin files. Let me do them in parallel:
+
+Now create reco.py and vctools.py:
+
+Good. Now let me update the help files. I need to:
+
+Update strings/helpers.py - add HELP_12-15 for security, nsfw, reco, vctools2. Update KHUSHI/utils/inline/help.py - add new buttons, update TOTAL_SECTIONS to 15
+Update strings/langs/en.yml - update H_B strings to ˹format˼, add H_B_12-15Let me do all three in parallel.
+Actually for the ˹format˼ - I need to update the H_B_1 through H_B_11 to use this format, and add H_B_12-15.
+
+Let me check what the current H_B values are in en.yml so I know what I'm working with.
+
+Now I need to update these to use the new format and add the missing entries H_B_12 through H_B_15, then update help.py to include a fifth row with those new button definitions.
+
+Now update all three help files simultaneously:
+
+Good. Now I'll update the en.yml H_B strings to use ˹format˼ and add new sections. Let me read the relevant section first:
+
+Update H_B labels to ˹format˼ and add new sections:
+
+Good, now let me update help.py to add new sections and TOTAL_SECTIONS, and also update strings/helpers.py to add HELP_12-15.
+
+Now update help.py with new sections and helpers.py with new help content:
+
+Good. Now update strings/helpers.py to add HELP_12-15 for the new sections. Let me read the file first (I already have it) and append the new sections.
+
+Now add HELP_12-15 to helpers.py:
+
+Good. Now let me restart the workflow to test the changes. But first, let me also check the vctools.py for any issues - specifically whether mute_stream and unmute_stream methods exist in pytgcalls. Let me also check if there is a get_participants method.
+
+Actually, looking at the pytgcalls API, the methods might be different. Let me check what's actually used in KHUSHI:
+
+Let me check what pytgcalls methods are available in KHUSHI before restarting:
+
+Good. JARVIS already has mute_stream and unmute_stream methods in KHUSHI/core/call.py, so I can use those directly from JARVIS rather than through pytgcalls. Let me update vctools.py to use JARVIS.mute_stream and JARVIS.unmute_stream directly:
+
+JARVIS has mute_stream and unmute_stream directly. Update vctools.py to use them correctly:
+
+JARVIS has mute_stream and unmute_stream which work directly. Let me update the vctools.py to use JARVIS.mute_stream and JARVIS.unmute_stream directly instead of through pytgcalls. Also for get_participants I need to check if JARVIS has that method or I should use the assistant directly.Looking at the code, JARVIS.mute_stream and JARVIS.unmute_stream work directly. For get_participants, I see it's called on the assistant (from await assistant.get_participants(chat_id) in call.py). So I should do the same.Let me fix the vctools.py to use JARVIS methods directly:
+
+Vctools.py update - use JARVIS methods directly:
+
+Now update the mute/unmute sections in vctools.py to use JARVIS's built-in methods:
+
+You've reached your daily free quota limit. It will reset at 12:00 AM UTC.
+
+You're out of credit
