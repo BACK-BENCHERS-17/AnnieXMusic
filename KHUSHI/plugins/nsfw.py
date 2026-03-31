@@ -25,6 +25,8 @@ _EM = {
     "nsfw":  "<emoji id='5467666044815377227'>⚠️</emoji>",
     "dot":   "<emoji id='5972072533833289156'>🔹</emoji>",
     "zap":   "<emoji id='5042334757040423886'>⚡️</emoji>",
+    "on":    "<emoji id='6041597085009056322'>✅</emoji>",
+    "off":   "<emoji id='5040042498634810056'>❌</emoji>",
 }
 
 _NSFW_WORDS = {
@@ -79,11 +81,12 @@ async def nsfw_cmd(client, message: Message, lang, chat_id):
     on = await _is_nsfw_on(chat_id)
 
     if not args or args[0].lower() not in ("on", "off"):
-        state = "✅ ᴏɴ" if on else "❌ ᴏꜰꜰ"
+        state = f"{_EM['on']} ᴏɴ" if on else f"{_EM['off']} ᴏꜰꜰ"
         return await message.reply_text(
             _reply(
                 f"{_EM['nsfw']} <b>ɴꜱꜰᴡ ꜰɪʟᴛᴇʀ</b>\n\n"
                 f"{_EM['dot']} ꜱᴛᴀᴛᴜꜱ: <b>{state}</b>\n"
+                f"{_EM['dot']} ᴅɪꜰᴀᴜʟᴛ: {_EM['off']} <b>ᴏꜰꜰ</b>\n"
                 f"{_EM['dot']} ᴜꜱᴇ: <code>/nsfw on|off</code>"
             ),
             reply_markup=_close(),
@@ -91,10 +94,10 @@ async def nsfw_cmd(client, message: Message, lang, chat_id):
 
     enable = args[0].lower() == "on"
     await _set_nsfw(chat_id, enable)
-    state = "✅ ᴇɴᴀʙʟᴇᴅ" if enable else "❌ ᴅɪꜱᴀʙʟᴇᴅ"
+    state = f"{_EM['on']} ᴇɴᴀʙʟᴇᴅ" if enable else f"{_EM['off']} ᴅɪꜱᴀʙʟᴇᴅ"
     await message.reply_text(
         _reply(
-            f"{_EM['nsfw']} <b>ɴꜱꜰᴡ ꜰɪʟᴛᴇʀ {state}</b>\n"
+            f"{_EM['nsfw']} <b>ɴꜱꜰᴡ ꜰɪʟᴛᴇʀ — {state}</b>\n"
             f"{_EM['dot']} ɴꜱꜰᴡ ᴄᴏɴᴛᴇɴᴛ ᴡɪʟʟ ʙᴇ "
             f"{'ᴅᴇʟᴇᴛᴇᴅ' if enable else 'ᴀʟʟᴏᴡᴇᴅ'}.\n"
             f"{_EM['dot']} ʙʏ: {message.from_user.mention}"

@@ -29,6 +29,8 @@ _EM = {
     "zap":    "<emoji id='5042334757040423886'>⚡️</emoji>",
     "dot":    "<emoji id='5972072533833289156'>🔹</emoji>",
     "warn":   "<emoji id='5467666044815377227'>⚠️</emoji>",
+    "on":     "<emoji id='6041597085009056322'>✅</emoji>",
+    "off":    "<emoji id='5040042498634810056'>❌</emoji>",
 }
 
 _flood_cache: dict[int, list[float]] = defaultdict(list)
@@ -88,11 +90,12 @@ async def antilink_cmd(client, message: Message, lang, chat_id):
     settings = await _get_settings(chat_id)
 
     if not args or args[0].lower() not in ("on", "off"):
-        state = "✅ ᴏɴ" if settings.get("antilink") else "❌ ᴏꜰꜰ"
+        state = f"{_EM['on']} ᴏɴ" if settings.get("antilink") else f"{_EM['off']} ᴏꜰꜰ"
         return await message.reply_text(
             _reply(
                 f"{_EM['shield']} <b>ᴀɴᴛɪ-ʟɪɴᴋ</b>\n\n"
                 f"{_EM['dot']} ꜱᴛᴀᴛᴜꜱ: <b>{state}</b>\n"
+                f"{_EM['dot']} ᴅɪꜰᴀᴜʟᴛ: {_EM['off']} <b>ᴏꜰꜰ</b>\n"
                 f"{_EM['dot']} ᴜꜱᴇ: <code>/antilink on|off</code>"
             ),
             reply_markup=_close(),
@@ -101,10 +104,10 @@ async def antilink_cmd(client, message: Message, lang, chat_id):
     enable = args[0].lower() == "on"
     settings["antilink"] = enable
     await _save_settings(chat_id, settings)
-    state = "✅ ᴇɴᴀʙʟᴇᴅ" if enable else "❌ ᴅɪꜱᴀʙʟᴇᴅ"
+    state = f"{_EM['on']} ᴇɴᴀʙʟᴇᴅ" if enable else f"{_EM['off']} ᴅɪꜱᴀʙʟᴇᴅ"
     await message.reply_text(
         _reply(
-            f"{_EM['shield']} <b>ᴀɴᴛɪ-ʟɪɴᴋ {state}</b>\n"
+            f"{_EM['shield']} <b>ᴀɴᴛɪ-ʟɪɴᴋ — {state}</b>\n"
             f"{_EM['dot']} ʟɪɴᴋꜱ ꜰʀᴏᴍ ɴᴏɴ-ᴀᴅᴍɪɴꜱ ᴡɪʟʟ ʙᴇ "
             f"{'ᴅᴇʟᴇᴛᴇᴅ' if enable else 'ᴀʟʟᴏᴡᴇᴅ'}.\n"
             f"{_EM['dot']} ʙʏ: {message.from_user.mention}"
@@ -122,12 +125,13 @@ async def antiflood_cmd(client, message: Message, lang, chat_id):
     settings = await _get_settings(chat_id)
 
     if not args or args[0].lower() not in ("on", "off"):
-        state = "✅ ᴏɴ" if settings.get("antiflood") else "❌ ᴏꜰꜰ"
+        state = f"{_EM['on']} ᴏɴ" if settings.get("antiflood") else f"{_EM['off']} ᴏꜰꜰ"
         limit = settings.get("flood_limit", 5)
         return await message.reply_text(
             _reply(
                 f"{_EM['zap']} <b>ᴀɴᴛɪ-ꜰʟᴏᴏᴅ</b>\n\n"
                 f"{_EM['dot']} ꜱᴛᴀᴛᴜꜱ: <b>{state}</b>\n"
+                f"{_EM['dot']} ᴅɪꜰᴀᴜʟᴛ: {_EM['off']} <b>ᴏꜰꜰ</b>\n"
                 f"{_EM['dot']} ʟɪᴍɪᴛ: <code>{limit}</code> ᴍsɢs / 5s\n"
                 f"{_EM['dot']} ᴜꜱᴇ: <code>/antiflood on|off [count]</code>"
             ),
@@ -145,10 +149,10 @@ async def antiflood_cmd(client, message: Message, lang, chat_id):
     settings["antiflood"] = enable
     settings["flood_limit"] = limit
     await _save_settings(chat_id, settings)
-    state = "✅ ᴇɴᴀʙʟᴇᴅ" if enable else "❌ ᴅɪꜱᴀʙʟᴇᴅ"
+    state = f"{_EM['on']} ᴇɴᴀʙʟᴇᴅ" if enable else f"{_EM['off']} ᴅɪꜱᴀʙʟᴇᴅ"
     await message.reply_text(
         _reply(
-            f"{_EM['zap']} <b>ᴀɴᴛɪ-ꜰʟᴏᴏᴅ {state}</b>\n"
+            f"{_EM['zap']} <b>ᴀɴᴛɪ-ꜰʟᴏᴏᴅ — {state}</b>\n"
             f"{_EM['dot']} ʟɪᴍɪᴛ: <code>{limit}</code> ᴍsɢs ᴘᴇʀ 5 ꜱᴇᴄᴏɴᴅꜱ\n"
             f"{_EM['dot']} ʙʏ: {message.from_user.mention}"
         ),
