@@ -1,3 +1,5 @@
+import random
+
 from pyrogram import filters
 from pyrogram.enums import ParseMode
 from pyrogram.types import InlineKeyboardMarkup, Message
@@ -130,9 +132,8 @@ async def skip(cli, message: Message, _, chat_id):
             user,
         )
         if _thumb_on:
-            img = await get_thumb(videoid)
-            run = await message.reply_photo(
-                photo=img,
+            run = await message.reply_video(
+                video=random.choice(config.PLAY_VID_URLS),
                 caption=_cap,
                 reply_markup=InlineKeyboardMarkup(button),
                 has_spoiler=True,
@@ -175,9 +176,8 @@ async def skip(cli, message: Message, _, chat_id):
             user,
         )
         if _thumb_on:
-            img = await get_thumb(videoid)
-            run = await message.reply_photo(
-                photo=img,
+            run = await message.reply_video(
+                video=random.choice(config.PLAY_VID_URLS),
                 caption=_cap,
                 reply_markup=InlineKeyboardMarkup(button),
                 has_spoiler=True,
@@ -203,8 +203,8 @@ async def skip(cli, message: Message, _, chat_id):
         button = stream_markup(_, chat_id)
         _cap = _["stream_2"].format(user)
         if _thumb_on:
-            run = await message.reply_photo(
-                photo=config.STREAM_IMG_URL,
+            run = await message.reply_video(
+                video=random.choice(config.PLAY_VID_URLS),
                 caption=_cap,
                 reply_markup=InlineKeyboardMarkup(button),
                 has_spoiler=True,
@@ -240,10 +240,8 @@ async def skip(cli, message: Message, _, chat_id):
                 config.SUPPORT_CHAT, title[:23], check[0]["dur"], user
             )
             if _thumb_on:
-                run = await message.reply_photo(
-                    photo=config.TELEGRAM_AUDIO_URL
-                    if str(streamtype) == "audio"
-                    else config.TELEGRAM_VIDEO_URL,
+                run = await message.reply_video(
+                    video=random.choice(config.PLAY_VID_URLS),
                     caption=_cap,
                     reply_markup=InlineKeyboardMarkup(button),
                     has_spoiler=True,
@@ -265,10 +263,8 @@ async def skip(cli, message: Message, _, chat_id):
                 config.SUPPORT_CHAT, title[:23], check[0]["dur"], user
             )
             if _thumb_on:
-                run = await message.reply_photo(
-                    photo=config.SOUNCLOUD_IMG_URL
-                    if str(streamtype) == "audio"
-                    else config.TELEGRAM_VIDEO_URL,
+                run = await message.reply_video(
+                    video=random.choice(config.PLAY_VID_URLS),
                     caption=_cap,
                     reply_markup=InlineKeyboardMarkup(button),
                     has_spoiler=True,
@@ -293,9 +289,8 @@ async def skip(cli, message: Message, _, chat_id):
                 user,
             )
             if _thumb_on:
-                img = await get_thumb(videoid)
-                run = await message.reply_photo(
-                    photo=img,
+                run = await message.reply_video(
+                    video=random.choice(config.PLAY_VID_URLS),
                     caption=_cap,
                     reply_markup=InlineKeyboardMarkup(button),
                     has_spoiler=True,

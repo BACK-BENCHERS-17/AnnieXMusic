@@ -551,14 +551,11 @@ async def play_command(
                 "f" if fplay else "d",
             )
             await mystic.delete()
-            await message.reply_photo(
-                photo=(
-                    details["thumb"]
-                    if plist_type == "yt"
-                    else (details if plist_type == "apple" else img)
-                ),
+            await message.reply_video(
+                video=random.choice(config.PLAY_VID_URLS),
                 caption=cap,
                 reply_markup=InlineKeyboardMarkup(buttons),
+                has_spoiler=True,
             )
             plist_label_map = {
                 "yt": "Youtube playlist",
@@ -583,13 +580,14 @@ async def play_command(
                     "f" if fplay else "d",
                 )
                 await mystic.delete()
-                await message.reply_photo(
-                    photo=details["thumb"],
+                await message.reply_video(
+                    video=random.choice(config.PLAY_VID_URLS),
                     caption=_["play_10"].format(
                         details["title"].title(),
                         details["duration_min"],
                     ),
                     reply_markup=InlineKeyboardMarkup(buttons),
+                    has_spoiler=True,
                 )
                 asyncio.create_task(_trigger_bg_cache(track_id))
                 return await play_logs(message, streamtype="Searched on YouTube")
@@ -603,13 +601,14 @@ async def play_command(
                     "f" if fplay else "d",
                 )
                 await mystic.delete()
-                await message.reply_photo(
-                    photo=details["thumb"],
+                await message.reply_video(
+                    video=random.choice(config.PLAY_VID_URLS),
                     caption=_["play_10"].format(
                         details["title"],
                         details["duration_min"],
                     ),
                     reply_markup=InlineKeyboardMarkup(buttons),
+                    has_spoiler=True,
                 )
                 asyncio.create_task(_trigger_bg_cache(track_id))
                 return await play_logs(message, streamtype="URL Search Inline")

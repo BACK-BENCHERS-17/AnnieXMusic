@@ -11,6 +11,7 @@ THUMB_OFF_VIDEO_URL = "https://files.catbox.moe/4vr2jc.mp4"
 from config import (
     BANNED_USERS,
     lyrical,
+    PLAY_VID_URLS,
     SOUNCLOUD_IMG_URL,
     STREAM_IMG_URL,
     SUPPORT_CHAT,
@@ -336,9 +337,8 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
         buttons = stream_markup(_, chat_id, autoplay_on=ap_state)
         _cap = _["stream_1"].format(f"https://t.me/{app.username}?start=info_{videoid}", title[:23], duration, user)
         if _thumb_on:
-            img = await get_thumb(videoid)
-            run = await callback.message.reply_photo(
-                photo=img,
+            run = await callback.message.reply_video(
+                video=random.choice(PLAY_VID_URLS),
                 caption=_cap,
                 reply_markup=InlineKeyboardMarkup(buttons),
                 has_spoiler=True,
@@ -373,9 +373,8 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
         buttons = stream_markup(_, chat_id, autoplay_on=ap_state)
         _cap = _["stream_1"].format(f"https://t.me/{app.username}?start=info_{videoid}", title[:23], duration, user)
         if _thumb_on:
-            img = await get_thumb(videoid)
-            run = await callback.message.reply_photo(
-                photo=img,
+            run = await callback.message.reply_video(
+                video=random.choice(PLAY_VID_URLS),
                 caption=_cap,
                 reply_markup=InlineKeyboardMarkup(buttons),
                 has_spoiler=True,
@@ -401,8 +400,8 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
         buttons = stream_markup(_, chat_id, autoplay_on=ap_state)
         _cap = _["stream_2"].format(user)
         if _thumb_on:
-            run = await callback.message.reply_photo(
-                photo=STREAM_IMG_URL,
+            run = await callback.message.reply_video(
+                video=random.choice(PLAY_VID_URLS),
                 caption=_cap,
                 reply_markup=InlineKeyboardMarkup(buttons),
                 has_spoiler=True,
@@ -436,8 +435,8 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
             buttons = stream_markup(_, chat_id, autoplay_on=ap_state)
             _cap = _["stream_1"].format(SUPPORT_CHAT, title[:23], duration, user)
             if _thumb_on:
-                run = await callback.message.reply_photo(
-                    photo=(TELEGRAM_AUDIO_URL if str(streamtype) == "audio" else TELEGRAM_VIDEO_URL),
+                run = await callback.message.reply_video(
+                    video=random.choice(PLAY_VID_URLS),
                     caption=_cap,
                     reply_markup=InlineKeyboardMarkup(buttons),
                     has_spoiler=True,
@@ -456,8 +455,8 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
             buttons = stream_markup(_, chat_id, autoplay_on=ap_state)
             _cap = _["stream_1"].format(SUPPORT_CHAT, title[:23], duration, user)
             if _thumb_on:
-                run = await callback.message.reply_photo(
-                    photo=(SOUNCLOUD_IMG_URL if str(streamtype) == "audio" else TELEGRAM_VIDEO_URL),
+                run = await callback.message.reply_video(
+                    video=random.choice(PLAY_VID_URLS),
                     caption=_cap,
                     reply_markup=InlineKeyboardMarkup(buttons),
                     has_spoiler=True,
@@ -476,9 +475,8 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
             buttons = stream_markup(_, chat_id, autoplay_on=ap_state)
             _cap = _["stream_1"].format(f"https://t.me/{app.username}?start=info_{videoid}", title[:23], duration, user)
             if _thumb_on:
-                img = await get_thumb(videoid)
-                run = await callback.message.reply_photo(
-                    photo=img,
+                run = await callback.message.reply_video(
+                    video=random.choice(PLAY_VID_URLS),
                     caption=_cap,
                     reply_markup=InlineKeyboardMarkup(buttons),
                     has_spoiler=True,
