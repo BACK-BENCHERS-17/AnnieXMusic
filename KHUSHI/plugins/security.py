@@ -10,7 +10,7 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from KHUSHI import app
 from KHUSHI.core.mongo import mongodb
-from KHUSHI.utils.decorators import KhushiAdminCheck as AdminRightsCheck
+from KHUSHI.utils.decorators import KhushiGroupAdmin as AdminRightsCheck
 from config import BANNED_USERS
 
 _secdb = mongodb.security_settings

@@ -5065,3 +5065,43 @@ KHUSHI.utils.exceptions.AssistantErr: <b>Tᴇʟᴇɢʀᴀᴍ sᴇʀᴠᴇʀ ᴇ�
 [31-Mar-26 14:00:29 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 [31-Mar-26 14:00:29 - INFO] - KHUSHI -   KHUSHI is LIVE!
 [31-Mar-26 14:00:29 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[31-Mar-26 14:02:52 - INFO] - KHUSHI.core.mongo - KHUSHI: Connecting to MongoDB...
+[31-Mar-26 14:02:52 - INFO] - KHUSHI.core.mongo - KHUSHI: MongoDB connected. (DB: Annie)
+[31-Mar-26 14:02:53 - WARNING] - KHUSHI.utils.ytdl_smart - [SmartYTDL] Node.js NOT found — web_safari client may fail, android_vr will still work
+[31-Mar-26 14:02:53 - INFO] - KHUSHI.core.bot - KHUSHI Bot client initialized.
+[31-Mar-26 14:02:53 - INFO] - KHUSHI.misc - KHUSHI: In-memory DB initialized.
+[31-Mar-26 14:02:53 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[31-Mar-26 14:02:53 - INFO] - KHUSHI -   KHUSHI Bot  |  Independent Core  
+[31-Mar-26 14:02:53 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[31-Mar-26 14:03:00 - INFO] - KHUSHI.core.bot - KHUSHI Bot started as Semex (@WordSeekUBot)
+[31-Mar-26 14:03:00 - INFO] - KHUSHI.core.bot - KHUSHI: No PFP — using default.
+[31-Mar-26 14:03:00 - INFO] - KHUSHI.core.call - Starting PyTgCalls Clients...
+[31-Mar-26 14:03:01 - INFO] - KHUSHI.core.call - Client 1 started successfully.
+[31-Mar-26 14:03:01 - INFO] - KHUSHI.core.userbot - KHUSHI Assistant 1 started as ㅤ-𐌁 Λ ᥴ Ҝ ㅤ𐌁 ꫀ 𐌽 𐌂 ͱ꧊፝֟ ꫀ ᰻⃪᱂ ร
+[31-Mar-26 14:03:01 - INFO] - KHUSHI.misc - KHUSHI: Sudo users loaded.
+[31-Mar-26 14:03:01 - INFO] - KHUSHI.misc - KHUSHI: Maintenance mode reset on startup.
+[31-Mar-26 14:03:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.auth
+[31-Mar-26 14:03:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.autoend
+[31-Mar-26 14:03:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.autoplay
+[31-Mar-26 14:03:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.broadcast
+[31-Mar-26 14:03:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.channelplay
+[31-Mar-26 14:03:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.controls
+[31-Mar-26 14:03:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.language
+[31-Mar-26 14:03:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.nsfw
+[31-Mar-26 14:03:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.ping
+[31-Mar-26 14:03:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.play
+[31-Mar-26 14:03:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.playmode
+[31-Mar-26 14:03:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.queue
+[31-Mar-26 14:03:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.reco
+[31-Mar-26 14:03:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.security
+[31-Mar-26 14:03:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.settings
+[31-Mar-26 14:03:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.song
+[31-Mar-26 14:03:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.start
+[31-Mar-26 14:03:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.stats
+[31-Mar-26 14:03:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.sudo
+[31-Mar-26 14:03:01 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.vctools
+[31-Mar-26 14:03:01 - INFO] - KHUSHI - KHUSHI: 20/20 plugins loaded.
+[31-Mar-26 14:03:02 - INFO] - KHUSHI - ✅ Bot commands registered.
+[31-Mar-26 14:03:03 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[31-Mar-26 14:03:03 - INFO] - KHUSHI -   KHUSHI is LIVE!
+[31-Mar-26 14:03:03 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

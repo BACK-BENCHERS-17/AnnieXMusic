@@ -153,5 +153,47 @@ def KhushiActualAdmin(mystic):
     return wrapper
 
 
+def KhushiGroupAdmin(mystic):
+    """Admin check for group management commands that don't require an active VC stream."""
+    async def wrapper(client, message):
+        from KHUSHI import app
+        try:
+            if await is_maintenance():
+                if message.from_user.id not in SUDOERS:
+                    return await message.reply_text(
+                        f"{app.mention} ɪs ᴜɴᴅᴇʀ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ, "
+                        f"ᴠɪsɪᴛ <a href='https://t.me/{SUPPORT_CHAT.lstrip('@')}'>sᴜᴘᴘᴏʀᴛ</a>.",
+                        disable_web_page_preview=True,
+                    )
+        except Exception:
+            pass
+
+        try:
+            language = await get_lang(message.chat.id)
+            _ = get_string(language)
+        except Exception:
+            _ = get_string("en")
+
+        if message.sender_chat:
+            return await message.reply_text(
+                _["general_3"],
+                reply_markup=InlineKeyboardMarkup([[
+                    InlineKeyboardButton("ʜᴏᴡ ᴛᴏ ғɪx ?", callback_data="AnonymousAdmin")
+                ]]),
+            )
+
+        chat_id = message.chat.id
+
+        if message.from_user.id not in SUDOERS:
+            admins = adminlist.get(chat_id)
+            if not admins or message.from_user.id not in admins:
+                return await message.reply_text(_["admin_14"])
+
+        return await mystic(client, message, _, chat_id)
+
+    return wrapper
+
+
 AdminRightsCheck = KhushiAdminCheck
 AdminActual = KhushiActualAdmin
+GroupAdminCheck = KhushiGroupAdmin
