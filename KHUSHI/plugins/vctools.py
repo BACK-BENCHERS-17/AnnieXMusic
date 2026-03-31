@@ -117,9 +117,10 @@ async def vclogger_cmd(client, message: Message, lang, chat_id):
         state = "✅ ᴏɴ" if on else "❌ ᴏꜰꜰ"
         return await message.reply_text(
             _reply(
-                f"{_EM['log']} <b>ᴠᴄ ʟᴏɢɢᴇʀ</b>\n\n"
-                f"{_EM['dot']} ꜱᴛᴀᴛᴜꜱ: <b>{state}</b>\n"
-                f"{_EM['dot']} ᴜꜱᴇ: <code>/vclogger on|off</code>"
+                f"{_EM['log']} <b>VC Logger</b>\n\n"
+                f"{_EM['dot']} <b>Status:</b> <b>{state}</b>\n\n"
+                f"{_EM['dot']} Logs every voice chat join and leave event in this group — "
+                f"useful to track who enters and exits the VC in real time."
             ),
             reply_markup=_close(),
         )

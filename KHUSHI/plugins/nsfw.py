@@ -84,10 +84,12 @@ async def nsfw_cmd(client, message: Message, lang, chat_id):
         state = f"{_EM['on']} ᴏɴ" if on else f"{_EM['off']} ᴏꜰꜰ"
         return await message.reply_text(
             _reply(
-                f"{_EM['nsfw']} <b>ɴꜱꜰᴡ ꜰɪʟᴛᴇʀ</b>\n\n"
-                f"{_EM['dot']} ꜱᴛᴀᴛᴜꜱ: <b>{state}</b>\n"
-                f"{_EM['dot']} ᴅɪꜰᴀᴜʟᴛ: {_EM['off']} <b>ᴏꜰꜰ</b>\n"
-                f"{_EM['dot']} ᴜꜱᴇ: <code>/nsfw on|off</code>"
+                f"{_EM['nsfw']} <b>NSFW Filter</b>\n\n"
+                f"{_EM['dot']} <b>Status:</b> <b>{state}</b>\n"
+                f"{_EM['dot']} <b>Default:</b> {_EM['off']} <b>Off</b>\n\n"
+                f"{_EM['dot']} Automatically detects and deletes explicit or adult content "
+                f"sent by non-admins — including NSFW keywords and inappropriate messages — "
+                f"to keep the group safe and clean."
             ),
             reply_markup=_close(),
         )

@@ -62,9 +62,9 @@ async def autoplay_command(cli, message: Message, _, chat_id):
     text = (
         f"<blockquote>"
         f"┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
-        f"┆{E_BEAR} <b>sᴛᴀᴛᴜs :</b> <b>{status}</b>\n"
-        f"┆{E_TIME} <b>ᴀᴜᴛᴏ-ᴘʟᴀʏs ᴀ ɴᴇᴡ sᴏɴɢ ᴡʜᴇɴ ǫᴜᴇᴜᴇ ɪs ᴇᴍᴘᴛʏ</b>\n"
-        f"┆{E_DOT} <code>/autoplay on</code>  ᴏʀ  <code>/autoplay off</code>\n"
+        f"┆{E_BEAR} <b>Status:</b> <b>{status}</b>\n"
+        f"┆{E_TIME} <b>Automatically plays a related song when the queue ends</b> — "
+        f"so the music never stops even after the last track.\n"
         f"└──────────────────────●"
         f"</blockquote>\n"
         f"<blockquote>{ANNIE_ROW}</blockquote>"

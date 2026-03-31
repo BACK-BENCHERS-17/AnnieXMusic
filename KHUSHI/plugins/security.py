@@ -93,10 +93,12 @@ async def antilink_cmd(client, message: Message, lang, chat_id):
         state = f"{_EM['on']} ᴏɴ" if settings.get("antilink") else f"{_EM['off']} ᴏꜰꜰ"
         return await message.reply_text(
             _reply(
-                f"{_EM['shield']} <b>ᴀɴᴛɪ-ʟɪɴᴋ</b>\n\n"
-                f"{_EM['dot']} ꜱᴛᴀᴛᴜꜱ: <b>{state}</b>\n"
-                f"{_EM['dot']} ᴅɪꜰᴀᴜʟᴛ: {_EM['off']} <b>ᴏꜰꜰ</b>\n"
-                f"{_EM['dot']} ᴜꜱᴇ: <code>/antilink on|off</code>"
+                f"{_EM['shield']} <b>Anti-Link</b>\n\n"
+                f"{_EM['dot']} <b>Status:</b> <b>{state}</b>\n"
+                f"{_EM['dot']} <b>Default:</b> {_EM['off']} <b>Off</b>\n\n"
+                f"{_EM['dot']} Automatically deletes any links, Telegram invite URLs, "
+                f"or external URLs shared by non-admins — stops spam and unwanted "
+                f"promotions from entering the group."
             ),
             reply_markup=_close(),
         )
@@ -129,11 +131,13 @@ async def antiflood_cmd(client, message: Message, lang, chat_id):
         limit = settings.get("flood_limit", 5)
         return await message.reply_text(
             _reply(
-                f"{_EM['zap']} <b>ᴀɴᴛɪ-ꜰʟᴏᴏᴅ</b>\n\n"
-                f"{_EM['dot']} ꜱᴛᴀᴛᴜꜱ: <b>{state}</b>\n"
-                f"{_EM['dot']} ᴅɪꜰᴀᴜʟᴛ: {_EM['off']} <b>ᴏꜰꜰ</b>\n"
-                f"{_EM['dot']} ʟɪᴍɪᴛ: <code>{limit}</code> ᴍsɢs / 5s\n"
-                f"{_EM['dot']} ᴜꜱᴇ: <code>/antiflood on|off [count]</code>"
+                f"{_EM['zap']} <b>Anti-Flood</b>\n\n"
+                f"{_EM['dot']} <b>Status:</b> <b>{state}</b>\n"
+                f"{_EM['dot']} <b>Default:</b> {_EM['off']} <b>Off</b>\n"
+                f"{_EM['dot']} <b>Limit:</b> <code>{limit}</code> messages per 5 seconds\n\n"
+                f"{_EM['dot']} Detects users who send too many messages in a short time "
+                f"and automatically deletes the flood messages — keeps the chat calm and "
+                f"prevents spam bursts."
             ),
             reply_markup=_close(),
         )
