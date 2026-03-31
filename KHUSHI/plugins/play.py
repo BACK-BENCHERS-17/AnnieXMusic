@@ -30,19 +30,19 @@ from config import AYU, BANNED_USERS, BOT_USERNAME, DURATION_LIMIT, PING_IMG_URL
 THUMB_OFF_VIDEO_URL = "https://files.catbox.moe/4vr2jc.mp4"
 
 _BRAND = (
-    "🧸"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
+    "<emoji id='5042192219960771668'>🧸</emoji>"
+    "<emoji id='5210820276748566172'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5211032856154885824'>🔤</emoji>"
+    "<emoji id='5213337333742454261'>🔤</emoji>"
 )
 
 _EM = {
-    "music": "🎵",
-    "video": "🎬",
-    "zap":   "⚡️",
-    "dot":   "🔹",
+    "music": "<emoji id='5463107823946717464'>🎵</emoji>",
+    "video": "<emoji id='5375464961822695044'>🎬</emoji>",
+    "zap":   "<emoji id='5042334757040423886'>⚡️</emoji>",
+    "dot":   "<emoji id='5972072533833289156'>🔹</emoji>",
 }
 
 

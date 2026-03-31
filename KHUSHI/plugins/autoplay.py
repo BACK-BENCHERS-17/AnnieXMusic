@@ -9,17 +9,17 @@ from KHUSHI.utils.decorators import AdminRightsCheck
 from KHUSHI.utils.inline import close_markup, InlineKeyboardButton
 from config import BANNED_USERS
 
-E_BEAR = "🧸"
-E_TIME = "⏳"
-E_DOT  = "🔹"
+E_BEAR = "<emoji id='5042192219960771668'>🧸</emoji>"
+E_TIME = "<emoji id='4979027931234830344'>⏳</emoji>"
+E_DOT  = "<emoji id='5972072533833289156'>🔹</emoji>"
 
 ANNIE_ROW = (
-    "🧸"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
+    "<emoji id='5042192219960771668'>🧸</emoji>"
+    "<emoji id='5210820276748566172'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5211032856154885824'>🔤</emoji>"
+    "<emoji id='5213337333742454261'>🔤</emoji>"
 )
 
 

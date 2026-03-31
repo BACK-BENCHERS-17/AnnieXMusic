@@ -29,16 +29,16 @@ from config import BANNED_USERS, OWNER_ID
 
 _BRAND = (
     "<blockquote>"
-    "🧸"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
+    "<emoji id='5042192219960771668'>🧸</emoji>"
+    "<emoji id='5210820276748566172'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5211032856154885824'>🔤</emoji>"
+    "<emoji id='5213337333742454261'>🔤</emoji>"
     "</blockquote>"
 )
 
-_dot = "🔹"
-_zap = "⚡️"
+_dot = "<emoji id='5972072533833289156'>🔹</emoji>"
+_zap = "<emoji id='5042334757040423886'>⚡️</emoji>"
 
 
 def _r(t):
@@ -168,8 +168,8 @@ _SUDOLIST_PHOTO = "https://files.catbox.moe/11mmhp.jpg"
 
 _SUDOLIST_CAPTION = (
     "<blockquote>"
-    "<b>🎁 ᴄʜᴇᴄᴋ ᴛʜᴇ ꜱᴜᴅᴏ ʟɪꜱᴛ ᴠɪᴀ ᴛʜᴇ ʙᴜᴛᴛᴏɴ ʙᴇʟᴏᴡ.</b>\n\n"
-    "<b>🔹 ɴᴏᴛᴇ:</b>  ᴏɴʟʏ ꜱᴜᴅᴏᴇʀꜱ ᴄᴀɴ ᴠɪᴇᴡ."
+    "<b><emoji id='5409029744693897259'>🎁</emoji> ᴄʜᴇᴄᴋ ᴛʜᴇ ꜱᴜᴅᴏ ʟɪꜱᴛ ᴠɪᴀ ᴛʜᴇ ʙᴜᴛᴛᴏɴ ʙᴇʟᴏᴡ.</b>\n\n"
+    "<b><emoji id='5972072533833289156'>🔹</emoji> ɴᴏᴛᴇ:</b>  ᴏɴʟʏ ꜱᴜᴅᴏᴇʀꜱ ᴄᴀɴ ᴠɪᴇᴡ."
     "</blockquote>"
 )
 
@@ -201,7 +201,7 @@ async def view_sudo_list_cb(client, query: CallbackQuery):
     caption = (
         "<blockquote>"
         "<b>˹ ʟɪꜱᴛ ᴏꜰ ʙᴏᴛ ᴍᴏᴅᴇʀᴀᴛᴏʀꜱ ˼</b>\n\n"
-        f"<b>🌹 Oᴡɴᴇʀ</b> ➥ {owner_mention}\n\n"
+        f"<b><emoji id='6122692084806716730'>🌹</emoji> Oᴡɴᴇʀ</b> ➥ {owner_mention}\n\n"
     )
     keyboard = [[
         InlineKeyboardButton("๏ ᴠɪᴇᴡ Oᴡɴᴇʀ ๏", url=f"tg://openmessage?user_id={OWNER_ID}", style="success")
@@ -219,7 +219,7 @@ async def view_sudo_list_cb(client, query: CallbackQuery):
         try:
             user = await app.get_users(uid)
             count += 1
-            caption += f"<b>🎁 ꜱᴜᴅᴏ {count} »</b> {user.mention}\n"
+            caption += f"<b><emoji id='5409029744693897259'>🎁</emoji> ꜱᴜᴅᴏ {count} »</b> {user.mention}\n"
             keyboard.append([
                 InlineKeyboardButton(
                     f"๏ ᴠɪᴇᴡ ꜱᴜᴅᴏ {count} ๏",

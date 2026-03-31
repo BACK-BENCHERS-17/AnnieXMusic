@@ -17,19 +17,19 @@ from KHUSHI.utils.formatters import alpha_to_int
 
 _BRAND = (
     "<blockquote>"
-    "🧸"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
+    "<emoji id='5042192219960771668'>🧸</emoji>"
+    "<emoji id='5210820276748566172'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5211032856154885824'>🔤</emoji>"
+    "<emoji id='5213337333742454261'>🔤</emoji>"
     "</blockquote>"
 )
 
 _USAGE = (
     f"{_BRAND}\n\n"
     "<blockquote>"
-    "⚡️ <b>ʙʀᴏᴀᴅᴄᴀꜱᴛ ᴜꜱᴀɢᴇ</b>\n\n"
+    "<emoji id='5042334757040423886'>⚡️</emoji> <b>ʙʀᴏᴀᴅᴄᴀꜱᴛ ᴜꜱᴀɢᴇ</b>\n\n"
     "Reply to a message <b>OR</b> write text:\n"
     "  <code>/bc [text]</code>\n"
     "  <code>/broadcast [text]</code>\n\n"
@@ -82,7 +82,7 @@ async def _do_broadcast(message: Message):
     nf_badge = " <code>[ɴᴏ-ꜰᴡᴅ]</code>" if no_fwd else ""
     await message.reply_text(
         f"{_BRAND}\n\n"
-        f"<blockquote>🎁 "
+        f"<blockquote><emoji id='5041975203853239332'>🎁</emoji> "
         f"<b>ʙʀᴏᴀᴅᴄᴀꜱᴛɪɴɢ...{nf_badge}</b></blockquote>"
     )
 
@@ -120,8 +120,8 @@ async def _do_broadcast(message: Message):
     await message.reply_text(
         f"{_BRAND}\n\n"
         f"<blockquote>"
-        f"🎁 <b>ᴅᴏɴᴇ</b>\n\n"
-        f"🔹 "
+        f"<emoji id='5041975203853239332'>🎁</emoji> <b>ᴅᴏɴᴇ</b>\n\n"
+        f"<emoji id='5972072533833289156'>🔹</emoji> "
         f"ꜱᴇɴᴛ ᴛᴏ <code>{sent}</code> ɢʀᴏᴜᴘꜱ · <code>{pin}</code> ᴘɪɴꜱ"
         f"</blockquote>",
         reply_markup=_close_btn,
@@ -145,8 +145,8 @@ async def _do_broadcast(message: Message):
         await message.reply_text(
             f"{_BRAND}\n\n"
             f"<blockquote>"
-            f"🎁 <b>ᴜꜱᴇʀ ʙʀᴏᴀᴅᴄᴀꜱᴛ ᴅᴏɴᴇ</b>\n\n"
-            f"🔹 "
+            f"<emoji id='5041975203853239332'>🎁</emoji> <b>ᴜꜱᴇʀ ʙʀᴏᴀᴅᴄᴀꜱᴛ ᴅᴏɴᴇ</b>\n\n"
+            f"<emoji id='5972072533833289156'>🔹</emoji> "
             f"ꜱᴇɴᴛ ᴛᴏ <code>{susr}</code> ᴜꜱᴇʀꜱ"
             f"</blockquote>",
             reply_markup=_close_btn,

@@ -16,21 +16,21 @@ from config import BANNED_USERS
 _secdb = mongodb.security_settings
 
 _BRAND = (
-    "🧸"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
+    "<emoji id='5042192219960771668'>🧸</emoji>"
+    "<emoji id='5210820276748566172'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5211032856154885824'>🔤</emoji>"
+    "<emoji id='5213337333742454261'>🔤</emoji>"
 )
 
 _EM = {
-    "shield": "🛡",
-    "zap":    "⚡️",
-    "dot":    "🔹",
-    "warn":   "⚠️",
-    "on":     "✅",
-    "off":    "❌",
+    "shield": "<emoji id='5895483165182529286'>🛡</emoji>",
+    "zap":    "<emoji id='5042334757040423886'>⚡️</emoji>",
+    "dot":    "<emoji id='5972072533833289156'>🔹</emoji>",
+    "warn":   "<emoji id='5420323339723881652'>⚠️</emoji>",
+    "on":     "<emoji id='6041597085009056322'>✅</emoji>",
+    "off":    "<emoji id='5040042498634810056'>❌</emoji>",
 }
 
 _flood_cache: dict[int, list[float]] = defaultdict(list)

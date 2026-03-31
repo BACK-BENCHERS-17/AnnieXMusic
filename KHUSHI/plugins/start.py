@@ -8,8 +8,8 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def _safe_text(text: str) -> str:
-    """Strip  custom-emoji wrappers, keep fallback unicode char."""
-    return re.sub(r'<emoji id=["\'][^"\']*["\']>(.*?)', r'\1', text, flags=re.DOTALL)
+    """Strip <emoji id="..."> custom-emoji wrappers, keep fallback unicode char."""
+    return re.sub(r'<emoji id=["\'][^"\']*["\']>(.*?)</emoji>', r'\1', text, flags=re.DOTALL)
 
 
 from pyrogram import enums, filters
@@ -25,21 +25,21 @@ from config import BANNED_USERS, HELP_IMG_URL, START_IMGS, SUPPORT_CHAT, SUPPORT
 from strings import get_string, helpers
 
 _BRAND = (
-    "🧸"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
+    "<emoji id='5042192219960771668'>🧸</emoji>"
+    "<emoji id='5210820276748566172'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5211032856154885824'>🔤</emoji>"
+    "<emoji id='5213337333742454261'>🔤</emoji>"
 )
 
 START_TEXT = (
     "<blockquote><b>{mention}</b>, ɪ'ᴍ <b>{bot}</b> — ᴀ ꜱᴜᴘᴇʀ ꜰᴀꜱᴛ ᴍᴜꜱɪᴄ ʙᴏᴛ ᴡɪᴛʜ\n"
     "ʜɪɢʜ ǫᴜᴀʟɪᴛʏ ᴀᴜᴅɪᴏ & ᴠɪᴅᴇᴏ ꜱᴛʀᴇᴀᴍɪɴɢ.\n\n"
-    "🔹 ᴘʟᴀʏ ꜱᴏɴɢꜱ ꜰʀᴏᴍ ʏᴏᴜᴛᴜʙᴇ, ꜱᴘᴏᴛɪꜰʏ, ꜱᴏᴜɴᴅᴄʟᴏᴜᴅ\n"
-    "🔹 ǫᴜᴇᴜᴇ ᴍᴀɴᴀɢᴇᴍᴇɴᴛ, ʟᴏᴏᴘ, ꜱʜᴜꜰꜰʟᴇ, ꜱᴇᴇᴋ\n"
-    "🔹 24/7 ᴍᴏᴅᴇ, ᴠᴏʟᴜᴍᴇ, ꜱᴘᴇᴇᴅ ᴄᴏɴᴛʀᴏʟ\n"
-    "🔹 ɴꜱꜰᴡ ꜰɪʟᴛᴇʀ, ᴄᴏɴᴛᴇɴᴛ ɢᴜᴀʀᴅ</blockquote>"
+    "<emoji id='5972072533833289156'>🔹</emoji> ᴘʟᴀʏ ꜱᴏɴɢꜱ ꜰʀᴏᴍ ʏᴏᴜᴛᴜʙᴇ, ꜱᴘᴏᴛɪꜰʏ, ꜱᴏᴜɴᴅᴄʟᴏᴜᴅ\n"
+    "<emoji id='5972072533833289156'>🔹</emoji> ǫᴜᴇᴜᴇ ᴍᴀɴᴀɢᴇᴍᴇɴᴛ, ʟᴏᴏᴘ, ꜱʜᴜꜰꜰʟᴇ, ꜱᴇᴇᴋ\n"
+    "<emoji id='5972072533833289156'>🔹</emoji> 24/7 ᴍᴏᴅᴇ, ᴠᴏʟᴜᴍᴇ, ꜱᴘᴇᴇᴅ ᴄᴏɴᴛʀᴏʟ\n"
+    "<emoji id='5972072533833289156'>🔹</emoji> ɴꜱꜰᴡ ꜰɪʟᴛᴇʀ, ᴄᴏɴᴛᴇɴᴛ ɢᴜᴀʀᴅ</blockquote>"
 )
 
 
@@ -145,19 +145,19 @@ async def khushi_start_group(client, message: Message):
     caption = (
         f"<blockquote>{_BRAND}</blockquote>\n\n"
         "<blockquote>"
-        "❤️‍🔥"
+        "<emoji id='5039598514980520994'>❤️‍🔥</emoji>"
         f" ɴᴀᴍᴀsᴛᴇ {mention}!\n\n"
-        "🔹"
+        "<emoji id='5972072533833289156'>🔹</emoji>"
         f" <b>{grp}</b> ᴍᴇɪɴ ᴡᴇʟᴄᴏᴍᴇ ʜᴀɪ!\n"
-        "🔹"
+        "<emoji id='5972072533833289156'>🔹</emoji>"
         " ᴍᴇɪɴ ᴀᴀᴘᴋᴇ ɢʀᴏᴜᴘ ᴋᴀ ᴍᴜꜱɪᴄ ʙᴏᴛ ʜᴏᴏɴ.\n\n"
-        "⚡️"
+        "<emoji id='5042334757040423886'>⚡️</emoji>"
         " <b>ǫᴜɪᴄᴋ ᴄᴏᴍᴍᴀɴᴅꜱ</b>\n"
-        "🔹"
+        "<emoji id='5972072533833289156'>🔹</emoji>"
         " <code>/play [ɢᴀᴀɴᴀ]</code> — VC ᴍᴇɪɴ ʙᴀᴊᴀᴏ\n"
-        "🔹"
+        "<emoji id='5972072533833289156'>🔹</emoji>"
         " <code>/reco</code> — ʜɪɴᴅɪ / ᴘᴜɴᴊᴀʙɪ ꜱᴜɢɢᴇꜱᴛɪᴏɴꜱ\n"
-        "🔹"
+        "<emoji id='5972072533833289156'>🔹</emoji>"
         " <code>/help</code> — ᴘᴜʀᴀ ʜᴇʟᴘ ᴅᴇᴋʜᴏ"
         "</blockquote>"
     )
@@ -195,17 +195,17 @@ async def bot_added_to_group(client, message: Message):
     caption = (
         f"<blockquote>{_BRAND}</blockquote>\n\n"
         "<blockquote>"
-        "❤️‍🔥"
+        "<emoji id='5039598514980520994'>❤️‍🔥</emoji>"
         f" <b>ʜᴇʟʟᴏ {grp}!</b>\n\n"
-        "🔹"
+        "<emoji id='5972072533833289156'>🔹</emoji>"
         f" ᴛʜᴀɴᴋ ʏᴏᴜ {adder} ꜰᴏʀ ᴀᴅᴅɪɴɢ ᴍᴇ!\n\n"
-        "⚡️"
+        "<emoji id='5042334757040423886'>⚡️</emoji>"
         " <b>ᴍᴇʀɪ ᴩᴏᴡᴇʀ</b>\n"
-        "🔹 🎵 ʜɪɴᴅɪ · ᴩᴜɴᴊᴀʙɪ · ʙᴏʟʟʏᴡᴏᴏᴅ · ɪɴᴛᴇʀɴᴀᴛɪᴏɴᴀʟ\n"
-        "🔹 ᴜʟᴛʀᴀ ᴩᴏꜱᴛ VC ꜱᴛʀᴇᴀᴍɪɴɢ\n"
-        "🔹 ʏᴏᴜᴛᴜʙᴇ · ꜱᴩᴏᴛɪꜰʏ · ꜱᴏᴜɴᴅᴄʟᴏᴜᴅ\n"
-        "🔹 ɢʀᴏᴜᴩ ꜱᴇᴄᴜʀɪᴛʏ + ʜᴜ ᴍᴏᴅᴇʀᴀᴛɪᴏɴ\n\n"
-        "✨"
+        "<emoji id='5972072533833289156'>🔹</emoji> 🎵 ʜɪɴᴅɪ · ᴩᴜɴᴊᴀʙɪ · ʙᴏʟʟʏᴡᴏᴏᴅ · ɪɴᴛᴇʀɴᴀᴛɪᴏɴᴀʟ\n"
+        "<emoji id='5972072533833289156'>🔹</emoji> ᴜʟᴛʀᴀ ᴩᴏꜱᴛ VC ꜱᴛʀᴇᴀᴍɪɴɢ\n"
+        "<emoji id='5972072533833289156'>🔹</emoji> ʏᴏᴜᴛᴜʙᴇ · ꜱᴩᴏᴛɪꜰʏ · ꜱᴏᴜɴᴅᴄʟᴏᴜᴅ\n"
+        "<emoji id='5972072533833289156'>🔹</emoji> ɢʀᴏᴜᴩ ꜱᴇᴄᴜʀɪᴛʏ + ʜᴜ ᴍᴏᴅᴇʀᴀᴛɪᴏɴ\n\n"
+        "<emoji id='5039827436737397847'>✨</emoji>"
         " <code>/play [ɢᴀᴀɴᴀ ᴋᴀ ɴᴀᴀᴍ]</code> ꜱᴇ ʙᴀᴊᴀᴏ!\n"
         "<b>ᴍᴜᴊʜᴇ ᴀᴅᴍɪɴ ʙᴀɴᴀᴏ ᴛᴀᴋɪ ᴍᴀɪɴ VC ᵴᴜɴᴀ ꜱᴀᴋᴏᴏɴ.</b>"
         "</blockquote>"

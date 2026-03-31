@@ -13,20 +13,20 @@ from config import BANNED_USERS
 _nsfwdb = mongodb.nsfw_settings
 
 _BRAND = (
-    "🧸"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
+    "<emoji id='5042192219960771668'>🧸</emoji>"
+    "<emoji id='5210820276748566172'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5211032856154885824'>🔤</emoji>"
+    "<emoji id='5213337333742454261'>🔤</emoji>"
 )
 
 _EM = {
-    "nsfw":  "⚠️",
-    "dot":   "🔹",
-    "zap":   "⚡️",
-    "on":    "✅",
-    "off":   "❌",
+    "nsfw":  "<emoji id='5420323339723881652'>⚠️</emoji>",
+    "dot":   "<emoji id='5972072533833289156'>🔹</emoji>",
+    "zap":   "<emoji id='5042334757040423886'>⚡️</emoji>",
+    "on":    "<emoji id='6041597085009056322'>✅</emoji>",
+    "off":   "<emoji id='5040042498634810056'>❌</emoji>",
 }
 
 _NSFW_WORDS = {

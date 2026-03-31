@@ -13,20 +13,20 @@ from config import BANNED_USERS
 _vclogdb = mongodb.vclogger_settings
 
 _BRAND = (
-    "🧸"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
+    "<emoji id='5042192219960771668'>🧸</emoji>"
+    "<emoji id='5210820276748566172'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5211032856154885824'>🔤</emoji>"
+    "<emoji id='5213337333742454261'>🔤</emoji>"
 )
 
 _EM = {
-    "vc":    "📞",
-    "dot":   "🔹",
-    "zap":   "⚡️",
-    "mute":  "⚠️",
-    "log":   "💬",
+    "vc":    "<emoji id='5226772700113935347'>📞</emoji>",
+    "dot":   "<emoji id='5972072533833289156'>🔹</emoji>",
+    "zap":   "<emoji id='5042334757040423886'>⚡️</emoji>",
+    "mute":  "<emoji id='5467666044815377227'>⚠️</emoji>",
+    "log":   "<emoji id='5116468787377341336'>💬</emoji>",
 }
 
 _vclog_cache: dict[int, bool] = {}

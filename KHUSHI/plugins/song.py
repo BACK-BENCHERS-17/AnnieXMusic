@@ -27,17 +27,17 @@ os.makedirs(_SONG_DL_DIR, exist_ok=True)
 _pending: dict = {}
 
 _BRAND = (
-    "🧸"
+    "<emoji id='5042192219960771668'>🧸</emoji>"
     " <b>ᴋʜᴜsʜɪ ᴅᴏᴡɴʟᴏᴀᴅᴇʀ</b>"
 )
 
 _EM = {
-    "audio": "🎵",
-    "video": "📷",
-    "wait":  "⌛️",
-    "ok":    "✅",
+    "audio": "<emoji id='5463107823946717464'>🎵</emoji>",
+    "video": "<emoji id='5944753741512052670'>📷</emoji>",
+    "wait":  "<emoji id='5454415424319931791'>⌛️</emoji>",
+    "ok":    "<emoji id='5852871561983299073'>✅</emoji>",
     "err":   "❌",
-    "dot":   "🔹",
+    "dot":   "<emoji id='5972072533833289156'>🔹</emoji>",
 }
 
 _QUALITY_LABELS = {

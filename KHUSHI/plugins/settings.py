@@ -34,17 +34,17 @@ from KHUSHI.utils.inline.settings import (
 from config import BANNED_USERS
 
 _BRAND = (
-    "🧸"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
+    "<emoji id='5042192219960771668'>🧸</emoji>"
+    "<emoji id='5210820276748566172'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5211032856154885824'>🔤</emoji>"
+    "<emoji id='5213337333742454261'>🔤</emoji>"
 )
 
-_E_GEAR  = "⚙️"
-_E_GLOBE = "🌐"
-_E_USER  = "👤"
+_E_GEAR  = "<emoji id='5258096772776991776'>⚙️</emoji>"
+_E_GLOBE = "<emoji id='5316832074047441823'>🌐</emoji>"
+_E_USER  = "<emoji id='5884366771913233289'>👤</emoji>"
 
 
 def _settings_text(chat_id: int, chat_title: str) -> str:
