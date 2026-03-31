@@ -16,15 +16,15 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "ANNIEMUSIC"
+args = "KHUSHI Bot"
 
 [[workflows.workflow]]
-name = "ANNIEMUSIC"
+name = "KHUSHI Bot"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python -m ANNIEMUSIC"
+args = "python -m KHUSHI"
 
 [workflows.workflow.metadata]
 outputType = "console"
