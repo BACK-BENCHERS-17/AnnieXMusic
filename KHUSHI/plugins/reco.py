@@ -26,12 +26,12 @@ _BRAND = (
 )
 
 _EM = {
-    "music":  "<emoji id='5463107823946717464'>🎵</emoji>",
-    "star":   "<emoji id='5039598514980520994'>❤️‍🔥</emoji>",
+    "music":  "<emoji id='5994566609002303309'>🎵</emoji>",
+    "star":   "<emoji id='5042225965518816316'>❤️‍🔥</emoji>",
     "dot":    "<emoji id='5972072533833289156'>🔹</emoji>",
     "zap":    "<emoji id='5042334757040423886'>⚡️</emoji>",
-    "mic":    "<emoji id='5215443851590285891'>🎤</emoji>",
-    "fire":   "<emoji id='5199727846890084800'>🔥</emoji>",
+    "mic":    "<emoji id='6030722571412967168'>🎤</emoji>",
+    "fire":   "<emoji id='5039644681583985437'>🔥</emoji>",
 }
 
 # ── Massive Hindi/Punjabi-first song database ──────────────────────────────────
