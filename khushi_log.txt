@@ -4526,3 +4526,170 @@ KHUSHI.utils.exceptions.AssistantErr: <b>Tᴇʟᴇɢʀᴀᴍ sᴇʀᴠᴇʀ ᴇ�
 [31-Mar-26 05:24:07 - INFO] - KHUSHI.core.bot - KHUSHI Bot started as Semex (@WordSeekUBot)
 [31-Mar-26 05:24:07 - INFO] - KHUSHI.core.bot - KHUSHI: No PFP — using default.
 [31-Mar-26 05:24:07 - INFO] - KHUSHI.core.call - Starting PyTgCalls Clients...
+[31-Mar-26 05:24:10 - INFO] - KHUSHI.core.call - Client 1 started successfully.
+[31-Mar-26 05:24:10 - INFO] - KHUSHI.core.userbot - KHUSHI Assistant 1 started as ㅤ-𐌁 Λ ᥴ Ҝ ㅤ𐌁 ꫀ 𐌽 𐌂 ͱ꧊፝֟ ꫀ ᰻⃪᱂ ร
+[31-Mar-26 05:24:10 - INFO] - KHUSHI.misc - KHUSHI: Sudo users loaded.
+[31-Mar-26 05:24:10 - INFO] - KHUSHI.misc - KHUSHI: Maintenance mode reset on startup.
+[31-Mar-26 05:24:10 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.auth
+[31-Mar-26 05:24:10 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.autoend
+[31-Mar-26 05:24:10 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.autoplay
+[31-Mar-26 05:24:10 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.broadcast
+[31-Mar-26 05:24:10 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.channelplay
+[31-Mar-26 05:24:10 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.controls
+[31-Mar-26 05:24:10 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.language
+[31-Mar-26 05:24:10 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.ping
+[31-Mar-26 05:24:10 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.play
+[31-Mar-26 05:24:10 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.playmode
+[31-Mar-26 05:24:10 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.queue
+[31-Mar-26 05:24:10 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.settings
+[31-Mar-26 05:24:10 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.song
+[31-Mar-26 05:24:10 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.start
+[31-Mar-26 05:24:10 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.stats
+[31-Mar-26 05:24:10 - INFO] - KHUSHI -   ✅ KHUSHI.plugins.sudo
+[31-Mar-26 05:24:10 - INFO] - KHUSHI - KHUSHI: 16/16 plugins loaded.
+[31-Mar-26 05:24:11 - INFO] - KHUSHI - ✅ Bot commands registered.
+[31-Mar-26 05:24:12 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[31-Mar-26 05:24:12 - INFO] - KHUSHI -   KHUSHI is LIVE!
+[31-Mar-26 05:24:12 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[31-Mar-26 05:24:54 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] Racing 8 clients for hHuG7FIKgtc | order: ['android_vr', 'ios', 'android', 'mweb']
+[31-Mar-26 05:24:58 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] direct_download ok: /home/runner/workspace/downloads/hHuG7FIKgtc_1774934694.m4a
+[31-Mar-26 05:24:58 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] direct_download (no-cookie) succeeded for hHuG7FIKgtc
+[31-Mar-26 05:24:58 - INFO] - KHUSHI.utils.downloader - [BG-CACHE] Cached for next play: /home/runner/workspace/downloads/hHuG7FIKgtc_1774934694.m4a
+[31-Mar-26 05:25:00 - WARNING] - KHUSHI.utils.ytdl_smart - [SmartYTDL] All yt-dlp clients failed for hHuG7FIKgtc → Invidious
+[31-Mar-26 05:25:14 - ERROR] - KHUSHI.utils.ytdl_smart - [SmartYTDL] ALL extract methods failed for hHuG7FIKgtc
+[31-Mar-26 05:25:14 - WARNING] - KHUSHI.utils.downloader - [FAST] All URL methods failed for hHuG7FIKgtc, falling back to full download
+[31-Mar-26 05:25:14 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] Racing 8 clients for hHuG7FIKgtc | order: ['android_vr', 'ios', 'android', 'mweb']
+[31-Mar-26 05:25:18 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] direct_download ok: /home/runner/workspace/downloads/hHuG7FIKgtc_1774934714.m4a
+[31-Mar-26 05:25:18 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] direct_download (no-cookie) succeeded for hHuG7FIKgtc
+[31-Mar-26 05:25:18 - INFO] - KHUSHI.utils.downloader - [SMART] Direct download ok: /home/runner/workspace/downloads/hHuG7FIKgtc_1774934714.m4a
+[31-Mar-26 05:25:18 - INFO] - KHUSHI.utils.downloader - [FAST] Fallback download done: /home/runner/workspace/downloads/hHuG7FIKgtc_1774934714.m4a
+[31-Mar-26 05:25:18 - INFO] - KHUSHI.core.call - [PLAY] chat=-1003862964494 | file=/home/runner/workspace/downloads/hHuG7FIKgtc_1774934714.m4a | size=3690755B | video=False
+[31-Mar-26 05:25:19 - ERROR] - KHUSHI.errors - [join_call] AssistantErr: <b>ᴀssɪsᴛᴀɴᴛ ᴄᴀɴɴᴏᴛ ᴊᴏɪɴ ᴛʜɪs ɢʀᴏᴜᴘ.</b>
+
+<blockquote>ᴘʟᴇᴀsᴇ ᴀᴅᴅ ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.</blockquote>
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/methods/advanced/resolve_peer.py", line 67, in resolve_peer
+    return await self.storage.get_peer_by_id(peer_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/storage/sqlite_storage.py", line 363, in get_peer_by_id
+    raise KeyError(f"ID not found: {peer_id}")
+KeyError: 'ID not found: -1003862964494'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/workspace/KHUSHI/core/call.py", line 418, in join_call
+    await assistant.play(chat_id, stream)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/statictypes.py", line 96, in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/mtproto_required.py", line 23, in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/mutex.py", line 12, in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/methods/stream/play.py", line 74, in play
+    await self._app.create_group_call(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/mtproto/mtproto_client.py", line 183, in create_group_call
+    await self._bind_client.create_group_call(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/mtproto/pyrogram_client.py", line 598, in create_group_call
+    peer=await self.resolve_peer(chat_id),
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/mtproto/pyrogram_client.py", line 769, in resolve_peer
+    return await self._app.resolve_peer(user_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/methods/advanced/resolve_peer.py", line 91, in resolve_peer
+    await self.invoke(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/methods/advanced/invoke.py", line 107, in invoke
+    r = await session.invoke(
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.ChannelInvalid: Telegram says: [400 CHANNEL_INVALID] - The provided channel is invalid. (caused by "channels.GetChannels")
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/workspace/KHUSHI/utils/errors.py", line 138, in wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/KHUSHI/core/call.py", line 550, in join_call
+    raise AssistantErr(
+KHUSHI.utils.exceptions.AssistantErr: <b>ᴀssɪsᴛᴀɴᴛ ᴄᴀɴɴᴏᴛ ᴊᴏɪɴ ᴛʜɪs ɢʀᴏᴜᴘ.</b>
+
+<blockquote>ᴘʟᴇᴀsᴇ ᴀᴅᴅ ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.</blockquote>
+
+[31-Mar-26 05:25:19 - ERROR] - pyrogram.dispatcher - Unexpected exception raised in MessageHandler:
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/methods/advanced/resolve_peer.py", line 67, in resolve_peer
+    return await self.storage.get_peer_by_id(peer_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/storage/sqlite_storage.py", line 363, in get_peer_by_id
+    raise KeyError(f"ID not found: {peer_id}")
+KeyError: 'ID not found: -1003862964494'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/workspace/KHUSHI/core/call.py", line 418, in join_call
+    await assistant.play(chat_id, stream)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/statictypes.py", line 96, in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/mtproto_required.py", line 23, in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/mutex.py", line 12, in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/methods/stream/play.py", line 74, in play
+    await self._app.create_group_call(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/mtproto/mtproto_client.py", line 183, in create_group_call
+    await self._bind_client.create_group_call(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/mtproto/pyrogram_client.py", line 598, in create_group_call
+    peer=await self.resolve_peer(chat_id),
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/mtproto/pyrogram_client.py", line 769, in resolve_peer
+    return await self._app.resolve_peer(user_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/methods/advanced/resolve_peer.py", line 91, in resolve_peer
+    await self.invoke(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/methods/advanced/invoke.py", line 107, in invoke
+    r = await session.invoke(
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/session/session.py", line 551, in invoke
+    return await self.send(query, timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/session/session.py", line 514, in send
+    RPCError.raise_it(result, type(data))
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/errors/rpc_error.py", line 91, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.ChannelInvalid: Telegram says: [400 CHANNEL_INVALID] - The provided channel is invalid. (caused by "channels.GetChannels")
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/dispatcher.py", line 383, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/home/runner/workspace/KHUSHI/plugins/play.py", line 346, in play_cmd
+    await _handle_play(message, video=False)
+  File "/home/runner/workspace/KHUSHI/plugins/play.py", line 319, in _handle_play
+    await JARVIS.join_call(
+  File "/home/runner/workspace/KHUSHI/utils/errors.py", line 145, in wrapper
+    raise err
+  File "/home/runner/workspace/KHUSHI/utils/errors.py", line 138, in wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/KHUSHI/core/call.py", line 550, in join_call
+    raise AssistantErr(
+KHUSHI.utils.exceptions.AssistantErr: <b>ᴀssɪsᴛᴀɴᴛ ᴄᴀɴɴᴏᴛ ᴊᴏɪɴ ᴛʜɪs ɢʀᴏᴜᴘ.</b>
+
+<blockquote>ᴘʟᴇᴀsᴇ ᴀᴅᴅ ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.</blockquote>
+[31-Mar-26 05:25:19 - WARNING] - KHUSHI.utils.ytdl_smart - [SmartYTDL] All yt-dlp clients failed for hHuG7FIKgtc → Invidious
+[31-Mar-26 05:25:33 - ERROR] - KHUSHI.utils.ytdl_smart - [SmartYTDL] ALL extract methods failed for hHuG7FIKgtc
