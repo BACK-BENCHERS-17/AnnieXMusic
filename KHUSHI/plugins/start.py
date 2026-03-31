@@ -20,7 +20,7 @@ from pyrogram.types import InlineKeyboardMarkup, InputMediaPhoto, Message
 from KHUSHI import app
 from KHUSHI.utils.database import get_lang
 from KHUSHI.utils.inline import InlineKeyboardButton
-from KHUSHI.utils.inline.help import first_page, help_back_markup, private_help_panel
+from KHUSHI.utils.inline.help import first_page, second_page, help_back_markup, private_help_panel
 from config import BANNED_USERS, HELP_IMG_URL, START_IMGS, SUPPORT_CHAT, SUPPORT_CHANNEL
 from strings import get_string, helpers
 
@@ -46,11 +46,11 @@ START_TEXT = (
 def _start_kb():
     return InlineKeyboardMarkup([
         [
-            InlineKeyboardButton("˹ʜᴇʟᴘ˼", callback_data="khushi_help"),
-            InlineKeyboardButton("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=f"https://t.me/{SUPPORT_CHAT.rstrip('/').split('/')[-1]}"),
+            InlineKeyboardButton("˹ʜᴇʟᴘ˼", callback_data="khushi_help", style="primary"),
+            InlineKeyboardButton("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=f"https://t.me/{SUPPORT_CHAT.rstrip('/').split('/')[-1]}", style="success"),
         ],
         [
-            InlineKeyboardButton("˹ᴀᴅᴅ ᴛᴏ ɢʀᴏᴜᴘ˼", url=f"https://t.me/{app.username}?startgroup=true"),
+            InlineKeyboardButton("˹ᴀᴅᴅ ᴛᴏ ɢʀᴏᴜᴘ˼", url=f"https://t.me/{app.username}?startgroup=true", style="primary"),
         ],
     ])
 
@@ -163,12 +163,12 @@ async def khushi_start_group(client, message: Message):
     )
     markup = InlineKeyboardMarkup([
         [
-            InlineKeyboardButton("˹ʜᴇʟᴘ˼", url=f"https://t.me/{app.username}?start=start"),
-            InlineKeyboardButton("˹sᴜᴩᴘᴏʀᴛ˼", url=SUPPORT_CHAT),
+            InlineKeyboardButton("˹ʜᴇʟᴘ˼", url=f"https://t.me/{app.username}?start=start", style="primary"),
+            InlineKeyboardButton("˹sᴜᴩᴘᴏʀᴛ˼", url=SUPPORT_CHAT, style="success"),
         ],
         [
-            InlineKeyboardButton("˹ᴄʜᴀɴɴᴇʟ˼", url=SUPPORT_CHANNEL),
-            InlineKeyboardButton("˹ᴀᴅᴅ ᴍᴇ˼", url=f"https://t.me/{app.username}?startgroup=true"),
+            InlineKeyboardButton("˹ᴄʜᴀɴɴᴇʟ˼", url=SUPPORT_CHANNEL, style="default"),
+            InlineKeyboardButton("˹ᴀᴅᴅ ᴍᴇ˼", url=f"https://t.me/{app.username}?startgroup=true", style="primary"),
         ],
     ])
     img = random.choice(START_IMGS)
@@ -212,12 +212,12 @@ async def bot_added_to_group(client, message: Message):
     )
     markup = InlineKeyboardMarkup([
         [
-            InlineKeyboardButton("˹ʜᴇʟᴘ˼", url=f"https://t.me/{app.username}?start=start"),
-            InlineKeyboardButton("˹sᴜᴩᴘᴏʀᴛ˼", url=SUPPORT_CHAT),
+            InlineKeyboardButton("˹ʜᴇʟᴘ˼", url=f"https://t.me/{app.username}?start=start", style="primary"),
+            InlineKeyboardButton("˹sᴜᴩᴘᴏʀᴛ˼", url=SUPPORT_CHAT, style="success"),
         ],
         [
-            InlineKeyboardButton("˹ᴄʜᴀɴɴᴇʟ˼", url=SUPPORT_CHANNEL),
-            InlineKeyboardButton("˹ᴀᴅᴅ ᴛᴏ ɢʀᴏᴜᴩ˼", url=f"https://t.me/{app.username}?startgroup=true"),
+            InlineKeyboardButton("˹ᴄʜᴀɴɴᴇʟ˼", url=SUPPORT_CHANNEL, style="default"),
+            InlineKeyboardButton("˹ᴀᴅᴅ ᴛᴏ ɢʀᴏᴜᴩ˼", url=f"https://t.me/{app.username}?startgroup=true", style="primary"),
         ],
     ])
     img = random.choice(START_IMGS)
@@ -443,14 +443,16 @@ async def help_nav_cb(client, query):
             _LOGGER.error("[HELP_NAV] send_message failed: %s", e)
 
 
-# ── Back to category list ─────────────────────────────────────────────────────
+# ── Back to category list (page 1 or 2) ──────────────────────────────────────
 
-@app.on_callback_query(filters.regex(r"^help_back_(\d+)$") & ~BANNED_USERS)
+@app.on_callback_query(filters.regex(r"^(help_back|help_page)_(\d+)$") & ~BANNED_USERS)
 async def help_back_cb(client, query):
     await query.answer()
+    match = re.match(r"^(?:help_back|help_page)_(\d+)$", query.data)
+    page = int(match.group(1)) if match else 1
     lang = await _get_lang(query.from_user.id)
     _ = get_string(lang)
-    keyboard = first_page(_)
+    keyboard = second_page(_) if page == 2 else first_page(_)
     caption = _["help_1"].format(SUPPORT_CHAT)
 
     edited = False

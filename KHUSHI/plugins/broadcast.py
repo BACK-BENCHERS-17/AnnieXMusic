@@ -4,7 +4,9 @@ import asyncio
 
 from pyrogram import filters
 from pyrogram.errors import FloodWait
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
+from pyrogram.types import InlineKeyboardMarkup, Message
+
+from KHUSHI.utils.inline import InlineKeyboardButton
 
 from KHUSHI import app
 from KHUSHI.utils.database import get_served_chats, get_served_users

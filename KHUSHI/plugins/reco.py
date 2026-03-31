@@ -4,7 +4,9 @@ import asyncio
 import random
 
 from pyrogram import filters
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
+from pyrogram.types import InlineKeyboardMarkup, Message
+
+from KHUSHI.utils.inline import InlineKeyboardButton
 
 from KHUSHI import app
 from KHUSHI.core.mongo import mongodb
@@ -331,7 +333,7 @@ async def rconfig_cmd(client, message: Message, lang, chat_id):
                 f"{_EM['zap']} <code>/rconfig count [1-6]</code>"
             ),
             reply_markup=InlineKeyboardMarkup([[
-                InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close"),
+                InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
             ]]),
         )
 
@@ -346,7 +348,7 @@ async def rconfig_cmd(client, message: Message, lang, chat_id):
                     f"{_EM['dot']} ᴀᴠᴀɪʟᴀʙʟᴇ: {', '.join(_GENRES.keys())}"
                 ),
                 reply_markup=InlineKeyboardMarkup([[
-                    InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close"),
+                    InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
                 ]]),
             )
         cfg["genre"] = new_genre
@@ -357,7 +359,7 @@ async def rconfig_cmd(client, message: Message, lang, chat_id):
                 f"{_EM['dot']} ʙʏ: {message.from_user.mention}"
             ),
             reply_markup=InlineKeyboardMarkup([[
-                InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close"),
+                InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
             ]]),
         )
 
@@ -368,7 +370,7 @@ async def rconfig_cmd(client, message: Message, lang, chat_id):
             return await message.reply_text(
                 _reply(f"❌ ᴘʀᴏᴠɪᴅᴇ ᴀ ɴᴜᴍʙᴇʀ <code>1–6</code>."),
                 reply_markup=InlineKeyboardMarkup([[
-                    InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close"),
+                    InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
                 ]]),
             )
         cfg["count"] = new_count
@@ -379,7 +381,7 @@ async def rconfig_cmd(client, message: Message, lang, chat_id):
                 f"{_EM['dot']} ʙʏ: {message.from_user.mention}"
             ),
             reply_markup=InlineKeyboardMarkup([[
-                InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close"),
+                InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
             ]]),
         )
 

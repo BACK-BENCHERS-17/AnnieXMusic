@@ -4,7 +4,9 @@ import asyncio
 
 from pyrogram import enums, filters
 from pyrogram.errors import FloodWait
-from pyrogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
+from pyrogram.types import CallbackQuery, InlineKeyboardMarkup, Message
+
+from KHUSHI.utils.inline import InlineKeyboardButton
 
 from KHUSHI import app
 from KHUSHI.misc import SUDOERS
@@ -176,7 +178,7 @@ _SUDOLIST_CAPTION = (
     filters.command(["sudolist", "sudoers"], prefixes=["/", "!", "."]) & ~BANNED_USERS
 )
 async def sudolist_cmd(client, message: Message):
-    keyboard = [[InlineKeyboardButton("๏ ᴠɪᴇᴡ ꜱᴜᴅᴏʟɪꜱᴛ ๏", callback_data="sudo_list_view")]]
+    keyboard = [[InlineKeyboardButton("๏ ᴠɪᴇᴡ ꜱᴜᴅᴏʟɪꜱᴛ ๏", callback_data="sudo_list_view", style="primary")]]
     await message.reply_photo(
         photo=_SUDOLIST_PHOTO,
         caption=_SUDOLIST_CAPTION,
@@ -202,7 +204,7 @@ async def view_sudo_list_cb(client, query: CallbackQuery):
         f"<b><emoji id='6122692084806716730'>🌹</emoji> Oᴡɴᴇʀ</b> ➥ {owner_mention}\n\n"
     )
     keyboard = [[
-        InlineKeyboardButton("๏ ᴠɪᴇᴡ Oᴡɴᴇʀ ๏", url=f"tg://openmessage?user_id={OWNER_ID}")
+        InlineKeyboardButton("๏ ᴠɪᴇᴡ Oᴡɴᴇʀ ๏", url=f"tg://openmessage?user_id={OWNER_ID}", style="success")
     ]]
 
     try:
@@ -222,6 +224,7 @@ async def view_sudo_list_cb(client, query: CallbackQuery):
                 InlineKeyboardButton(
                     f"๏ ᴠɪᴇᴡ ꜱᴜᴅᴏ {count} ๏",
                     url=f"tg://openmessage?user_id={uid}",
+                    style="primary",
                 )
             ])
         except Exception:
@@ -231,7 +234,7 @@ async def view_sudo_list_cb(client, query: CallbackQuery):
         caption += "<i>ɴᴏ ᴀᴅᴅɪᴛɪᴏɴᴀʟ ꜱᴜᴅᴏᴇʀꜱ ʏᴇᴛ.</i>"
 
     caption += "</blockquote>"
-    keyboard.append([InlineKeyboardButton("๏ ʙᴀᴄᴋ ๏", callback_data="sudo_list_back")])
+    keyboard.append([InlineKeyboardButton("๏ ʙᴀᴄᴋ ๏", callback_data="sudo_list_back", style="success")])
     await query.message.edit_caption(
         caption=caption,
         parse_mode=enums.ParseMode.HTML,
@@ -241,7 +244,7 @@ async def view_sudo_list_cb(client, query: CallbackQuery):
 
 @app.on_callback_query(filters.regex("^sudo_list_back$"))
 async def back_sudo_list_cb(client, query: CallbackQuery):
-    keyboard = [[InlineKeyboardButton("๏ ᴠɪᴇᴡ ꜱᴜᴅᴏʟɪꜱᴛ ๏", callback_data="sudo_list_view")]]
+    keyboard = [[InlineKeyboardButton("๏ ᴠɪᴇᴡ ꜱᴜᴅᴏʟɪꜱᴛ ๏", callback_data="sudo_list_view", style="primary")]]
     await query.message.edit_caption(
         caption=_SUDOLIST_CAPTION,
         parse_mode=enums.ParseMode.HTML,

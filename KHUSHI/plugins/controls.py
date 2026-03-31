@@ -3,7 +3,9 @@
 import random
 
 from pyrogram import filters
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
+from pyrogram.types import InlineKeyboardMarkup, Message
+
+from KHUSHI.utils.inline import InlineKeyboardButton
 
 from KHUSHI import app
 from KHUSHI.core.call import JARVIS
@@ -43,7 +45,7 @@ _BRAND = (
 
 def _close():
     return InlineKeyboardMarkup([[
-        InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close")
+        InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger")
     ]])
 
 def _reply(text):

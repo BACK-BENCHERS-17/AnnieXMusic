@@ -42,4 +42,4 @@ RUN pip install --no-cache-dir --upgrade pip && \
 COPY . .
 
 # Run the bot
-CMD ["python3", "-m", "ANNIEMUSIC"]
+CMD ["python3", "-m", "KHUSHI"]

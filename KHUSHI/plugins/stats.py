@@ -1,7 +1,9 @@
 """KHUSHI — Stats Plugin."""
 
 from pyrogram import filters
-from pyrogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
+from pyrogram.types import CallbackQuery, InlineKeyboardMarkup, Message
+
+from KHUSHI.utils.inline import InlineKeyboardButton
 
 from KHUSHI import app
 from KHUSHI.misc import SUDOERS
@@ -46,21 +48,21 @@ def _stats_keyboard(is_sudo: bool) -> InlineKeyboardMarkup:
     rows = []
     if is_sudo:
         rows.append([
-            InlineKeyboardButton("˹ᴏᴠᴇʀᴀʟʟ˼",  callback_data="kstats:overview"),
-            InlineKeyboardButton("˹sʏsᴛᴇᴍ˼",    callback_data="kstats:system"),
+            InlineKeyboardButton("˹ᴏᴠᴇʀᴀʟʟ˼",  callback_data="kstats:overview", style="primary"),
+            InlineKeyboardButton("˹sʏsᴛᴇᴍ˼",    callback_data="kstats:system",   style="primary"),
         ])
     else:
         rows.append([
-            InlineKeyboardButton("˹ᴏᴠᴇʀᴀʟʟ sᴛᴀᴛs˼", callback_data="kstats:overview"),
+            InlineKeyboardButton("˹ᴏᴠᴇʀᴀʟʟ sᴛᴀᴛs˼", callback_data="kstats:overview", style="primary"),
         ])
-    rows.append([InlineKeyboardButton("˹ᴄʟᴏsᴇ˼", callback_data="kstats:close")])
+    rows.append([InlineKeyboardButton("˹ᴄʟᴏsᴇ˼", callback_data="kstats:close", style="danger")])
     return InlineKeyboardMarkup(rows)
 
 
 def _back_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([[
-        InlineKeyboardButton("˹ʙᴀᴄᴋ˼",  callback_data="kstats:back"),
-        InlineKeyboardButton("˹ᴄʟᴏsᴇ˼", callback_data="kstats:close"),
+        InlineKeyboardButton("˹ʙᴀᴄᴋ˼",  callback_data="kstats:back",  style="success"),
+        InlineKeyboardButton("˹ᴄʟᴏsᴇ˼", callback_data="kstats:close", style="danger"),
     ]])
 
 

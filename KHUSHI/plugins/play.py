@@ -4,7 +4,9 @@ import asyncio
 import random
 
 from pyrogram import filters
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
+from pyrogram.types import InlineKeyboardMarkup, Message
+
+from KHUSHI.utils.inline import InlineKeyboardButton
 
 from strings import get_string
 from KHUSHI import YouTube, app

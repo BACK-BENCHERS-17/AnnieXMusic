@@ -6,7 +6,9 @@ from datetime import datetime
 from pyrogram import enums, filters
 from pyrogram.parser import Parser
 from pyrogram.raw import functions as raw_func, types as raw_types
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
+from pyrogram.types import InlineKeyboardMarkup, Message
+
+from KHUSHI.utils.inline import InlineKeyboardButton
 
 from KHUSHI import app
 from KHUSHI.core.call import JARVIS
@@ -97,7 +99,7 @@ async def khushi_ping(client, message: Message):
 
     _sc = SUPPORT_CHAT if SUPPORT_CHAT.startswith("http") else f"https://t.me/{SUPPORT_CHAT.lstrip('@')}"
     markup = InlineKeyboardMarkup([[
-        InlineKeyboardButton("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=_sc),
+        InlineKeyboardButton("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=_sc, style="primary"),
     ]])
 
     await _send_ping_photo(client, message, caption, markup)
