@@ -425,8 +425,8 @@ async def play_command(
                 "<emoji id='5210820276748566172'>🔤</emoji>"
                 "<emoji id='5213301251722203632'>🔤</emoji>"
                 "<emoji id='5213301251722203632'>🔤</emoji>"
-                "<emoji id='5213337333742454261'>🔤</emoji>"
                 "<emoji id='5211032856154885824'>🔤</emoji>"
+                "<emoji id='5213337333742454261'>🔤</emoji>"
             )
             _usage_cap = (
                 f"<blockquote>{_BRAND_HDR}</blockquote>\n\n"

@@ -4421,3 +4421,108 @@ pyrogram.errors.exceptions.bad_request_400.DocumentInvalid: Telegram says: [400 
 [31-Mar-26 05:13:52 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 [31-Mar-26 05:13:52 - INFO] - KHUSHI -   KHUSHI is LIVE!
 [31-Mar-26 05:13:52 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[31-Mar-26 05:20:01 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] Racing 8 clients for yPzToJ5UrOA | order: ['android_vr', 'ios', 'android', 'mweb']
+[31-Mar-26 05:20:07 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] direct_download ok: /home/runner/workspace/downloads/yPzToJ5UrOA_1774934401.m4a
+[31-Mar-26 05:20:07 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] direct_download (no-cookie) succeeded for yPzToJ5UrOA
+[31-Mar-26 05:20:07 - INFO] - KHUSHI.utils.downloader - [BG-CACHE] Cached for next play: /home/runner/workspace/downloads/yPzToJ5UrOA_1774934401.m4a
+[31-Mar-26 05:20:08 - WARNING] - KHUSHI.utils.ytdl_smart - [SmartYTDL] All yt-dlp clients failed for yPzToJ5UrOA → Invidious
+[31-Mar-26 05:20:33 - ERROR] - KHUSHI.utils.ytdl_smart - [SmartYTDL] ALL extract methods failed for yPzToJ5UrOA
+[31-Mar-26 05:20:33 - WARNING] - KHUSHI.utils.downloader - [FAST] All URL methods failed for yPzToJ5UrOA, falling back to full download
+[31-Mar-26 05:20:33 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] Racing 8 clients for yPzToJ5UrOA | order: ['android_vr', 'ios', 'android', 'mweb']
+[31-Mar-26 05:20:39 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] direct_download ok: /home/runner/workspace/downloads/yPzToJ5UrOA_1774934433.m4a
+[31-Mar-26 05:20:39 - INFO] - KHUSHI.utils.ytdl_smart - [SmartYTDL] direct_download (no-cookie) succeeded for yPzToJ5UrOA
+[31-Mar-26 05:20:40 - INFO] - KHUSHI.utils.downloader - [SMART] Direct download ok: /home/runner/workspace/downloads/yPzToJ5UrOA_1774934433.m4a
+[31-Mar-26 05:20:40 - INFO] - KHUSHI.utils.downloader - [FAST] Fallback download done: /home/runner/workspace/downloads/yPzToJ5UrOA_1774934433.m4a
+[31-Mar-26 05:20:40 - INFO] - KHUSHI.core.call - [PLAY] chat=-1003862964494 | file=/home/runner/workspace/downloads/yPzToJ5UrOA_1774934433.m4a | size=21705270B | video=False
+[31-Mar-26 05:20:40 - INFO] - KHUSHI.core.call - [PLAY] Peer pre-warmed for chat=-1003862964494
+[31-Mar-26 05:20:40 - WARNING] - KHUSHI.utils.ytdl_smart - [SmartYTDL] All yt-dlp clients failed for yPzToJ5UrOA → Invidious
+[31-Mar-26 05:20:54 - ERROR] - KHUSHI.utils.ytdl_smart - [SmartYTDL] ALL extract methods failed for yPzToJ5UrOA
+[31-Mar-26 05:21:23 - WARNING] - KHUSHI.core.call - [PLAY] TelegramServerError attempt 1/3 | chat=-1003862964494 | link=/home/runner/workspace/downloads/yPzToJ5UrOA_1774934433.m4a | err=
+[31-Mar-26 05:21:23 - INFO] - KHUSHI.core.call - [PLAY] Waiting 1s before retry 2/3
+[31-Mar-26 05:22:05 - WARNING] - KHUSHI.core.call - [PLAY] TelegramServerError attempt 2/3 | chat=-1003862964494 | link=/home/runner/workspace/downloads/yPzToJ5UrOA_1774934433.m4a | err=
+[31-Mar-26 05:22:05 - INFO] - KHUSHI.core.call - [PLAY] Waiting 2s before retry 3/3
+[31-Mar-26 05:22:49 - WARNING] - KHUSHI.core.call - [PLAY] TelegramServerError attempt 3/3 | chat=-1003862964494 | link=/home/runner/workspace/downloads/yPzToJ5UrOA_1774934433.m4a | err=
+[31-Mar-26 05:22:49 - WARNING] - KHUSHI.core.call - [PLAY] All retries failed. Attempting VC reset for chat=-1003862964494
+[31-Mar-26 05:22:49 - ERROR] - KHUSHI.core.call - [PLAY] VC reset failed for chat=-1003862964494: The userbot is not in a call
+[31-Mar-26 05:22:49 - ERROR] - KHUSHI.errors - [join_call] AssistantErr: <b>Tᴇʟᴇɢʀᴀᴍ sᴇʀᴠᴇʀ ᴇʀʀᴏʀ</b>
+
+ᴛᴇʟᴇɢʀᴀᴍ ɪs ʜᴀᴠɪɴɢ sᴏᴍᴇ ɪɴᴛᴇʀɴᴀʟ ᴘʀᴏʙʟᴇᴍs, ᴘʟᴇᴀsᴇ ᴛʀʏ ᴘʟᴀʏɪɴɢ ᴀɢᴀɪɴ ᴏʀ ʀᴇsᴛᴀʀᴛ ᴛʜᴇ ᴠɪᴅᴇᴏᴄʜᴀᴛ ᴏғ ʏᴏᴜʀ ɢʀᴏᴜᴘ.
+Traceback (most recent call last):
+  File "/home/runner/workspace/KHUSHI/core/call.py", line 418, in join_call
+    await assistant.play(chat_id, stream)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/statictypes.py", line 96, in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/mtproto_required.py", line 23, in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/mutex.py", line 12, in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/methods/stream/play.py", line 81, in play
+    await self._connect_call(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/methods/internal/connect_call.py", line 128, in _connect_call
+    await self._wait_connect[chat_id]
+ntgcalls.TelegramServerError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/workspace/KHUSHI/utils/errors.py", line 138, in wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/KHUSHI/core/call.py", line 525, in join_call
+    raise AssistantErr(_["call_10"])
+KHUSHI.utils.exceptions.AssistantErr: <b>Tᴇʟᴇɢʀᴀᴍ sᴇʀᴠᴇʀ ᴇʀʀᴏʀ</b>
+
+ᴛᴇʟᴇɢʀᴀᴍ ɪs ʜᴀᴠɪɴɢ sᴏᴍᴇ ɪɴᴛᴇʀɴᴀʟ ᴘʀᴏʙʟᴇᴍs, ᴘʟᴇᴀsᴇ ᴛʀʏ ᴘʟᴀʏɪɴɢ ᴀɢᴀɪɴ ᴏʀ ʀᴇsᴛᴀʀᴛ ᴛʜᴇ ᴠɪᴅᴇᴏᴄʜᴀᴛ ᴏғ ʏᴏᴜʀ ɢʀᴏᴜᴘ.
+
+[31-Mar-26 05:22:49 - ERROR] - pyrogram.dispatcher - Unexpected exception raised in MessageHandler:
+Traceback (most recent call last):
+  File "/home/runner/workspace/KHUSHI/core/call.py", line 418, in join_call
+    await assistant.play(chat_id, stream)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/statictypes.py", line 96, in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/mtproto_required.py", line 23, in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/mutex.py", line 12, in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/methods/stream/play.py", line 81, in play
+    await self._connect_call(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pytgcalls/methods/internal/connect_call.py", line 128, in _connect_call
+    await self._wait_connect[chat_id]
+ntgcalls.TelegramServerError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/pyrogram/dispatcher.py", line 383, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/home/runner/workspace/KHUSHI/plugins/play.py", line 346, in play_cmd
+    await _handle_play(message, video=False)
+  File "/home/runner/workspace/KHUSHI/plugins/play.py", line 319, in _handle_play
+    await JARVIS.join_call(
+  File "/home/runner/workspace/KHUSHI/utils/errors.py", line 145, in wrapper
+    raise err
+  File "/home/runner/workspace/KHUSHI/utils/errors.py", line 138, in wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/KHUSHI/core/call.py", line 525, in join_call
+    raise AssistantErr(_["call_10"])
+KHUSHI.utils.exceptions.AssistantErr: <b>Tᴇʟᴇɢʀᴀᴍ sᴇʀᴠᴇʀ ᴇʀʀᴏʀ</b>
+
+ᴛᴇʟᴇɢʀᴀᴍ ɪs ʜᴀᴠɪɴɢ sᴏᴍᴇ ɪɴᴛᴇʀɴᴀʟ ᴘʀᴏʙʟᴇᴍs, ᴘʟᴇᴀsᴇ ᴛʀʏ ᴘʟᴀʏɪɴɢ ᴀɢᴀɪɴ ᴏʀ ʀᴇsᴛᴀʀᴛ ᴛʜᴇ ᴠɪᴅᴇᴏᴄʜᴀᴛ ᴏғ ʏᴏᴜʀ ɢʀᴏᴜᴘ.
+[31-Mar-26 05:23:59 - INFO] - KHUSHI.core.mongo - KHUSHI: Connecting to MongoDB...
+[31-Mar-26 05:23:59 - INFO] - KHUSHI.core.mongo - KHUSHI: MongoDB connected. (DB: Annie)
+[31-Mar-26 05:24:00 - WARNING] - KHUSHI.utils.ytdl_smart - [SmartYTDL] Node.js NOT found — web_safari client may fail, android_vr will still work
+[31-Mar-26 05:24:00 - INFO] - KHUSHI.core.bot - KHUSHI Bot client initialized.
+[31-Mar-26 05:24:00 - INFO] - KHUSHI.misc - KHUSHI: In-memory DB initialized.
+[31-Mar-26 05:24:01 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[31-Mar-26 05:24:01 - INFO] - KHUSHI -   KHUSHI Bot  |  Independent Core  
+[31-Mar-26 05:24:01 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[31-Mar-26 05:24:07 - INFO] - KHUSHI.core.bot - KHUSHI Bot started as Semex (@WordSeekUBot)
+[31-Mar-26 05:24:07 - INFO] - KHUSHI.core.bot - KHUSHI: No PFP — using default.
+[31-Mar-26 05:24:07 - INFO] - KHUSHI.core.call - Starting PyTgCalls Clients...
