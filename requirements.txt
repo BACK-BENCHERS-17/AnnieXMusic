@@ -2,7 +2,6 @@ aiofiles
 aiohttp
 apscheduler
 beautifulsoup4
-bing_image_downloader
 deepai
 edge-tts
 ffmpeg-python
@@ -45,6 +44,3 @@ unidecode
 wget
 yt-dlp[default] @ git+https://github.com/yt-dlp/yt-dlp.git
 nudenet
-psutil
-pyrofork
-pyrogram

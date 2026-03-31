@@ -1,17 +1,26 @@
 from pyrogram.types import InlineKeyboardButton as OriginalIKB
-from pyrogram.enums import ButtonStyle
 import inspect
+
+try:
+    from pyrogram.enums import ButtonStyle
+    _HAS_BUTTON_STYLE = True
+except ImportError:
+    ButtonStyle = None
+    _HAS_BUTTON_STYLE = False
 
 _IKB_PARAMS = set(inspect.signature(OriginalIKB.__init__).parameters.keys())
 _HAS_ICON  = "icon_custom_emoji_id" in _IKB_PARAMS
-_HAS_STYLE = "style" in _IKB_PARAMS
+_HAS_STYLE = "style" in _IKB_PARAMS and _HAS_BUTTON_STYLE
 
-_STYLE_MAP = {
-    "primary": ButtonStyle.PRIMARY,
-    "success": ButtonStyle.SUCCESS,
-    "danger":  ButtonStyle.DANGER,
-    "default": ButtonStyle.DEFAULT,
-}
+if _HAS_BUTTON_STYLE:
+    _STYLE_MAP = {
+        "primary": ButtonStyle.PRIMARY,
+        "success": ButtonStyle.SUCCESS,
+        "danger":  ButtonStyle.DANGER,
+        "default": ButtonStyle.DEFAULT,
+    }
+else:
+    _STYLE_MAP = {}
 
 
 def InlineKeyboardButton(*args, **kwargs):
