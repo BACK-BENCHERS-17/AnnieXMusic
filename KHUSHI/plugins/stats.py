@@ -17,7 +17,7 @@ from KHUSHI.utils.database import (
     get_served_users,
     get_sudoers,
 )
-from config import BANNED_USERS
+from config import BANNED_USERS, OWNER_ID
 
 _E = {
     "globe":  "<emoji id='5316832074047441823'>🌐</emoji>",
@@ -164,6 +164,14 @@ async def _system_text() -> str:
 
 @app.on_message(filters.command(["stats", "stat"]) & ~BANNED_USERS)
 async def stats_command(_, message: Message):
+    if message.from_user.id != OWNER_ID:
+        return await message.reply_text(
+            "<blockquote>"
+            "🚫 <b>Access Denied</b>\n\n"
+            "You are not authorised to use the <code>/stats</code> command.\n"
+            "This command is reserved exclusively for the bot owner."
+            "</blockquote>"
+        )
     is_sudo = message.from_user.id in SUDOERS
     text = await _main_text()
     await message.reply_text(text, reply_markup=_stats_keyboard(is_sudo))
