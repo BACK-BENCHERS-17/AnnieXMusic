@@ -1,20 +1,79 @@
+import random
 from datetime import datetime
 
-from pyrogram import filters
-from pyrogram.enums import ParseMode
-from pyrogram.types import Message
-from config import *
+from pyrogram import enums, filters
+from pyrogram.parser import Parser
+from pyrogram.raw import functions as raw_func, types as raw_types
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
+
+from config import BANNED_USERS, PING_IMG_URL, SUPPORT_CHAT
 from ANNIEMUSIC import app
 from ANNIEMUSIC.core.call import JARVIS
 from ANNIEMUSIC.utils import bot_sys_stats
-from ANNIEMUSIC.utils.decorators.language import language
-from ANNIEMUSIC.utils.inline import supp_markup
-from config import BANNED_USERS, PING_IMG_URL
+
+_BRAND = (
+    "<emoji id='5042192219960771668'>🧸</emoji>"
+    "<emoji id='5210820276748566172'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5211032856154885824'>🔤</emoji>"
+    "<emoji id='5213337333742454261'>🔤</emoji>"
+)
+
+_E = {
+    "ping": "<emoji id='5269563867305879894'>🏓</emoji>",
+    "vc":   "<emoji id='5226772700113935347'>📞</emoji>",
+    "up":   "<emoji id='6337029193603225180'>🕔</emoji>",
+    "cpu":  "<emoji id='5215186239853964761'>🖥</emoji>",
+    "ram":  "<emoji id='5834767463081840315'>🔵</emoji>",
+    "disk": "<emoji id='5116468787377341336'>💬</emoji>",
+}
 
 
-@app.on_message(filters.command("ping", prefixes=["/", "."]) & ~BANNED_USERS)
-@language
-async def ping_com(client, message: Message, _):
+async def _send_ping_photo(client, message: Message, caption: str, markup: InlineKeyboardMarkup):
+    img = PING_IMG_URL
+    if img:
+        try:
+            peer = await client.resolve_peer(message.chat.id)
+            parser = Parser(client)
+            parsed = await parser.parse(caption, mode=enums.ParseMode.HTML)
+            text = parsed.get("message", "")
+            entities = parsed.get("entities") or []
+            raw_markup = await markup.write(client) if markup else None
+            media = raw_types.InputMediaPhotoExternal(url=img, spoiler=True)
+            await client.invoke(
+                raw_func.messages.SendMedia(
+                    peer=peer,
+                    media=media,
+                    message=text,
+                    random_id=random.randint(-(2**63), 2**63 - 1),
+                    reply_markup=raw_markup,
+                    entities=entities,
+                )
+            )
+            return
+        except Exception:
+            pass
+        try:
+            await message.reply_photo(
+                photo=img,
+                caption=caption,
+                reply_markup=markup,
+                has_spoiler=True,
+            )
+            return
+        except Exception:
+            pass
+
+    await message.reply_text(
+        caption,
+        reply_markup=markup,
+        disable_web_page_preview=True,
+    )
+
+
+@app.on_message(filters.command(["ping"], prefixes=["/", "."]) & ~BANNED_USERS)
+async def ping_com(client, message: Message):
     start = datetime.now()
 
     try:
@@ -23,33 +82,31 @@ async def ping_com(client, message: Message, _):
         pytgping = "N/A"
 
     UP, CPU, RAM, DISK = await bot_sys_stats()
-    resp = (datetime.now() - start).microseconds / 1000
+    ms = round((datetime.now() - start).microseconds / 1000, 2)
 
-    caption = _["ping_2"].format(resp, app.mention, UP, RAM, CPU, DISK, pytgping)
-    markup = supp_markup(_)
+    caption = (
+        f"<blockquote>{_BRAND}</blockquote>\n\n"
+        "<blockquote>"
+        "┌────── ˹ ᴘɪɴɢ ˼─── ⏤‌‌●\n"
+        f"┆{_E['ping']} <b>ᴘɪɴɢ :</b> <code>{ms} ᴍs</code>\n"
+        f"┆{_E['vc']} <b>ᴠᴄ ᴘɪɴɢ :</b> <code>{pytgping}</code>\n"
+        "├──────────────────────\n"
+        f"┆{_E['up']} <b>ᴜᴘᴛɪᴍᴇ :</b> <code>{UP}</code>\n"
+        f"┆{_E['cpu']} <b>ᴄᴘᴜ :</b> <code>{CPU}</code>\n"
+        f"┆{_E['ram']} <b>ʀᴀᴍ :</b> <code>{RAM}</code>\n"
+        f"┆{_E['disk']} <b>ᴅɪsᴋ :</b> <code>{DISK}</code>\n"
+        "└──────────────────────●"
+        "</blockquote>"
+    )
 
-    sent = False
+    markup = InlineKeyboardMarkup([[
+        InlineKeyboardButton(
+            "˹sᴜᴘᴘᴏʀᴛ˼",
+            url=f"https://t.me/{SUPPORT_CHAT.lstrip('@')}",
+        ),
+    ]])
 
-    if PING_IMG_URL:
-        try:
-            await message.reply_photo(
-                photo=PING_IMG_URL,
-                caption=caption,
-                reply_markup=markup,
-            )
-            sent = True
-        except Exception:
-            pass
-
-    if not sent:
-        try:
-            await message.reply_text(
-                text=caption,
-                reply_markup=markup,
-                parse_mode=ParseMode.HTML,
-            )
-        except Exception:
-            pass
+    await _send_ping_photo(client, message, caption, markup)
 
     try:
         await message.delete()

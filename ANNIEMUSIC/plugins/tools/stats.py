@@ -1,5 +1,10 @@
 from pyrogram import filters
-from pyrogram.types import Message, CallbackQuery
+from pyrogram.types import (
+    CallbackQuery,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    Message,
+)
 
 from ANNIEMUSIC import app
 from ANNIEMUSIC.misc import SUDOERS
@@ -13,13 +18,7 @@ from ANNIEMUSIC.utils.database import (
     get_served_users,
     get_sudoers,
 )
-from ANNIEMUSIC.utils.decorators.language import language, languageCB
-from ANNIEMUSIC.utils.inline.stats import (
-    StatsCallbacks,
-    build_back_keyboard,
-    build_stats_keyboard,
-)
-from config import BANNED_USERS, STATS_VID_URL
+from config import BANNED_USERS
 
 _E = {
     "globe":  "<emoji id='5316832074047441823'>🌐</emoji>",
@@ -153,56 +152,67 @@ async def _system_text() -> str:
     )
 
 
+def _stats_keyboard(is_sudo: bool) -> InlineKeyboardMarkup:
+    non_sudo_row = [
+        InlineKeyboardButton("ᴏᴠᴇʀᴀʟʟ sᴛᴀᴛs", callback_data="stats:overview"),
+    ]
+    sudo_row = [
+        InlineKeyboardButton("ɢᴇɴᴇʀᴀʟ", callback_data="stats:bot"),
+        InlineKeyboardButton("ᴏᴠᴇʀᴀʟʟ", callback_data="stats:overview"),
+    ]
+    rows = [
+        sudo_row if is_sudo else non_sudo_row,
+        [InlineKeyboardButton("ᴄʟᴏsᴇ", callback_data="stats:close")],
+    ]
+    return InlineKeyboardMarkup(rows)
+
+
+def _back_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup([[
+        InlineKeyboardButton("ʙᴀᴄᴋ", callback_data="stats:back"),
+        InlineKeyboardButton("ᴄʟᴏsᴇ", callback_data="stats:close"),
+    ]])
+
+
 @app.on_message(filters.command(["stats", "stat"]) & ~BANNED_USERS)
-@language
-async def stats_command(client, message: Message, _):
-    is_sudo = message.from_user.id in SUDOERS
+async def stats_command(client, message: Message):
+    user = message.from_user
+    is_sudo = (user.id in SUDOERS) if user else False
     text = await _main_text()
-    keyboard = build_stats_keyboard(_, is_sudo)
-    try:
-        await message.reply_video(
-            video=STATS_VID_URL,
-            caption=text,
-            reply_markup=keyboard,
-        )
-    except Exception:
-        await message.reply_text(text, reply_markup=keyboard)
+    await message.reply_text(text, reply_markup=_stats_keyboard(is_sudo))
 
 
-@app.on_callback_query(filters.regex(f"^{StatsCallbacks.SHOW_OVERVIEW}$") & ~BANNED_USERS)
-@languageCB
-async def stats_overview_cb(client, cb: CallbackQuery, _):
+@app.on_callback_query(filters.regex(r"^stats:overview$") & ~BANNED_USERS)
+async def stats_overview_cb(client, cb: CallbackQuery):
     text = await _overview_text()
     try:
-        await cb.message.edit_text(text, reply_markup=build_back_keyboard(_))
+        await cb.message.edit_text(text, reply_markup=_back_keyboard())
     except Exception:
         await cb.answer()
 
 
-@app.on_callback_query(filters.regex(f"^{StatsCallbacks.SHOW_BOT_STATS}$") & ~BANNED_USERS)
-@languageCB
-async def stats_system_cb(client, cb: CallbackQuery, _):
+@app.on_callback_query(filters.regex(r"^stats:bot$") & ~BANNED_USERS)
+async def stats_system_cb(client, cb: CallbackQuery):
     if cb.from_user.id not in SUDOERS:
         return await cb.answer("ᴏɴʟʏ sᴜᴅᴏᴇʀs ᴄᴀɴ ᴠɪᴇᴡ ᴛʜɪs!", show_alert=True)
     text = await _system_text()
     try:
-        await cb.message.edit_text(text, reply_markup=build_back_keyboard(_))
+        await cb.message.edit_text(text, reply_markup=_back_keyboard())
     except Exception:
         await cb.answer()
 
 
-@app.on_callback_query(filters.regex(f"^{StatsCallbacks.BACK}$") & ~BANNED_USERS)
-@languageCB
-async def stats_back_cb(client, cb: CallbackQuery, _):
+@app.on_callback_query(filters.regex(r"^stats:back$") & ~BANNED_USERS)
+async def stats_back_cb(client, cb: CallbackQuery):
     is_sudo = cb.from_user.id in SUDOERS
     text = await _main_text()
     try:
-        await cb.message.edit_text(text, reply_markup=build_stats_keyboard(_, is_sudo))
+        await cb.message.edit_text(text, reply_markup=_stats_keyboard(is_sudo))
     except Exception:
         await cb.answer()
 
 
-@app.on_callback_query(filters.regex(f"^{StatsCallbacks.CLOSE}$") & ~BANNED_USERS)
+@app.on_callback_query(filters.regex(r"^stats:close$") & ~BANNED_USERS)
 async def stats_close_cb(client, cb: CallbackQuery):
     try:
         await cb.message.delete()
