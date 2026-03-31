@@ -20,27 +20,27 @@ from KHUSHI.utils.database import (
 from config import BANNED_USERS, OWNER_ID
 
 _E = {
-    "globe":  "<emoji id='5316832074047441823'>🌐</emoji>",
-    "user":   "<emoji id='5316992572680320646'>👤</emoji>",
-    "music":  "<emoji id='5463107823946717464'>🎵</emoji>",
-    "video":  "<emoji id='5375464961822695044'>🎬</emoji>",
-    "time":   "<emoji id='6337029193603225180'>🕔</emoji>",
-    "cpu":    "<emoji id='5215186239853964761'>🖥</emoji>",
-    "ram":    "<emoji id='5834767463081840315'>🔵</emoji>",
-    "disk":   "<emoji id='5116468787377341336'>💬</emoji>",
-    "crown":  "<emoji id='5039727497143387500'>👑</emoji>",
-    "fire":   "<emoji id='5039598514980520994'>❤️‍🔥</emoji>",
-    "banned": "<emoji id='6307831155521494118'>💩</emoji>",
-    "block":  "<emoji id='5039671744172917707'>🚫</emoji>",
+    "globe":  "🌐",
+    "user":   "👤",
+    "music":  "🎵",
+    "video":  "🎬",
+    "time":   "🕔",
+    "cpu":    "🖥",
+    "ram":    "🔵",
+    "disk":   "💬",
+    "crown":  "👑",
+    "fire":   "❤️‍🔥",
+    "banned": "💩",
+    "block":  "🚫",
 }
 
 _BRAND = (
-    "<emoji id='5042192219960771668'>🧸</emoji>"
-    "<emoji id='5210820276748566172'>🔤</emoji>"
-    "<emoji id='5213301251722203632'>🔤</emoji>"
-    "<emoji id='5213301251722203632'>🔤</emoji>"
-    "<emoji id='5211032856154885824'>🔤</emoji>"
-    "<emoji id='5213337333742454261'>🔤</emoji>"
+    "🧸"
+    "🔤"
+    "🔤"
+    "🔤"
+    "🔤"
+    "🔤"
 )
 
 

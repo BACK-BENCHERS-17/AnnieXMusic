@@ -624,9 +624,9 @@ class Call:
                     await asyncio.sleep(wait_sec)
                     continue
                 raise AssistantErr(
-                    f"<emoji id='5040042498634810056'>❌</emoji> <b>ᴛᴇʟᴇɢʀᴀᴍ ғʟᴏᴏᴅ ᴡᴀɪᴛ</b>\n\n"
+                    f"❌ <b>ᴛᴇʟᴇɢʀᴀᴍ ғʟᴏᴏᴅ ᴡᴀɪᴛ</b>\n\n"
                     f"<blockquote>"
-                    f"<emoji id='5123230779593196220'>⏰</emoji> ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ <b>{wait_sec}s</b> ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ."
+                    f"⏰ ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ <b>{wait_sec}s</b> ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ."
                     f"</blockquote>"
                 )
             except ChannelInvalid:
@@ -866,16 +866,16 @@ class Call:
                                 language = await get_lang(chat_id)
                                 _lang = get_string(language)
                                 try:
-                                    _BEAR = "<emoji id='5042192219960771668'>🧸</emoji>"
-                                    _TIME = "<emoji id='4979027931234830344'>⏳</emoji>"
-                                    _DOT  = "<emoji id='5972072533833289156'>🔹</emoji>"
+                                    _BEAR = "🧸"
+                                    _TIME = "⏳"
+                                    _DOT  = "🔹"
                                     _AROW = (
-                                        "<emoji id='5042192219960771668'>🧸</emoji>"
-                                        "<emoji id='5210820276748566172'>🔤</emoji>"
-                                        "<emoji id='5213301251722203632'>🔤</emoji>"
-                                        "<emoji id='5213301251722203632'>🔤</emoji>"
-                                        "<emoji id='5211032856154885824'>🔤</emoji>"
-                                        "<emoji id='5213337333742454261'>🔤</emoji>"
+                                        "🧸"
+                                        "🔤"
+                                        "🔤"
+                                        "🔤"
+                                        "🔤"
+                                        "🔤"
                                     )
                                     btn = stream_markup_timer(
                                         _lang, chat_id,
@@ -970,21 +970,21 @@ class Call:
                     ])
 
                     _AROW = (
-                        "<emoji id='5042192219960771668'>🧸</emoji>"
-                        "<emoji id='5210820276748566172'>🔤</emoji>"
-                        "<emoji id='5213301251722203632'>🔤</emoji>"
-                        "<emoji id='5213301251722203632'>🔤</emoji>"
-                        "<emoji id='5211032856154885824'>🔤</emoji>"
-                        "<emoji id='5213337333742454261'>🔤</emoji>"
+                        "🧸"
+                        "🔤"
+                        "🔤"
+                        "🔤"
+                        "🔤"
+                        "🔤"
                     )
                     _last_short = (last_title[:32] + "…") if len(last_title) > 32 else last_title
                     _end_text = (
                         f"<blockquote>{_AROW}</blockquote>\n\n"
                         "<blockquote>"
-                        "<emoji id='5039827436737397847'>✨</emoji>"
+                        "✨"
                         " <b>ǫᴜᴇᴜᴇ ᴇɴᴅᴇᴅ!</b>\n"
-                        + (f"<emoji id='5972072533833289156'>🔹</emoji> ʟᴀsᴛ: <b>{_last_short}</b>\n" if _last_short else "")
-                        + "\n<emoji id='5042334757040423886'>⚡️</emoji>"
+                        + (f"🔹 ʟᴀsᴛ: <b>{_last_short}</b>\n" if _last_short else "")
+                        + "\n⚡️"
                         " <b>ʏᴏᴜ ᴍɪɢʜᴛ ʟɪᴋᴇ ᴛʜᴇꜱᴇ:</b>"
                         "</blockquote>"
                     )
