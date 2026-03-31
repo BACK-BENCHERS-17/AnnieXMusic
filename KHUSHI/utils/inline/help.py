@@ -1,7 +1,7 @@
 from . import InlineKeyboardButton
 from pyrogram.types import InlineKeyboardMarkup
 
-TOTAL_SECTIONS = 11
+TOTAL_SECTIONS = 15
 SKIP_SECTIONS = set()
 
 
@@ -67,6 +67,30 @@ def first_page(_):
             InlineKeyboardButton(
                 text=_["H_B_11"],
                 callback_data="help_callback hb11_p1",
+                style="primary",
+            ),
+        ],
+        [
+            InlineKeyboardButton(
+                text=_["H_B_12"],
+                callback_data="help_callback hb12_p1",
+                style="primary",
+            ),
+            InlineKeyboardButton(
+                text=_["H_B_13"],
+                callback_data="help_callback hb13_p1",
+                style="primary",
+            ),
+        ],
+        [
+            InlineKeyboardButton(
+                text=_["H_B_14"],
+                callback_data="help_callback hb14_p1",
+                style="primary",
+            ),
+            InlineKeyboardButton(
+                text=_["H_B_15"],
+                callback_data="help_callback hb15_p1",
                 style="primary",
             ),
         ],

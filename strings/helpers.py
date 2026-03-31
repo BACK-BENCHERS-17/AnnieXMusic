@@ -161,3 +161,72 @@ HELP_11 = _ANNIE + """
 
 <blockquote><emoji id="5042334757040423886">⚡️</emoji> ᴡᴏʀᴋs ɪɴ ᴘʀɪᴠᴀᴛᴇ ᴄʜᴀᴛ ᴏɴʟʏ · 48 ᴍʙ ʟɪᴍɪᴛ · ʏᴏᴜᴛᴜʙᴇ ꜱᴜᴘᴘᴏʀᴛ</blockquote>
 """
+
+HELP_12 = _ANNIE + """
+<blockquote><b><emoji id="5282843764451195532">🛡</emoji> ˹ sᴇᴄᴜʀɪᴛʏ ˼</b></blockquote>
+
+<blockquote>
+<b>• /antilink on|off</b>
+  ↳ ᴅᴇʟᴇᴛᴇ ʟɪɴᴋs sᴇɴᴛ ʙʏ ɴᴏɴ-ᴀᴅᴍɪɴs
+
+<b>• /antiflood on|off [count]</b>
+  ↳ ᴅᴇʟᴇᴛᴇ ꜰʟᴏᴏᴅ ᴍᴇssᴀɢᴇs (ᴅᴇꜰᴀᴜʟᴛ: 5 ᴍsɢ / 5s)
+</blockquote>
+
+<blockquote><emoji id="5972072533833289156">🔹</emoji> ᴀᴅᴍɪɴ-ᴏɴʟʏ ᴄᴏᴍᴍᴀɴᴅs · ᴠɪᴏʟᴀᴛɪᴏɴs ᴀʀᴇ ᴀᴜᴛᴏ-ᴅᴇʟᴇᴛᴇᴅ</blockquote>
+"""
+
+HELP_13 = _ANNIE + """
+<blockquote><b><emoji id="5467666044815377227">⚠️</emoji> ˹ ɴꜱꜰᴡ ꜰɪʟᴛᴇʀ ˼</b></blockquote>
+
+<blockquote>
+<b>• /nsfw on</b>   ↳ ᴇɴᴀʙʟᴇ ɴꜱꜰᴡ ᴄᴏɴᴛᴇɴᴛ ꜰɪʟᴛᴇʀ
+<b>• /nsfw off</b>  ↳ ᴅɪsᴀʙʟᴇ ɴꜱꜰᴡ ꜰɪʟᴛᴇʀ
+<b>• /nsfw</b>      ↳ ᴄʜᴇᴄᴋ ᴄᴜʀʀᴇɴᴛ ꜱᴛᴀᴛᴜs
+</blockquote>
+
+<blockquote><emoji id="5042334757040423886">⚡️</emoji> ᴅᴇᴛᴇᴄᴛs ɴꜱꜰᴡ ᴋᴇʏᴡᴏʀᴅs ɪɴ ᴛᴇxᴛ · ᴀᴅᴍɪɴ-ᴏɴʟʏ ᴛᴏɢɢʟᴇ</blockquote>
+"""
+
+HELP_14 = _ANNIE + """
+<blockquote><b><emoji id="5463107823946717464">🎵</emoji> ˹ sᴏɴɢ ʀᴇᴄᴏ ˼</b></blockquote>
+
+<blockquote>
+<b>• /reco</b>
+  ↳ ɢᴇᴛ sᴏɴɢ ʀᴇᴄᴏᴍᴍᴇɴᴅᴀᴛɪᴏɴs
+
+<b>• /reco</b> <code>[song / genre]</code>
+  ↳ ʀᴇᴄᴏᴍᴍᴇɴᴅ ʙᴀsᴇᴅ ᴏɴ ǫᴜᴇʀʏ
+
+<b>• /rconfig</b>
+  ↳ ᴠɪᴇᴡ / ᴄʜᴀɴɢᴇ ʀᴇᴄᴏ sᴇᴛᴛɪɴɢs
+
+<b>• /rconfig genre</b> <code>[name]</code>
+  ↳ ꜱᴇᴛ ᴘʀᴇꜰᴇʀʀᴇᴅ ɢᴇɴʀᴇ
+
+<b>• /rconfig count</b> <code>[1-10]</code>
+  ↳ ꜱᴇᴛ ɴᴜᴍʙᴇʀ ᴏꜰ sᴜɢɢᴇsᴛɪᴏɴs
+</blockquote>
+
+<blockquote><emoji id="5972072533833289156">🔹</emoji> ɢᴇɴʀᴇs: pop · hiphop · lofi · rock · indie · rnb · edm · classic · bollywood</blockquote>
+"""
+
+HELP_15 = _ANNIE + """
+<blockquote><b><emoji id="5226772700113935347">📞</emoji> ˹ ᴠᴄ ᴛᴏᴏʟs ˼</b></blockquote>
+
+<blockquote>
+<b>• /vcinfo</b>
+  ↳ sʜᴏᴡ ᴀʟʟ ᴠᴄ ᴘᴀʀᴛɪᴄɪᴘᴀɴᴛs
+
+<b>• /vclogger on|off</b>
+  ↳ ʟᴏɢ ᴠᴄ ᴊᴏɪɴ / ʟᴇᴀᴠᴇ ᴇᴠᴇɴᴛs
+
+<b>• /mutevc</b>
+  ↳ ᴍᴜᴛᴇ ᴀssɪsᴛᴀɴᴛ ɪɴ ᴠᴄ
+
+<b>• /unmutevc</b>
+  ↳ ᴜɴᴍᴜᴛᴇ ᴀssɪsᴛᴀɴᴛ ɪɴ ᴠᴄ
+</blockquote>
+
+<blockquote><emoji id="5042334757040423886">⚡️</emoji> ᴀᴅᴍɪɴ-ᴏɴʟʏ ᴄᴏᴍᴍᴀɴᴅs · ᴠᴄ ᴍᴜsᴛ ʙᴇ ᴀᴄᴛɪᴠᴇ ꜰᴏʀ ᴍᴜᴛᴇ/ᴜɴᴍᴜᴛᴇ</blockquote>
+"""

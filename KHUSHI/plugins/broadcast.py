@@ -4,12 +4,11 @@ import asyncio
 
 from pyrogram import filters
 from pyrogram.errors import FloodWait
-from pyrogram.types import Message
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from KHUSHI import app
-from KHUSHI.misc import SUDOERS
 from KHUSHI.utils.database import get_served_chats, get_served_users
-from config import adminlist
+from config import OWNER_ID, adminlist
 from pyrogram.enums import ChatMembersFilter
 from KHUSHI.utils.database import get_active_chats, get_authuser_names
 from KHUSHI.utils.formatters import alpha_to_int
@@ -112,13 +111,18 @@ async def _do_broadcast(message: Message):
         except Exception:
             continue
 
+    _close_btn = InlineKeyboardMarkup([[
+        InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close"),
+    ]])
+
     await message.reply_text(
         f"{_BRAND}\n\n"
         f"<blockquote>"
         f"<emoji id='5041975203853239332'>🎁</emoji> <b>ᴅᴏɴᴇ</b>\n\n"
         f"<emoji id='5972072533833289156'>🔹</emoji> "
         f"ꜱᴇɴᴛ ᴛᴏ <code>{sent}</code> ɢʀᴏᴜᴘꜱ · <code>{pin}</code> ᴘɪɴꜱ"
-        f"</blockquote>"
+        f"</blockquote>",
+        reply_markup=_close_btn,
     )
 
     if do_user:
@@ -142,12 +146,13 @@ async def _do_broadcast(message: Message):
             f"<emoji id='5041975203853239332'>🎁</emoji> <b>ᴜꜱᴇʀ ʙʀᴏᴀᴅᴄᴀꜱᴛ ᴅᴏɴᴇ</b>\n\n"
             f"<emoji id='5972072533833289156'>🔹</emoji> "
             f"ꜱᴇɴᴛ ᴛᴏ <code>{susr}</code> ᴜꜱᴇʀꜱ"
-            f"</blockquote>"
+            f"</blockquote>",
+            reply_markup=_close_btn,
         )
 
 
 @app.on_message(
-    filters.command(["broadcast", "bc"], prefixes=["/", "!", "."]) & SUDOERS
+    filters.command(["broadcast", "bc"], prefixes=["/", "!", "."]) & filters.user(OWNER_ID)
 )
 async def broadcast_cmd(_, message: Message):
     await _do_broadcast(message)

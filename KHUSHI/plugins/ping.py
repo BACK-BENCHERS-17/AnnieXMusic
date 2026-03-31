@@ -95,8 +95,9 @@ async def khushi_ping(client, message: Message):
         f"</blockquote>"
     )
 
+    _sc = SUPPORT_CHAT if SUPPORT_CHAT.startswith("http") else f"https://t.me/{SUPPORT_CHAT.lstrip('@')}"
     markup = InlineKeyboardMarkup([[
-        InlineKeyboardButton("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=f"https://t.me/{SUPPORT_CHAT.lstrip('@')}"),
+        InlineKeyboardButton("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=_sc),
     ]])
 
     await _send_ping_photo(client, message, caption, markup)

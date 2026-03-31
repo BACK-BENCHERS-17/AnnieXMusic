@@ -23,7 +23,7 @@ from KHUSHI.utils.inline import aq_markup, stream_markup
 from KHUSHI.utils.raw_send import send_msg_invert_preview
 from KHUSHI.utils.stream.queue import put_queue
 from KHUSHI.utils.thumbnails import get_thumb
-from config import AYU, BANNED_USERS, BOT_USERNAME, DURATION_LIMIT, SUPPORT_CHAT, adminlist
+from config import AYU, BANNED_USERS, BOT_USERNAME, DURATION_LIMIT, PING_IMG_URL, START_IMGS, SUPPORT_CHAT, adminlist
 
 THUMB_OFF_VIDEO_URL = "https://files.catbox.moe/4vr2jc.mp4"
 
@@ -59,11 +59,12 @@ async def _check_maintenance(message: Message) -> bool:
     try:
         if await is_maintenance():
             if message.from_user.id not in SUDOERS:
+                _sc = SUPPORT_CHAT if SUPPORT_CHAT.startswith("http") else f"https://t.me/{SUPPORT_CHAT.lstrip('@')}"
                 await message.reply_text(
                     f"<blockquote>{_BRAND}</blockquote>\n\n"
                     f"<blockquote>{_EM['zap']} <b>ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ ᴍᴏᴅᴇ</b>\n"
                     f"{_EM['dot']} ᴠɪꜱɪᴛ "
-                    f"<a href='https://t.me/{SUPPORT_CHAT.lstrip('@')}'>ꜱᴜᴘᴘᴏʀᴛ</a>.</blockquote>",
+                    f"<a href='{_sc}'>ꜱᴜᴘᴘᴏʀᴛ</a>.</blockquote>",
                     disable_web_page_preview=True,
                 )
                 return True
@@ -115,12 +116,32 @@ async def _handle_play(message: Message, video: bool = False):
 
     if tg_audio is None and tg_video is None and url is None:
         if len(message.command) < 2:
-            await message.reply_text(
+            _sc = SUPPORT_CHAT if SUPPORT_CHAT.startswith("http") else f"https://t.me/{SUPPORT_CHAT.lstrip('@')}"
+            _play_kb = InlineKeyboardMarkup([
+                [
+                    InlineKeyboardButton("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=_sc),
+                    InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close"),
+                ]
+            ])
+            _play_caption = (
                 f"<blockquote>{_BRAND}</blockquote>\n\n"
                 f"<blockquote>{_EM['music']} <b>ᴜꜱᴀɢᴇ</b>\n"
-                f"{_EM['dot']} /play [ꜱᴏɴɢ ɴᴀᴍᴇ / ᴜʀʟ]\n"
-                f"{_EM['video']} /vplay [ᴠɪᴅᴇᴏ ɴᴀᴍᴇ / ᴜʀʟ]</blockquote>"
+                f"{_EM['dot']} <code>/play [ꜱᴏɴɢ ɴᴀᴍᴇ / ᴜʀʟ]</code>\n"
+                f"{_EM['video']} <code>/vplay [ᴠɪᴅᴇᴏ ɴᴀᴍᴇ / ᴜʀʟ]</code></blockquote>"
             )
+            _img = PING_IMG_URL or random.choice(START_IMGS)
+            try:
+                await message.reply_photo(
+                    photo=_img,
+                    caption=_play_caption,
+                    reply_markup=_play_kb,
+                )
+            except Exception:
+                await message.reply_text(
+                    _play_caption,
+                    reply_markup=_play_kb,
+                    disable_web_page_preview=True,
+                )
             return
 
     # ── Loading indicator ──────────────────────────────────────────────────────
