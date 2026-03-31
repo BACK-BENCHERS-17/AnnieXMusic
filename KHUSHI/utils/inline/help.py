@@ -119,7 +119,7 @@ def action_sub_menu(_, current_page: int):
 
 
 def help_nav_markup(_, section: int):
-    """Navigation markup shown inside a help section — Back to menu + Next (loops)."""
+    """Navigation markup shown inside a help section — Back to menu + Prev + Next (loops)."""
     next_s = (section % TOTAL_SECTIONS) + 1
     prev_s = ((section - 2) % TOTAL_SECTIONS) + 1
     return InlineKeyboardMarkup([
@@ -128,16 +128,19 @@ def help_nav_markup(_, section: int):
                 text="˹ᴍᴇɴᴜ˼",
                 callback_data="help_back_1",
                 style="primary",
+                icon_custom_emoji_id="5974362032288935441",
             ),
             InlineKeyboardButton(
-                text=f"◀ {prev_s}",
+                text=f"{prev_s}",
                 callback_data=f"help_nav_{prev_s}",
                 style="default",
+                icon_custom_emoji_id="5197564405558557557",
             ),
             InlineKeyboardButton(
-                text=f"{next_s} ▶",
+                text=f"{next_s}",
                 callback_data=f"help_nav_{next_s}",
                 style="success",
+                icon_custom_emoji_id="5197551803978436806",
             ),
         ]
     ])
