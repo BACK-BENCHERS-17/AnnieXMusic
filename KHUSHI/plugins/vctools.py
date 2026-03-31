@@ -6,7 +6,7 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 from KHUSHI import app
 from KHUSHI.core.call import JARVIS
 from KHUSHI.core.mongo import mongodb
-from KHUSHI.utils.database import is_active_chat
+from KHUSHI.utils.database import group_assistant, is_active_chat
 from KHUSHI.utils.decorators import KhushiAdminCheck as AdminRightsCheck
 from config import BANNED_USERS
 
@@ -73,8 +73,7 @@ async def vcinfo_cmd(client, message: Message, lang, chat_id):
         )
 
     try:
-        assistant_num = await JARVIS.group_assistant(chat_id)
-        assistant = JARVIS.pytgcalls[assistant_num]
+        assistant = await group_assistant(JARVIS, chat_id)
         participants = await assistant.get_participants(chat_id)
 
         if not participants:
