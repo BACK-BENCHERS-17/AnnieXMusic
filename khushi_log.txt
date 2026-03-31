@@ -5596,3 +5596,7 @@ pyrogram.errors.exceptions.bad_request_400.DocumentInvalid: Telegram says: [400 
 [31-Mar-26 14:53:04 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 [31-Mar-26 14:53:04 - INFO] - KHUSHI -   KHUSHI is LIVE!
 [31-Mar-26 14:53:04 - INFO] - KHUSHI - ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[31-Mar-26 14:56:40 - WARNING] - KHUSHI.plugins.start - [RAW_EDIT] failed: Telegram says: [400 MESSAGE_NOT_MODIFIED] - The message was not modified because you tried to edit it using the same content. (caused by "messages.EditMessage")
+[31-Mar-26 14:56:40 - WARNING] - KHUSHI.plugins.start - [HELP_CB] edit_caption failed: Telegram says: [400 MESSAGE_NOT_MODIFIED] - The message was not modified because you tried to edit it using the same content. (caused by "messages.EditMessage")
+[31-Mar-26 14:56:40 - WARNING] - KHUSHI.plugins.start - [HELP_CB] edit_text failed: Telegram says: [400 MESSAGE_NOT_MODIFIED] - The message was not modified because you tried to edit it using the same content. (caused by "messages.EditMessage")
+[31-Mar-26 14:56:40 - WARNING] - KHUSHI.plugins.start - [HELP_CB] All edits failed — falling back to delete+send
