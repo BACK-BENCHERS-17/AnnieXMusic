@@ -181,6 +181,40 @@ async def _save_rconfig(chat_id: int, data: dict):
     await _recodb.update_one({"chat_id": chat_id}, {"$set": data}, upsert=True)
 
 
+_RECO_SKIP_KW = {
+    "jukebox", "playlist", "non stop", "nonstop", "mashup",
+    "top 10", "top 20", "top 50", "compilation", "jhankar",
+    "ringtone", "full album", "all songs", "audio jukebox",
+    "video jukebox", "best of", "hits of", "back to back",
+}
+
+
+async def _yt_related(query: str, n: int) -> list[str]:
+    """Search YouTube for songs related to `query` and return their titles."""
+    from youtubesearchpython.__future__ import VideosSearch
+    titles: list[str] = []
+    for suffix in [f"songs like {query}", f"{query} similar songs"]:
+        try:
+            res = await VideosSearch(suffix, limit=12).next()
+            for item in (res.get("result") or []):
+                title = item.get("title", "")
+                dur = item.get("duration") or ""
+                if not title or not dur:
+                    continue
+                if any(kw in title.lower() for kw in _RECO_SKIP_KW):
+                    continue
+                # Skip if it's literally the queried song itself
+                if query.lower()[:15] in title.lower():
+                    continue
+                if title not in titles:
+                    titles.append(title)
+                if len(titles) >= n:
+                    return titles
+        except Exception:
+            pass
+    return titles
+
+
 @app.on_message(
     filters.command(["reco", "recommend", "suggest"], prefixes=["/", ".", "!"]) & ~BANNED_USERS
 )
@@ -192,18 +226,38 @@ async def reco_cmd(client, message: Message):
     count = min(cfg.get("count", 5), 6)
     genre = cfg.get("genre", "bollywood")
 
-    if query:
-        songs_pool: list[str] = []
-        q_lower = query.lower()
-        for g, songs in _GENRES.items():
-            if g in q_lower or any(q_lower in s.lower() for s in songs):
-                songs_pool.extend(songs)
-        if not songs_pool:
-            songs_pool = _GENRES.get(genre, _DEFAULT_POOL)
-    else:
-        songs_pool = _GENRES.get(genre, _DEFAULT_POOL)
+    picks: list[str] = []
 
-    picks = random.sample(songs_pool, min(count, len(songs_pool)))
+    if query:
+        # Try YouTube-based related song search first
+        loading = await message.reply_text(
+            f"<blockquote>{_BRAND}</blockquote>\n\n"
+            f"<blockquote>{_EM['zap']} ꜱᴇᴀʀᴄʜɪɴɢ ʀᴇʟᴀᴛᴇᴅ ꜱᴏɴɢꜱ…</blockquote>"
+        )
+        picks = await _yt_related(query, count)
+        try:
+            await loading.delete()
+        except Exception:
+            pass
+
+    if not picks:
+        # Fallback: local genre pool (also used when no query given)
+        if query:
+            # Try keyword matching against local DB
+            q_lower = query.lower()
+            songs_pool: list[str] = []
+            for g, songs in _GENRES.items():
+                if g in q_lower or any(
+                    any(w in s.lower() for w in q_lower.split() if len(w) > 2)
+                    for s in songs
+                ):
+                    songs_pool.extend(songs)
+            if not songs_pool:
+                songs_pool = _GENRES.get(genre, _DEFAULT_POOL)
+        else:
+            songs_pool = _GENRES.get(genre, _DEFAULT_POOL)
+
+        picks = random.sample(songs_pool, min(count, len(songs_pool)))
 
     lines = "\n".join(
         f"{_EM['dot']} <b>{i+1}.</b> <code>{s}</code>"

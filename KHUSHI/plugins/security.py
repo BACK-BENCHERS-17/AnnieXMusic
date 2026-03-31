@@ -25,10 +25,10 @@ _BRAND = (
 )
 
 _EM = {
-    "shield": "<emoji id='5282843764451195532'>🛡</emoji>",
+    "shield": "<emoji id='5895483165182529286'>🛡</emoji>",
     "zap":    "<emoji id='5042334757040423886'>⚡️</emoji>",
     "dot":    "<emoji id='5972072533833289156'>🔹</emoji>",
-    "warn":   "<emoji id='5467666044815377227'>⚠️</emoji>",
+    "warn":   "<emoji id='5420323339723881652'>⚠️</emoji>",
     "on":     "<emoji id='6041597085009056322'>✅</emoji>",
     "off":    "<emoji id='5040042498634810056'>❌</emoji>",
 }

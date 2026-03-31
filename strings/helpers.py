@@ -163,7 +163,7 @@ HELP_11 = _ANNIE + """
 """
 
 HELP_12 = _ANNIE + """
-<blockquote><b><emoji id="5282843764451195532">🛡</emoji> ˹ sᴇᴄᴜʀɪᴛʏ ˼</b></blockquote>
+<blockquote><b><emoji id="5895483165182529286">🛡</emoji> ˹ sᴇᴄᴜʀɪᴛʏ ˼</b></blockquote>
 
 <blockquote>
 <b>• /antilink on|off</b>
@@ -173,11 +173,11 @@ HELP_12 = _ANNIE + """
   ↳ ᴅᴇʟᴇᴛᴇ ꜰʟᴏᴏᴅ ᴍᴇssᴀɢᴇs (ᴅᴇꜰᴀᴜʟᴛ: 5 ᴍsɢ / 5s)
 </blockquote>
 
-<blockquote><emoji id="5972072533833289156">🔹</emoji> ᴀᴅᴍɪɴ-ᴏɴʟʏ ᴄᴏᴍᴍᴀɴᴅs · ᴠɪᴏʟᴀᴛɪᴏɴs ᴀʀᴇ ᴀᴜᴛᴏ-ᴅᴇʟᴇᴛᴇᴅ</blockquote>
+<blockquote><emoji id="5895483165182529286">🛡</emoji> ᴀᴅᴍɪɴ-ᴏɴʟʏ · <emoji id="5420323339723881652">⚠️</emoji> ᴠɪᴏʟᴀᴛɪᴏɴs ᴀʀᴇ ᴀᴜᴛᴏ-ᴅᴇʟᴇᴛᴇᴅ</blockquote>
 """
 
 HELP_13 = _ANNIE + """
-<blockquote><b><emoji id="5467666044815377227">⚠️</emoji> ˹ ɴꜱꜰᴡ ꜰɪʟᴛᴇʀ ˼</b></blockquote>
+<blockquote><b><emoji id="5420323339723881652">⚠️</emoji> ˹ ɴꜱꜰᴡ ꜰɪʟᴛᴇʀ ˼</b></blockquote>
 
 <blockquote>
 <b>• /nsfw on</b>   ↳ ᴇɴᴀʙʟᴇ ɴꜱꜰᴡ ᴄᴏɴᴛᴇɴᴛ ꜰɪʟᴛᴇʀ
@@ -185,7 +185,7 @@ HELP_13 = _ANNIE + """
 <b>• /nsfw</b>      ↳ ᴄʜᴇᴄᴋ ᴄᴜʀʀᴇɴᴛ ꜱᴛᴀᴛᴜs
 </blockquote>
 
-<blockquote><emoji id="5042334757040423886">⚡️</emoji> ᴅᴇᴛᴇᴄᴛs ɴꜱꜰᴡ ᴋᴇʏᴡᴏʀᴅs ɪɴ ᴛᴇxᴛ · ᴀᴅᴍɪɴ-ᴏɴʟʏ ᴛᴏɢɢʟᴇ</blockquote>
+<blockquote><emoji id="5420323339723881652">⚠️</emoji> ᴅᴇᴛᴇᴄᴛs ɴꜱꜰᴡ ᴋᴇʏᴡᴏʀᴅs · <emoji id="5042334757040423886">⚡️</emoji> ᴀᴅᴍɪɴ-ᴏɴʟʏ ᴛᴏɢɢʟᴇ · ᴅᴇꜰᴀᴜʟᴛ ᴏꜰꜰ</blockquote>
 """
 
 HELP_14 = _ANNIE + """
@@ -212,7 +212,7 @@ HELP_14 = _ANNIE + """
 """
 
 HELP_15 = _ANNIE + """
-<blockquote><b><emoji id="5226772700113935347">📞</emoji> ˹ ᴠᴄ ᴛᴏᴏʟs ˼</b></blockquote>
+<blockquote><b><emoji id="6093587384954262033">📞</emoji> ˹ ᴠᴄ ᴛᴏᴏʟs ˼</b></blockquote>
 
 <blockquote>
 <b>• /vcinfo</b>

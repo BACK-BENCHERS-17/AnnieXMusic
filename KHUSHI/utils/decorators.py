@@ -156,6 +156,7 @@ def KhushiActualAdmin(mystic):
 def KhushiGroupAdmin(mystic):
     """Admin check for group management commands that don't require an active VC stream."""
     async def wrapper(client, message):
+        from pyrogram.enums import ChatMemberStatus
         from KHUSHI import app
         try:
             if await is_maintenance():
@@ -186,7 +187,27 @@ def KhushiGroupAdmin(mystic):
 
         if message.from_user.id not in SUDOERS:
             admins = adminlist.get(chat_id)
-            if not admins or message.from_user.id not in admins:
+            if admins:
+                # Use cached list
+                is_admin = message.from_user.id in admins
+            else:
+                # Cache empty — do a live Telegram API check
+                try:
+                    member = await app.get_chat_member(chat_id, message.from_user.id)
+                    is_admin = member.status in (
+                        ChatMemberStatus.ADMINISTRATOR,
+                        ChatMemberStatus.OWNER,
+                    )
+                    # Warm up the cache while we're at it
+                    if is_admin:
+                        if chat_id not in adminlist:
+                            adminlist[chat_id] = []
+                        if message.from_user.id not in adminlist[chat_id]:
+                            adminlist[chat_id].append(message.from_user.id)
+                except Exception:
+                    is_admin = False
+
+            if not is_admin:
                 return await message.reply_text(_["admin_14"])
 
         return await mystic(client, message, _, chat_id)
