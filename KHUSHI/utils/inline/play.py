@@ -2,6 +2,20 @@ from . import InlineKeyboardButton
 from config import BOT_USERNAME
 
 
+def _progress_bar(played_sec: int, duration_sec: int, length: int = 10) -> str:
+    if duration_sec <= 0:
+        pct = 0
+    else:
+        pct = min(played_sec / duration_sec, 1.0)
+    filled = max(0, min(int(round(length * pct)), length))
+    return "█" * filled + "░" * (length - filled)
+
+
+def _fmt(sec: int) -> str:
+    m, s = divmod(max(0, int(sec)), 60)
+    return f"{m:02d}:{s:02d}"
+
+
 def _webapp_btn():
     """Return the Open Player button row."""
     return [[
@@ -87,8 +101,28 @@ def control_buttons(_, chat_id, autoplay_on=None):
 
 
 def stream_markup_timer(_, chat_id, played, dur, autoplay_on=None):
+    from KHUSHI.utils.formatters import time_to_seconds
+    played_sec   = time_to_seconds(played)
+    duration_sec = time_to_seconds(dur)
+    bar = _progress_bar(played_sec, duration_sec)
+    remaining_sec = max(0, duration_sec - played_sec)
+
+    bot_url = (
+        f"https://t.me/{BOT_USERNAME}?startgroup=true"
+        if BOT_USERNAME
+        else "https://t.me/ANNIEXMUSICxBOT?startgroup=true"
+    )
+    progress_row = [
+        InlineKeyboardButton(
+            text=f"{_fmt(played_sec)}  {bar}  -{_fmt(remaining_sec)}",
+            url=bot_url,
+            style="primary",
+        )
+    ]
+
     return (
         _webapp_btn()
+        + [progress_row]
         + control_buttons(_, chat_id, autoplay_on=autoplay_on)
         + [[InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close", style="danger")]]
     )

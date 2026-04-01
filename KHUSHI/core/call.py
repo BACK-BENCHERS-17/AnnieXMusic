@@ -1010,24 +1010,24 @@ class Call:
                     last_title = popped.get("title", "") if popped else ""
                     _sugg = _pick_related_songs(last_title, 4)
 
-                    # Build 2-per-row song suggestion buttons
+                    # Build one-per-row song suggestion buttons
                     _rows = []
-                    for _i in range(0, len(_sugg), 2):
-                        _row = []
-                        for _s in _sugg[_i:_i+2]:
-                            _lbl = (_s[:21] + "…") if len(_s) > 21 else _s
-                            _row.append(StyledBtn(
-                                text=f"▶ {_lbl}",
-                                callback_data=f"rp:{_s[:40]}",
-                            ))
-                        _rows.append(_row)
-                    # Bottom row: add-me + close
+                    for _s in _sugg:
+                        _lbl = (_s[:35] + "…") if len(_s) > 35 else _s
+                        _rows.append([StyledBtn(
+                            text=_lbl,
+                            callback_data=f"rp:{_s[:40]}",
+                            style="primary",
+                        )])
+                    # Bottom: add-me and close each on own row
                     _rows.append([
                         StyledBtn(
-                            text="✚ ᴀᴅᴅ ᴍᴇ ʙᴀʙʏ ✚",
+                            text="ᴀᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ",
                             url=f"https://t.me/{app.username}?startgroup=true",
-                            style="primary",
+                            style="success",
                         ),
+                    ])
+                    _rows.append([
                         StyledBtn(
                             text=_["CLOSE_BUTTON"],
                             callback_data="close",

@@ -23,20 +23,32 @@ ANNIE_ROW = (
 )
 
 
+def _autoplay_text(enabled: bool) -> str:
+    status = "ᴇɴᴀʙʟᴇᴅ ✅" if enabled else "ᴅɪsᴀʙʟᴇᴅ ❌"
+    return (
+        f"<blockquote>"
+        f"┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
+        f"┆{E_BEAR} <b>Status:</b> <b>{status}</b>\n"
+        f"┆{E_TIME} <b>Automatically plays a related song when the queue ends</b> — "
+        f"so the music never stops even after the last track.\n"
+        f"└──────────────────────●"
+        f"</blockquote>\n"
+        f"<blockquote>{ANNIE_ROW}</blockquote>"
+    )
+
+
 def autoplay_markup(_, enabled: bool):
-    bar_on  = "▰▰▰▰▰▰▱▱▱▱▱"
-    bar_off = "▱▱▱▱▱▰▰▰▰▰▰"
     return InlineKeyboardMarkup([
         [
             InlineKeyboardButton(
-                text=f"✅ ᴏɴ  {bar_on}" if enabled else f"ᴏɴ  {bar_on}",
+                text="✅ ᴏɴ" if enabled else "ᴏɴ",
                 callback_data="AUTOPLAY_TOGGLE_ON",
                 style="success" if enabled else "primary",
             ),
         ],
         [
             InlineKeyboardButton(
-                text=f"ᴏꜰꜰ  {bar_off}" if enabled else f"❌ ᴏꜰꜰ  {bar_off}",
+                text="ᴏꜰꜰ" if enabled else "❌ ᴏꜰꜰ",
                 callback_data="AUTOPLAY_TOGGLE_OFF",
                 style="primary" if enabled else "danger",
             ),
@@ -57,18 +69,6 @@ def autoplay_markup(_, enabled: bool):
 @AdminRightsCheck
 async def autoplay_command(cli, message: Message, _, chat_id):
     enabled = await is_autoplay(chat_id)
-    status = "ᴇɴᴀʙʟᴇᴅ ✅" if enabled else "ᴅɪsᴀʙʟᴇᴅ ❌"
-
-    text = (
-        f"<blockquote>"
-        f"┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
-        f"┆{E_BEAR} <b>Status:</b> <b>{status}</b>\n"
-        f"┆{E_TIME} <b>Automatically plays a related song when the queue ends</b> — "
-        f"so the music never stops even after the last track.\n"
-        f"└──────────────────────●"
-        f"</blockquote>\n"
-        f"<blockquote>{ANNIE_ROW}</blockquote>"
-    )
 
     if len(message.command) == 2:
         arg = message.command[1].lower()
@@ -114,7 +114,7 @@ async def autoplay_command(cli, message: Message, _, chat_id):
                 f"<blockquote>{ANNIE_ROW}</blockquote>"
             )
 
-    await message.reply_text(text, reply_markup=autoplay_markup(_, enabled))
+    await message.reply_text(_autoplay_text(enabled), reply_markup=autoplay_markup(_, enabled))
 
 
 @app.on_callback_query(filters.regex("^AUTOPLAY_TOGGLE_") & ~BANNED_USERS)
@@ -154,6 +154,12 @@ async def autoplay_toggle_cb(client, callback):
 
     new_enabled = await is_autoplay(chat_id)
     try:
-        await callback.message.edit_reply_markup(reply_markup=autoplay_markup(_, new_enabled))
+        await callback.message.edit_text(
+            text=_autoplay_text(new_enabled),
+            reply_markup=autoplay_markup(_, new_enabled),
+        )
     except Exception:
-        pass
+        try:
+            await callback.message.edit_reply_markup(reply_markup=autoplay_markup(_, new_enabled))
+        except Exception:
+            pass

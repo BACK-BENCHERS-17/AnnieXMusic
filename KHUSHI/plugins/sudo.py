@@ -1,6 +1,8 @@
-"""KHUSHI — Sudo Commands: gban, block, blchat, sudoers, maintenance."""
+"""KHUSHI — Sudo Commands: gban, block, blchat, sudoers, maintenance, restart."""
 
 import asyncio
+import os
+import sys
 
 from pyrogram import enums, filters
 from pyrogram.errors import FloodWait
@@ -250,3 +252,20 @@ async def back_sudo_list_cb(client, query: CallbackQuery):
         parse_mode=enums.ParseMode.HTML,
         reply_markup=InlineKeyboardMarkup(keyboard),
     )
+
+
+# ── RESTART / REBOOT ──────────────────────────────────────────────────────────
+@app.on_message(filters.command(["restart", "reboot"]) & SUDOERS)
+async def restart_bot(_, message: Message):
+    msg = await message.reply_text(
+        _r(
+            f"{_zap} <b>ʀᴇsᴛᴀʀᴛɪɴɢ ʙᴏᴛ…</b>\n"
+            f"{_dot} ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ ᴀ ꜰᴇᴡ sᴇᴄᴏɴᴅs."
+        )
+    )
+    try:
+        await msg.pin(disable_notification=True)
+    except Exception:
+        pass
+    await asyncio.sleep(1)
+    os.execv(sys.executable, [sys.executable] + sys.argv)
