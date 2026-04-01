@@ -10,7 +10,7 @@ from KHUSHI.utils.inline import InlineKeyboardButton
 
 from strings import get_string
 from KHUSHI import YouTube, app
-from KHUSHI.core.call import JARVIS
+from KHUSHI.core.call import JARVIS, _start_progress_timer
 from KHUSHI.misc import SUDOERS, db
 from KHUSHI.utils.database import (
     get_lang,
@@ -432,6 +432,7 @@ async def kseek(_, message: Message, lang, chat_id):
     try:
         await JARVIS.seek_stream(chat_id, file_path, played, dur, mode)
         check[0]["played"] = secs
+        _start_progress_timer(chat_id)
         await message.reply_text(
             f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>{_EM['zap']} <b>{action_word}</b> ᴛᴏ <code>{played}</code></blockquote>"

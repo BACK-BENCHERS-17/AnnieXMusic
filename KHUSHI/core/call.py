@@ -484,6 +484,9 @@ class Call:
         ffmpeg_params = f"-ss {to_seek} -to {duration}"
         is_video = mode == "video"
         stream = dynamic_media_stream(path=file_path, video=is_video, ffmpeg_params=ffmpeg_params)
+        # Reset debounce timestamp so the StreamEnded fired by seek doesn't
+        # trigger play() and incorrectly pop the current song from queue.
+        _stream_ended_ts[chat_id] = _time.monotonic()
         await assistant.play(chat_id, stream)
 
     @capture_internal_err
@@ -1089,15 +1092,19 @@ class Call:
                                     )
                                     _ap_markup = InlineKeyboardMarkup(btn)
                                     thumb_on = await is_thumb_enabled()
+                                    ap_msg = None
                                     if thumb_on:
-                                        img = await get_thumb(ap_vidid)
-                                        ap_msg = await app.send_photo(
-                                            chat_id=original_chat_id,
-                                            photo=img,
-                                            caption=_ap_caption,
-                                            reply_markup=_ap_markup,
-                                        )
-                                    else:
+                                        try:
+                                            img = await get_thumb(ap_vidid)
+                                            ap_msg = await app.send_photo(
+                                                chat_id=original_chat_id,
+                                                photo=img,
+                                                caption=_ap_caption,
+                                                reply_markup=_ap_markup,
+                                            )
+                                        except Exception:
+                                            ap_msg = None
+                                    if ap_msg is None:
                                         ap_msg = await send_msg_invert_preview(
                                             app,
                                             original_chat_id,
@@ -1262,16 +1269,20 @@ class Call:
                     check[0]["dur"],
                     user,
                 )
+                run = None
                 if _thumb_on:
-                    img = await get_thumb(videoid)
-                    run = await app.send_photo(
-                        chat_id=original_chat_id,
-                        photo=img,
-                        caption=_cap,
-                        reply_markup=InlineKeyboardMarkup(button),
-                        has_spoiler=True,
-                    )
-                else:
+                    try:
+                        img = await get_thumb(videoid)
+                        run = await app.send_photo(
+                            chat_id=original_chat_id,
+                            photo=img,
+                            caption=_cap,
+                            reply_markup=InlineKeyboardMarkup(button),
+                            has_spoiler=True,
+                        )
+                    except Exception:
+                        run = None
+                if run is None:
                     run = await app.send_message(
                         chat_id=original_chat_id,
                         text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
@@ -1324,16 +1335,20 @@ class Call:
                     check[0]["dur"],
                     user,
                 )
+                run = None
                 if _thumb_on:
-                    img = await get_thumb(videoid)
-                    run = await app.send_photo(
-                        chat_id=original_chat_id,
-                        photo=img,
-                        caption=_cap,
-                        reply_markup=InlineKeyboardMarkup(button),
-                        has_spoiler=True,
-                    )
-                else:
+                    try:
+                        img = await get_thumb(videoid)
+                        run = await app.send_photo(
+                            chat_id=original_chat_id,
+                            photo=img,
+                            caption=_cap,
+                            reply_markup=InlineKeyboardMarkup(button),
+                            has_spoiler=True,
+                        )
+                    except Exception:
+                        run = None
+                if run is None:
                     run = await app.send_message(
                         chat_id=original_chat_id,
                         text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
@@ -1451,17 +1466,23 @@ class Call:
                         check[0]["dur"],
                         user,
                     )
+                    run = None
                     try:
                         if _thumb_on:
-                            img = await get_thumb(videoid)
-                            run = await app.send_photo(
-                                chat_id=original_chat_id,
-                                photo=img,
-                                caption=_cap,
-                                reply_markup=InlineKeyboardMarkup(button),
-                                has_spoiler=True,
-                            )
-                        else:
+                            try:
+                                img = await get_thumb(videoid)
+                                run = await app.send_photo(
+                                    chat_id=original_chat_id,
+                                    photo=img,
+                                    caption=_cap,
+                                    reply_markup=InlineKeyboardMarkup(button),
+                                    has_spoiler=True,
+                                )
+                            except FloodWait:
+                                raise
+                            except Exception:
+                                run = None
+                        if run is None:
                             run = await send_msg_invert_preview(
                                 app,
                                 original_chat_id,
@@ -1471,16 +1492,20 @@ class Call:
                     except FloodWait as e:
                         LOGGER(__name__).warning(f"FloodWait: Sleeping for {e.value}")
                         await asyncio.sleep(e.value)
+                        run = None
                         if _thumb_on:
-                            img = await get_thumb(videoid)
-                            run = await app.send_photo(
-                                chat_id=original_chat_id,
-                                photo=img,
-                                caption=_cap,
-                                reply_markup=InlineKeyboardMarkup(button),
-                                has_spoiler=True,
-                            )
-                        else:
+                            try:
+                                img = await get_thumb(videoid)
+                                run = await app.send_photo(
+                                    chat_id=original_chat_id,
+                                    photo=img,
+                                    caption=_cap,
+                                    reply_markup=InlineKeyboardMarkup(button),
+                                    has_spoiler=True,
+                                )
+                            except Exception:
+                                run = None
+                        if run is None:
                             run = await send_msg_invert_preview(
                                 app,
                                 original_chat_id,

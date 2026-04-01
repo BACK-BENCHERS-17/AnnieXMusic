@@ -53,7 +53,6 @@ async def _set_commands():
             {"command": "volume",    "description": "ꜱᴇᴛ ᴠᴏʟᴜᴍᴇ [0-200]"},
             {"command": "loop",      "description": "ʟᴏᴏᴘ ᴛʀᴀᴄᴋ [1-10]"},
             {"command": "shuffle",   "description": "ꜱʜᴜꜰꜰʟᴇ ᴛʜᴇ ǫᴜᴇᴜᴇ"},
-            {"command": "247",       "description": "ᴛᴏɢɢʟᴇ 24/7 ᴍᴏᴅᴇ"},
             {"command": "ping",      "description": "ʙᴏᴛ ꜱᴛᴀᴛᴜꜱ & ꜱʏꜱᴛᴇᴍ ꜱᴛᴀᴛꜱ"},
             {"command": "start",     "description": "ꜱᴛᴀʀᴛ ᴀɴɴɪᴇ"},
             {"command": "help",      "description": "ᴀɴɴɪᴇ ʜᴇʟᴘ ᴍᴇɴᴜ"},
