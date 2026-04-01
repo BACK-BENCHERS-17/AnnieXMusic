@@ -223,6 +223,22 @@ async def _handle_play(message: Message, video: bool = False):
             f"<blockquote>❌ ɴᴏ ǫᴜᴇʀʏ ᴘʀᴏᴠɪᴅᴇᴅ.</blockquote>"
         )
 
+    # ── Early URL extraction for YouTube links (head start) ────────────────────
+    # For URL-type queries we can extract the video ID immediately without waiting
+    # for details(). Fire fast_get_stream() in background right now — it warms
+    # both the in-process URL cache and the webserver cache. By the time
+    # YouTube.download() is called below, the URL (or file) is already ready
+    # → shaves 2–5 seconds off first-play latency.
+    _early_vid = None
+    if ("youtube.com" in query or "youtu.be" in query) and "/live/" not in query:
+        try:
+            _early_vid = extract_video_id(YouTube._prepare_link(query))
+            if _early_vid:
+                from KHUSHI.utils.downloader import fast_get_stream as _fgs
+                asyncio.create_task(_fgs(_early_vid))
+        except Exception:
+            pass
+
     # ── Live stream check ──────────────────────────────────────────────────────
     if "youtube.com" in query or "youtu.be" in query:
         try:
