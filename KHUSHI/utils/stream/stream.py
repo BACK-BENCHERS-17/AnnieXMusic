@@ -14,7 +14,7 @@ from KHUSHI.misc import db
 from KHUSHI.utils.content_filter import is_bad_text
 from KHUSHI.utils.database import add_active_video_chat, is_active_chat, is_autoplay, is_content_guard_on, is_global_nsfw_off, is_thumb_enabled
 from KHUSHI.utils.exceptions import AssistantErr
-from KHUSHI.utils.inline import aq_markup, close_markup, stream_markup
+from KHUSHI.utils.inline import aq_markup, close_markup, stream_markup, stream_markup_timer
 from KHUSHI.utils.pastebin import ANNIEBIN
 from KHUSHI.utils.stream.queue import put_queue, put_queue_index
 from KHUSHI.utils.thumbnails import get_thumb
@@ -236,7 +236,7 @@ async def stream(
                     await _stop_and_block(_, chat_id, original_chat_id, title, vidid, user_name, user_id)
                     continue
 
-                button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
+                button = stream_markup_timer(_, chat_id, "0:00", duration_min, autoplay_on=await is_autoplay(chat_id))
                 run = await _send_stream_msg(
                     chat_id,
                     original_chat_id,
@@ -343,7 +343,7 @@ async def stream(
             if _nsfw_yt:
                 return await _stop_and_block(_, chat_id, original_chat_id, title, vidid, user_name, user_id)
 
-            button = stream_markup(_, chat_id)
+            button = stream_markup_timer(_, chat_id, "0:00", duration_min, autoplay_on=await is_autoplay(chat_id))
             run = await _send_stream_msg(
                 chat_id,
                 original_chat_id,
@@ -403,7 +403,7 @@ async def stream(
                 "audio",
                 forceplay=forceplay,
             )
-            button = stream_markup(_, chat_id)
+            button = stream_markup_timer(_, chat_id, "0:00", duration_min, autoplay_on=await is_autoplay(chat_id))
             run = await _send_stream_msg(
                 chat_id,
                 original_chat_id,
@@ -463,7 +463,7 @@ async def stream(
             )
             if is_video:
                 await add_active_video_chat(chat_id)
-            button = stream_markup(_, chat_id)
+            button = stream_markup_timer(_, chat_id, "0:00", duration_min, autoplay_on=await is_autoplay(chat_id))
             run = await _send_stream_msg(
                 chat_id,
                 original_chat_id,

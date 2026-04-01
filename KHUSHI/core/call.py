@@ -114,6 +114,13 @@ def dynamic_media_stream(path: str, video: bool = False, ffmpeg_params: str = No
 # ── Per-chat progress-bar timer tasks ────────────────────────────────────────
 _timer_tasks: dict[int, "asyncio.Task"] = {}
 
+# ── StreamEnded debounce — prevent double-fire for video streams ──────────────
+# Video streams fire StreamEnded for BOTH audio AND video; the second fire
+# would call play() again and incorrectly pop the newly-started song.
+import time as _time
+_stream_ended_ts: dict[int, float] = {}  # chat_id → last-handled monotonic time
+_STREAM_END_DEBOUNCE = 4.0               # seconds to ignore duplicate events
+
 
 def _cancel_progress_timer(chat_id: int) -> None:
     task = _timer_tasks.pop(chat_id, None)
@@ -131,14 +138,36 @@ async def _run_progress_timer(chat_id: int) -> None:
             if not check:
                 break
             mystic = check[0].get("mystic")
-            if not mystic:
-                continue
             played = int(check[0].get("played", 0)) + TICK
             check[0]["played"] = played
             dur_str = check[0].get("dur", "0:00")
             dur_sec = int(check[0].get("seconds", 0))
+
             if dur_sec > 0 and played >= dur_sec:
+                # Song should have ended. If StreamEnded hasn't fired yet,
+                # wait one more tick then force-trigger the play() transition
+                # to prevent the bot from staying stuck in the VC.
+                await asyncio.sleep(TICK)
+                if db.get(chat_id) and check[0].get("played", 0) >= dur_sec:
+                    LOGGER(__name__).warning(
+                        f"[Timer] Safety fallback: StreamEnded missed for chat={chat_id}. "
+                        f"Forcing play() transition."
+                    )
+                    try:
+                        _asst = await group_assistant(JARVIS, chat_id)
+                        await JARVIS.play(_asst, chat_id)
+                    except Exception as _sf_err:
+                        LOGGER(__name__).error(f"[Timer] Safety fallback failed: {_sf_err}")
+                        try:
+                            await _clear_(chat_id)
+                        except Exception:
+                            pass
+                        JARVIS.active_calls.discard(chat_id)
                 break
+
+            if not mystic:
+                continue
+
             lang = await get_lang(chat_id)
             _ = get_string(lang)
             ap_on = await is_autoplay(chat_id)
@@ -1265,7 +1294,7 @@ class Call:
                     return await app.send_message(original_chat_id, text=_["call_6"])
                 trigger_prefetch(chat_id)
 
-                button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
+                button = stream_markup_timer(_, chat_id, "0:00", check[0]["dur"], autoplay_on=await is_autoplay(chat_id))
                 await mystic.delete()
                 _cap = _["stream_1"].format(
                     f"https://t.me/{app.username}?start=info_{videoid}",
@@ -1341,7 +1370,7 @@ class Call:
                     return await app.send_message(original_chat_id, text=_["call_6"])
 
                 if videoid == "telegram":
-                    button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
+                    button = stream_markup_timer(_, chat_id, "0:00", check[0]["dur"], autoplay_on=await is_autoplay(chat_id))
                     _cap = _["stream_1"].format(
                         config.SUPPORT_CHAT, title[:23], check[0]["dur"], user
                     )
@@ -1369,7 +1398,7 @@ class Call:
                     _start_progress_timer(chat_id)
 
                 elif videoid == "soundcloud":
-                    button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
+                    button = stream_markup_timer(_, chat_id, "0:00", check[0]["dur"], autoplay_on=await is_autoplay(chat_id))
                     _cap = _["stream_1"].format(
                         config.SUPPORT_CHAT, title[:23], check[0]["dur"], user
                     )
@@ -1393,7 +1422,7 @@ class Call:
                     _start_progress_timer(chat_id)
 
                 else:
-                    button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
+                    button = stream_markup_timer(_, chat_id, "0:00", check[0]["dur"], autoplay_on=await is_autoplay(chat_id))
                     _cap = _["stream_1"].format(
                         f"https://t.me/{app.username}?start=info_{videoid}",
                         title[:23],
@@ -1586,6 +1615,18 @@ class Call:
                     chat_id = update.chat_id
                     # Handle both AUDIO and VIDEO stream endings
                     if update.stream_type in (StreamEnded.Type.AUDIO, StreamEnded.Type.VIDEO):
+                        # ── Debounce: video streams fire StreamEnded for BOTH
+                        # audio AND video. Ignore duplicate events within the
+                        # debounce window so play() is only called once. ──────
+                        _now = _time.monotonic()
+                        _last = _stream_ended_ts.get(chat_id, 0.0)
+                        if _now - _last < _STREAM_END_DEBOUNCE:
+                            LOGGER(__name__).debug(
+                                f"[StreamEnded] debounce skipped duplicate for chat={chat_id}"
+                            )
+                            return
+                        _stream_ended_ts[chat_id] = _now
+
                         try:
                             assistant = await group_assistant(self, chat_id)
                         except AssistantErr:

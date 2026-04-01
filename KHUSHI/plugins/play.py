@@ -21,7 +21,7 @@ from KHUSHI.utils.database import (
 )
 from KHUSHI.utils.decorators import KhushiAdminCheck as AdminRightsCheck
 from KHUSHI.utils.downloader import _trigger_bg_cache
-from KHUSHI.utils.inline import aq_markup, stream_markup
+from KHUSHI.utils.inline import aq_markup, stream_markup, stream_markup_timer
 from KHUSHI.utils.raw_send import send_msg_invert_preview
 from KHUSHI.utils.stream.queue import put_queue
 from KHUSHI.utils.thumbnails import get_thumb
@@ -199,7 +199,7 @@ async def _handle_play(message: Message, video: bool = False):
                 chat_id, chat_id, file_path, title, duration,
                 user_name, "telegram", user_id, streamtype,
             )
-            button = stream_markup(_, chat_id)
+            button = stream_markup_timer(_, chat_id, "0:00", duration, autoplay_on=await is_autoplay(chat_id))
             caption = _["stream_1"].format(
                 SUPPORT_CHAT, title[:23], duration, user_name
             )
@@ -347,7 +347,7 @@ async def _handle_play(message: Message, video: bool = False):
             chat_id, chat_id, stored_file, title_t, duration_min,
             user_name, vidid, user_id, streamtype,
         )
-        button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
+        button = stream_markup_timer(_, chat_id, "0:00", duration_min, autoplay_on=await is_autoplay(chat_id))
         caption = _["stream_1"].format(
             f"https://t.me/{BOT_USERNAME.lstrip('@')}?start=info_{vidid}",
             title_t[:23],
@@ -575,7 +575,7 @@ async def related_play_cb(client, query):
             chat_id, chat_id, stored_file, title_t, duration_min,
             user_name, vidid, user_id, "audio",
         )
-        button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
+        button = stream_markup_timer(_, chat_id, "0:00", duration_min, autoplay_on=await is_autoplay(chat_id))
         caption = _["stream_1"].format(
             f"https://t.me/{BOT_USERNAME.lstrip('@')}?start=info_{vidid}",
             title_t[:23], duration_min, user_name,
