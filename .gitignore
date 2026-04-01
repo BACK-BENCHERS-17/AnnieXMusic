@@ -40,3 +40,10 @@ cookies.txt
 replit.md
 package-lock.json
 attached_assets/
+
+# Push scripts (contain credentials)
+push_to_github.sh
+
+# Nested junk assets
+KHUSHI/assets/assets/annie/
+KHUSHI/assets/assets/cookies.txt
