@@ -1,5 +1,5 @@
 import os
-from ..logging import LOGGER
+from ..logger_setup import LOGGER
 
 BASE_DIR = os.getcwd()
 DOWNLOAD_DIR = os.path.join(BASE_DIR, "downloads")
