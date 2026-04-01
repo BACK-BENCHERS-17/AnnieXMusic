@@ -1091,26 +1091,12 @@ class Call:
                                         f"<blockquote>{_AP_AROW}</blockquote>"
                                     )
                                     _ap_markup = InlineKeyboardMarkup(btn)
-                                    thumb_on = await is_thumb_enabled()
-                                    ap_msg = None
-                                    if thumb_on:
-                                        try:
-                                            img = await get_thumb(ap_vidid)
-                                            ap_msg = await app.send_photo(
-                                                chat_id=original_chat_id,
-                                                photo=img,
-                                                caption=_ap_caption,
-                                                reply_markup=_ap_markup,
-                                            )
-                                        except Exception:
-                                            ap_msg = None
-                                    if ap_msg is None:
-                                        ap_msg = await send_msg_invert_preview(
-                                            app,
-                                            original_chat_id,
-                                            text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_ap_caption}',
-                                            reply_markup=_ap_markup,
-                                        )
+                                    ap_msg = await send_msg_invert_preview(
+                                        app,
+                                        original_chat_id,
+                                        text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_ap_caption}',
+                                        reply_markup=_ap_markup,
+                                    )
                                     db[chat_id][0]["mystic"] = ap_msg
                                 except Exception:
                                     pass
@@ -1147,7 +1133,6 @@ class Call:
                     _ = get_string("en")
 
                 try:
-                    from pyrogram.types import InlineKeyboardMarkup
                     last_title = popped.get("title", "") if popped else ""
                     _sugg = _pick_related_songs(last_title, 4)
 
@@ -1269,27 +1254,12 @@ class Call:
                     check[0]["dur"],
                     user,
                 )
-                run = None
-                if _thumb_on:
-                    try:
-                        img = await get_thumb(videoid)
-                        run = await app.send_photo(
-                            chat_id=original_chat_id,
-                            photo=img,
-                            caption=_cap,
-                            reply_markup=InlineKeyboardMarkup(button),
-                            has_spoiler=True,
-                        )
-                    except Exception:
-                        run = None
-                if run is None:
-                    run = await app.send_message(
-                        chat_id=original_chat_id,
-                        text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
-                        reply_markup=InlineKeyboardMarkup(button),
-                        parse_mode=ParseMode.HTML,
-                        disable_web_page_preview=False,
-                    )
+                run = await send_msg_invert_preview(
+                    app,
+                    original_chat_id,
+                    text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
+                    reply_markup=InlineKeyboardMarkup(button),
+                )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "tg"
                 _start_progress_timer(chat_id)
@@ -1335,27 +1305,12 @@ class Call:
                     check[0]["dur"],
                     user,
                 )
-                run = None
-                if _thumb_on:
-                    try:
-                        img = await get_thumb(videoid)
-                        run = await app.send_photo(
-                            chat_id=original_chat_id,
-                            photo=img,
-                            caption=_cap,
-                            reply_markup=InlineKeyboardMarkup(button),
-                            has_spoiler=True,
-                        )
-                    except Exception:
-                        run = None
-                if run is None:
-                    run = await app.send_message(
-                        chat_id=original_chat_id,
-                        text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
-                        reply_markup=InlineKeyboardMarkup(button),
-                        parse_mode=ParseMode.HTML,
-                        disable_web_page_preview=False,
-                    )
+                run = await send_msg_invert_preview(
+                    app,
+                    original_chat_id,
+                    text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
+                    reply_markup=InlineKeyboardMarkup(button),
+                )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "stream"
                 _start_progress_timer(chat_id)
@@ -1466,52 +1421,12 @@ class Call:
                         check[0]["dur"],
                         user,
                     )
-                    run = None
-                    try:
-                        if _thumb_on:
-                            try:
-                                img = await get_thumb(videoid)
-                                run = await app.send_photo(
-                                    chat_id=original_chat_id,
-                                    photo=img,
-                                    caption=_cap,
-                                    reply_markup=InlineKeyboardMarkup(button),
-                                    has_spoiler=True,
-                                )
-                            except FloodWait:
-                                raise
-                            except Exception:
-                                run = None
-                        if run is None:
-                            run = await send_msg_invert_preview(
-                                app,
-                                original_chat_id,
-                                text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
-                                reply_markup=InlineKeyboardMarkup(button),
-                            )
-                    except FloodWait as e:
-                        LOGGER(__name__).warning(f"FloodWait: Sleeping for {e.value}")
-                        await asyncio.sleep(e.value)
-                        run = None
-                        if _thumb_on:
-                            try:
-                                img = await get_thumb(videoid)
-                                run = await app.send_photo(
-                                    chat_id=original_chat_id,
-                                    photo=img,
-                                    caption=_cap,
-                                    reply_markup=InlineKeyboardMarkup(button),
-                                    has_spoiler=True,
-                                )
-                            except Exception:
-                                run = None
-                        if run is None:
-                            run = await send_msg_invert_preview(
-                                app,
-                                original_chat_id,
-                                text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
-                                reply_markup=InlineKeyboardMarkup(button),
-                            )
+                    run = await send_msg_invert_preview(
+                        app,
+                        original_chat_id,
+                        text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
+                        reply_markup=InlineKeyboardMarkup(button),
+                    )
                     db[chat_id][0]["mystic"] = run
                     db[chat_id][0]["markup"] = "stream"
                     _start_progress_timer(chat_id)

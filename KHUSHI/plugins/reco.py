@@ -282,17 +282,14 @@ async def reco_cmd(client, message: Message):
         f"{_EM['star']} ᴛᴀᴘ ᴀɴʏ ʙᴜᴛᴛᴏɴ ʙᴇʟᴏᴡ ᴛᴏ ᴘʟᴀʏ ɪɴsᴛᴀɴᴛʟʏ!"
     )
 
-    # One button per song + support+close row at bottom
+    # One button per song, one per row + support/close at bottom
     song_rows = []
-    for i in range(0, len(picks), 2):
-        row = []
-        for s in picks[i:i+2]:
-            label = s[:22] + "…" if len(s) > 22 else s
-            row.append(InlineKeyboardButton(
-                f"▶ {label}",
-                callback_data=f"rp:{s[:40]}",
-            ))
-        song_rows.append(row)
+    for s in picks:
+        label = s[:35] + "…" if len(s) > 35 else s
+        song_rows.append([InlineKeyboardButton(
+            label,
+            callback_data=f"rp:{s[:40]}",
+        )])
 
     song_rows.append([
         InlineKeyboardButton("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=_sc_url()),

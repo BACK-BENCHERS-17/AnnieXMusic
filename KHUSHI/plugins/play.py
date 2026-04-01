@@ -228,9 +228,13 @@ async def _handle_play(message: Message, video: bool = False):
         try:
             if await YouTube.check_live(query):
                 vidid = query.split("v=")[-1].split("&")[0].split("/")[-1]
-                title, duration_min, _, thumbnail, vidid2 = await YouTube.details(vidid, videoid=True)
-                if vidid2:
-                    vidid = vidid2
+                try:
+                    title, duration_min, _, thumbnail, vidid2 = await YouTube.details(vidid, videoid=True)
+                    if vidid2:
+                        vidid = vidid2
+                except Exception:
+                    title = vidid
+                    thumbnail = ""
 
                 try:
                     await mystic.delete()
