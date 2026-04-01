@@ -78,9 +78,21 @@ def _is_cdn_url(path: str) -> bool:
     return path.startswith("http") and not _needs_ytdlp(path)
 
 
+_CDN_FFMPEG_FLAGS = (
+    "-reconnect 1 "
+    "-reconnect_streamed 1 "
+    "-reconnect_delay_max 3 "
+    "-fflags +genpts "
+    "-thread_queue_size 4096 "
+    "-analyzeduration 5000000 "
+    "-probesize 5000000"
+)
+
+
 def dynamic_media_stream(path: str, video: bool = False, ffmpeg_params: str = None) -> MediaStream:
     ytdlp_args = None
     headers = None
+    cdn_input_flags = None
 
     if _needs_ytdlp(path):
         ytdlp_args = "--js-runtimes node"
@@ -88,6 +100,13 @@ def dynamic_media_stream(path: str, video: bool = False, ffmpeg_params: str = No
             ytdlp_args += f" --cookies {COOKIE_PATH}"
     elif _is_cdn_url(path):
         headers = _get_cdn_headers()
+        cdn_input_flags = _CDN_FFMPEG_FLAGS
+
+    # Merge CDN input flags with any user-supplied seek/speed ffmpeg_params
+    if cdn_input_flags:
+        merged_ffmpeg = f"{cdn_input_flags} {ffmpeg_params}" if ffmpeg_params else cdn_input_flags
+    else:
+        merged_ffmpeg = ffmpeg_params or None
 
     if video:
         return MediaStream(
@@ -97,7 +116,7 @@ def dynamic_media_stream(path: str, video: bool = False, ffmpeg_params: str = No
             audio_flags=MediaStream.Flags.AUTO_DETECT,
             video_flags=MediaStream.Flags.AUTO_DETECT,
             headers=headers,
-            ffmpeg_parameters=ffmpeg_params or None,
+            ffmpeg_parameters=merged_ffmpeg,
             ytdlp_parameters=ytdlp_args,
         )
     else:
@@ -107,7 +126,7 @@ def dynamic_media_stream(path: str, video: bool = False, ffmpeg_params: str = No
             audio_flags=MediaStream.Flags.AUTO_DETECT,
             video_flags=MediaStream.Flags.IGNORE,
             headers=headers,
-            ffmpeg_parameters=ffmpeg_params or None,
+            ffmpeg_parameters=merged_ffmpeg,
             ytdlp_parameters=ytdlp_args,
         )
 

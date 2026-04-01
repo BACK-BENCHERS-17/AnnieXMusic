@@ -527,6 +527,13 @@ async def fast_get_stream(vid: str) -> Optional[str]:
         asyncio.create_task(_trigger_bg_cache(vid))
         return url
 
+    # ── Check if background cache already completed while we were extracting ──
+    # (bg download task fires in parallel with this function from play.py)
+    cached_now = file_exists(vid)
+    if cached_now:
+        LOGGER(__name__).info(f"[FAST] BG cache completed during extraction for {vid}")
+        return cached_now
+
     # ── Full download fallback (only if both extraction paths failed) ─────────
     LOGGER(__name__).warning(f"[FAST] All URL methods failed for {vid}, falling back to full download")
     link_full = f"https://www.youtube.com/watch?v={vid}"

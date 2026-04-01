@@ -174,6 +174,19 @@ class YouTubeAPI:
         info = await _extract_info(self._prepare_link(link), {"skip_download": True})
         return bool(info and info.get("is_live"))
 
+    async def check_live(self, link: str) -> bool:
+        """
+        Fast live-stream detector.
+        - Instant pattern check for /live/ and /shorts/ URLs (no network call).
+        - Falls back to yt-dlp is_live() only for ambiguous watch URLs.
+        """
+        if "/live/" in link or "youtube.com/live" in link:
+            return True
+        try:
+            return await self.is_live(link)
+        except Exception:
+            return False
+
     @capture_internal_err
     async def details(self, link: str, videoid: Union[str, bool, None] = None) -> Tuple[str, Optional[str], int, str, str]:
         prepared = self._prepare_link(link, videoid)

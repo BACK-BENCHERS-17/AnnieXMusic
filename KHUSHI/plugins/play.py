@@ -20,7 +20,7 @@ from KHUSHI.utils.database import (
     is_maintenance,
 )
 from KHUSHI.utils.decorators import KhushiAdminCheck as AdminRightsCheck
-from KHUSHI.utils.downloader import _trigger_bg_cache
+from KHUSHI.utils.downloader import _trigger_bg_cache, extract_video_id
 from KHUSHI.utils.inline import aq_markup, stream_markup, stream_markup_timer
 from KHUSHI.utils.raw_send import send_msg_invert_preview
 from KHUSHI.utils.stream.queue import put_queue
@@ -227,7 +227,7 @@ async def _handle_play(message: Message, video: bool = False):
     if "youtube.com" in query or "youtu.be" in query:
         try:
             if await YouTube.check_live(query):
-                vidid = query.split("v=")[-1].split("&")[0].split("/")[-1]
+                vidid = extract_video_id(YouTube._prepare_link(query))
                 try:
                     title, duration_min, _, thumbnail, vidid2 = await YouTube.details(vidid, videoid=True)
                     if vidid2:
