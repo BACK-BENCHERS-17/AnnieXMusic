@@ -83,7 +83,9 @@ async def _raw_edit(client, chat_id, msg_id, caption, markup) -> bool:
         )
         return True
     except Exception as e:
-        _LOGGER.warning("[RAW_EDIT] failed: %s", e)
+        err_str = str(e)
+        if "MESSAGE_NOT_MODIFIED" not in err_str and "MESSAGE_ID_INVALID" not in err_str:
+            _LOGGER.warning("[RAW_EDIT] failed: %s", e)
         return False
 
 

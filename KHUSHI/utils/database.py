@@ -8,6 +8,7 @@ authuserdb = mongodb.authuser
 autoenddb = mongodb.autoend
 autplaydb = mongodb.autoplaymode
 assdb = mongodb.assistants
+assistantdb = mongodb.mode247
 blacklist_chatdb = mongodb.blacklistChat
 blockeddb = mongodb.blockedusers
 chatsdb = mongodb.chats
@@ -811,7 +812,7 @@ async def enable_247(chat_id: int):
 async def disable_247(chat_id: int):
     _247_cache[chat_id] = False
     await assistantdb.update_one(
-        {"chat_id": chat_id}, {"$unset": {"mode247": 1}}, upsert=True
+        {"chat_id": chat_id}, {"$unset": {"mode247": 1}}
     )
 
 
