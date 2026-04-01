@@ -377,17 +377,52 @@ def _client_download(vid: str, client: str, out_dir: str,
     return None
 
 
+def _direct_extract(vid: str) -> Optional[Dict]:
+    """
+    Extract stream URL without any player_client restriction.
+    yt-dlp auto-selects its best default client — this works when per-client
+    extraction fails with 'Requested format is not available'.
+    """
+    o: Dict = {
+        "quiet":              True,
+        "no_warnings":        True,
+        "nocheckcertificate": True,
+        "source_address":     "0.0.0.0",
+        "socket_timeout":     10,
+        "retries":            1,
+        "skip_download":      True,
+        "format":             _AUDIO_FMT,
+    }
+    if _PROXY:
+        o["proxy"] = _PROXY
+    try:
+        with yt_dlp.YoutubeDL(o) as ydl:
+            info = ydl.extract_info(f"https://www.youtube.com/watch?v={vid}", download=False)
+        if info and info.get("url"):
+            return {
+                "url":      info["url"],
+                "ext":      info.get("ext", "m4a"),
+                "title":    info.get("title", "Unknown"),
+                "channel":  info.get("channel") or info.get("uploader", ""),
+                "duration": int(info.get("duration") or 0),
+                "client":   "direct",
+            }
+    except Exception as e:
+        _log.debug(f"[SmartYTDL] direct_extract {vid}: {e}")
+    return None
+
+
 def _direct_download(vid: str, out_dir: str, fmt: str,
                      cookie_file: Optional[str] = None) -> Optional[str]:
     """
     Download without any player_client restriction.
     yt-dlp will auto-select its default clients (android_vr in 2026).
     This is the most reliable path — no extractor_args means full format access.
+    Uses a clean {vid}.ext filename so file_exists() can find it instantly.
     """
-    ts = int(time.time())
     o: Dict = {
         "format":             fmt,
-        "outtmpl":            os.path.join(out_dir, f"{vid}_{ts}.%(ext)s"),
+        "outtmpl":            os.path.join(out_dir, f"{vid}.%(ext)s"),
         "quiet":              True,
         "no_warnings":        True,
         "noplaylist":         True,
@@ -407,12 +442,10 @@ def _direct_download(vid: str, out_dir: str, fmt: str,
         with yt_dlp.YoutubeDL(o) as ydl:
             ydl.extract_info(f"https://www.youtube.com/watch?v={vid}", download=True)
         for ext in ("m4a", "webm", "opus", "ogg", "mp3", "mp4"):
-            for fname in os.listdir(out_dir):
-                if fname.startswith(f"{vid}_{ts}") and fname.endswith(f".{ext}"):
-                    p = os.path.join(out_dir, fname)
-                    if os.path.getsize(p) > 1024:
-                        _log.info(f"[SmartYTDL] direct_download ok: {p}")
-                        return p
+            p = os.path.join(out_dir, f"{vid}.{ext}")
+            if os.path.exists(p) and os.path.getsize(p) > 1024:
+                _log.info(f"[SmartYTDL] direct_download ok: {p}")
+                return p
     except Exception as e:
         _log.debug(f"[SmartYTDL] direct_download {vid}: {e}")
     return None
@@ -559,19 +592,24 @@ def smart_extract_url(vid: str) -> Optional[Dict]:
         _registry.mark_failed(best)
         _log.info(f"[SmartYTDL] Cached '{best}' failed for {vid}, racing all")
 
-    # Race all clients — jsless ones (android_vr, ios, android, mweb) launch first
+    # Race all clients — jsless ones (android_vr, ios, android, mweb) launch first.
+    # Also race _direct_extract (no player_client restriction) which succeeds when
+    # per-client extraction fails with "Requested format is not available".
     clients = _registry.ordered_clients()
-    _log.info(f"[SmartYTDL] Racing {len(clients)} clients for {vid} | order: {clients[:4]}")
+    _log.info(f"[SmartYTDL] Racing {len(clients)} clients + direct for {vid} | order: {clients[:4]}")
 
-    targets = [
+    targets = [lambda: _direct_extract(vid)] + [
         (lambda c: lambda: _client_extract(vid, c, cookie_file))(c)
         for c in clients
     ]
-    winner = _race(targets, timeout=6.0)
+    winner = _race(targets, timeout=8.0)
 
     if winner:
-        _registry.mark_ok(winner["client"])
-        _log.info(f"[SmartYTDL] client='{winner['client']}' won for {vid}")
+        winning_client = winner["client"]
+        # Only update registry for real yt-dlp clients, not "direct" pseudo-client
+        if winning_client in ALL_CLIENTS:
+            _registry.mark_ok(winning_client)
+        _log.info(f"[SmartYTDL] client='{winning_client}' won for {vid}")
         return winner
 
     # Invidious fallback

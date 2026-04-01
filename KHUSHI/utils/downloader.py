@@ -74,10 +74,19 @@ def extract_video_id(link: str) -> str:
 
 
 def file_exists(video_id: str) -> Optional[str]:
+    import glob as _glob
     for ext in ("m4a", "mp3", "mp4", "webm", "mkv", "opus", "ogg", "flac"):
+        # Standard clean filename (current format)
         path = f"{_DOWNLOAD_DIR}/{video_id}.{ext}"
         if os.path.exists(path) and os.path.getsize(path) > 0:
             return path
+        # Legacy timestamped filename (vid_ts.ext) — kept for backward compat
+        matches = [
+            p for p in _glob.glob(f"{_DOWNLOAD_DIR}/{video_id}_*.{ext}")
+            if os.path.getsize(p) > 0
+        ]
+        if matches:
+            return max(matches, key=os.path.getmtime)
     return None
 
 
@@ -527,14 +536,29 @@ async def fast_get_stream(vid: str) -> Optional[str]:
         asyncio.create_task(_trigger_bg_cache(vid))
         return url
 
-    # ── Check if background cache already completed while we were extracting ──
-    # (bg download task fires in parallel with this function from play.py)
+    # ── Check if background cache completed during URL extraction ───────────────
     cached_now = file_exists(vid)
     if cached_now:
-        LOGGER(__name__).info(f"[FAST] BG cache completed during extraction for {vid}")
+        LOGGER(__name__).info(f"[FAST] BG cache hit after extraction for {vid}")
         return cached_now
 
-    # ── Full download fallback (only if both extraction paths failed) ─────────
+    # ── Wait for in-flight BG download task — avoids duplicate full download ───
+    # The BG task (started by _trigger_bg_cache in play.py) runs smart_download
+    # which uses _direct_download. If it's still running, wait for it instead of
+    # kicking off another identical download — saves 10-15 seconds on cache miss.
+    bg_task = _bg_download_tasks.get(vid)
+    if bg_task and not bg_task.done():
+        LOGGER(__name__).info(f"[FAST] Waiting for in-flight BG task for {vid}")
+        try:
+            await asyncio.wait_for(asyncio.shield(bg_task), timeout=35.0)
+        except Exception:
+            pass
+        cached_after_bg = file_exists(vid)
+        if cached_after_bg:
+            LOGGER(__name__).info(f"[FAST] BG task completed, using: {cached_after_bg}")
+            return cached_after_bg
+
+    # ── Full download fallback (only if BG task also failed or doesn't exist) ──
     LOGGER(__name__).warning(f"[FAST] All URL methods failed for {vid}, falling back to full download")
     link_full = f"https://www.youtube.com/watch?v={vid}"
     path = await download_audio_concurrent(link_full)
