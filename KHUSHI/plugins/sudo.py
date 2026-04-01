@@ -269,4 +269,6 @@ async def restart_bot(_, message: Message):
     except Exception:
         pass
     await asyncio.sleep(1)
-    os.execv(sys.executable, [sys.executable] + sys.argv)
+    _root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    os.chdir(_root)
+    os.execv(sys.executable, [sys.executable, "-m", "KHUSHI"])
