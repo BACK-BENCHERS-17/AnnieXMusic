@@ -111,7 +111,57 @@ def dynamic_media_stream(path: str, video: bool = False, ffmpeg_params: str = No
             ytdlp_parameters=ytdlp_args,
         )
 
+# ── Per-chat progress-bar timer tasks ────────────────────────────────────────
+_timer_tasks: dict[int, "asyncio.Task"] = {}
+
+
+def _cancel_progress_timer(chat_id: int) -> None:
+    task = _timer_tasks.pop(chat_id, None)
+    if task and not task.done():
+        task.cancel()
+
+
+async def _run_progress_timer(chat_id: int) -> None:
+    TICK = 15
+    await asyncio.sleep(4)
+    while True:
+        await asyncio.sleep(TICK)
+        try:
+            check = db.get(chat_id)
+            if not check:
+                break
+            mystic = check[0].get("mystic")
+            if not mystic:
+                continue
+            played = int(check[0].get("played", 0)) + TICK
+            check[0]["played"] = played
+            dur_str = check[0].get("dur", "0:00")
+            dur_sec = int(check[0].get("seconds", 0))
+            if dur_sec > 0 and played >= dur_sec:
+                break
+            lang = await get_lang(chat_id)
+            _ = get_string(lang)
+            ap_on = await is_autoplay(chat_id)
+            played_min = seconds_to_min(played)
+            btn = stream_markup_timer(_, chat_id, played_min, dur_str, autoplay_on=ap_on)
+            try:
+                await mystic.edit_reply_markup(InlineKeyboardMarkup(btn))
+            except Exception:
+                pass
+        except asyncio.CancelledError:
+            break
+        except Exception:
+            pass
+
+
+def _start_progress_timer(chat_id: int) -> None:
+    _cancel_progress_timer(chat_id)
+    task = asyncio.create_task(_run_progress_timer(chat_id))
+    _timer_tasks[chat_id] = task
+
+
 async def _clear_(chat_id: int) -> None:
+    _cancel_progress_timer(chat_id)
     popped = db.pop(chat_id, None)
     if popped:
         await auto_clean(popped)
@@ -703,6 +753,7 @@ class Call:
         if video:
             await add_active_video_chat(chat_id)
         trigger_prefetch(chat_id)
+        _start_progress_timer(chat_id)
 
         if await is_autoend():
             counter[chat_id] = {}
@@ -836,6 +887,13 @@ class Call:
                                     LOGGER(__name__).warning(f"Autoplay client.play error: {_play_err}")
 
                                 if not ap_played:
+                                    await _clear_(chat_id)
+                                    if chat_id in self.active_calls:
+                                        try:
+                                            await client.leave_call(chat_id)
+                                        except Exception:
+                                            pass
+                                        self.active_calls.discard(chat_id)
                                     return
 
                                 try:
@@ -915,9 +973,17 @@ class Call:
                                     db[chat_id][0]["mystic"] = ap_msg
                                 except Exception:
                                     pass
+                                _start_progress_timer(chat_id)
                                 return
                             else:
                                 LOGGER(__name__).warning(f"Autoplay: download failed for {ap_vidid}")
+                                await _clear_(chat_id)
+                                if chat_id in self.active_calls:
+                                    try:
+                                        await client.leave_call(chat_id)
+                                    except Exception:
+                                        pass
+                                    self.active_calls.discard(chat_id)
                                 return
                     except Exception as ap_err:
                         LOGGER(__name__).warning(f"Autoplay error: {ap_err}")
@@ -1081,6 +1147,7 @@ class Call:
                     )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "tg"
+                _start_progress_timer(chat_id)
 
             elif "vid_" in queued:
                 mystic = await app.send_message(original_chat_id, _["call_7"])
@@ -1142,6 +1209,7 @@ class Call:
                     )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "stream"
+                _start_progress_timer(chat_id)
 
             elif "index_" in queued:
                 stream = dynamic_media_stream(path=videoid, video=video)
@@ -1174,6 +1242,7 @@ class Call:
                     )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "tg"
+                _start_progress_timer(chat_id)
 
             else:
                 stream = dynamic_media_stream(path=queued, video=video)
@@ -1214,6 +1283,7 @@ class Call:
                         )
                     db[chat_id][0]["mystic"] = run
                     db[chat_id][0]["markup"] = "tg"
+                    _start_progress_timer(chat_id)
 
                 elif videoid == "soundcloud":
                     button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
@@ -1237,6 +1307,7 @@ class Call:
                         )
                     db[chat_id][0]["mystic"] = run
                     db[chat_id][0]["markup"] = "tg"
+                    _start_progress_timer(chat_id)
 
                 else:
                     button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
@@ -1284,6 +1355,7 @@ class Call:
                             )
                     db[chat_id][0]["mystic"] = run
                     db[chat_id][0]["markup"] = "stream"
+                    _start_progress_timer(chat_id)
 
 
     async def start(self) -> None:

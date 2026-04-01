@@ -3,7 +3,7 @@
 import random
 
 from pyrogram import filters
-from pyrogram.types import InlineKeyboardMarkup, Message
+from pyrogram.types import CallbackQuery, InlineKeyboardMarkup, Message
 
 from KHUSHI.utils.inline import InlineKeyboardButton
 
@@ -12,12 +12,16 @@ from KHUSHI.core.call import JARVIS
 from KHUSHI.misc import db
 from KHUSHI.utils import seconds_to_min
 from KHUSHI.utils.database import (
+    autoplay_off,
+    autoplay_on,
     disable_247,
     enable_247,
+    get_lang,
     get_loop,
     get_volume,
     is_24_7,
     is_active_chat,
+    is_autoplay,
     is_music_playing,
     music_off,
     music_on,
@@ -25,7 +29,9 @@ from KHUSHI.utils.database import (
     set_volume,
 )
 from KHUSHI.utils.decorators import KhushiAdminCheck as AdminRightsCheck
+from KHUSHI.utils.decorators_annie.admins import ActualAdminCB
 from KHUSHI.utils.stream.autoclear import auto_clean
+from strings import get_string
 from config import BANNED_USERS
 
 _EM = {
@@ -261,3 +267,112 @@ async def k247(_, message: Message, lang, chat_id):
             ),
             reply_markup=_close(),
         )
+
+
+# ── ADMIN Inline Button Callbacks ─────────────────────────────────────────────
+@app.on_callback_query(filters.regex(r"^ADMIN (Resume|Pause|Replay|Skip|Stop|Autoplay|Mute|Unmute)\|") & ~BANNED_USERS)
+@ActualAdminCB
+async def admin_control_cb(client, query: CallbackQuery, _):
+    data = query.data
+    parts = data.split("|", 1)
+    action = parts[0].replace("ADMIN ", "").strip()
+    try:
+        chat_id = int(parts[1])
+    except (IndexError, ValueError):
+        return await query.answer("ɪɴᴠᴀʟɪᴅ ᴅᴀᴛᴀ", show_alert=True)
+
+    if action == "Resume":
+        await music_on(chat_id)
+        await JARVIS.resume_stream(chat_id)
+        await query.answer("▶ ʀᴇꜱᴜᴍᴇᴅ", show_alert=False)
+
+    elif action == "Pause":
+        await music_off(chat_id)
+        await JARVIS.pause_stream(chat_id)
+        await query.answer("⏸ ᴘᴀᴜꜱᴇᴅ", show_alert=False)
+
+    elif action == "Skip":
+        check = db.get(chat_id)
+        if not check:
+            return await query.answer("ɴᴏᴛʜɪɴɢ ɪɴ ǫᴜᴇᴜᴇ", show_alert=True)
+        popped = None
+        try:
+            popped = check.pop(0)
+            if popped:
+                await auto_clean(popped)
+        except Exception:
+            return await query.answer("ᴄᴀɴɴᴏᴛ ꜱᴋɪᴘ", show_alert=True)
+        if not check:
+            await query.answer("ǫᴜᴇᴜᴇ ᴇᴍᴘᴛʏ — ꜱᴛᴏᴘᴘɪɴɢ", show_alert=False)
+            return await JARVIS.stop_or_autoplay(chat_id, popped)
+        await query.answer("⏭ ꜱᴋɪᴘᴘᴇᴅ", show_alert=False)
+        check[0]["played"] = 0
+        try:
+            await JARVIS.skip_stream(chat_id, check[0]["file"])
+        except Exception:
+            pass
+
+    elif action == "Stop":
+        await JARVIS.stop_stream(chat_id)
+        await query.answer("⏹ ꜱᴛᴏᴘᴘᴇᴅ", show_alert=False)
+        try:
+            await query.message.delete()
+        except Exception:
+            pass
+
+    elif action == "Replay":
+        check = db.get(chat_id)
+        if not check:
+            return await query.answer("ɴᴏᴛʜɪɴɢ ᴘʟᴀʏɪɴɢ", show_alert=True)
+        try:
+            file_path = check[0].get("file", "")
+            dur = check[0].get("dur", "0:00")
+            mode = check[0].get("streamtype", "audio")
+            await JARVIS.seek_stream(chat_id, file_path, "0:00", dur, mode)
+            check[0]["played"] = 0
+            await query.answer("↻ ʀᴇᴘʟᴀʏɪɴɢ ꜰʀᴏᴍ ꜱᴛᴀʀᴛ", show_alert=False)
+            from KHUSHI.core.call import _start_progress_timer
+            _start_progress_timer(chat_id)
+        except Exception:
+            await query.answer("ʀᴇᴘʟᴀʏ ꜰᴀɪʟᴇᴅ", show_alert=True)
+
+    elif action == "Autoplay":
+        ap_on = await is_autoplay(chat_id)
+        if ap_on:
+            await autoplay_off(chat_id)
+            new_state = False
+            await query.answer("❌ ᴀᴜᴛᴏᴘʟᴀʏ ᴏꜰꜰ", show_alert=False)
+        else:
+            await autoplay_on(chat_id)
+            new_state = True
+            await query.answer("✅ ᴀᴜᴛᴏᴘʟᴀʏ ᴏɴ", show_alert=False)
+        try:
+            check = db.get(chat_id)
+            if check:
+                mystic = check[0].get("mystic")
+                if mystic:
+                    from KHUSHI.utils.inline import stream_markup, stream_markup_timer
+                    from KHUSHI.utils.formatters import seconds_to_min as _s2m
+                    lang = await get_lang(chat_id)
+                    _lng = get_string(lang)
+                    played = int(check[0].get("played", 0))
+                    dur_str = check[0].get("dur", "0:00")
+                    if played > 0:
+                        played_min = _s2m(played)
+                        btn = stream_markup_timer(_lng, chat_id, played_min, dur_str, autoplay_on=new_state)
+                    else:
+                        btn = stream_markup(_lng, chat_id, autoplay_on=new_state)
+                    await mystic.edit_reply_markup(InlineKeyboardMarkup(btn))
+        except Exception:
+            pass
+
+    elif action == "Mute":
+        await JARVIS.mute_stream(chat_id)
+        await query.answer("🔇 ᴍᴜᴛᴇᴅ", show_alert=False)
+
+    elif action == "Unmute":
+        await JARVIS.unmute_stream(chat_id)
+        await query.answer("🔊 ᴜɴᴍᴜᴛᴇᴅ", show_alert=False)
+
+    else:
+        await query.answer("ᴜɴᴋɴᴏᴡɴ ᴀᴄᴛɪᴏɴ", show_alert=True)
