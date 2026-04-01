@@ -463,13 +463,17 @@ async def fast_get_stream(vid: str) -> Optional[str]:
     Priority:
       1. Cached local file             → instant (0 ms)
       2. In-process CDN URL cache      → instant (<1 ms) — set by prefetch or prior plays
-      3. Webserver cache + SmartYTDL extraction run IN PARALLEL:
+      3. MongoDB persistent URL cache  → ~10-50 ms — shared across restarts and all users
+      4. Webserver cache + SmartYTDL extraction run IN PARALLEL:
          - Webserver hits  → returns immediately (~10 ms)
-         - Webserver miss  → SmartYTDL extraction already running → returns in 1-4 s
-      4. Full local download fallback  → only if all extraction paths fail
+         - Webserver miss  → SmartYTDL extraction already running → returns in 5-8 s
+      5. Full local download fallback  → only if all extraction paths fail
 
-    Steps 3a and 3b run in parallel so there is zero wasted time on cache-miss latency.
+    Every successfully extracted URL is saved to MongoDB so any future request
+    (by any user, even after a restart) for the same song is near-instant.
     """
+    from KHUSHI.utils.url_cache import get_url as _mongo_get, put_url as _mongo_put
+
     cached = file_exists(vid)
     if cached:
         return cached
@@ -483,6 +487,19 @@ async def fast_get_stream(vid: str) -> Optional[str]:
         asyncio.create_task(_trigger_bg_cache(vid))
         return cdn_url
 
+    # MongoDB persistent cache — shared across all users and bot restarts.
+    # A song played by anyone stays cached for ~6 hours (YouTube CDN TTL).
+    try:
+        mongo_hit = await _mongo_get(vid)
+        if mongo_hit:
+            cdn_url, ext = mongo_hit
+            _cache_cdn_url(vid, cdn_url, ext)       # warm in-process cache too
+            LOGGER(__name__).info(f"[FAST] MongoDB URL cache hit for {vid}")
+            asyncio.create_task(_trigger_bg_cache(vid))
+            return cdn_url
+    except Exception as e:
+        LOGGER(__name__).debug(f"[FAST] MongoDB cache check failed for {vid}: {e}")
+
     loop = asyncio.get_running_loop()
 
     async def _webserver_check():
@@ -491,6 +508,7 @@ async def fast_get_stream(vid: str) -> Optional[str]:
             if result:
                 cdn_url, ext = result
                 _cache_cdn_url(vid, cdn_url, ext)
+                asyncio.create_task(_mongo_put(vid, cdn_url, ext))
                 LOGGER(__name__).info(f"[FAST] Webserver cache hit for {vid}")
                 return cdn_url
         except Exception as e:
@@ -501,11 +519,14 @@ async def fast_get_stream(vid: str) -> Optional[str]:
         try:
             info = await loop.run_in_executor(None, smart_extract_url, vid)
             if info and info.get("url"):
-                _cache_cdn_url(vid, info["url"], info.get("ext", "m4a"))
+                cdn_url = info["url"]
+                ext = info.get("ext", "m4a")
+                _cache_cdn_url(vid, cdn_url, ext)
+                asyncio.create_task(_mongo_put(vid, cdn_url, ext))
                 LOGGER(__name__).info(
                     f"[FAST] SmartYTDL extracted URL for {vid} via {info.get('client', '?')}"
                 )
-                return info["url"]
+                return cdn_url
         except Exception as e:
             LOGGER(__name__).debug(f"[FAST] URL extraction failed for {vid}: {e}")
         return None

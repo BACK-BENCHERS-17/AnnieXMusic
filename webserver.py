@@ -22,6 +22,76 @@ os.makedirs(_DOWNLOAD_DIR, exist_ok=True)
 _ytdl_locks: dict = {}
 _ytdl_lock_guard = threading.Lock()
 
+# ── Sync MongoDB URL cache (shared with async bot via same DB) ─────────────────
+import logging as _logging
+_ws_log = _logging.getLogger("webserver.urlcache")
+_ws_mongo_col = None
+_ws_mongo_index_done = False
+
+def _ws_get_mongo_col():
+    global _ws_mongo_col
+    if _ws_mongo_col is not None:
+        return _ws_mongo_col
+    try:
+        from config import MONGO_DB_URI, MONGO_DB_NAME
+        from pymongo import MongoClient
+        _c = MongoClient(MONGO_DB_URI, serverSelectionTimeoutMS=3000)
+        _ws_mongo_col = _c[MONGO_DB_NAME]["yt_url_cache"]
+    except Exception as e:
+        _ws_log.warning(f"[URLCache-WS] MongoDB unavailable: {e}")
+    return _ws_mongo_col
+
+def _ws_mongo_ensure_index():
+    global _ws_mongo_index_done
+    if _ws_mongo_index_done:
+        return
+    col = _ws_get_mongo_col()
+    if col is None:
+        return
+    try:
+        col.create_index("expires_at", expireAfterSeconds=0)
+        _ws_mongo_index_done = True
+    except Exception:
+        pass
+
+def _ws_mongo_get(vid: str):
+    """Return (url, ext) from MongoDB if valid, else None. ~5-30 ms."""
+    col = _ws_get_mongo_col()
+    if col is None:
+        return None
+    try:
+        doc = col.find_one({"_id": vid})
+        if not doc:
+            return None
+        if doc.get("expires_at", 0) < time.time():
+            return None
+        url = doc.get("url", "")
+        ext = doc.get("ext", "m4a")
+        if url:
+            _ws_log.info(f"[URLCache-WS] MongoDB hit for {vid}")
+            return url, ext
+    except Exception as e:
+        _ws_log.debug(f"[URLCache-WS] get failed for {vid}: {e}")
+    return None
+
+def _ws_mongo_put(vid: str, url: str, ext: str = "m4a"):
+    """Save URL to MongoDB. Runs in background thread, non-blocking."""
+    col = _ws_get_mongo_col()
+    if col is None:
+        return
+    _ws_mongo_ensure_index()
+    try:
+        qs = parse_qs(urlparse(url).query)
+        exp_raw = qs.get("expire", [None])[0]
+        expires_at = int(exp_raw) - 300 if exp_raw else int(time.time()) + 3600
+        col.update_one(
+            {"_id": vid},
+            {"$set": {"url": url, "ext": ext, "expires_at": expires_at, "saved_at": int(time.time())}},
+            upsert=True,
+        )
+    except Exception as e:
+        _ws_log.debug(f"[URLCache-WS] put failed for {vid}: {e}")
+
 # ── Local audio file cache ────────────────────────────────────────────────────
 _local_file_cache: dict = {}
 _local_file_lock = threading.Lock()
@@ -119,14 +189,29 @@ def _download_audio_local(vid):
 
 def _get_stream_data(vid, force_refresh=False):
     if not force_refresh:
+        # 1. In-memory cache (fastest — sub-millisecond)
         with _stream_lock:
             cached = _stream_cache.get(vid)
         if cached and _is_url_valid(cached):
             return cached
+        # 2. MongoDB persistent cache (10-30 ms — survives restarts, shared across users)
+        mongo_hit = _ws_mongo_get(vid)
+        if mongo_hit:
+            url, ext = mongo_hit
+            data = {"url": url, "ext": ext, "ts": time.time()}
+            with _stream_lock:
+                _stream_cache[vid] = data
+            return data
+    # 3. Fresh extraction via yt-dlp
     data = _fetch_stream_with_cookies(vid)
     if data:
         with _stream_lock:
             _stream_cache[vid] = data
+        # Save to MongoDB in background so it's available for all future requests
+        threading.Thread(
+            target=_ws_mongo_put, args=(vid, data["url"], data.get("ext", "m4a")),
+            daemon=True, name=f"mongo-put-{vid}"
+        ).start()
     return data
 
 # ── Trending cache ───────────────────────────────────────────────────────────
