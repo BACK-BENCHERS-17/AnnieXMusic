@@ -4,7 +4,7 @@ Own Pyrogram client, own PyTgCalls, own Userbot.
 KHUSHI's own platform classes — fully self-contained.
 """
 
-from KHUSHI.logging import LOGGER
+from KHUSHI.logger_setup import LOGGER
 from KHUSHI.core.bot import KhushiBot
 from KHUSHI.core.userbot import Userbot
 from KHUSHI.misc import dbb

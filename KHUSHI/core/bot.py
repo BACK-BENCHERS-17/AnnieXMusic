@@ -3,7 +3,7 @@ import asyncio
 from pyrogram import Client, enums, errors
 
 import config
-from KHUSHI.logging import LOGGER
+from KHUSHI.logger_setup import LOGGER
 
 BOT_PFP_PATH = "KHUSHI/assets/bot_pfp.png"
 

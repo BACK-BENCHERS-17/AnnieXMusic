@@ -148,7 +148,10 @@ async def _handle_play(message: Message, video: bool = False):
             return
 
     # ── Loading indicator ──────────────────────────────────────────────────────
-    mystic = await message.reply_text(random.choice(AYU))
+    try:
+        mystic = await message.reply_text(random.choice(AYU))
+    except Exception:
+        return
 
     # ── Telegram file ──────────────────────────────────────────────────────────
     if tg_audio or tg_video:

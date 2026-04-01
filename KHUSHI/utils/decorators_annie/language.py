@@ -1,7 +1,7 @@
 import asyncio
 from pyrogram.errors import MessageNotModified, QueryIdInvalid
 from KHUSHI import app
-from KHUSHI.logging import LOGGER
+from KHUSHI.logger_setup import LOGGER
 from config import SUPPORT_CHAT
 from KHUSHI.misc import SUDOERS
 from KHUSHI.utils.database import get_lang, is_maintenance

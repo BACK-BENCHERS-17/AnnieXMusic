@@ -129,7 +129,7 @@ def capture_internal_err(func):
     """
     Handles errors in background/internal async bot functions.
     """
-    from KHUSHI.logging import LOGGER as _LOGGER
+    from KHUSHI.logger_setup import LOGGER as _LOGGER
     _log = _LOGGER("KHUSHI.errors")
 
     @wraps(func)

@@ -7,7 +7,7 @@ from pyrogram.types import Message, User
 from pyrogram.errors import RPCError
 
 from KHUSHI.misc import SUDOERS
-from KHUSHI.logging import LOGGER
+from KHUSHI.logger_setup import LOGGER
 
 
 # ────────────────────────────────────────────────────────────

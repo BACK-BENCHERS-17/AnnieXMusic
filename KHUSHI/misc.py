@@ -6,7 +6,7 @@ from pyrogram.enums import ChatMemberStatus
 
 from config import OWNER_ID
 from KHUSHI.core.mongo import mongodb
-from KHUSHI.logging import LOGGER
+from KHUSHI.logger_setup import LOGGER
 
 SUDOERS = filters.user()
 COMMANDERS = [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]

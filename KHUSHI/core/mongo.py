@@ -1,7 +1,7 @@
 import sys
 from motor.motor_asyncio import AsyncIOMotorClient
 from config import MONGO_DB_URI, MONGO_DB_NAME
-from KHUSHI.logging import LOGGER
+from KHUSHI.logger_setup import LOGGER
 
 if not MONGO_DB_URI:
     LOGGER(__name__).error("MONGO_DB_URI is not set!")

@@ -19,7 +19,7 @@ from KHUSHI.utils.ytdl_smart import (
     smart_download,
     smart_extract_url,
 )
-from KHUSHI.logging import LOGGER
+from KHUSHI.logger_setup import LOGGER
 from KHUSHI.utils.internal_secret import get_secret
 from config import API_KEY, API_URL
 
