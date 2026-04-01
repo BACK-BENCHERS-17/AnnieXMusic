@@ -447,6 +447,17 @@ class Call:
     @capture_internal_err
     async def skip_stream(self, chat_id: int, link: str, video: Union[bool, str] = None, image: Union[bool, str] = None) -> None:
         assistant = await group_assistant(self, chat_id)
+        # "vid_VIDEOID" is a queue placeholder — resolve to a real path/URL before streaming
+        if link and link.startswith("vid_"):
+            vidid = link[4:]
+            from KHUSHI.utils.downloader import fast_get_stream
+            resolved = await fast_get_stream(vidid)
+            if resolved:
+                link = resolved
+            else:
+                raise AssistantErr(f"Could not resolve stream for vid={vidid}. Try /play again.")
+        elif link and not link.startswith(("http://", "https://")) and not os.path.exists(link):
+            raise AssistantErr("Stream file not found. Try /play again.")
         stream = dynamic_media_stream(path=link, video=bool(video))
         await assistant.play(chat_id, stream)
 
@@ -459,6 +470,17 @@ class Call:
     @capture_internal_err
     async def seek_stream(self, chat_id: int, file_path: str, to_seek: str, duration: str, mode: str) -> None:
         assistant = await group_assistant(self, chat_id)
+        # Resolve "vid_VIDEOID" placeholder to a real path/URL before seeking
+        if file_path and file_path.startswith("vid_"):
+            vidid = file_path[4:]
+            from KHUSHI.utils.downloader import fast_get_stream
+            resolved = await fast_get_stream(vidid)
+            if resolved:
+                file_path = resolved
+            else:
+                raise AssistantErr(f"Could not resolve stream for seek vid={vidid}.")
+        elif file_path and not file_path.startswith(("http://", "https://")) and not os.path.exists(file_path):
+            raise AssistantErr("Stream file no longer exists. Cannot seek.")
         ffmpeg_params = f"-ss {to_seek} -to {duration}"
         is_video = mode == "video"
         stream = dynamic_media_stream(path=file_path, video=is_video, ffmpeg_params=ffmpeg_params)

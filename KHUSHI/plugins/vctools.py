@@ -1,16 +1,29 @@
 """KHUSHI — VC Tools: /vcinfo, /vclogger, /mutevc, /unmutevc."""
 
 from pyrogram import filters
+from pyrogram.raw.types import (
+    GroupCallParticipant,
+    PeerChannel,
+    PeerChat,
+    PeerUser,
+    UpdateGroupCall,
+    UpdateGroupCallParticipants,
+)
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from KHUSHI import app
 from KHUSHI.core.call import JARVIS
 from KHUSHI.core.mongo import mongodb
+from KHUSHI.misc import LOGGER
 from KHUSHI.utils.database import group_assistant, is_active_chat
 from KHUSHI.utils.decorators import KhushiAdminCheck as AdminRightsCheck
 from config import BANNED_USERS
 
 _vclogdb = mongodb.vclogger_settings
+
+# Maps group-call-id → full Telegram chat_id (negative).
+# Populated by UpdateGroupCall (fires on VC start / property change).
+_call_chat_map: dict[int, int] = {}
 
 _BRAND = (
     "<emoji id='5042192219960771668'>🧸</emoji>"
@@ -193,3 +206,82 @@ async def unmutevc_cmd(client, message: Message, lang, chat_id):
             _reply(f"❌ ꜰᴀɪʟᴇᴅ ᴛᴏ ᴜɴᴍᴜᴛᴇ: <code>{e}</code>"),
             reply_markup=_close(),
         )
+
+
+# ── VC LOGGER — RAW UPDATE HANDLER ────────────────────────────────────────────
+# Tracks group-call participants joining / leaving in real time.
+# We need TWO raw-update events:
+#   1. UpdateGroupCall       → maps the group-call-id to our chat_id
+#   2. UpdateGroupCallParticipants → fires every time a participant joins/leaves
+
+def _peer_to_chat_id(peer) -> int:
+    """Convert a raw MTProto Peer object to the Telegram chat_id our DB stores."""
+    if isinstance(peer, PeerChannel):
+        return int(f"-100{peer.channel_id}")
+    if isinstance(peer, PeerChat):
+        return -peer.chat_id
+    if isinstance(peer, PeerUser):
+        return peer.user_id
+    return 0
+
+
+@app.on_raw_update()
+async def _vclog_raw_handler(client, update, users, chats):
+    try:
+        # ── 1. Build call_id → chat_id mapping ──────────────────────────────
+        if isinstance(update, UpdateGroupCall):
+            cid = _peer_to_chat_id(update.peer)
+            call_id = getattr(update.call, "id", None)
+            if cid and call_id:
+                _call_chat_map[call_id] = cid
+            return
+
+        # ── 2. Log join / leave events ──────────────────────────────────────
+        if not isinstance(update, UpdateGroupCallParticipants):
+            return
+
+        call_id = update.call.id
+        chat_id = _call_chat_map.get(call_id)
+        if not chat_id:
+            return
+
+        if not await _is_vclog_on(chat_id):
+            return
+
+        for p in update.participants:
+            if not isinstance(p, GroupCallParticipant):
+                continue
+            just_joined = getattr(p, "just_joined", False)
+            left = getattr(p, "left", False)
+            if not (just_joined or left):
+                continue
+
+            # Resolve display name from the `users` / `chats` dicts in the update
+            peer = getattr(p, "peer", None)
+            name = "ᴜɴᴋɴᴏᴡɴ"
+            if isinstance(peer, PeerUser):
+                uid = peer.user_id
+                u = users.get(uid)
+                if u:
+                    first = getattr(u, "first_name", "") or ""
+                    last = getattr(u, "last_name", "") or ""
+                    name = (first + " " + last).strip() or str(uid)
+                else:
+                    name = str(uid)
+            elif isinstance(peer, PeerChannel):
+                cobj = chats.get(peer.channel_id)
+                name = getattr(cobj, "title", str(peer.channel_id)) if cobj else str(peer.channel_id)
+
+            action = "ᴊᴏɪɴᴇᴅ ᴠᴄ" if just_joined else "ʟᴇꜰᴛ ᴠᴄ"
+            icon = _EM["vc"] if just_joined else _EM["dot"]
+
+            try:
+                await app.send_message(
+                    chat_id,
+                    _reply(f"{icon} <b>{name}</b> {action}"),
+                )
+            except Exception as send_err:
+                LOGGER(__name__).debug(f"[vclogger] send failed for chat={chat_id}: {send_err}")
+
+    except Exception as raw_err:
+        LOGGER(__name__).debug(f"[vclog_raw_handler] error: {raw_err}")
