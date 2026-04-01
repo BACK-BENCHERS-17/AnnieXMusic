@@ -9,9 +9,12 @@ from KHUSHI.utils.decorators import AdminRightsCheck
 from KHUSHI.utils.inline import close_markup, InlineKeyboardButton
 from config import BANNED_USERS
 
-E_BEAR = "<emoji id='5042192219960771668'>🧸</emoji>"
-E_TIME = "<emoji id='4979027931234830344'>⏳</emoji>"
-E_DOT  = "<emoji id='5972072533833289156'>🔹</emoji>"
+E_BEAR  = "<emoji id='5042192219960771668'>🧸</emoji>"
+E_TIME  = "<emoji id='4979027931234830344'>⏳</emoji>"
+E_DOT   = "<emoji id='5972072533833289156'>🔹</emoji>"
+E_CHECK = "<emoji id='6041597085009056322'>✅</emoji>"
+E_CROSS = "<emoji id='5040042498634810056'>❌</emoji>"
+E_ZAP   = "<emoji id='5042334757040423886'>⚡️</emoji>"
 
 ANNIE_ROW = (
     "<emoji id='5042192219960771668'>🧸</emoji>"
@@ -24,13 +27,13 @@ ANNIE_ROW = (
 
 
 def _autoplay_text(enabled: bool) -> str:
-    status = "ᴇɴᴀʙʟᴇᴅ ✅" if enabled else "ᴅɪsᴀʙʟᴇᴅ ❌"
+    status = f"ᴇɴᴀʙʟᴇᴅ {E_CHECK}" if enabled else f"ᴅɪsᴀʙʟᴇᴅ {E_CROSS}"
     return (
         f"<blockquote>"
         f"┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
-        f"┆{E_BEAR} <b>Status:</b> <b>{status}</b>\n"
-        f"┆{E_TIME} <b>Automatically plays a related song when the queue ends</b> — "
-        f"so the music never stops even after the last track.\n"
+        f"┆{E_BEAR} <b>sᴛᴀᴛᴜs :</b> <b>{status}</b>\n"
+        f"┆{E_TIME} ᴀᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ ᴘʟᴀʏs ᴀ ʀᴇʟᴀᴛᴇᴅ sᴏɴɢ ᴡʜᴇɴ ᴛʜᴇ ǫᴜᴇᴜᴇ ᴇɴᴅs\n"
+        f"┆{E_ZAP} ᴍᴜsɪᴄ ɴᴇᴠᴇʀ sᴛᴏᴘs ᴇᴠᴇɴ ᴀꜰᴛᴇʀ ᴛʜᴇ ʟᴀsᴛ ᴛʀᴀᴄᴋ!\n"
         f"└──────────────────────●"
         f"</blockquote>\n"
         f"<blockquote>{ANNIE_ROW}</blockquote>"
@@ -76,15 +79,15 @@ async def autoplay_command(cli, message: Message, _, chat_id):
             if enabled:
                 return await message.reply_text(
                     f"<blockquote>┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
-                    f"┆{E_BEAR} <b>ᴀᴜᴛᴏᴘʟᴀʏ ɪs ᴀʟʀᴇᴀᴅʏ ᴇɴᴀʙʟᴇᴅ ✅</b>\n"
+                    f"┆{E_BEAR} <b>ᴀᴜᴛᴏᴘʟᴀʏ ɪs ᴀʟʀᴇᴀᴅʏ ᴇɴᴀʙʟᴇᴅ {E_CHECK}</b>\n"
                     f"└──────────────────────●</blockquote>\n"
                     f"<blockquote>{ANNIE_ROW}</blockquote>"
                 )
             await autoplay_on(chat_id)
             return await message.reply_text(
                 f"<blockquote>┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
-                f"┆{E_BEAR} <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴇɴᴀʙʟᴇᴅ ✅</b>\n"
-                f"┆{E_TIME} <b>ᴡɪʟʟ ᴀᴜᴛᴏ-ᴘʟᴀʏ ʀᴇʟᴀᴛᴇᴅ sᴏɴɢs!</b>\n"
+                f"┆{E_BEAR} <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴇɴᴀʙʟᴇᴅ {E_CHECK}</b>\n"
+                f"┆{E_ZAP} <b>ᴡɪʟʟ ᴀᴜᴛᴏ-ᴘʟᴀʏ ʀᴇʟᴀᴛᴇᴅ sᴏɴɢs!</b>\n"
                 f"└──────────────────────●</blockquote>\n"
                 f"<blockquote>{ANNIE_ROW}</blockquote>",
                 reply_markup=close_markup(_),
@@ -93,14 +96,14 @@ async def autoplay_command(cli, message: Message, _, chat_id):
             if not enabled:
                 return await message.reply_text(
                     f"<blockquote>┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
-                    f"┆{E_BEAR} <b>ᴀᴜᴛᴏᴘʟᴀʏ ɪs ᴀʟʀᴇᴀᴅʏ ᴅɪsᴀʙʟᴇᴅ ❌</b>\n"
+                    f"┆{E_BEAR} <b>ᴀᴜᴛᴏᴘʟᴀʏ ɪs ᴀʟʀᴇᴀᴅʏ ᴅɪsᴀʙʟᴇᴅ {E_CROSS}</b>\n"
                     f"└──────────────────────●</blockquote>\n"
                     f"<blockquote>{ANNIE_ROW}</blockquote>"
                 )
             await autoplay_off(chat_id)
             return await message.reply_text(
                 f"<blockquote>┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
-                f"┆{E_BEAR} <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴅɪsᴀʙʟᴇᴅ ❌</b>\n"
+                f"┆{E_BEAR} <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴅɪsᴀʙʟᴇᴅ {E_CROSS}</b>\n"
                 f"┆{E_TIME} <b>ᴡɪʟʟ sᴛᴏᴘ ᴀꜰᴛᴇʀ ᴄᴜʀʀᴇɴᴛ ǫᴜᴇᴜᴇ ᴇɴᴅs.</b>\n"
                 f"└──────────────────────●</blockquote>\n"
                 f"<blockquote>{ANNIE_ROW}</blockquote>",

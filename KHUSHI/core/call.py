@@ -686,43 +686,60 @@ class Call:
                     f"[PLAY] ChannelInvalid — trying to auto-add assistant to chat={chat_id}"
                 )
                 _ci_joined = False
+                _ci_asst_client = getattr(assistant, '_app', None)
+
+                async def _ci_warm_and_play():
+                    """After joining, force peer into assistant cache then retry play."""
+                    if _ci_asst_client:
+                        try:
+                            await _ci_asst_client.get_chat(chat_id)
+                            LOGGER(__name__).info(
+                                f"[PLAY] Peer cache warmed for chat={chat_id} after join"
+                            )
+                        except Exception as _wm:
+                            LOGGER(__name__).debug(f"[PLAY] Post-join warmup skipped: {_wm}")
+                    await asyncio.sleep(2)
+                    await assistant.play(chat_id, stream)
+
+                # Method 1: direct add_chat_members via main bot
                 try:
-                    _asst_client = getattr(assistant, '_app', None)
                     _asst_id = None
-                    if _asst_client:
-                        _me = getattr(_asst_client, 'me', None)
+                    if _ci_asst_client:
+                        _me = getattr(_ci_asst_client, 'me', None)
                         if _me:
                             _asst_id = _me.id
                     if _asst_id:
                         await app.add_chat_members(chat_id, _asst_id)
                         LOGGER(__name__).info(
-                            f"[PLAY] Assistant auto-added (ChannelInvalid) to chat={chat_id}. Retrying."
+                            f"[PLAY] Assistant auto-added (ChannelInvalid) to chat={chat_id}."
                         )
-                        await asyncio.sleep(2)
-                        await assistant.play(chat_id, stream)
+                        await _ci_warm_and_play()
                         _ci_joined = True
                         break
                 except Exception as _ci_add_err:
                     LOGGER(__name__).warning(f"[PLAY] ChannelInvalid add_chat_members failed: {_ci_add_err}")
+
+                # Method 2: create invite link and have assistant join itself
                 if not _ci_joined:
                     try:
                         _invite = await app.create_chat_invite_link(chat_id)
-                        _asst_client = getattr(assistant, '_app', None)
-                        if _asst_client:
-                            await _asst_client.join_chat(_invite.invite_link)
+                        if _ci_asst_client:
+                            await _ci_asst_client.join_chat(_invite.invite_link)
                             LOGGER(__name__).info(
-                                f"[PLAY] Assistant joined via invite (ChannelInvalid) for chat={chat_id}. Retrying."
+                                f"[PLAY] Assistant joined via invite (ChannelInvalid) for chat={chat_id}."
                             )
-                            await asyncio.sleep(2)
-                            await assistant.play(chat_id, stream)
+                            await _ci_warm_and_play()
                             _ci_joined = True
                             break
                     except Exception as _ci_inv_err:
                         LOGGER(__name__).warning(f"[PLAY] ChannelInvalid invite-join failed: {_ci_inv_err}")
+
                 if not _ci_joined:
                     raise AssistantErr(
                         "<b>ᴀssɪsᴛᴀɴᴛ ᴄᴀɴɴᴏᴛ ᴊᴏɪɴ ᴛʜɪs ɢʀᴏᴜᴘ.</b>\n\n"
-                        "<blockquote>ᴘʟᴇᴀsᴇ <b>ᴀᴅᴅ</b> ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ."
+                        "<blockquote>"
+                        "ᴘʟᴇᴀsᴇ <b>ᴀᴅᴅ</b> ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.\n"
+                        "ɪꜰ ᴀssɪsᴛᴀɴᴛ ɪs ᴀʟʀᴇᴀᴅʏ ɪɴ ɢʀᴏᴜᴘ, ʀᴇᴍᴏᴠᴇ ᴀɴᴅ ʀᴇ-ᴀᴅᴅ ɪᴛ."
                         "</blockquote>"
                     )
             except ChannelPrivate:
@@ -968,22 +985,33 @@ class Call:
                                 language = await get_lang(chat_id)
                                 _lang = get_string(language)
                                 try:
+                                    _AP_BEAR = "<emoji id='5042192219960771668'>🧸</emoji>"
+                                    _AP_TIME = "<emoji id='4979027931234830344'>⏳</emoji>"
+                                    _AP_DOT  = "<emoji id='5972072533833289156'>🔹</emoji>"
+                                    _AP_AROW = (
+                                        "<emoji id='5042192219960771668'>🧸</emoji>"
+                                        "<emoji id='5210820276748566172'>🔤</emoji>"
+                                        "<emoji id='5213301251722203632'>🔤</emoji>"
+                                        "<emoji id='5213301251722203632'>🔤</emoji>"
+                                        "<emoji id='5211032856154885824'>🔤</emoji>"
+                                        "<emoji id='5213337333742454261'>🔤</emoji>"
+                                    )
                                     btn = stream_markup_timer(
                                         _lang, chat_id,
                                         "0:00", ap_dur,
                                         autoplay_on=True,
                                     )
                                     _ap_caption = (
-                                        f"<blockquote expandable>"
-                                        f"<b>🎵 ɴᴏᴡ ᴘʟᴀʏɪɴɢ</b> · <i>ᴀᴜᴛᴏᴘʟᴀʏ</i>\n"
-                                        f"━━━━━━━━━━━━━━━━\n"
-                                        f"🎬 <b>ᴛɪᴛʟᴇ :</b> "
+                                        f"<blockquote>"
+                                        f"┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
+                                        f"┆{_AP_BEAR} <b>ᴛɪᴛʟᴇ :</b> "
                                         f"<a href='https://www.youtube.com/watch?v={ap_vidid}'>"
-                                        f"<b>{ap_title_short}</b></a>\n"
-                                        f"⏱ <b>ᴅᴜʀᴀᴛɪᴏɴ :</b>  {ap_dur}\n"
-                                        f"🤖 <b>ᴘɪᴄᴋᴇᴅ ʙʏ :</b>  ᴀɴɴɪᴇ ᴀᴜᴛᴏᴘʟᴀʏ\n"
-                                        f"━━━━━━━━━━━━━━━━"
-                                        f"</blockquote>"
+                                        f"{ap_title_short}</a>\n"
+                                        f"┆{_AP_TIME} <b>ᴅᴜʀᴀᴛɪᴏɴ :</b> {ap_dur}\n"
+                                        f"┆{_AP_DOT} <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ :</b> ᴀɴɴɪᴇ ᴀᴜᴛᴏᴘʟᴀʏ\n"
+                                        f"└──────────────────────●"
+                                        f"</blockquote>\n"
+                                        f"<blockquote>{_AP_AROW}</blockquote>"
                                     )
                                     _ap_markup = InlineKeyboardMarkup(btn)
                                     thumb_on = await is_thumb_enabled()
