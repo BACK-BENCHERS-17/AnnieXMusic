@@ -535,13 +535,15 @@ class Call:
         else:
             stream = dynamic_media_stream(path=link, video=bool(video))
 
-        # ── Pre-warm: resolve peer on the assistant's internal Pyrogram client ──
-        # After bot restart, the PyTgCalls client hasn't cached this chat's peer.
-        # Resolving it now prevents PeerIdInvalid on the first play attempt.
+        # ── Pre-warm: resolve peer on the assistant's raw Pyrogram client ──
+        # After bot restart, PyTgCalls hasn't cached this chat's peer.
+        # get_chat() on the raw client forces it into the SQLite peer cache.
         try:
-            _pyrogram_client = getattr(assistant, '_app', None) or getattr(assistant, 'mtproto_client', None)
-            if _pyrogram_client:
-                await _pyrogram_client.resolve_peer(chat_id)
+            from KHUSHI.utils.database import get_assistant_number, get_client as _get_client_pw
+            _pw_num = await get_assistant_number(chat_id)
+            _pw_raw = await _get_client_pw(_pw_num) if _pw_num else None
+            if _pw_raw:
+                await _pw_raw.get_chat(chat_id)
                 LOGGER(__name__).info(f"[PLAY] Peer pre-warmed for chat={chat_id}")
         except Exception as _pw_err:
             LOGGER(__name__).debug(f"[PLAY] Peer pre-warm skipped: {_pw_err}")
@@ -681,18 +683,25 @@ class Call:
                 )
             except ChannelInvalid:
                 # ChannelInvalid = assistant's Pyrogram client doesn't know this peer.
-                # Apply the same auto-join logic as ChannelPrivate before giving up.
+                # Use the proper get_client() path to get the raw Pyrogram client.
                 LOGGER(__name__).info(
                     f"[PLAY] ChannelInvalid — trying to auto-add assistant to chat={chat_id}"
                 )
                 _ci_joined = False
-                _ci_asst_client = getattr(assistant, '_app', None)
+
+                # Get the raw Pyrogram client for this chat's assigned assistant
+                try:
+                    from KHUSHI.utils.database import get_assistant_number, get_client as _get_client
+                    _asst_num = await get_assistant_number(chat_id)
+                    _ci_raw_client = await _get_client(_asst_num) if _asst_num else None
+                except Exception:
+                    _ci_raw_client = None
 
                 async def _ci_warm_and_play():
                     """After joining, force peer into assistant cache then retry play."""
-                    if _ci_asst_client:
+                    if _ci_raw_client:
                         try:
-                            await _ci_asst_client.get_chat(chat_id)
+                            await _ci_raw_client.get_chat(chat_id)
                             LOGGER(__name__).info(
                                 f"[PLAY] Peer cache warmed for chat={chat_id} after join"
                             )
@@ -703,11 +712,10 @@ class Call:
 
                 # Method 1: direct add_chat_members via main bot
                 try:
-                    _asst_id = None
-                    if _ci_asst_client:
-                        _me = getattr(_ci_asst_client, 'me', None)
-                        if _me:
-                            _asst_id = _me.id
+                    _asst_id = getattr(_ci_raw_client, 'id', None)
+                    if not _asst_id and _ci_raw_client:
+                        _me = await _ci_raw_client.get_me()
+                        _asst_id = _me.id if _me else None
                     if _asst_id:
                         await app.add_chat_members(chat_id, _asst_id)
                         LOGGER(__name__).info(
@@ -723,8 +731,8 @@ class Call:
                 if not _ci_joined:
                     try:
                         _invite = await app.create_chat_invite_link(chat_id)
-                        if _ci_asst_client:
-                            await _ci_asst_client.join_chat(_invite.invite_link)
+                        if _ci_raw_client:
+                            await _ci_raw_client.join_chat(_invite.invite_link)
                             LOGGER(__name__).info(
                                 f"[PLAY] Assistant joined via invite (ChannelInvalid) for chat={chat_id}."
                             )
@@ -747,18 +755,30 @@ class Call:
                     f"[PLAY] ChannelPrivate — trying to auto-add assistant to chat={chat_id}"
                 )
                 _auto_joined = False
+
+                # Get the raw Pyrogram client for this chat's assigned assistant
                 try:
-                    _asst_client = getattr(assistant, '_app', None)
-                    _asst_id = None
-                    if _asst_client:
-                        _me = getattr(_asst_client, 'me', None)
-                        if _me:
-                            _asst_id = _me.id
+                    from KHUSHI.utils.database import get_assistant_number, get_client as _get_client
+                    _asst_num = await get_assistant_number(chat_id)
+                    _cp_raw_client = await _get_client(_asst_num) if _asst_num else None
+                except Exception:
+                    _cp_raw_client = None
+
+                try:
+                    _asst_id = getattr(_cp_raw_client, 'id', None)
+                    if not _asst_id and _cp_raw_client:
+                        _me = await _cp_raw_client.get_me()
+                        _asst_id = _me.id if _me else None
                     if _asst_id:
                         await app.add_chat_members(chat_id, _asst_id)
                         LOGGER(__name__).info(
                             f"[PLAY] Assistant auto-added to chat={chat_id}. Retrying play."
                         )
+                        if _cp_raw_client:
+                            try:
+                                await _cp_raw_client.get_chat(chat_id)
+                            except Exception:
+                                pass
                         await asyncio.sleep(2)
                         await assistant.play(chat_id, stream)
                         _auto_joined = True
@@ -768,12 +788,15 @@ class Call:
                 if not _auto_joined:
                     try:
                         _invite = await app.create_chat_invite_link(chat_id)
-                        _asst_client = getattr(assistant, '_app', None)
-                        if _asst_client:
-                            await _asst_client.join_chat(_invite.invite_link)
+                        if _cp_raw_client:
+                            await _cp_raw_client.join_chat(_invite.invite_link)
                             LOGGER(__name__).info(
                                 f"[PLAY] Assistant joined via invite link for chat={chat_id}. Retrying."
                             )
+                            try:
+                                await _cp_raw_client.get_chat(chat_id)
+                            except Exception:
+                                pass
                             await asyncio.sleep(2)
                             await assistant.play(chat_id, stream)
                             _auto_joined = True
