@@ -1,7 +1,9 @@
 import asyncio
 import os
 import re
+import time
 from typing import Dict, List, Optional, Tuple, Union
+from urllib.parse import urlparse, parse_qs
 
 import aiofiles
 import aiohttp
@@ -22,6 +24,33 @@ from KHUSHI.utils.internal_secret import get_secret
 from config import API_KEY, API_URL
 
 USE_API: bool = bool(API_URL and API_KEY)
+
+# ── In-process CDN URL cache ──────────────────────────────────────────────────
+# Stores (url, ext, expires_at) per video ID.
+# Avoids re-extraction when prefetch already resolved the URL.
+_url_cache: Dict[str, Tuple[str, str, float]] = {}
+
+
+def _cache_cdn_url(vid: str, url: str, ext: str = "m4a") -> None:
+    """Store a CDN URL in the in-process cache with smart TTL from the URL's expire param."""
+    try:
+        exp_param = parse_qs(urlparse(url).query).get("expire", [None])[0]
+        expires_at = int(exp_param) - 300 if exp_param else time.time() + 3600
+    except Exception:
+        expires_at = time.time() + 3600
+    _url_cache[vid] = (url, ext, expires_at)
+
+
+def _get_cached_cdn_url(vid: str) -> Optional[Tuple[str, str]]:
+    """Return (url, ext) from in-process cache if still valid, else None."""
+    cached = _url_cache.get(vid)
+    if not cached:
+        return None
+    url, ext, expires_at = cached
+    if time.time() < expires_at:
+        return url, ext
+    _url_cache.pop(vid, None)
+    return None
 
 # ── Internal webserver API ─────────────────────────────────────────────────
 # webserver.py binds on WEB_PORT (default 5000); health_check.py on 8080.
@@ -423,18 +452,27 @@ async def fast_get_stream(vid: str) -> Optional[str]:
     Return a file path or CDN URL for the given YouTube video ID as fast as possible.
 
     Priority:
-      1. Cached local file           → instant (0 ms)
-      2. Webserver cache + SmartYTDL extraction run IN PARALLEL:
+      1. Cached local file             → instant (0 ms)
+      2. In-process CDN URL cache      → instant (<1 ms) — set by prefetch or prior plays
+      3. Webserver cache + SmartYTDL extraction run IN PARALLEL:
          - Webserver hits  → returns immediately (~10 ms)
-         - Webserver miss  → SmartYTDL extraction already running → returns in 2-5 s
-      3. Full local download fallback → only if extraction fails completely
+         - Webserver miss  → SmartYTDL extraction already running → returns in 1-4 s
+      4. Full local download fallback  → only if all extraction paths fail
 
-    Running steps 2a and 2b in parallel eliminates the 10-50 ms wasted waiting
-    for the webserver "cache miss" reply before starting extraction.
+    Steps 3a and 3b run in parallel so there is zero wasted time on cache-miss latency.
     """
     cached = file_exists(vid)
     if cached:
         return cached
+
+    # In-process URL cache — populated by prefetch and previous calls to this fn.
+    # This makes skipping to a pre-fetched song near-instant.
+    hit = _get_cached_cdn_url(vid)
+    if hit:
+        cdn_url, _ext = hit
+        LOGGER(__name__).info(f"[FAST] In-process URL cache hit for {vid}")
+        asyncio.create_task(_trigger_bg_cache(vid))
+        return cdn_url
 
     loop = asyncio.get_running_loop()
 
@@ -443,6 +481,7 @@ async def fast_get_stream(vid: str) -> Optional[str]:
             result = await api_get_stream_url(vid)
             if result:
                 cdn_url, ext = result
+                _cache_cdn_url(vid, cdn_url, ext)
                 LOGGER(__name__).info(f"[FAST] Webserver cache hit for {vid}")
                 return cdn_url
         except Exception as e:
@@ -453,6 +492,7 @@ async def fast_get_stream(vid: str) -> Optional[str]:
         try:
             info = await loop.run_in_executor(None, smart_extract_url, vid)
             if info and info.get("url"):
+                _cache_cdn_url(vid, info["url"], info.get("ext", "m4a"))
                 LOGGER(__name__).info(
                     f"[FAST] SmartYTDL extracted URL for {vid} via {info.get('client', '?')}"
                 )
@@ -582,6 +622,7 @@ async def download_audio_concurrent(link: str) -> Optional[str]:
                     cdn_url = info["url"]
                     ext = info["ext"]
                     client = info.get("client", "android_vr")
+                    _cache_cdn_url(vid, cdn_url, ext)
                     hdrs = _client_headers(client)
                     local = await download_from_cdn_url(vid, cdn_url, ext, headers=hdrs)
                     if local:

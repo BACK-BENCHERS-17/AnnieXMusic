@@ -265,13 +265,21 @@ class _ClientRegistry:
             best = self._best
             failed = {c for c, t in self._failed.items() if now - t < self._FAIL_TTL}
         result = []
-        # Jsless clients always go first — they don't need Node.js
+        # android_vr is ALWAYS first — it's the primary jsless client for cloud IPs.
+        # If it's not in the failed set, put it at position 0 regardless of 'best'.
+        if "android_vr" not in failed:
+            result.append("android_vr")
+        # Remaining jsless clients go next; if one of them is 'best', put it after android_vr
         for c in ALL_CLIENTS:
+            if c == "android_vr":
+                continue
             if c in _JSLESS_CLIENTS and c not in failed:
-                if c == best:
-                    result.insert(0, c)
+                if c == best and best != "android_vr":
+                    result.insert(1, c)
                 else:
                     result.append(c)
+        # If 'best' is android_vr and it's healthy, it's already at position 0.
+        # If 'best' is something else but android_vr is healthy, still keep android_vr first.
         # Then JS-dependent clients
         for c in ALL_CLIENTS:
             if c not in _JSLESS_CLIENTS and c not in result and c not in failed:
@@ -297,7 +305,7 @@ def _opts(client: str, cookie_file: Optional[str] = None) -> Dict:
         "no_warnings":        True,
         "nocheckcertificate": True,
         "source_address":     "0.0.0.0",
-        "socket_timeout":     8,
+        "socket_timeout":     4,
         "retries":            1,
         "extractor_args": {
             "youtube": {
@@ -322,7 +330,11 @@ _AUDIO_FMT = "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best"
 
 def _client_extract(vid: str, client: str, cookie_file: Optional[str]) -> Optional[Dict]:
     o = _opts(client, cookie_file)
-    o.update({"skip_download": True, "format": _AUDIO_FMT})
+    o.update({
+        "skip_download": True,
+        "format": _AUDIO_FMT,
+        "format_sort": ["abr", "ext:m4a:0"],
+    })
     try:
         with yt_dlp.YoutubeDL(o) as ydl:
             info = ydl.extract_info(f"https://www.youtube.com/watch?v={vid}", download=False)
@@ -350,7 +362,7 @@ def _client_download(vid: str, client: str, out_dir: str,
         "overwrites": True,
         "continuedl": True,
         "noprogress": True,
-        "socket_timeout": 25,
+        "socket_timeout": 12,
         "retries": 1,
     })
     try:
@@ -384,7 +396,7 @@ def _direct_download(vid: str, out_dir: str, fmt: str,
         "noprogress":         True,
         "nocheckcertificate": True,
         "source_address":     "0.0.0.0",
-        "socket_timeout":     30,
+        "socket_timeout":     15,
         "retries":            2,
     }
     if cookie_file:
@@ -459,7 +471,7 @@ def _invidious_extract(vid: str) -> Optional[Dict]:
                 "User-Agent": "Mozilla/5.0 (compatible; Annie/2.0)",
                 "Accept": "application/json",
             })
-            with urllib.request.urlopen(req, timeout=8) as r:
+            with urllib.request.urlopen(req, timeout=5) as r:
                 if r.status != 200:
                     _fail_instance(inst)
                     continue
@@ -555,7 +567,7 @@ def smart_extract_url(vid: str) -> Optional[Dict]:
         (lambda c: lambda: _client_extract(vid, c, cookie_file))(c)
         for c in clients
     ]
-    winner = _race(targets, timeout=10.0)
+    winner = _race(targets, timeout=6.0)
 
     if winner:
         _registry.mark_ok(winner["client"])
@@ -616,7 +628,7 @@ def smart_download(vid: str, out_dir: str,
         (lambda c: lambda: _client_download(vid, c, out_dir, fmt, cookie_file))(c)
         for c in clients
     ]
-    winner_path = _race(targets, timeout=60.0)
+    winner_path = _race(targets, timeout=40.0)
     if winner_path:
         _log.info(f"[SmartYTDL] Download won for {vid}: {winner_path}")
         return winner_path
