@@ -116,7 +116,7 @@ async def main():
     signal.signal(signal.SIGTERM, _sigterm)
 
     LOGGER("KHUSHI").info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    LOGGER("KHUSHI").info("  KHUSHI Bot  |  Independent Core  ")
+    LOGGER("KHUSHI").info("       A N N I E  |  Music Bot     ")
     LOGGER("KHUSHI").info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
     # Populate banned sets
@@ -160,7 +160,7 @@ async def main():
     await _set_menu_button()
 
     LOGGER("KHUSHI").info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    LOGGER("KHUSHI").info("  KHUSHI is LIVE!")
+    LOGGER("KHUSHI").info("       A N N I E  is  L I V E !   ")
     LOGGER("KHUSHI").info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
     await idle()
