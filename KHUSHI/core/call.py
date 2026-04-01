@@ -680,10 +680,51 @@ class Call:
                     f"</blockquote>"
                 )
             except ChannelInvalid:
-                raise AssistantErr(
-                    "<b>ᴀssɪsᴛᴀɴᴛ ᴄᴀɴɴᴏᴛ ᴊᴏɪɴ ᴛʜɪs ɢʀᴏᴜᴘ.</b>\n\n"
-                    "<blockquote>ᴘʟᴇᴀsᴇ ᴀᴅᴅ ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.</blockquote>"
+                # ChannelInvalid = assistant's Pyrogram client doesn't know this peer.
+                # Apply the same auto-join logic as ChannelPrivate before giving up.
+                LOGGER(__name__).info(
+                    f"[PLAY] ChannelInvalid — trying to auto-add assistant to chat={chat_id}"
                 )
+                _ci_joined = False
+                try:
+                    _asst_client = getattr(assistant, '_app', None)
+                    _asst_id = None
+                    if _asst_client:
+                        _me = getattr(_asst_client, 'me', None)
+                        if _me:
+                            _asst_id = _me.id
+                    if _asst_id:
+                        await app.add_chat_members(chat_id, _asst_id)
+                        LOGGER(__name__).info(
+                            f"[PLAY] Assistant auto-added (ChannelInvalid) to chat={chat_id}. Retrying."
+                        )
+                        await asyncio.sleep(2)
+                        await assistant.play(chat_id, stream)
+                        _ci_joined = True
+                        break
+                except Exception as _ci_add_err:
+                    LOGGER(__name__).warning(f"[PLAY] ChannelInvalid add_chat_members failed: {_ci_add_err}")
+                if not _ci_joined:
+                    try:
+                        _invite = await app.create_chat_invite_link(chat_id)
+                        _asst_client = getattr(assistant, '_app', None)
+                        if _asst_client:
+                            await _asst_client.join_chat(_invite.invite_link)
+                            LOGGER(__name__).info(
+                                f"[PLAY] Assistant joined via invite (ChannelInvalid) for chat={chat_id}. Retrying."
+                            )
+                            await asyncio.sleep(2)
+                            await assistant.play(chat_id, stream)
+                            _ci_joined = True
+                            break
+                    except Exception as _ci_inv_err:
+                        LOGGER(__name__).warning(f"[PLAY] ChannelInvalid invite-join failed: {_ci_inv_err}")
+                if not _ci_joined:
+                    raise AssistantErr(
+                        "<b>ᴀssɪsᴛᴀɴᴛ ᴄᴀɴɴᴏᴛ ᴊᴏɪɴ ᴛʜɪs ɢʀᴏᴜᴘ.</b>\n\n"
+                        "<blockquote>ᴘʟᴇᴀsᴇ <b>ᴀᴅᴅ</b> ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ."
+                        "</blockquote>"
+                    )
             except ChannelPrivate:
                 LOGGER(__name__).info(
                     f"[PLAY] ChannelPrivate — trying to auto-add assistant to chat={chat_id}"
@@ -914,6 +955,9 @@ class Call:
                                     "played":     0,
                                 }]
                                 await add_active_chat(chat_id)
+                                # ── CRITICAL FIX: keep active_calls in sync so leave_call
+                                # fires correctly when this autoplay song finishes. ────────
+                                self.active_calls.add(chat_id)
 
                                 # Track chosen song in history to prevent repeat
                                 if ap_vidid not in _hist:
@@ -924,33 +968,22 @@ class Call:
                                 language = await get_lang(chat_id)
                                 _lang = get_string(language)
                                 try:
-                                    _BEAR = "<emoji id='5042192219960771668'>🧸</emoji>"
-                                    _TIME = "<emoji id='4979027931234830344'>⏳</emoji>"
-                                    _DOT  = "<emoji id='5972072533833289156'>🔹</emoji>"
-                                    _AROW = (
-                                        "<emoji id='5042192219960771668'>🧸</emoji>"
-                                        "<emoji id='5210820276748566172'>🔤</emoji>"
-                                        "<emoji id='5213301251722203632'>🔤</emoji>"
-                                        "<emoji id='5213301251722203632'>🔤</emoji>"
-                                        "<emoji id='5211032856154885824'>🔤</emoji>"
-                                        "<emoji id='5213337333742454261'>🔤</emoji>"
-                                    )
                                     btn = stream_markup_timer(
                                         _lang, chat_id,
                                         "0:00", ap_dur,
                                         autoplay_on=True,
                                     )
                                     _ap_caption = (
-                                        f"<blockquote>"
-                                        f"┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
-                                        f"┆{_BEAR} <b>ᴛɪᴛʟᴇ :</b> "
+                                        f"<blockquote expandable>"
+                                        f"<b>🎵 ɴᴏᴡ ᴘʟᴀʏɪɴɢ</b> · <i>ᴀᴜᴛᴏᴘʟᴀʏ</i>\n"
+                                        f"━━━━━━━━━━━━━━━━\n"
+                                        f"🎬 <b>ᴛɪᴛʟᴇ :</b> "
                                         f"<a href='https://www.youtube.com/watch?v={ap_vidid}'>"
-                                        f"{ap_title_short}</a>\n"
-                                        f"┆{_TIME} <b>ᴅᴜʀᴀᴛɪᴏɴ :</b> {ap_dur}\n"
-                                        f"┆{_DOT} <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ :</b> ᴀɴɴɪᴇ ᴀᴜᴛᴏᴘʟᴀʏ\n"
-                                        f"└──────────────────────●"
-                                        f"</blockquote>\n"
-                                        f"<blockquote>{_AROW}</blockquote>"
+                                        f"<b>{ap_title_short}</b></a>\n"
+                                        f"⏱ <b>ᴅᴜʀᴀᴛɪᴏɴ :</b>  {ap_dur}\n"
+                                        f"🤖 <b>ᴘɪᴄᴋᴇᴅ ʙʏ :</b>  ᴀɴɴɪᴇ ᴀᴜᴛᴏᴘʟᴀʏ\n"
+                                        f"━━━━━━━━━━━━━━━━"
+                                        f"</blockquote>"
                                     )
                                     _ap_markup = InlineKeyboardMarkup(btn)
                                     thumb_on = await is_thumb_enabled()
@@ -961,7 +994,6 @@ class Call:
                                             photo=img,
                                             caption=_ap_caption,
                                             reply_markup=_ap_markup,
-                                            has_spoiler=True,
                                         )
                                     else:
                                         ap_msg = await send_msg_invert_preview(
