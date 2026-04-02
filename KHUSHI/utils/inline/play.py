@@ -2,13 +2,15 @@ from . import InlineKeyboardButton
 from config import BOT_USERNAME
 
 
-def _progress_bar(played_sec: int, duration_sec: int, length: int = 10) -> str:
+def _progress_bar(played_sec: int, duration_sec: int, length: int = 12) -> str:
     if duration_sec <= 0:
         pct = 0
     else:
         pct = min(played_sec / duration_sec, 1.0)
     filled = max(0, min(int(round(length * pct)), length))
-    return "█" * filled + "░" * (length - filled)
+    if filled >= length:
+        return "▬" * length + "◉"
+    return "▬" * filled + "◉" + "─" * (length - filled)
 
 
 def _fmt(sec: int) -> str:
@@ -93,15 +95,10 @@ def stream_markup_timer(_, chat_id, played, dur, autoplay_on=None):
     bar = _progress_bar(played_sec, duration_sec)
     remaining_sec = max(0, duration_sec - played_sec)
 
-    bot_url = (
-        f"https://t.me/{BOT_USERNAME}?startgroup=true"
-        if BOT_USERNAME
-        else "https://t.me/VcAnnieBot?startgroup=true"
-    )
     progress_row = [
         InlineKeyboardButton(
-            text=f"{_fmt(played_sec)}  {bar}  -{_fmt(remaining_sec)}",
-            url=bot_url,
+            text=f"{_fmt(played_sec)} {bar} {_fmt(duration_sec)}",
+            url="https://t.me/VcAnnieBot/annie",
             style="primary",
         )
     ]

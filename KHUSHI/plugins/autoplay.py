@@ -40,30 +40,43 @@ def _autoplay_text(enabled: bool) -> str:
     )
 
 
-def autoplay_markup(_, enabled: bool):
-    return InlineKeyboardMarkup([
+def autoplay_markup(_, enabled: bool, from_settings: bool = False):
+    rows = [
         [
             InlineKeyboardButton(
                 text="✅ ᴏɴ" if enabled else "ᴏɴ",
                 callback_data="AUTOPLAY_TOGGLE_ON",
                 style="success" if enabled else "primary",
             ),
-        ],
-        [
             InlineKeyboardButton(
                 text="ᴏꜰꜰ" if enabled else "❌ ᴏꜰꜰ",
                 callback_data="AUTOPLAY_TOGGLE_OFF",
                 style="primary" if enabled else "danger",
             ),
         ],
-        [
+    ]
+    if from_settings:
+        rows.append([
+            InlineKeyboardButton(
+                text=_["BACK_BUTTON"],
+                callback_data="SETTINGS_BACK",
+                style="primary",
+            ),
+            InlineKeyboardButton(
+                text=_["CLOSE_BUTTON"],
+                callback_data="close",
+                style="danger",
+            ),
+        ])
+    else:
+        rows.append([
             InlineKeyboardButton(
                 text=_["CLOSE_BUTTON"],
                 callback_data="close",
                 style="danger",
             )
-        ],
-    ])
+        ])
+    return InlineKeyboardMarkup(rows)
 
 
 @app.on_message(
@@ -156,13 +169,18 @@ async def autoplay_toggle_cb(client, callback):
         await callback.answer("❌ ᴀᴜᴛᴏᴘʟᴀʏ ᴅɪsᴀʙʟᴇᴅ!")
 
     new_enabled = await is_autoplay(chat_id)
+    from_settings = any(
+        getattr(btn, "callback_data", "") == "SETTINGS_BACK"
+        for row in (callback.message.reply_markup.inline_keyboard if callback.message.reply_markup else [])
+        for btn in row
+    )
     try:
         await callback.message.edit_text(
             text=_autoplay_text(new_enabled),
-            reply_markup=autoplay_markup(_, new_enabled),
+            reply_markup=autoplay_markup(_, new_enabled, from_settings=from_settings),
         )
     except Exception:
         try:
-            await callback.message.edit_reply_markup(reply_markup=autoplay_markup(_, new_enabled))
+            await callback.message.edit_reply_markup(reply_markup=autoplay_markup(_, new_enabled, from_settings=from_settings))
         except Exception:
             pass

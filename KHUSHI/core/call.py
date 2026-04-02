@@ -1228,14 +1228,28 @@ class Call:
                         " <b>ʏᴏᴜ ᴍɪɢʜᴛ ʟɪᴋᴇ ᴛʜᴇꜱᴇ:</b>"
                         "</blockquote>"
                     )
-                    await app.send_message(
-                        _sugg_chat_id,
-                        text=_end_text,
-                        reply_markup=InlineKeyboardMarkup(_rows),
-                        parse_mode=ParseMode.HTML,
-                    )
+                    LOGGER(__name__).info(f"[Suggestion] Sending to chat={_sugg_chat_id}")
+                    try:
+                        await app.send_message(
+                            _sugg_chat_id,
+                            text=_end_text,
+                            reply_markup=InlineKeyboardMarkup(_rows),
+                            parse_mode=ParseMode.HTML,
+                        )
+                    except Exception as _html_err:
+                        LOGGER(__name__).warning(f"[Suggestion] HTML send failed: {_html_err}, retrying plain")
+                        _plain_text = (
+                            "🎵 Queue Ended!\n"
+                            + (f"Last: {_last_short}\n\n" if _last_short else "\n")
+                            + "You might like these:"
+                        )
+                        await app.send_message(
+                            _sugg_chat_id,
+                            text=_plain_text,
+                            reply_markup=InlineKeyboardMarkup(_rows),
+                        )
                 except Exception as _sugg_err:
-                    LOGGER(__name__).warning(f"[Suggestion] Failed to send: {_sugg_err}")
+                    LOGGER(__name__).warning(f"[Suggestion] Failed completely: {_sugg_err}")
                 return
         except:
             # Always clean up active_calls regardless of whether leave_call succeeds.

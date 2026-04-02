@@ -1,6 +1,8 @@
 import asyncio
+import glob as _glob_mod
 import os
 import re
+import shutil
 import time
 from typing import Dict, List, Optional, Tuple, Union
 from urllib.parse import urlparse, parse_qs
@@ -420,10 +422,49 @@ async def download_from_own_api(vid: str) -> Optional[str]:
 
 _bg_download_tasks: Dict[str, asyncio.Task] = {}
 
+_DISK_WARN_PCT  = 85   # warn and skip download above this
+_DISK_CLEAN_PCT = 90   # auto-delete oldest files above this
+
+
+def _free_disk_space_if_needed() -> bool:
+    """
+    Check disk usage. If above _DISK_CLEAN_PCT, delete the oldest cached audio
+    files until usage drops below _DISK_WARN_PCT or no more files remain.
+    Returns True if enough space is available, False if still critically full.
+    """
+    try:
+        usage = shutil.disk_usage(_DOWNLOAD_DIR)
+        pct = usage.used / usage.total * 100
+        if pct < _DISK_WARN_PCT:
+            return True
+        LOGGER(__name__).warning(f"[Disk] Usage {pct:.1f}% — cleaning old downloads")
+        exts = ("m4a", "mp3", "opus", "webm", "mp4")
+        files = []
+        for ext in exts:
+            files.extend(_glob_mod.glob(os.path.join(_DOWNLOAD_DIR, f"*.{ext}")))
+        files.sort(key=lambda f: os.path.getmtime(f))
+        for f in files:
+            try:
+                os.remove(f)
+                LOGGER(__name__).info(f"[Disk] Removed old file: {f}")
+            except Exception:
+                pass
+            usage = shutil.disk_usage(_DOWNLOAD_DIR)
+            pct = usage.used / usage.total * 100
+            if pct < _DISK_WARN_PCT:
+                break
+        return pct < _DISK_CLEAN_PCT
+    except Exception as e:
+        LOGGER(__name__).debug(f"[Disk] Space check failed: {e}")
+        return True
+
 
 async def _trigger_bg_cache(vid: str) -> None:
     """Start a background download to cache the file locally for future plays."""
     if file_exists(vid):
+        return
+    if not _free_disk_space_if_needed():
+        LOGGER(__name__).warning(f"[Disk] Skipping BG cache for {vid} — disk critically full")
         return
     if vid in _bg_download_tasks:
         t = _bg_download_tasks[vid]

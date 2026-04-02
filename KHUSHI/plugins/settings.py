@@ -102,6 +102,22 @@ async def settings_private_back_cb(client, callback: CallbackQuery, _):
         return
 
 
+@app.on_callback_query(filters.regex(r"^AUTOPLAY_SETTINGS$") & ~BANNED_USERS)
+@languageCB
+async def autoplay_settings_cb(client, callback: CallbackQuery, _):
+    from KHUSHI.utils.database import is_autoplay
+    from KHUSHI.plugins.autoplay import _autoplay_text, autoplay_markup
+    chat_id = callback.message.chat.id
+    enabled = await is_autoplay(chat_id)
+    try:
+        await callback.message.edit_text(
+            text=_autoplay_text(enabled),
+            reply_markup=autoplay_markup(_, enabled, from_settings=True),
+        )
+    except Exception:
+        await callback.answer()
+
+
 @app.on_callback_query(
     filters.regex(
         r"^(SEARCH_MODE_INFO|PLAY_TYPE_INFO|CHANNEL_MODE_INFO|AUTH_USERS_INFO|CURRENT_VOTE_INFO|VOTE_MODE_INFO|PLAYBACK_SETTINGS|AUTH_SETTINGS|VOTE_SETTINGS)$"

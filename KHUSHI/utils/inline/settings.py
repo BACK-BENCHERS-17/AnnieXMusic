@@ -15,6 +15,9 @@ def setting_markup(_):
             InlineKeyboardButton(text=_["ST_B_4"], callback_data="VOTE_SETTINGS", style="primary"),
         ],
         [
+            InlineKeyboardButton(text="🔁 ᴀᴜᴛᴏᴘʟᴀʏ", callback_data="AUTOPLAY_SETTINGS", style="primary"),
+        ],
+        [
             InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close", style="danger"),
         ],
     ]
