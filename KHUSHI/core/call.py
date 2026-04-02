@@ -1076,7 +1076,7 @@ class Call:
                                         except Exception:
                                             pass
                                         self.active_calls.discard(chat_id)
-                                    return
+                                    raise Exception("autoplay_play_failed")
 
                                 try:
                                     ap_sec = _tts(ap_dur) - 3
@@ -1181,6 +1181,7 @@ class Call:
 
                 try:
                     last_title = popped.get("title", "") if popped else ""
+                    _sugg_chat_id = popped.get("chat_id", chat_id) if popped else chat_id
                     _sugg = _pick_related_songs(last_title, 4)
 
                     # Build one-per-row song suggestion buttons
@@ -1228,9 +1229,10 @@ class Call:
                         "</blockquote>"
                     )
                     await app.send_message(
-                        chat_id,
+                        _sugg_chat_id,
                         text=_end_text,
                         reply_markup=InlineKeyboardMarkup(_rows),
+                        parse_mode=ParseMode.HTML,
                     )
                 except Exception:
                     pass
