@@ -13,7 +13,7 @@ gpytranslate
 gtts
 heroku3
 httpx[http2]==0.28.1
-pyrofork @ git+https://github.com/Mayuri-Chan/pyrofork.git
+pyrofork
 lexica-api
 motor
 nekosbest
