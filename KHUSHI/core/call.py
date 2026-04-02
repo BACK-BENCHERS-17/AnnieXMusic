@@ -1158,7 +1158,7 @@ class Call:
                                     except Exception:
                                         pass
                                     self.active_calls.discard(chat_id)
-                                return
+                                # Fall through to show song suggestion message
                     except Exception as ap_err:
                         LOGGER(__name__).warning(f"Autoplay error: {ap_err}")
                 # ── Normal end: clear and leave ────────────────────────────────
