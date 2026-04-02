@@ -21,7 +21,7 @@ def _webapp_btn():
     return [[
         InlineKeyboardButton(
             text="ᴀɴɴɪᴇ ᴘʟᴀʏᴇʀ",
-            url=f"https://t.me/{BOT_USERNAME}" if BOT_USERNAME else "https://t.me/VcAnnieBot",
+            url="https://t.me/VcAnnieBot/annie",
             style="primary",
         )
     ]]
@@ -53,13 +53,6 @@ def track_markup(_, videoid, user_id, channel, fplay):
 
 
 def control_buttons(_, chat_id, autoplay_on=None):
-    if autoplay_on is True:
-        ap_text  = "✅ ᴀᴜᴛᴏᴘʟᴀʏ : ᴏɴ"
-        ap_style = "success"
-    else:
-        ap_text  = "❌ ᴀᴜᴛᴏᴘʟᴀʏ : ᴏꜰꜰ"
-        ap_style = "danger"
-
     rows = [
         [
             InlineKeyboardButton(
@@ -86,13 +79,6 @@ def control_buttons(_, chat_id, autoplay_on=None):
                 text="▢",
                 callback_data=f"ADMIN Stop|{chat_id}",
                 style="danger",
-            ),
-        ],
-        [
-            InlineKeyboardButton(
-                text=ap_text,
-                callback_data=f"ADMIN Autoplay|{chat_id}",
-                style=ap_style,
             ),
         ],
     ]

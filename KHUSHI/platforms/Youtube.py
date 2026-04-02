@@ -83,6 +83,18 @@ async def cached_youtube_search(query: str) -> List[Dict]:
         if len(_cache) > YOUTUBE_META_MAX:
             _cache.clear()
 
+    # ── Check MongoDB persistent search cache (survives restarts) ─────────────
+    try:
+        from KHUSHI.utils.url_cache import get_search as _get_search, put_search as _put_search
+        mongo_hit = await _get_search(key)
+        if mongo_hit:
+            async with _cache_lock:
+                _cache[key] = (now, mongo_hit)
+            return mongo_hit
+    except Exception:
+        _get_search = None
+        _put_search = None
+
     result = []
 
     if is_api_available():
@@ -103,6 +115,12 @@ async def cached_youtube_search(query: str) -> List[Dict]:
     if result:
         async with _cache_lock:
             _cache[key] = (now, result)
+        try:
+            if _put_search:
+                import asyncio as _asyncio
+                _asyncio.create_task(_put_search(key, result))
+        except Exception:
+            pass
     return result
 
 

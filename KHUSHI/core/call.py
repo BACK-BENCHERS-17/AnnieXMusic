@@ -1234,8 +1234,8 @@ class Call:
                         reply_markup=InlineKeyboardMarkup(_rows),
                         parse_mode=ParseMode.HTML,
                     )
-                except Exception:
-                    pass
+                except Exception as _sugg_err:
+                    LOGGER(__name__).warning(f"[Suggestion] Failed to send: {_sugg_err}")
                 return
         except:
             # Always clean up active_calls regardless of whether leave_call succeeds.

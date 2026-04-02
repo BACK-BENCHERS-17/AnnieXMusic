@@ -171,3 +171,65 @@ async def put_file_path(vid: str, path: str) -> None:
         _log.debug(f"[FileCache] Saved file path to MongoDB: {vid} → {path}")
     except Exception as e:
         _log.debug(f"[FileCache] put_file_path failed for {vid}: {e}")
+
+
+# ── Persistent search-result cache (6h TTL — survives restarts) ───────────────
+_SEARCH_TTL_SECS = 6 * 3600
+_search_col = None
+
+
+def _get_search_col():
+    global _search_col
+    if _search_col is not None:
+        return _search_col
+    try:
+        from KHUSHI.core.mongo import mongodb
+        _search_col = mongodb["yt_search_cache"]
+    except Exception as e:
+        _log.warning(f"[SearchCache] MongoDB unavailable: {e}")
+    return _search_col
+
+
+async def get_search(query: str):
+    """Return cached search results for query, or None if missing/expired."""
+    import json
+    col = _get_search_col()
+    if col is None:
+        return None
+    try:
+        doc = await col.find_one({"_id": query})
+        if not doc:
+            return None
+        if doc.get("expires_at", 0) < time.time():
+            return None
+        raw = doc.get("results")
+        if raw:
+            _log.info(f"[SearchCache] MongoDB hit for: {query[:50]}")
+            return json.loads(raw) if isinstance(raw, str) else raw
+    except Exception as e:
+        _log.debug(f"[SearchCache] get_search failed: {e}")
+    return None
+
+
+async def put_search(query: str, results) -> None:
+    """Persist search results for query with a 6-hour TTL."""
+    import json
+    if not results:
+        return
+    col = _get_search_col()
+    if col is None:
+        return
+    try:
+        expires_at = int(time.time()) + _SEARCH_TTL_SECS
+        await col.update_one(
+            {"_id": query},
+            {"$set": {
+                "results": json.dumps(results),
+                "expires_at": expires_at,
+                "saved_at": int(time.time()),
+            }},
+            upsert=True,
+        )
+        _log.debug(f"[SearchCache] Saved to MongoDB: {query[:50]}")
+    except Exception as e:
+        _log.debug(f"[SearchCache] put_search failed: {e}")
