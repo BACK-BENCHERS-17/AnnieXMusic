@@ -28,23 +28,9 @@ from KHUSHI.utils.thumbnails import get_thumb
 from config import AYU, BANNED_USERS, BOT_USERNAME, DURATION_LIMIT, OWNER_ID, PING_IMG_URL, START_IMGS, SUPPORT_CHAT, adminlist
 from KHUSHI.utils.security import check_and_alert
 
+from KHUSHI.utils.ui import BRAND as _BRAND, E as _EM, msg as _msg, err as _err, info as _info, panel as _panel
+
 THUMB_OFF_VIDEO_URL = "https://files.catbox.moe/4vr2jc.mp4"
-
-_BRAND = (
-    "<emoji id='5042192219960771668'>🧸</emoji>"
-    "<emoji id='5210820276748566172'>🔤</emoji>"
-    "<emoji id='5213301251722203632'>🔤</emoji>"
-    "<emoji id='5213301251722203632'>🔤</emoji>"
-    "<emoji id='5211032856154885824'>🔤</emoji>"
-    "<emoji id='5213337333742454261'>🔤</emoji>"
-)
-
-_EM = {
-    "music": "<emoji id='5463107823946717464'>🎵</emoji>",
-    "video": "<emoji id='5375464961822695044'>🎬</emoji>",
-    "zap":   "<emoji id='5042334757040423886'>⚡️</emoji>",
-    "dot":   "<emoji id='5972072533833289156'>🔹</emoji>",
-}
 
 
 async def _send_stream_msg(chat_id: int, caption: str, reply_markup) -> object:
@@ -127,11 +113,13 @@ async def _handle_play(message: Message, video: bool = False):
                     InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close"),
                 ]
             ])
-            _play_caption = (
-                f"<blockquote>{_BRAND}</blockquote>\n\n"
-                f"<blockquote>{_EM['music']} <b>ᴜꜱᴀɢᴇ</b>\n"
-                f"{_EM['dot']} <code>/play [ꜱᴏɴɢ ɴᴀᴍᴇ / ᴜʀʟ]</code>\n"
-                f"{_EM['video']} <code>/vplay [ᴠɪᴅᴇᴏ ɴᴀᴍᴇ / ᴜʀʟ]</code></blockquote>"
+            _play_caption = _panel(
+                "ᴜꜱᴀɢᴇ",
+                [
+                    f"{_EM['music']} <code>/play</code>  [ꜱᴏɴɢ ɴᴀᴍᴇ / ʏᴛ ᴜʀʟ]",
+                    f"{_EM['video']} <code>/vplay</code> [ᴠɪᴅᴇᴏ ɴᴀᴍᴇ / ʏᴛ ᴜʀʟ]",
+                    f"{_EM['dot']}  ʀᴇᴘʟʏ ᴛᴏ ᴀ ꜰɪʟᴇ ᴛᴏ ᴘʟᴀʏ ɪᴛ ᴅɪʀᴇᴄᴛʟʏ",
+                ],
             )
             _img = PING_IMG_URL or random.choice(START_IMGS)
             try:
@@ -172,8 +160,7 @@ async def _handle_play(message: Message, video: bool = False):
             )
         except Exception as e:
             return await mystic.edit_text(
-                f"<blockquote>{_BRAND}</blockquote>\n\n"
-                f"<blockquote>❌ ᴅᴏᴡɴʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ: {type(e).__name__}</blockquote>"
+                _err(f"ᴅᴏᴡɴʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ: <code>{type(e).__name__}</code>")
             )
 
         is_video_type = video or bool(tg_video)
