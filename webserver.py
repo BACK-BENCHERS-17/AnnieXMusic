@@ -1079,7 +1079,7 @@ def api_botinfo():
         from config import BOT_NAME, BOT_USERNAME
     except Exception:
         BOT_NAME = "Annie X Music"
-        BOT_USERNAME = "ANNIEXMUSICxBOT"
+        BOT_USERNAME = "VcAnnieBot"
     has_pfp = os.path.isfile("KHUSHI/assets/assets/bot_pfp.png")
     has_upic = os.path.isfile("KHUSHI/assets/assets/upic.png")
     pfp_url = "/api/botpfp" if (has_pfp or has_upic) else None

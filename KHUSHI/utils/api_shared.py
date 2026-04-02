@@ -446,7 +446,7 @@ pre .b{color:#60a5fa}
     <div class="body">
       <p class="desc">Returns bot name, username, bio and list of supported platforms.</p>
       <div class="cw"><div class="clbl">Example <button class="cbtn" onclick="cp('c8')">Copy</button></div><pre id="c8">GET /api/botinfo</pre></div>
-      <div class="cw"><div class="clbl">Response</div><pre>{ <span class="k">"name"</span>:<span class="s">"Annie X Music"</span>, <span class="k">"username"</span>:<span class="s">"ANNIEXMUSICxBOT"</span>, <span class="k">"features"</span>:[<span class="s">"YouTube"</span>,<span class="s">"Spotify"</span>] }</pre></div>
+      <div class="cw"><div class="clbl">Response</div><pre>{ <span class="k">"name"</span>:<span class="s">"Annie X Music"</span>, <span class="k">"username"</span>:<span class="s">"VcAnnieBot"</span>, <span class="k">"features"</span>:[<span class="s">"YouTube"</span>,<span class="s">"Spotify"</span>] }</pre></div>
       <div class="rtags"><span class="rt r200">200 OK</span></div>
     </div>
   </div>

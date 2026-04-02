@@ -755,69 +755,97 @@ class Call:
                     f"</blockquote>"
                 )
             except ChannelInvalid:
-                # ChannelInvalid = assistant's Pyrogram client doesn't know this peer.
-                # Use the proper get_client() path to get the raw Pyrogram client.
+                # ChannelInvalid means the assistant's Pyrogram peer cache has a wrong
+                # or missing access_hash for this chat. This is NOT about the assistant
+                # not being in the group — it is purely a peer resolution failure.
+                # Fix: grab the correct access_hash from the main bot (which already
+                # resolved it) and force channels.GetChannels on the assistant client
+                # so Pyrogram stores the correct peer and retries instantly.
                 LOGGER(__name__).info(
-                    f"[PLAY] ChannelInvalid — trying to auto-add assistant to chat={chat_id}"
+                    f"[PLAY] ChannelInvalid — re-warming assistant peer cache for chat={chat_id}"
                 )
-                _ci_joined = False
+                _ci_fixed = False
 
                 # Get the raw Pyrogram client for this chat's assigned assistant
                 try:
                     from KHUSHI.utils.database import get_assistant_number, get_client as _get_client
                     _asst_num = await get_assistant_number(chat_id)
-                    _ci_raw_client = await _get_client(_asst_num) if _asst_num else None
+                    _ci_raw = await _get_client(_asst_num) if _asst_num else None
                 except Exception:
-                    _ci_raw_client = None
+                    _ci_raw = None
 
-                async def _ci_warm_and_play():
-                    """After joining, force peer into assistant cache then retry play."""
-                    if _ci_raw_client:
-                        try:
-                            await _ci_raw_client.get_chat(chat_id)
-                            LOGGER(__name__).info(
-                                f"[PLAY] Peer cache warmed for chat={chat_id} after join"
-                            )
-                        except Exception as _wm:
-                            LOGGER(__name__).debug(f"[PLAY] Post-join warmup skipped: {_wm}")
-                    await asyncio.sleep(2)
-                    await assistant.play(chat_id, stream)
-
-                # Method 1: direct add_chat_members via main bot
+                # ── Method 1: re-warm peer cache using main bot's access hash ─────
+                # The assistant may already be in the group — just Pyrogram's local
+                # SQLite cache has a stale/missing access_hash. Resolve via raw API.
                 try:
-                    _asst_id = getattr(_ci_raw_client, 'id', None)
-                    if not _asst_id and _ci_raw_client:
-                        _me = await _ci_raw_client.get_me()
-                        _asst_id = _me.id if _me else None
-                    if _asst_id:
-                        await app.add_chat_members(chat_id, _asst_id)
-                        LOGGER(__name__).info(
-                            f"[PLAY] Assistant auto-added (ChannelInvalid) to chat={chat_id}."
+                    from pyrogram.raw import functions as _rf, types as _rt
+                    _main_peer = await app.resolve_peer(chat_id)
+                    _raw_id    = getattr(_main_peer, 'channel_id', None)
+                    _access_h  = getattr(_main_peer, 'access_hash', None)
+                    if _ci_raw and _raw_id and _access_h:
+                        await _ci_raw.invoke(
+                            _rf.channels.GetChannels(
+                                id=[_rt.InputChannel(channel_id=_raw_id, access_hash=_access_h)]
+                            )
                         )
-                        await _ci_warm_and_play()
-                        _ci_joined = True
+                        LOGGER(__name__).info(
+                            f"[PLAY] Peer cache re-warmed (ChannelInvalid) for chat={chat_id}"
+                        )
+                        await asyncio.sleep(0.5)
+                        await assistant.play(chat_id, stream)
+                        _ci_fixed = True
                         break
-                except Exception as _ci_add_err:
-                    LOGGER(__name__).warning(f"[PLAY] ChannelInvalid add_chat_members failed: {_ci_add_err}")
+                except Exception as _ci_warm_err:
+                    LOGGER(__name__).warning(f"[PLAY] Peer re-warm failed: {_ci_warm_err}")
 
-                # Method 2: create invite link and have assistant join itself
-                if not _ci_joined:
+                # ── Method 2: assistant calls get_chat directly ───────────────────
+                if not _ci_fixed and _ci_raw:
+                    try:
+                        await _ci_raw.get_chat(chat_id)
+                        await asyncio.sleep(0.5)
+                        await assistant.play(chat_id, stream)
+                        _ci_fixed = True
+                        break
+                    except Exception as _ci_gc_err:
+                        LOGGER(__name__).warning(f"[PLAY] get_chat warm failed: {_ci_gc_err}")
+
+                # ── Method 3: add/invite assistant (last resort) ──────────────────
+                if not _ci_fixed:
+                    try:
+                        _asst_id = None
+                        if _ci_raw:
+                            try:
+                                _asst_id = (await _ci_raw.get_me()).id
+                            except Exception:
+                                pass
+                        if _asst_id:
+                            await app.add_chat_members(chat_id, _asst_id)
+                            if _ci_raw:
+                                try:
+                                    await _ci_raw.get_chat(chat_id)
+                                except Exception:
+                                    pass
+                            await asyncio.sleep(2)
+                            await assistant.play(chat_id, stream)
+                            _ci_fixed = True
+                            break
+                    except Exception as _ci_add_err:
+                        LOGGER(__name__).warning(f"[PLAY] add_chat_members failed: {_ci_add_err}")
+
+                if not _ci_fixed and _ci_raw:
                     try:
                         _invite = await app.create_chat_invite_link(chat_id)
-                        if _ci_raw_client:
-                            await _ci_raw_client.join_chat(_invite.invite_link)
-                            LOGGER(__name__).info(
-                                f"[PLAY] Assistant joined via invite (ChannelInvalid) for chat={chat_id}."
-                            )
-                            await _ci_warm_and_play()
-                            _ci_joined = True
-                            break
+                        await _ci_raw.join_chat(_invite.invite_link)
+                        await asyncio.sleep(2)
+                        await assistant.play(chat_id, stream)
+                        _ci_fixed = True
+                        break
                     except Exception as _ci_inv_err:
-                        LOGGER(__name__).warning(f"[PLAY] ChannelInvalid invite-join failed: {_ci_inv_err}")
+                        LOGGER(__name__).warning(f"[PLAY] Invite-join failed: {_ci_inv_err}")
 
-                if not _ci_joined:
+                if not _ci_fixed:
                     raise AssistantErr(
-                        "<b>ᴀssɪsᴛᴀɴᴛ ᴄᴀɴɴᴏᴛ ᴊᴏɪɴ ᴛʜɪs ɢʀᴏᴜᴘ.</b>\n\n"
+                        "<emoji id='5040042498634810056'>❌</emoji> <b>ᴀssɪsᴛᴀɴᴛ ᴄᴀɴɴᴏᴛ ᴊᴏɪɴ ᴛʜɪs ɢʀᴏᴜᴘ.</b>\n\n"
                         "<blockquote>"
                         "ᴘʟᴇᴀsᴇ <b>ᴀᴅᴅ</b> ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.\n"
                         "ɪꜰ ᴀssɪsᴛᴀɴᴛ ɪs ᴀʟʀᴇᴀᴅʏ ɪɴ ɢʀᴏᴜᴘ, ʀᴇᴍᴏᴠᴇ ᴀɴᴅ ʀᴇ-ᴀᴅᴅ ɪᴛ."

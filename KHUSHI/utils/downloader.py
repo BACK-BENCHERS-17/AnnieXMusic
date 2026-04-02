@@ -445,6 +445,13 @@ async def _trigger_bg_cache(vid: str) -> None:
             path = await loop.run_in_executor(None, smart_download, vid, _DOWNLOAD_DIR, fmt)
             if path:
                 LOGGER(__name__).info(f"[BG-CACHE] Cached for next play: {path}")
+                # Save absolute file path to MongoDB permanently so any restart
+                # finds the file instantly without re-downloading or re-extracting.
+                try:
+                    from KHUSHI.utils.url_cache import put_file_path as _pfp
+                    await _pfp(vid, os.path.abspath(path))
+                except Exception:
+                    pass
         except asyncio.CancelledError:
             pass
         except Exception as e:
@@ -472,14 +479,29 @@ async def fast_get_stream(vid: str) -> Optional[str]:
     Every successfully extracted URL is saved to MongoDB so any future request
     (by any user, even after a restart) for the same song is near-instant.
     """
-    from KHUSHI.utils.url_cache import get_url as _mongo_get, put_url as _mongo_put
+    from KHUSHI.utils.url_cache import (
+        get_url as _mongo_get, put_url as _mongo_put,
+        get_file_path as _mongo_get_file, put_file_path as _mongo_put_file,
+    )
 
+    # ── 1. Local file on disk (fastest path) ──────────────────────────────────
     cached = file_exists(vid)
     if cached:
         return cached
 
-    # In-process URL cache — populated by prefetch and previous calls to this fn.
-    # This makes skipping to a pre-fetched song near-instant.
+    # ── 2. MongoDB file path cache (permanent — survives CDN expiry + restart) ─
+    # When background download finishes, it saves the absolute path to MongoDB.
+    # After any restart, as long as the file still exists on disk, this is instant.
+    try:
+        mongo_file = await _mongo_get_file(vid)
+        if mongo_file:
+            LOGGER(__name__).info(f"[FAST] MongoDB FILE cache hit for {vid}: {mongo_file}")
+            asyncio.create_task(_trigger_bg_cache(vid))   # refresh if needed
+            return mongo_file
+    except Exception as e:
+        LOGGER(__name__).debug(f"[FAST] MongoDB file cache check failed for {vid}: {e}")
+
+    # ── 3. In-process URL cache (sub-millisecond, lost on restart) ─────────────
     hit = _get_cached_cdn_url(vid)
     if hit:
         cdn_url, _ext = hit
@@ -487,18 +509,17 @@ async def fast_get_stream(vid: str) -> Optional[str]:
         asyncio.create_task(_trigger_bg_cache(vid))
         return cdn_url
 
-    # MongoDB persistent cache — shared across all users and bot restarts.
-    # A song played by anyone stays cached for ~6 hours (YouTube CDN TTL).
+    # ── 4. MongoDB URL cache (~30ms — shared across users, 6h TTL) ────────────
     try:
         mongo_hit = await _mongo_get(vid)
         if mongo_hit:
             cdn_url, ext = mongo_hit
-            _cache_cdn_url(vid, cdn_url, ext)       # warm in-process cache too
+            _cache_cdn_url(vid, cdn_url, ext)
             LOGGER(__name__).info(f"[FAST] MongoDB URL cache hit for {vid}")
             asyncio.create_task(_trigger_bg_cache(vid))
             return cdn_url
     except Exception as e:
-        LOGGER(__name__).debug(f"[FAST] MongoDB cache check failed for {vid}: {e}")
+        LOGGER(__name__).debug(f"[FAST] MongoDB URL cache check failed for {vid}: {e}")
 
     loop = asyncio.get_running_loop()
 

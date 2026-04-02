@@ -21,7 +21,7 @@ def _webapp_btn():
     return [[
         InlineKeyboardButton(
             text="ᴀɴɴɪᴇ ᴘʟᴀʏᴇʀ",
-            url="https://t.me/ANNIEXMUSICxBOT/annie",
+            url=f"https://t.me/{BOT_USERNAME}" if BOT_USERNAME else "https://t.me/VcAnnieBot",
             style="primary",
         )
     ]]
@@ -110,7 +110,7 @@ def stream_markup_timer(_, chat_id, played, dur, autoplay_on=None):
     bot_url = (
         f"https://t.me/{BOT_USERNAME}?startgroup=true"
         if BOT_USERNAME
-        else "https://t.me/ANNIEXMUSICxBOT?startgroup=true"
+        else "https://t.me/VcAnnieBot?startgroup=true"
     )
     progress_row = [
         InlineKeyboardButton(

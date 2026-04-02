@@ -107,3 +107,67 @@ async def put_url(vid: str, url: str, ext: str = "m4a") -> None:
         _log.debug(f"[URLCache] Saved to MongoDB: {vid} (ext={ext})")
     except Exception as e:
         _log.debug(f"[URLCache] put_url failed for {vid}: {e}")
+
+
+# ── Persistent file path cache (no TTL — permanent until file is deleted) ─────
+_file_col = None
+
+
+def _get_file_col():
+    global _file_col
+    if _file_col is not None:
+        return _file_col
+    try:
+        from KHUSHI.core.mongo import mongodb
+        _file_col = mongodb["yt_file_cache"]
+    except Exception as e:
+        _log.warning(f"[FileCache] MongoDB unavailable: {e}")
+    return _file_col
+
+
+async def get_file_path(vid: str) -> Optional[str]:
+    """
+    Return local file path from MongoDB if the file still exists on disk.
+    No TTL — permanent until the file is manually deleted.
+    Typical latency: 5-30 ms.
+    """
+    import os
+    col = _get_file_col()
+    if col is None:
+        return None
+    try:
+        doc = await col.find_one({"_id": vid})
+        if not doc:
+            return None
+        path = doc.get("path", "")
+        if path and os.path.exists(path) and os.path.getsize(path) > 1024:
+            _log.info(f"[FileCache] MongoDB file hit for {vid}: {path}")
+            return path
+        if path:
+            # File was deleted — remove stale entry
+            await col.delete_one({"_id": vid})
+    except Exception as e:
+        _log.debug(f"[FileCache] get_file_path failed for {vid}: {e}")
+    return None
+
+
+async def put_file_path(vid: str, path: str) -> None:
+    """
+    Save local file path to MongoDB permanently.
+    Called after a successful download so subsequent restarts find the file instantly.
+    """
+    import os
+    if not path or not os.path.exists(path):
+        return
+    col = _get_file_col()
+    if col is None:
+        return
+    try:
+        await col.update_one(
+            {"_id": vid},
+            {"$set": {"path": path, "saved_at": int(time.time())}},
+            upsert=True,
+        )
+        _log.debug(f"[FileCache] Saved file path to MongoDB: {vid} → {path}")
+    except Exception as e:
+        _log.debug(f"[FileCache] put_file_path failed for {vid}: {e}")

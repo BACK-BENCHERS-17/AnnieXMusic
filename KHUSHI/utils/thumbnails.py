@@ -223,7 +223,7 @@ def _build_thumb_sync(
     )
 
     # ── Bottom strip: @username left, Dev credit right ────────────────────
-    _uname  = f"@{BOT_USERNAME}" if BOT_USERNAME else "@ANNIEXMUSICxBOT"
+    _uname  = f"@{BOT_USERNAME}" if BOT_USERNAME else "@VcAnnieBot"
     dev_txt = "Dev :- @PGL_B4CHI"
 
     strip_y = H - 44
