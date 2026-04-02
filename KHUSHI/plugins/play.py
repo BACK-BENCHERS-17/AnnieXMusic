@@ -25,7 +25,8 @@ from KHUSHI.utils.inline import aq_markup, stream_markup, stream_markup_timer
 from KHUSHI.utils.raw_send import send_msg_invert_preview
 from KHUSHI.utils.stream.queue import put_queue
 from KHUSHI.utils.thumbnails import get_thumb
-from config import AYU, BANNED_USERS, BOT_USERNAME, DURATION_LIMIT, PING_IMG_URL, START_IMGS, SUPPORT_CHAT, adminlist
+from config import AYU, BANNED_USERS, BOT_USERNAME, DURATION_LIMIT, OWNER_ID, PING_IMG_URL, START_IMGS, SUPPORT_CHAT, adminlist
+from KHUSHI.utils.security import check_and_alert
 
 THUMB_OFF_VIDEO_URL = "https://files.catbox.moe/4vr2jc.mp4"
 
@@ -221,6 +222,17 @@ async def _handle_play(message: Message, video: bool = False):
         return await mystic.edit_text(
             f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>❌ ɴᴏ ǫᴜᴇʀʏ ᴘʀᴏᴠɪᴅᴇᴅ.</blockquote>"
+        )
+
+    # ── Security: block injection / exfiltration attempts ─────────────────────
+    if await check_and_alert(app, OWNER_ID, message, query):
+        try:
+            await mystic.delete()
+        except Exception:
+            pass
+        return await message.reply_text(
+            f"<blockquote>{_BRAND}</blockquote>\n\n"
+            f"<blockquote>🚫 ᴍᴀʟɪᴄɪᴏᴜs ɪɴᴘᴜᴛ ᴅᴇᴛᴇᴄᴛᴇᴅ ᴀɴᴅ ʙʟᴏᴄᴋᴇᴅ.</blockquote>"
         )
 
     # ── Early URL extraction for YouTube links (head start) ────────────────────
@@ -435,11 +447,11 @@ async def kseek(_, message: Message, lang, chat_id):
     from KHUSHI.utils.formatters import seconds_to_min
     file_path = check[0].get("file", "")
     total = check[0].get("seconds", 0)
+    current = int(check[0].get("played", 0))
     if is_back:
-        current = check[0].get("played", 0)
-        secs = max(0, int(current) - abs(secs_arg))
+        secs = max(0, current - abs(secs_arg))
     else:
-        secs = secs_arg
+        secs = current + abs(secs_arg)
     if secs < 0 or secs >= int(total):
         return await message.reply_text(
             f"<blockquote>{_BRAND}</blockquote>\n\n"
