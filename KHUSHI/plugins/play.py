@@ -3,7 +3,7 @@
 import asyncio
 import random
 
-from pyrogram import filters
+from pyrogram import enums, filters
 from pyrogram.types import InlineKeyboardMarkup, Message
 
 from KHUSHI.utils.inline import InlineKeyboardButton

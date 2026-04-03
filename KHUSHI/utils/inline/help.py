@@ -88,12 +88,12 @@ def help_nav_markup(_, section: int):
                 style="primary",
             ),
             InlineKeyboardButton(
-                text=f"◁  {prev_s}",
+                text="◁  ᴩʀᴇᴠ",
                 callback_data=f"help_nav_{prev_s}",
                 style="default",
             ),
             InlineKeyboardButton(
-                text=f"{next_s}  ▷",
+                text="ɴᴇxᴛ  ▷",
                 callback_data=f"help_nav_{next_s}",
                 style="success",
             ),
