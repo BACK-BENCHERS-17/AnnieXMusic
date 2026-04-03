@@ -1,5 +1,5 @@
 from . import InlineKeyboardButton
-from config import BOT_USERNAME
+from config import BOT_USERNAME as _BOT_USERNAME
 
 # ── Progress bar design ───────────────────────────────────────────────────────
 #
@@ -46,11 +46,11 @@ def _fmt(sec: int) -> str:
 
 
 def _webapp_btn():
-    """Return the Open Player button row."""
+    """Return the Add to Group button row."""
     return [[
         InlineKeyboardButton(
-            text="ᴀɴɴɪᴇ ᴘʟᴀʏᴇʀ",
-            url="https://t.me/VcAnnieBot/annie",
+            text="˹ᴀᴅᴅ ᴛᴏ ɢʀᴏᴜᴩ˼",
+            url=f"https://t.me/{_BOT_USERNAME.lstrip('@')}?startgroup=true",
             style="primary",
         )
     ]]
@@ -123,7 +123,7 @@ def stream_markup_timer(_, chat_id, played, dur, autoplay_on=None):
     progress_row = [
         InlineKeyboardButton(
             text=f"{_fmt(played_sec)}  {bar}  {_fmt(duration_sec)}",
-            url="https://t.me/VcAnnieBot/annie",
+            url=f"https://t.me/{_BOT_USERNAME.lstrip('@')}?startgroup=true",
             style="primary",
         )
     ]

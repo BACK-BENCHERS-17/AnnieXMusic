@@ -30,10 +30,9 @@ def first_page(_):
                 style="success",
             ),
             InlineKeyboardButton(
-                text="˹2/2˼",
+                text="ɴᴇxᴛ ▷",
                 callback_data="help_page_2",
                 style="default",
-                icon_custom_emoji_id="5197551803978436806",
             ),
         ],
     ]
@@ -58,10 +57,9 @@ def second_page(_):
         ],
         [
             InlineKeyboardButton(
-                text="˹1/2˼",
+                text="◁ ʙᴀᴄᴋ",
                 callback_data="help_page_1",
                 style="default",
-                icon_custom_emoji_id="5197564405558557557",
             ),
             InlineKeyboardButton(
                 text=_["CLOSE_BUTTON"],
@@ -88,19 +86,16 @@ def help_nav_markup(_, section: int):
                 text="˹ᴍᴇɴᴜ˼",
                 callback_data=f"help_back_{menu_page}",
                 style="primary",
-                icon_custom_emoji_id="5974362032288935441",
             ),
             InlineKeyboardButton(
-                text=f"{prev_s}",
+                text=f"◁  {prev_s}",
                 callback_data=f"help_nav_{prev_s}",
                 style="default",
-                icon_custom_emoji_id="5197564405558557557",
             ),
             InlineKeyboardButton(
-                text=f"{next_s}",
+                text=f"{next_s}  ▷",
                 callback_data=f"help_nav_{next_s}",
                 style="success",
-                icon_custom_emoji_id="5197551803978436806",
             ),
         ]
     ])

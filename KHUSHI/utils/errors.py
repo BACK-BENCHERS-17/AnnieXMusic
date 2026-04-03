@@ -5,6 +5,7 @@ from functools import wraps
 from datetime import datetime
 
 import aiofiles
+from pyrogram.enums import ParseMode
 from pyrogram.errors.exceptions.forbidden_403 import ChatWriteForbidden
 
 from config import LOGGER_ID, DEBUG_IGNORE_LOG
@@ -57,7 +58,7 @@ async def handle_trace(err, tb, label, filename, extras=None):
     if len(caption) > 4096:
         await send_large_error(tb, caption.split("\n\n")[0], filename)
     else:
-        await app.send_message(LOGGER_ID, caption)
+        await app.send_message(LOGGER_ID, caption, parse_mode=ParseMode.HTML)
 
 async def log_ignored_error(err, tb, label, extras=None):
     if not DEBUG_IGNORE_LOG:
