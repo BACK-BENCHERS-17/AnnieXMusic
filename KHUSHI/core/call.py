@@ -1198,16 +1198,33 @@ class Call:
                         ),
                     ])
 
+                    # ── Known-working emoji IDs only (verified from original code) ──
+                    _E_STAR  = "<emoji id='5039827436737397847'>✨</emoji>"
+                    _E_DOT   = "<emoji id='5972072533833289156'>🔹</emoji>"
+                    _E_ZAP   = "<emoji id='5042334757040423886'>⚡️</emoji>"
+                    _SUGG_BRAND = (
+                        "<emoji id='5042192219960771668'>🧸</emoji>"
+                        "<emoji id='5210820276748566172'>🔤</emoji>"
+                        "<emoji id='5213301251722203632'>🔤</emoji>"
+                        "<emoji id='5213301251722203632'>🔤</emoji>"
+                        "<emoji id='5211032856154885824'>🔤</emoji>"
+                        "<emoji id='5213337333742454261'>🔤</emoji>"
+                    )
                     _last_short = (last_title[:32] + "…") if len(last_title) > 32 else last_title
                     _last_line = (
-                        f"{_UIE['dot']} ʟᴀsᴛ ᴛʀᴀᴄᴋ: <b>{_last_short}</b>"
+                        f"{_E_DOT} ʟᴀsᴛ ᴘʟᴀʏᴇᴅ: <b>{_last_short}</b>\n"
                         if _last_short else ""
                     )
-                    _rows_preview = [r for r in [_last_line] if r]
-                    _rows_preview += [
-                        f"{_UIE['sparkle']} <b>ʏᴏᴜ ᴍɪɢʜᴛ ᴀʟsᴏ ʟɪᴋᴇ:</b>",
-                    ]
-                    _end_text = _ui_panel("ǫᴜᴇᴜᴇ ᴇɴᴅᴇᴅ", _rows_preview, expandable=False)
+                    _end_text = (
+                        f"<blockquote>{_SUGG_BRAND}</blockquote>\n\n"
+                        f"<blockquote>"
+                        f"┌────── ˹ ǫᴜᴇᴜᴇ ᴇɴᴅᴇᴅ ˼ ─── ⏤●\n"
+                        f"┆{_E_STAR} ᴛʜᴇ ᴘʟᴀʏʟɪsᴛ ʜᴀs ᴇɴᴅᴇᴅ.\n"
+                        + (f"┆{_last_line}" if _last_short else "")
+                        + f"┆{_E_ZAP} <b>ʏᴏᴜ ᴍɪɢʜᴛ ᴀʟsᴏ ʟɪᴋᴇ:</b>\n"
+                        f"└──────────────────●"
+                        f"</blockquote>"
+                    )
                     LOGGER(__name__).info(f"[Suggestion] Sending to chat={_sugg_chat_id}")
                     try:
                         await app.send_message(
@@ -1217,17 +1234,20 @@ class Call:
                             parse_mode=ParseMode.HTML,
                         )
                     except Exception as _html_err:
-                        LOGGER(__name__).warning(f"[Suggestion] HTML send failed: {_html_err}, retrying plain")
-                        _plain_text = (
+                        LOGGER(__name__).warning(f"[Suggestion] HTML failed ({_html_err}), trying plain")
+                        _plain = (
                             "🎵 Queue Ended!\n"
                             + (f"Last: {_last_short}\n\n" if _last_short else "\n")
-                            + "You might like these:"
+                            + "⚡️ You might also like:"
                         )
-                        await app.send_message(
-                            _sugg_chat_id,
-                            text=_plain_text,
-                            reply_markup=InlineKeyboardMarkup(_rows),
-                        )
+                        try:
+                            await app.send_message(
+                                _sugg_chat_id,
+                                text=_plain,
+                                reply_markup=InlineKeyboardMarkup(_rows),
+                            )
+                        except Exception as _plain_err:
+                            LOGGER(__name__).warning(f"[Suggestion] Plain also failed: {_plain_err}")
                 except Exception as _sugg_err:
                     LOGGER(__name__).warning(f"[Suggestion] Failed completely: {_sugg_err}")
                 return

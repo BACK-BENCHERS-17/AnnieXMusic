@@ -1,20 +1,47 @@
 from . import InlineKeyboardButton
 from config import BOT_USERNAME
 
+# ── Progress bar design ───────────────────────────────────────────────────────
+#
+#  Format:  01:23  ━━━━━━◈╌╌╌╌╌╌  04:20
+#
+#   ━  BOX DRAWINGS HEAVY HORIZONTAL  — thick played portion
+#   ◈  DIAMOND WITH HORIZONTAL RULE    — unique glowing position cursor
+#   ╌  LIGHT DOUBLE DASH HORIZONTAL   — airy remaining portion
+#
+#  What makes it different:
+#   • heavy (━) vs dashed (╌) contrast creates instant depth
+#   • ◈ cursor has horizontal lines inside so it "sits" on the track
+#   • no two Telegram music bots use this exact combination
+#
 
-def _progress_bar(played_sec: int, duration_sec: int, length: int = 12) -> str:
+_PLAYED  = "━"   # U+2501 — BOX DRAWINGS HEAVY HORIZONTAL
+_CURSOR  = "◈"   # U+25C8 — DIAMOND WITH HORIZONTAL RULE (unique focal point)
+_REMAIN  = "╌"   # U+254C — BOX DRAWINGS LIGHT DOUBLE DASH HORIZONTAL
+_BAR_LEN = 11    # total segments not counting cursor
+
+
+def _progress_bar(played_sec: int, duration_sec: int) -> str:
+    """Return the styled progress bar string."""
     if duration_sec <= 0:
-        pct = 0
+        pct = 0.0
     else:
         pct = min(played_sec / duration_sec, 1.0)
-    filled = max(0, min(int(round(length * pct)), length))
-    if filled >= length:
-        return "▬" * length + "◉"
-    return "▬" * filled + "◉" + "─" * (length - filled)
+
+    filled = max(0, min(int(round(_BAR_LEN * pct)), _BAR_LEN))
+
+    if filled >= _BAR_LEN:
+        return _PLAYED * _BAR_LEN + _CURSOR
+
+    return _PLAYED * filled + _CURSOR + _REMAIN * (_BAR_LEN - filled)
 
 
 def _fmt(sec: int) -> str:
+    """Format seconds as M:SS or H:MM:SS."""
     m, s = divmod(max(0, int(sec)), 60)
+    h, m = divmod(m, 60)
+    if h:
+        return f"{h}:{m:02d}:{s:02d}"
     return f"{m:02d}:{s:02d}"
 
 
@@ -84,7 +111,6 @@ def control_buttons(_, chat_id, autoplay_on=None):
             ),
         ],
     ]
-
     return rows
 
 
@@ -93,11 +119,10 @@ def stream_markup_timer(_, chat_id, played, dur, autoplay_on=None):
     played_sec   = time_to_seconds(played)
     duration_sec = time_to_seconds(dur)
     bar = _progress_bar(played_sec, duration_sec)
-    remaining_sec = max(0, duration_sec - played_sec)
 
     progress_row = [
         InlineKeyboardButton(
-            text=f"{_fmt(played_sec)} {bar} {_fmt(duration_sec)}",
+            text=f"{_fmt(played_sec)}  {bar}  {_fmt(duration_sec)}",
             url="https://t.me/VcAnnieBot/annie",
             style="primary",
         )
