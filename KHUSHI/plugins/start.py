@@ -20,6 +20,7 @@ from pyrogram.types import InlineKeyboardMarkup, InputMediaPhoto, Message
 from KHUSHI import app
 from KHUSHI.utils.database import get_lang
 from KHUSHI.utils.inline import InlineKeyboardButton
+from KHUSHI.utils.reactions import react_to_command
 from KHUSHI.utils.inline.help import first_page, second_page, help_back_markup, private_help_panel
 from config import BANNED_USERS, HELP_IMG_URL, START_IMGS, SUPPORT_CHAT, SUPPORT_CHANNEL
 from strings import get_string, helpers
@@ -129,6 +130,7 @@ async def _try_send_photo(client, chat_id, photo_url, caption, markup) -> bool:
 
 @app.on_message(filters.command(["start"]) & filters.private & ~BANNED_USERS)
 async def khushi_start_private(client, message: Message):
+    await react_to_command(message, emoji="🍓")
     param = message.command[1] if len(message.command) > 1 else None
 
     # ── /start info_<videoid> — show song details in DM ──────────────────────
@@ -297,6 +299,7 @@ async def bot_added_to_group(client, message: Message):
 
 @app.on_message(filters.command(["help"]) & filters.private & ~BANNED_USERS)
 async def khushi_help_pm(client, message: Message):
+    await react_to_command(message, emoji="🍓")
     lang = await _get_lang(message.from_user.id)
     _ = get_string(lang)
     keyboard = first_page(_)
@@ -318,6 +321,7 @@ async def khushi_help_pm(client, message: Message):
 
 @app.on_message(filters.command(["help"]) & filters.group & ~BANNED_USERS)
 async def khushi_help_group(client, message: Message):
+    await react_to_command(message, emoji="🍓")
     lang = await _get_lang(message.from_user.id)
     _ = get_string(lang)
     markup = InlineKeyboardMarkup(private_help_panel(_))

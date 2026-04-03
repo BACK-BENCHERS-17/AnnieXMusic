@@ -58,7 +58,7 @@ def private_panel(_):
     if WEB_URL:
         buttons.append([
             InlineKeyboardButton(
-                text="🎵 ᴡᴇʙ ᴘʟᴀʏᴇʀ",
+                text="˹ᴡᴇʙ ᴘʟᴀʏᴇʀ˼",
                 web_app=WebAppInfo(url=WEB_URL),
                 style="success",
             )

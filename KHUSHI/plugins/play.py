@@ -80,6 +80,11 @@ async def _check_playtype(message: Message, chat_id: int) -> bool:
 
 
 async def _handle_play(message: Message, video: bool = False):
+    try:
+        await message.delete()
+    except Exception:
+        pass
+
     chat_id = message.chat.id
     user = message.from_user
     user_name = user.mention
@@ -123,13 +128,15 @@ async def _handle_play(message: Message, video: bool = False):
             )
             _img = PING_IMG_URL or random.choice(START_IMGS)
             try:
-                await message.reply_photo(
+                await app.send_photo(
+                    chat_id,
                     photo=_img,
                     caption=_play_caption,
                     reply_markup=_play_kb,
                 )
             except Exception:
-                await message.reply_text(
+                await app.send_message(
+                    chat_id,
                     _play_caption,
                     reply_markup=_play_kb,
                     disable_web_page_preview=True,
@@ -138,7 +145,7 @@ async def _handle_play(message: Message, video: bool = False):
 
     # ── Loading indicator ──────────────────────────────────────────────────────
     try:
-        mystic = await message.reply_text(random.choice(AYU))
+        mystic = await app.send_message(chat_id, random.choice(AYU))
     except Exception:
         return
 

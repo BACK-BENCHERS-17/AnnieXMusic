@@ -138,6 +138,11 @@ def _dl_yt(vid_id: str, quality: str) -> Optional[str]:
     filters.command(["song", "dl", "download"], prefixes=["/", "."]) & filters.private & ~BANNED_USERS
 )
 async def song_cmd(client, message: Message):
+    try:
+        await message.delete()
+    except Exception:
+        pass
+
     query = " ".join(message.command[1:]).strip() if len(message.command) > 1 else ""
     if not query:
         return await message.reply_text(

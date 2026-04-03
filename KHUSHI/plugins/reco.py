@@ -222,6 +222,11 @@ async def _yt_related(query: str, n: int) -> list[str]:
     filters.command(["reco", "recommend", "suggest"], prefixes=["/", ".", "!"]) & ~BANNED_USERS
 )
 async def reco_cmd(client, message: Message):
+    try:
+        await message.delete()
+    except Exception:
+        pass
+
     chat_id = message.chat.id
     query = message.text.split(None, 1)[1].strip() if len(message.command) > 1 else None
 
@@ -233,9 +238,10 @@ async def reco_cmd(client, message: Message):
 
     if query:
         # Try YouTube-based related song search first
-        loading = await message.reply_text(
+        loading = await app.send_message(
+            chat_id,
             f"<blockquote>{_BRAND}</blockquote>\n\n"
-            f"<blockquote>{_EM['zap']} ꜱᴇᴀʀᴄʜɪɴɢ ʀᴇʟᴀᴛᴇᴅ ꜱᴏɴɢꜱ…</blockquote>"
+            f"<blockquote>{_EM['zap']} ꜱᴇᴀʀᴄʜɪɴɢ ʀᴇʟᴀᴛᴇᴅ ꜱᴏɴɢꜱ…</blockquote>",
         )
         picks = await _yt_related(query, count)
         try:
