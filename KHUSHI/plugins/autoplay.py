@@ -9,34 +9,22 @@ from KHUSHI.utils.decorators import AdminRightsCheck
 from KHUSHI.utils.inline import close_markup, InlineKeyboardButton
 from config import BANNED_USERS
 
-E_BEAR  = "<emoji id='5042192219960771668'>🧸</emoji>"
-E_TIME  = "<emoji id='4979027931234830344'>⏳</emoji>"
-E_DOT   = "<emoji id='5972072533833289156'>🔹</emoji>"
-E_CHECK = "<emoji id='6041597085009056322'>✅</emoji>"
-E_CROSS = "<emoji id='5040042498634810056'>❌</emoji>"
-E_ZAP   = "<emoji id='5042334757040423886'>⚡️</emoji>"
+from KHUSHI.utils.ui import BRAND as _BRAND, E as _E, panel as _panel, brand_block as _brand_block
 
-ANNIE_ROW = (
-    "<emoji id='5042192219960771668'>🧸</emoji>"
-    "<emoji id='5210820276748566172'>🔤</emoji>"
-    "<emoji id='5213301251722203632'>🔤</emoji>"
-    "<emoji id='5213301251722203632'>🔤</emoji>"
-    "<emoji id='5211032856154885824'>🔤</emoji>"
-    "<emoji id='5213337333742454261'>🔤</emoji>"
-)
+_E_CHECK = _E["check"]
+_E_CROSS = _E["cross"]
 
 
 def _autoplay_text(enabled: bool) -> str:
-    status = f"ᴇɴᴀʙʟᴇᴅ {E_CHECK}" if enabled else f"ᴅɪsᴀʙʟᴇᴅ {E_CROSS}"
-    return (
-        f"<blockquote>"
-        f"┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
-        f"┆{E_BEAR} <b>sᴛᴀᴛᴜs :</b> <b>{status}</b>\n"
-        f"┆{E_TIME} ᴀᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ ᴘʟᴀʏs ᴀ ʀᴇʟᴀᴛᴇᴅ sᴏɴɢ ᴡʜᴇɴ ᴛʜᴇ ǫᴜᴇᴜᴇ ᴇɴᴅs\n"
-        f"┆{E_ZAP} ᴍᴜsɪᴄ ɴᴇᴠᴇʀ sᴛᴏᴘs ᴇᴠᴇɴ ᴀꜰᴛᴇʀ ᴛʜᴇ ʟᴀsᴛ ᴛʀᴀᴄᴋ!\n"
-        f"└──────────────────────●"
-        f"</blockquote>\n"
-        f"<blockquote>{ANNIE_ROW}</blockquote>"
+    status_em  = _E_CHECK if enabled else _E_CROSS
+    status_txt = "ᴇɴᴀʙʟᴇᴅ" if enabled else "ᴅɪsᴀʙʟᴇᴅ"
+    return _panel(
+        "ᴀᴜᴛᴏᴘʟᴀʏ",
+        [
+            f"{_E['repeat']} <b>ꜱᴛᴀᴛᴜs:</b>  {status_em} <b>{status_txt}</b>",
+            f"{_E['notes']}  ᴀᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ ᴘʟᴀʏs ᴀ ʀᴇʟᴀᴛᴇᴅ sᴏɴɢ ᴡʜᴇɴ ǫᴜᴇᴜᴇ ᴇɴᴅs",
+            f"{_E['zap']}   ᴍᴜsɪᴄ ɴᴇᴠᴇʀ sᴛᴏᴘs ᴇᴠᴇɴ ᴀꜰᴛᴇʀ ᴛʜᴇ ʟᴀsᴛ ᴛʀᴀᴄᴋ!",
+        ],
     )
 
 
@@ -91,43 +79,39 @@ async def autoplay_command(cli, message: Message, _, chat_id):
         if arg == "on":
             if enabled:
                 return await message.reply_text(
-                    f"<blockquote>┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
-                    f"┆{E_BEAR} <b>ᴀᴜᴛᴏᴘʟᴀʏ ɪs ᴀʟʀᴇᴀᴅʏ ᴇɴᴀʙʟᴇᴅ {E_CHECK}</b>\n"
-                    f"└──────────────────────●</blockquote>\n"
-                    f"<blockquote>{ANNIE_ROW}</blockquote>"
+                    _panel("ᴀᴜᴛᴏᴘʟᴀʏ", [
+                        f"{_E_CHECK} ᴀᴜᴛᴏᴘʟᴀʏ ɪs ᴀʟʀᴇᴀᴅʏ <b>ᴇɴᴀʙʟᴇᴅ</b>.",
+                    ])
                 )
             await autoplay_on(chat_id)
             return await message.reply_text(
-                f"<blockquote>┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
-                f"┆{E_BEAR} <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴇɴᴀʙʟᴇᴅ {E_CHECK}</b>\n"
-                f"┆{E_ZAP} <b>ᴡɪʟʟ ᴀᴜᴛᴏ-ᴘʟᴀʏ ʀᴇʟᴀᴛᴇᴅ sᴏɴɢs!</b>\n"
-                f"└──────────────────────●</blockquote>\n"
-                f"<blockquote>{ANNIE_ROW}</blockquote>",
+                _panel("ᴀᴜᴛᴏᴘʟᴀʏ", [
+                    f"{_E_CHECK} <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴇɴᴀʙʟᴇᴅ!</b>",
+                    f"{_E['notes']} ᴡɪʟʟ ᴀᴜᴛᴏ-ᴘʟᴀʏ ʀᴇʟᴀᴛᴇᴅ sᴏɴɢs ᴡʜᴇɴ ǫᴜᴇᴜᴇ ᴇɴᴅs.",
+                ]),
                 reply_markup=close_markup(_),
             )
         elif arg == "off":
             if not enabled:
                 return await message.reply_text(
-                    f"<blockquote>┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
-                    f"┆{E_BEAR} <b>ᴀᴜᴛᴏᴘʟᴀʏ ɪs ᴀʟʀᴇᴀᴅʏ ᴅɪsᴀʙʟᴇᴅ {E_CROSS}</b>\n"
-                    f"└──────────────────────●</blockquote>\n"
-                    f"<blockquote>{ANNIE_ROW}</blockquote>"
+                    _panel("ᴀᴜᴛᴏᴘʟᴀʏ", [
+                        f"{_E_CROSS} ᴀᴜᴛᴏᴘʟᴀʏ ɪs ᴀʟʀᴇᴀᴅʏ <b>ᴅɪsᴀʙʟᴇᴅ</b>.",
+                    ])
                 )
             await autoplay_off(chat_id)
             return await message.reply_text(
-                f"<blockquote>┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
-                f"┆{E_BEAR} <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴅɪsᴀʙʟᴇᴅ {E_CROSS}</b>\n"
-                f"┆{E_TIME} <b>ᴡɪʟʟ sᴛᴏᴘ ᴀꜰᴛᴇʀ ᴄᴜʀʀᴇɴᴛ ǫᴜᴇᴜᴇ ᴇɴᴅs.</b>\n"
-                f"└──────────────────────●</blockquote>\n"
-                f"<blockquote>{ANNIE_ROW}</blockquote>",
+                _panel("ᴀᴜᴛᴏᴘʟᴀʏ", [
+                    f"{_E_CROSS} <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴅɪsᴀʙʟᴇᴅ.</b>",
+                    f"{_E['hourglass']} ᴍᴜsɪᴄ ᴡɪʟʟ sᴛᴏᴘ ᴀꜰᴛᴇʀ ᴄᴜʀʀᴇɴᴛ ǫᴜᴇᴜᴇ ᴇɴᴅs.",
+                ]),
                 reply_markup=close_markup(_),
             )
         else:
             return await message.reply_text(
-                f"<blockquote>┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
-                f"┆{E_DOT} <b>ᴜsᴀɢᴇ:</b> <code>/autoplay on</code> ᴏʀ <code>/autoplay off</code>\n"
-                f"└──────────────────────●</blockquote>\n"
-                f"<blockquote>{ANNIE_ROW}</blockquote>"
+                _panel("ᴀᴜᴛᴏᴘʟᴀʏ", [
+                    f"{_E['dot']} <code>/autoplay on</code>   — ᴇɴᴀʙʟᴇ ᴀᴜᴛᴏᴘʟᴀʏ",
+                    f"{_E['dot']} <code>/autoplay off</code>  — ᴅɪsᴀʙʟᴇ ᴀᴜᴛᴏᴘʟᴀʏ",
+                ])
             )
 
     await message.reply_text(_autoplay_text(enabled), reply_markup=autoplay_markup(_, enabled))

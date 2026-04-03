@@ -206,10 +206,7 @@ async def _handle_play(message: Message, video: bool = False):
     )
 
     if not query:
-        return await mystic.edit_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
-            f"<blockquote>❌ ɴᴏ ǫᴜᴇʀʏ ᴘʀᴏᴠɪᴅᴇᴅ.</blockquote>"
-        )
+        return await mystic.edit_text(_err("ɴᴏ ǫᴜᴇʀʏ ᴘʀᴏᴠɪᴅᴇᴅ."))
 
     # ── Security: block injection / exfiltration attempts ─────────────────────
     if await check_and_alert(app, OWNER_ID, message, query):
@@ -218,8 +215,7 @@ async def _handle_play(message: Message, video: bool = False):
         except Exception:
             pass
         return await message.reply_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
-            f"<blockquote>🚫 ᴍᴀʟɪᴄɪᴏᴜs ɪɴᴘᴜᴛ ᴅᴇᴛᴇᴄᴛᴇᴅ ᴀɴᴅ ʙʟᴏᴄᴋᴇᴅ.</blockquote>"
+            _msg("ʙʟᴏᴄᴋᴇᴅ", "ᴍᴀʟɪᴄɪᴏᴜs ɪɴᴘᴜᴛ ᴅᴇᴛᴇᴄᴛᴇᴅ ᴀɴᴅ ʙʟᴏᴄᴋᴇᴅ.", emoji_key="shield")
         )
 
     # ── Early URL extraction for YouTube links (head start) ────────────────────
@@ -413,24 +409,21 @@ async def kseek(_, message: Message, lang, chat_id):
     cmd = message.command[0].lower().lstrip("/!.")
     is_back = "back" in cmd
     if len(message.command) < 2:
-        usage = "/seekback [ꜱᴇᴄᴏɴᴅꜱ]" if is_back else "/seek [ꜱᴇᴄᴏɴᴅꜱ]"
+        usage = "<code>/seekback [sec]</code>" if is_back else "<code>/seek [sec]</code>"
         return await message.reply_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
-            f"<blockquote>{_EM['dot']} ᴜꜱᴀɢᴇ: {usage}</blockquote>"
+            _panel("ꜱᴇᴇᴋ", [
+                f"{_EM['seek_fwd']} {usage} — ᴊᴜᴍᴘ ꜰᴏʀᴡᴀʀᴅ ᴏʀ ʙᴀᴄᴋ ɪɴ ᴛʜᴇ ᴄᴜʀʀᴇɴᴛ ᴛʀᴀᴄᴋ",
+            ])
         )
     check = db.get(chat_id)
     if not check:
         return await message.reply_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
-            f"<blockquote>⚠️ ɴᴏᴛʜɪɴɢ ɪꜱ ᴘʟᴀʏɪɴɢ.</blockquote>"
+            _msg("ɴᴏᴛʜɪɴɢ ᴘʟᴀʏɪɴɢ", "ꜱᴛᴀʀᴛ ᴀ ꜱᴏɴɢ ꜰɪʀꜱᴛ ᴡɪᴛʜ <code>/play</code>.", emoji_key="warn")
         )
     try:
         secs_arg = int(message.command[1])
     except ValueError:
-        return await message.reply_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
-            f"<blockquote>❌ ᴘʀᴏᴠɪᴅᴇ ᴠᴀʟɪᴅ ꜱᴇᴄᴏɴᴅꜱ.</blockquote>"
-        )
+        return await message.reply_text(_err("ᴘʀᴏᴠɪᴅᴇ ᴀ ᴠᴀʟɪᴅ ɴᴜᴍʙᴇʀ ᴏꜰ ꜱᴇᴄᴏɴᴅꜱ."))
     from KHUSHI.utils.formatters import seconds_to_min
     file_path = check[0].get("file", "")
     total = check[0].get("seconds", 0)
@@ -441,26 +434,22 @@ async def kseek(_, message: Message, lang, chat_id):
         secs = current + abs(secs_arg)
     if secs < 0 or secs >= int(total):
         return await message.reply_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
-            f"<blockquote>❌ ɪɴᴠᴀʟɪᴅ ᴘᴏꜱɪᴛɪᴏɴ. ᴍᴀx: <code>{seconds_to_min(total)}</code></blockquote>"
+            _err(f"ᴘᴏꜱɪᴛɪᴏɴ ᴏᴜᴛ ᴏꜰ ʀᴀɴɢᴇ. ᴛᴏᴛᴀʟ: <code>{seconds_to_min(total)}</code>")
         )
     dur = seconds_to_min(total)
     played = seconds_to_min(secs)
     mode = check[0].get("streamtype", "audio")
-    action_word = "ꜱᴇᴇᴋᴇᴅ ʙᴀᴄᴋ" if is_back else "ꜱᴇᴇᴋᴇᴅ"
+    em_key = "seek_bk" if is_back else "seek_fwd"
+    label  = "ꜱᴇᴇᴋᴇᴅ ʙᴀᴄᴋ" if is_back else "ꜱᴇᴇᴋᴇᴅ ꜰᴏʀᴡᴀʀᴅ"
     try:
         await JARVIS.seek_stream(chat_id, file_path, played, dur, mode)
         check[0]["played"] = secs
         _start_progress_timer(chat_id)
         await message.reply_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
-            f"<blockquote>{_EM['zap']} <b>{action_word}</b> ᴛᴏ <code>{played}</code></blockquote>"
+            _msg(label, f"ᴊᴜᴍᴘᴇᴅ ᴛᴏ <code>{played}</code> / <code>{dur}</code>", emoji_key=em_key)
         )
     except Exception as e:
-        await message.reply_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
-            f"<blockquote>❌ ꜱᴇᴇᴋ ꜰᴀɪʟᴇᴅ: {type(e).__name__}</blockquote>"
-        )
+        await message.reply_text(_err(f"ꜱᴇᴇᴋ ꜰᴀɪʟᴇᴅ: <code>{type(e).__name__}</code>"))
 
 
 # ── SPEED COMMAND ─────────────────────────────────────────────────────────────
@@ -473,39 +462,30 @@ async def kseek(_, message: Message, lang, chat_id):
 async def kspeed(_, message: Message, lang, chat_id):
     if len(message.command) < 2:
         return await message.reply_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
-            f"<blockquote>{_EM['dot']} ᴜꜱᴀɢᴇ: /speed [0.5 - 4.0]</blockquote>"
+            _panel("ꜱᴘᴇᴇᴅ", [
+                f"{_EM['speed']} <code>/speed [0.5 – 4.0]</code>",
+                f"{_EM['dot']} 1.0 = ɴᴏʀᴍᴀʟ  •  2.0 = 2× ꜰᴀꜱᴛ  •  0.5 = ʜᴀʟꜰ",
+            ])
         )
     check = db.get(chat_id)
     if not check:
         return await message.reply_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
-            f"<blockquote>⚠️ ɴᴏᴛʜɪɴɢ ɪꜱ ᴘʟᴀʏɪɴɢ.</blockquote>"
+            _msg("ɴᴏᴛʜɪɴɢ ᴘʟᴀʏɪɴɢ", "ꜱᴛᴀʀᴛ ᴀ ꜱᴏɴɢ ꜰɪʀꜱᴛ ᴡɪᴛʜ <code>/play</code>.", emoji_key="warn")
         )
     try:
         speed = float(message.command[1])
     except ValueError:
-        return await message.reply_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
-            f"<blockquote>❌ ᴘʀᴏᴠɪᴅᴇ ᴠᴀʟɪᴅ ꜱᴘᴇᴇᴅ (0.5 - 4.0).</blockquote>"
-        )
+        return await message.reply_text(_err("ᴘʀᴏᴠɪᴅᴇ ᴀ ᴠᴀʟɪᴅ ꜱᴘᴇᴇᴅ (0.5 – 4.0)."))
     if not 0.5 <= speed <= 4.0:
-        return await message.reply_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
-            f"<blockquote>❌ ꜱᴘᴇᴇᴅ ᴍᴜꜱᴛ ʙᴇ ʙᴇᴛᴡᴇᴇɴ 0.5 ᴀɴᴅ 4.0.</blockquote>"
-        )
+        return await message.reply_text(_err("ꜱᴘᴇᴇᴅ ᴍᴜꜱᴛ ʙᴇ ʙᴇᴛᴡᴇᴇɴ <code>0.5</code> ᴀɴᴅ <code>4.0</code>."))
     try:
         file_path = check[0].get("file", "")
         await JARVIS.speedup_stream(chat_id, file_path, speed, check)
         await message.reply_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
-            f"<blockquote>{_EM['zap']} <b>ꜱᴘᴇᴇᴅ ꜱᴇᴛ ᴛᴏ {speed}×</b></blockquote>"
+            _msg("ꜱᴘᴇᴇᴅ ᴄʜᴀɴɢᴇᴅ", f"ᴘʟᴀʏɪɴɢ ᴀᴛ <b>{speed}×</b> ꜱᴘᴇᴇᴅ.", emoji_key="speed")
         )
     except Exception as e:
-        await message.reply_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
-            f"<blockquote>❌ ꜱᴘᴇᴇᴅ ᴄʜᴀɴɢᴇ ꜰᴀɪʟᴇᴅ: {type(e).__name__}</blockquote>"
-        )
+        await message.reply_text(_err(f"ꜱᴘᴇᴇᴅ ᴄʜᴀɴɢᴇ ꜰᴀɪʟᴇᴅ: <code>{type(e).__name__}</code>"))
 
 
 # ── RELATED SONG PLAY CALLBACK (rp:{song_name}) ───────────────────────────────
@@ -537,21 +517,14 @@ async def related_play_cb(client, query):
         )
     except Exception as e:
         return await mystic.edit_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
-            f"<blockquote>❌ ɴᴏᴛʜɪɴɢ ꜰᴏᴜɴᴅ.\n{_EM['dot']} {type(e).__name__}</blockquote>"
+            _err(f"ɴᴏᴛʜɪɴɢ ꜰᴏᴜɴᴅ ꜰᴏʀ ᴛʜɪs sᴏɴɢ. (<code>{type(e).__name__}</code>)")
         )
 
     if not vidid:
-        return await mystic.edit_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
-            f"<blockquote>❌ ᴄᴏᴜʟᴅ ɴᴏᴛ ꜰᴇᴛᴄʜ ᴛʀᴀᴄᴋ ᴅᴇᴛᴀɪʟꜱ.</blockquote>"
-        )
+        return await mystic.edit_text(_err("ᴄᴏᴜʟᴅ ɴᴏᴛ ꜰᴇᴛᴄʜ ᴛʀᴀᴄᴋ ᴅᴇᴛᴀɪʟꜱ."))
 
     if duration_sec and duration_sec > DURATION_LIMIT:
-        return await mystic.edit_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
-            f"<blockquote>❌ ᴛʀᴀᴄᴋ ᴛᴏᴏ ʟᴏɴɢ.</blockquote>"
-        )
+        return await mystic.edit_text(_err("ᴛʀᴀᴄᴋ ɪs ᴛᴏᴏ ʟᴏɴɢ ᴛᴏ ᴘʟᴀʏ."))
 
     asyncio.create_task(_trigger_bg_cache(vidid))
 
@@ -560,15 +533,11 @@ async def related_play_cb(client, query):
         file_path, direct = await YouTube.download(vidid, None, videoid=True, video=False)
     except Exception as e:
         return await mystic.edit_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
-            f"<blockquote>❌ ᴅᴏᴡɴʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ.\n{_EM['dot']} {type(e).__name__}</blockquote>"
+            _err(f"ᴅᴏᴡɴʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ: <code>{type(e).__name__}</code>")
         )
 
     if not file_path:
-        return await mystic.edit_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
-            f"<blockquote>❌ ᴅᴏᴡɴʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ — ᴛʀʏ ᴀɢᴀɪɴ.</blockquote>"
-        )
+        return await mystic.edit_text(_err("ᴅᴏᴡɴʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ — ᴘʟᴇᴀꜱᴇ ᴛʀʏ ᴀɢᴀɪɴ."))
 
     try:
         await mystic.delete()

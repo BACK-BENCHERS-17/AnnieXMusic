@@ -14,6 +14,7 @@ from pytgcalls.types import AudioQuality, ChatUpdate, MediaStream, StreamEnded, 
 import config
 from strings import get_string
 from KHUSHI import LOGGER, YouTube, app
+from KHUSHI.utils.ui import E as _UIE, brand_block as _ui_brand, panel as _ui_panel
 from KHUSHI.misc import db
 from KHUSHI.utils.cookie_handler import COOKIE_PATH
 from KHUSHI.utils.database import (
@@ -749,10 +750,10 @@ class Call:
                     await asyncio.sleep(wait_sec)
                     continue
                 raise AssistantErr(
-                    f"<emoji id='5040042498634810056'>❌</emoji> <b>ᴛᴇʟᴇɢʀᴀᴍ ғʟᴏᴏᴅ ᴡᴀɪᴛ</b>\n\n"
-                    f"<blockquote>"
-                    f"<emoji id='5123230779593196220'>⏰</emoji> ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ <b>{wait_sec}s</b> ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ."
-                    f"</blockquote>"
+                    _ui_panel("ꜰʟᴏᴏᴅ ᴡᴀɪᴛ", [
+                        f"{_UIE['clock']} ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ <b>{wait_sec}s</b> ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.",
+                        f"{_UIE['warn']} ᴛᴇʟᴇɢʀᴀᴍ ʀᴀᴛᴇ-ʟɪᴍɪᴛ ᴇxᴄᴇᴇᴅᴇᴅ.",
+                    ])
                 )
             except ChannelInvalid:
                 # ChannelInvalid means the assistant's Pyrogram peer cache has a wrong
@@ -845,11 +846,11 @@ class Call:
 
                 if not _ci_fixed:
                     raise AssistantErr(
-                        "<emoji id='5040042498634810056'>❌</emoji> <b>ᴀssɪsᴛᴀɴᴛ ᴄᴀɴɴᴏᴛ ᴊᴏɪɴ ᴛʜɪs ɢʀᴏᴜᴘ.</b>\n\n"
-                        "<blockquote>"
-                        "ᴘʟᴇᴀsᴇ <b>ᴀᴅᴅ</b> ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.\n"
-                        "ɪꜰ ᴀssɪsᴛᴀɴᴛ ɪs ᴀʟʀᴇᴀᴅʏ ɪɴ ɢʀᴏᴜᴘ, ʀᴇᴍᴏᴠᴇ ᴀɴᴅ ʀᴇ-ᴀᴅᴅ ɪᴛ."
-                        "</blockquote>"
+                        _ui_panel("ᴀssɪsᴛᴀɴᴛ ᴇʀʀᴏʀ", [
+                            f"{_UIE['cross']} <b>ᴀssɪsᴛᴀɴᴛ ᴄᴀɴɴᴏᴛ ᴊᴏɪɴ ᴛʜɪs ɢʀᴏᴜᴘ.</b>",
+                            f"{_UIE['dot']} ᴘʟᴇᴀsᴇ <b>ᴀᴅᴅ</b> ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.",
+                            f"{_UIE['dot']} ɪꜰ ᴀʟʀᴇᴀᴅʏ ɪɴ ɢʀᴏᴜᴘ, ʀᴇᴍᴏᴠᴇ ᴀɴᴅ ʀᴇ-ᴀᴅᴅ ɪᴛ.",
+                        ])
                     )
             except ChannelPrivate:
                 LOGGER(__name__).info(
@@ -1109,33 +1110,21 @@ class Call:
                                 language = await get_lang(chat_id)
                                 _lang = get_string(language)
                                 try:
-                                    _AP_BEAR = "<emoji id='5042192219960771668'>🧸</emoji>"
-                                    _AP_TIME = "<emoji id='4979027931234830344'>⏳</emoji>"
-                                    _AP_DOT  = "<emoji id='5972072533833289156'>🔹</emoji>"
-                                    _AP_AROW = (
-                                        "<emoji id='5042192219960771668'>🧸</emoji>"
-                                        "<emoji id='5210820276748566172'>🔤</emoji>"
-                                        "<emoji id='5213301251722203632'>🔤</emoji>"
-                                        "<emoji id='5213301251722203632'>🔤</emoji>"
-                                        "<emoji id='5211032856154885824'>🔤</emoji>"
-                                        "<emoji id='5213337333742454261'>🔤</emoji>"
-                                    )
+                                    from KHUSHI.utils.ui import E as _UE, panel as _upanel
                                     btn = stream_markup_timer(
                                         _lang, chat_id,
                                         "0:00", ap_dur,
                                         autoplay_on=True,
                                     )
-                                    _ap_caption = (
-                                        f"<blockquote>"
-                                        f"┌────── ˹ ᴀᴜᴛᴏᴘʟᴀʏ ˼─── ⏤‌‌●\n"
-                                        f"┆{_AP_BEAR} <b>ᴛɪᴛʟᴇ :</b> "
-                                        f"<a href='https://www.youtube.com/watch?v={ap_vidid}'>"
-                                        f"{ap_title_short}</a>\n"
-                                        f"┆{_AP_TIME} <b>ᴅᴜʀᴀᴛɪᴏɴ :</b> {ap_dur}\n"
-                                        f"┆{_AP_DOT} <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ :</b> ᴀɴɴɪᴇ ᴀᴜᴛᴏᴘʟᴀʏ\n"
-                                        f"└──────────────────────●"
-                                        f"</blockquote>\n"
-                                        f"<blockquote>{_AP_AROW}</blockquote>"
+                                    _ap_caption = _upanel(
+                                        "ᴀᴜᴛᴏᴘʟᴀʏ",
+                                        [
+                                            f"{_UE['music']} <b>ɴᴏᴡ ᴘʟᴀʏɪɴɢ:</b> "
+                                            f"<a href='https://www.youtube.com/watch?v={ap_vidid}'>"
+                                            f"{ap_title_short}</a>",
+                                            f"{_UE['clock']} <b>ᴅᴜʀᴀᴛɪᴏɴ:</b>  {ap_dur}",
+                                            f"{_UE['repeat']} <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ:</b>  ᴀɴɴɪᴇ ᴀᴜᴛᴏᴘʟᴀʏ",
+                                        ],
                                     )
                                     _ap_markup = InlineKeyboardMarkup(btn)
                                     ap_msg = await send_msg_invert_preview(
@@ -1209,25 +1198,16 @@ class Call:
                         ),
                     ])
 
-                    _AROW = (
-                        "<emoji id='5042192219960771668'>🧸</emoji>"
-                        "<emoji id='5210820276748566172'>🔤</emoji>"
-                        "<emoji id='5213301251722203632'>🔤</emoji>"
-                        "<emoji id='5213301251722203632'>🔤</emoji>"
-                        "<emoji id='5211032856154885824'>🔤</emoji>"
-                        "<emoji id='5213337333742454261'>🔤</emoji>"
-                    )
                     _last_short = (last_title[:32] + "…") if len(last_title) > 32 else last_title
-                    _end_text = (
-                        f"<blockquote>{_AROW}</blockquote>\n\n"
-                        "<blockquote>"
-                        "<emoji id='5039827436737397847'>✨</emoji>"
-                        " <b>ǫᴜᴇᴜᴇ ᴇɴᴅᴇᴅ!</b>\n"
-                        + (f"<emoji id='5972072533833289156'>🔹</emoji> ʟᴀsᴛ: <b>{_last_short}</b>\n" if _last_short else "")
-                        + "\n<emoji id='5042334757040423886'>⚡️</emoji>"
-                        " <b>ʏᴏᴜ ᴍɪɢʜᴛ ʟɪᴋᴇ ᴛʜᴇꜱᴇ:</b>"
-                        "</blockquote>"
+                    _last_line = (
+                        f"{_UIE['dot']} ʟᴀsᴛ ᴛʀᴀᴄᴋ: <b>{_last_short}</b>"
+                        if _last_short else ""
                     )
+                    _rows_preview = [r for r in [_last_line] if r]
+                    _rows_preview += [
+                        f"{_UIE['sparkle']} <b>ʏᴏᴜ ᴍɪɢʜᴛ ᴀʟsᴏ ʟɪᴋᴇ:</b>",
+                    ]
+                    _end_text = _ui_panel("ǫᴜᴇᴜᴇ ᴇɴᴅᴇᴅ", _rows_preview, expandable=False)
                     LOGGER(__name__).info(f"[Suggestion] Sending to chat={_sugg_chat_id}")
                     try:
                         await app.send_message(

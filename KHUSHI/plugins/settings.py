@@ -32,15 +32,7 @@ from KHUSHI.utils.inline.settings import (
     vote_mode_markup,
 )
 from config import BANNED_USERS
-
-_BRAND = (
-    "<emoji id='5042192219960771668'>🧸</emoji>"
-    "<emoji id='5210820276748566172'>🔤</emoji>"
-    "<emoji id='5213301251722203632'>🔤</emoji>"
-    "<emoji id='5213301251722203632'>🔤</emoji>"
-    "<emoji id='5211032856154885824'>🔤</emoji>"
-    "<emoji id='5213337333742454261'>🔤</emoji>"
-)
+from KHUSHI.utils.ui import BRAND as _BRAND, E as _UIE
 
 _E_GEAR  = "<emoji id='5258096772776991776'>⚙️</emoji>"
 _E_GLOBE = "<emoji id='5316832074047441823'>🌐</emoji>"
