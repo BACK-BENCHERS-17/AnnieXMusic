@@ -118,29 +118,21 @@ async def _handle_play(message: Message, video: bool = False):
                     InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close"),
                 ]
             ])
-            _play_caption = _panel(
-                "ᴜꜱᴀɢᴇ",
-                [
-                    f"{_EM['music']} <code>/play</code>  [ꜱᴏɴɢ ɴᴀᴍᴇ / ʏᴛ ᴜʀʟ]",
-                    f"{_EM['video']} <code>/vplay</code> [ᴠɪᴅᴇᴏ ɴᴀᴍᴇ / ʏᴛ ᴜʀʟ]",
-                    f"{_EM['dot']}  ʀᴇᴘʟʏ ᴛᴏ ᴀ ꜰɪʟᴇ ᴛᴏ ᴘʟᴀʏ ɪᴛ ᴅɪʀᴇᴄᴛʟʏ",
-                ],
+            _play_caption = (
+                f"<blockquote>{_BRAND}</blockquote>\n\n"
+                "<blockquote>"
+                "🎵 <code>/play</code>  [ꜱᴏɴɢ ɴᴀᴍᴇ / ʏᴛ ᴜʀʟ]\n"
+                "🎬 <code>/vplay</code> [ᴠɪᴅᴇᴏ ɴᴀᴍᴇ / ʏᴛ ᴜʀʟ]\n"
+                "◈  ʀᴇᴘʟʏ ᴛᴏ ᴀ ꜰɪʟᴇ ᴛᴏ ᴘʟᴀʏ ɪᴛ ᴅɪʀᴇᴄᴛʟʏ"
+                "</blockquote>"
             )
-            _img = PING_IMG_URL or random.choice(START_IMGS)
-            try:
-                await app.send_photo(
-                    chat_id,
-                    photo=_img,
-                    caption=_play_caption,
-                    reply_markup=_play_kb,
-                )
-            except Exception:
-                await app.send_message(
-                    chat_id,
-                    _play_caption,
-                    reply_markup=_play_kb,
-                    disable_web_page_preview=True,
-                )
+            await app.send_message(
+                chat_id,
+                _play_caption,
+                reply_markup=_play_kb,
+                parse_mode=enums.ParseMode.HTML,
+                disable_web_page_preview=True,
+            )
             return
 
     # ── Loading indicator ──────────────────────────────────────────────────────

@@ -111,6 +111,19 @@ def _sigterm(sig, frame):
     asyncio.get_event_loop().create_task(_graceful_shutdown())
 
 
+async def _start_web():
+    try:
+        from web_config import WEB_ENABLED, WEB_HOST, WEB_PORT
+        if not WEB_ENABLED:
+            return
+        from KHUSHI.utils.webserver import start_webserver
+        await start_webserver(WEB_HOST, WEB_PORT)
+    except ImportError:
+        pass
+    except Exception as e:
+        LOGGER("KHUSHI").warning(f"Web server failed to start: {e}")
+
+
 async def main():
     signal.signal(signal.SIGTERM, _sigterm)
 
@@ -157,6 +170,7 @@ async def main():
 
     await _set_commands()
     await _set_menu_button()
+    await _start_web()
 
     LOGGER("KHUSHI").info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     LOGGER("KHUSHI").info("       A N N I E  is  L I V E !   ")
