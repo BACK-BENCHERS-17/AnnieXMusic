@@ -46,6 +46,39 @@ def _find_audio(vid: str) -> Optional[str]:
     return None
 
 
+_COMPILATION_KW = {
+    "jukebox", "playlist", "non stop", "nonstop", "mashup",
+    "part 1", "part 2", "part-1", "part-2", "vol.", "vol ",
+    "top 10", "top 20", "top 50", "best of", "hits of",
+    "collection", "compilation", "audio jukebox", "video jukebox",
+    "full album", "all songs", "back to back", "evergreen",
+    "jhankar beats", "ringtone", "instrumental", "karaoke",
+}
+
+
+def _is_individual_song(song: dict) -> bool:
+    """Return True if song looks like a proper individual track (not a long compilation)."""
+    title = song.get("title", "").lower()
+    for kw in _COMPILATION_KW:
+        if kw in title:
+            return False
+    dur = song.get("duration", "")
+    if dur:
+        parts = dur.strip().split(":")
+        try:
+            if len(parts) == 3:
+                total_min = int(parts[0]) * 60 + int(parts[1])
+            elif len(parts) == 2:
+                total_min = int(parts[0])
+            else:
+                total_min = 0
+            if total_min >= 12:
+                return False
+        except (ValueError, IndexError):
+            pass
+    return True
+
+
 async def _fetch_search(query: str, limit: int = 10) -> list:
     """Search YouTube via the bot's existing search utilities."""
     try:
@@ -83,19 +116,20 @@ async def _get_trending() -> list:
         return _trending_cache
 
     queries = [
-        ("hindi",         "Hindi hits 2025", "hindi"),
-        ("punjabi",       "Punjabi hits 2025", "punjabi"),
-        ("bollywood",     "Bollywood songs 2025", "bollywood"),
-        ("international", "Top English hits 2025", "international"),
+        ("hindi",         "new hindi song 2025 official video",    "hindi"),
+        ("punjabi",       "new punjabi song 2025 official video",   "punjabi"),
+        ("bollywood",     "bollywood hit song 2025 official audio", "bollywood"),
+        ("romantic",      "romantic hindi song 2025",               "romantic"),
+        ("international", "english pop hit 2025 official",          "international"),
     ]
 
     songs: list = []
     seen: set = set()
 
     async def _fetch(cat_id: str, q: str, cat_label: str):
-        results = await _fetch_search(q, limit=8)
+        results = await _fetch_search(q, limit=15)
         for r in results:
-            if r["id"] not in seen:
+            if r["id"] not in seen and _is_individual_song(r):
                 seen.add(r["id"])
                 songs.append({**r, "category": cat_id})
 
@@ -165,6 +199,57 @@ async def _handle_static(request: web.Request) -> web.Response:
 async def _api_trending(request: web.Request) -> web.Response:
     songs = await _get_trending()
     return web.json_response({"songs": songs})
+
+
+# ── API: /api/suggested ───────────────────────────────────────────────────────
+
+async def _api_suggested(request: web.Request) -> web.Response:
+    """Return songs related to the currently playing video (by video id or title)."""
+    vid = request.rel_url.query.get("v", "").strip()
+    title_hint = request.rel_url.query.get("title", "").strip()
+
+    if not vid and not title_hint:
+        return web.json_response({"songs": []})
+
+    title = title_hint
+    if not title and vid:
+        try:
+            results = await _fetch_search(f"https://www.youtube.com/watch?v={vid}", limit=1)
+            if results:
+                title = results[0].get("title", "")
+        except Exception:
+            pass
+
+    if not title:
+        trending = await _get_trending()
+        return web.json_response({"songs": trending[:8]})
+
+    import random as _rand
+    words = [w for w in title.split() if len(w) > 3]
+    base = _rand.choice(words) if words else title.split()[0] if title.split() else "hindi"
+
+    queries = [
+        f"songs like {title}",
+        f"{base} new song 2025",
+        f"{base} hit song official",
+    ]
+
+    songs: list = []
+    seen: set = {vid} if vid else set()
+
+    for q in queries:
+        if len(songs) >= 10:
+            break
+        try:
+            results = await _fetch_search(q, limit=12)
+            for r in results:
+                if r["id"] not in seen and _is_individual_song(r):
+                    seen.add(r["id"])
+                    songs.append(r)
+        except Exception:
+            pass
+
+    return web.json_response({"songs": songs[:10]})
 
 
 # ── API: /api/status ──────────────────────────────────────────────────────────
@@ -512,6 +597,7 @@ def _make_app() -> web.Application:
     app.router.add_get("/",                  _handle_index)
     app.router.add_get("/health",            _handle_health)
     app.router.add_get("/api/trending",      _api_trending)
+    app.router.add_get("/api/suggested",     _api_suggested)
     app.router.add_get("/api/status",        _api_status)
     app.router.add_get("/api/search",        _api_search)
     app.router.add_get("/api/stream",        _api_stream)
