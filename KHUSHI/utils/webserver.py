@@ -24,6 +24,10 @@ async def _handle_index(request: web.Request) -> web.Response:
                             content_type="text/html", status=404)
 
 
+async def _handle_health(request: web.Request) -> web.Response:
+    return web.Response(text="OK", content_type="text/plain")
+
+
 async def _handle_static(request: web.Request) -> web.Response:
     filename = request.match_info.get("filename", "")
     path = os.path.join(_WEB_DIR, filename)
@@ -35,6 +39,7 @@ async def _handle_static(request: web.Request) -> web.Response:
 def _make_app() -> web.Application:
     app = web.Application()
     app.router.add_get("/", _handle_index)
+    app.router.add_get("/health", _handle_health)
     app.router.add_get("/static/{filename:.+}", _handle_static)
     app.router.add_get("/{filename:.+}", _handle_static)
     return app

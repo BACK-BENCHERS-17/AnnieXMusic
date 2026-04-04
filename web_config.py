@@ -43,8 +43,9 @@ WEB_ENABLED: bool = getenv("WEB_ENABLED", "true").lower() in ("1", "true", "yes"
 WEB_HOST: str = getenv("WEB_HOST", "0.0.0.0")
 
 # Port the web server listens on.
-# Use 80 for HTTP behind Cloudflare proxy, or a custom port like 8080.
-WEB_PORT: int = int(getenv("WEB_PORT", "8080"))
+# Railway / Heroku inject $PORT automatically — that takes priority.
+# Override via WEB_PORT env var, or leave as 8080 for VPS/direct.
+WEB_PORT: int = int(getenv("PORT", getenv("WEB_PORT", "8080")))
 
 # ── Public URL (what Telegram sees) ──────────────────────────────────────────
 # Your public domain or VPS IP.  Examples:
