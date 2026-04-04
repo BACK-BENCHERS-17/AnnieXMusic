@@ -9,6 +9,7 @@ import os
 import time
 from typing import Optional
 
+import aiohttp
 from aiohttp import web
 
 _log = logging.getLogger(__name__)
@@ -299,6 +300,159 @@ async def _api_audio(request: web.Request) -> web.Response:
     )
 
 
+# ── API: /api/proxy ───────────────────────────────────────────────────────────
+# Ultra-fast audio proxy: streams YouTube CDN URL directly to the browser.
+# No local download needed — audio starts in < 1 second.
+# Supports byte-range requests for seeking.
+
+_proxy_url_cache: dict = {}   # vid → (cdn_url, ext, expires_at)
+_proxy_extract_locks: dict = {}
+
+
+def _get_proxy_cached(vid: str):
+    entry = _proxy_url_cache.get(vid)
+    if not entry:
+        return None
+    cdn_url, ext, exp = entry
+    if time.time() < exp:
+        return cdn_url, ext
+    _proxy_url_cache.pop(vid, None)
+    return None
+
+
+async def _get_proxy_url(vid: str):
+    """Return (cdn_url, ext) — uses in-process cache, then SmartYTDL."""
+    hit = _get_proxy_cached(vid)
+    if hit:
+        return hit
+
+    lock = _proxy_extract_locks.get(vid)
+    if lock is None:
+        lock = asyncio.Lock()
+        _proxy_extract_locks[vid] = lock
+
+    async with lock:
+        hit = _get_proxy_cached(vid)
+        if hit:
+            return hit
+        try:
+            loop = asyncio.get_running_loop()
+            from KHUSHI.utils.ytdl_smart import smart_extract_url
+            info = await loop.run_in_executor(None, smart_extract_url, vid)
+            if info and info.get("url"):
+                cdn_url = info["url"]
+                ext = info.get("ext", "m4a")
+                try:
+                    from urllib.parse import urlparse, parse_qs
+                    exp_param = parse_qs(urlparse(cdn_url).query).get("expire", [None])[0]
+                    expires_at = int(exp_param) - 120 if exp_param else time.time() + 3600
+                except Exception:
+                    expires_at = time.time() + 3600
+                _proxy_url_cache[vid] = (cdn_url, ext, expires_at)
+                return cdn_url, ext
+        except Exception as e:
+            _log.warning(f"[Proxy] URL extraction failed for {vid}: {e}")
+        finally:
+            _proxy_extract_locks.pop(vid, None)
+    return None
+
+
+async def _api_proxy(request: web.Request) -> web.Response:
+    """
+    Fast-stream proxy: pipes YouTube CDN audio directly to the browser.
+    Falls through to local file if already downloaded.
+    Supports Range requests for seeking.
+    """
+    vid = request.rel_url.query.get("v", "").strip()
+    if not vid:
+        return web.Response(status=400, text="missing v")
+
+    # ── Try local file first (instant) ────────────────────────────────────────
+    existing = _find_audio(vid)
+    if existing:
+        ext = existing.rsplit(".", 1)[-1].lower()
+        mime = {
+            "m4a": "audio/mp4", "mp3": "audio/mpeg",
+            "webm": "audio/webm", "opus": "audio/ogg",
+        }.get(ext, "audio/mpeg")
+        return web.FileResponse(existing, headers={
+            "Content-Type": mime,
+            "Accept-Ranges": "bytes",
+            "Cache-Control": "no-cache",
+        })
+
+    # ── Extract CDN URL ────────────────────────────────────────────────────────
+    result = await _get_proxy_url(vid)
+    if not result:
+        return web.Response(status=503, text="stream unavailable")
+
+    cdn_url, ext = result
+    mime = {
+        "m4a": "audio/mp4", "mp3": "audio/mpeg",
+        "webm": "audio/webm", "opus": "audio/ogg",
+    }.get(ext, "audio/mpeg")
+
+    try:
+        from KHUSHI.utils.ytdl_smart import get_cdn_headers
+        cdn_headers = get_cdn_headers()
+    except Exception:
+        cdn_headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (Linux; Android 14; Oculus Quest 3) "
+                "AppleWebKit/537.36 Chrome/124.0.6367.118 Mobile Safari/537.36"
+            ),
+            "Referer": "https://www.youtube.com/",
+            "Origin":  "https://www.youtube.com",
+        }
+
+    req_headers = dict(cdn_headers)
+    range_header = request.headers.get("Range")
+    if range_header:
+        req_headers["Range"] = range_header
+
+    try:
+        timeout = aiohttp.ClientTimeout(total=300, connect=8, sock_read=30)
+        async with aiohttp.ClientSession(timeout=timeout) as sess:
+            async with sess.get(cdn_url, headers=req_headers) as cdn_resp:
+                if cdn_resp.status not in (200, 206):
+                    # CDN URL might be expired — remove from cache and retry
+                    _proxy_url_cache.pop(vid, None)
+                    return web.Response(status=502, text="CDN returned error")
+
+                out_headers = {
+                    "Content-Type":  mime,
+                    "Accept-Ranges": "bytes",
+                    "Cache-Control": "no-cache",
+                }
+                cl = cdn_resp.headers.get("Content-Length")
+                cr = cdn_resp.headers.get("Content-Range")
+                if cl:
+                    out_headers["Content-Length"] = cl
+                if cr:
+                    out_headers["Content-Range"] = cr
+
+                response = web.StreamResponse(
+                    status=cdn_resp.status,
+                    headers=out_headers,
+                )
+                await response.prepare(request)
+
+                CHUNK = 65536
+                async for chunk in cdn_resp.content.iter_chunked(CHUNK):
+                    await response.write(chunk)
+
+                await response.write_eof()
+                return response
+
+    except asyncio.CancelledError:
+        return web.Response(status=499, text="client disconnected")
+    except Exception as e:
+        _log.warning(f"[Proxy] Stream error for {vid}: {e}")
+        # Remove stale cache entry
+        _proxy_url_cache.pop(vid, None)
+        return web.Response(status=503, text="proxy error")
+
+
 # ── API: /api/video ───────────────────────────────────────────────────────────
 
 async def _api_video(request: web.Request) -> web.Response:
@@ -362,7 +516,7 @@ def _make_app() -> web.Application:
     app.router.add_get("/api/search",        _api_search)
     app.router.add_get("/api/stream",        _api_stream)
     app.router.add_get("/api/audio",         _api_audio)
-    app.router.add_route("HEAD", "/api/audio", _api_audio)
+    app.router.add_get("/api/proxy",         _api_proxy)
     app.router.add_get("/api/video",         _api_video)
     app.router.add_get("/api/download",      _api_download)
     app.router.add_get("/api/related",       _api_related)

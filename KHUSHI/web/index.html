@@ -813,51 +813,52 @@ async function playSong(song) {
   updateMiniPlayer(song.title, song.channel, song.thumb);
   updateOverlay(song.title, song.channel, song.thumb);
   updateCardHighlight();
-  toast('⏳ Loading…');
+  toast('⚡ Starting…');
+
+  const metaP = fetch(`/api/stream?v=${song.id}`).then(r=>r.json()).catch(()=>({}));
 
   try {
-    const metaP = fetch(`/api/stream?v=${song.id}`).then(r=>r.json()).catch(()=>({}));
+    // ── Fast path: proxy stream (no download wait, starts in <1s) ────────────
+    let started = false;
+    const ts = Date.now();
+    aud.src = `/api/proxy?v=${song.id}&_t=${ts}`;
+    aud.preload = 'auto';
+    aud.loop = repeatOn;
+    aud.load();
 
-    // Retry helper — server may be downloading the file (503 = try again)
-    async function _tryPlay(attempt) {
-      const ts = Date.now();
-      aud.src = `/api/audio?v=${song.id}&_t=${ts}`;
-      aud.load();
-      aud.loop = repeatOn;
+    try {
+      await aud.play();
+      playing = true; setPlayBtns(true); startProgTimer();
+      started = true;
+      toast('▶ ' + song.title.slice(0, 38));
+    } catch (e1) {
+      // ── Fallback: downloaded file (for older cached songs) ─────────────────
       try {
+        aud.src = `/api/audio?v=${song.id}&_t=${ts}`;
+        aud.load();
+        await new Promise(r => setTimeout(r, 800));
         await aud.play();
         playing = true; setPlayBtns(true); startProgTimer();
-        return true;
-      } catch(e) {
-        // Check if server returned an error status (503 = still downloading)
+        started = true;
+        toast('▶ ' + song.title.slice(0, 38));
+      } catch (e2) {
+        // ── Last resort: wait and retry proxy ─────────────────────────────────
+        toast('⏳ Buffering…');
+        await new Promise(r => setTimeout(r, 2500));
         try {
-          const probe = await fetch(`/api/audio?v=${song.id}&_probe=1`, {method:'HEAD'});
-          if (probe.status === 503 && attempt < 4) {
-            const delay = [3000,5000,8000,12000][attempt] || 8000;
-            toast(`⏳ Loading… (${attempt+1}/4)`);
-            await new Promise(r => setTimeout(r, delay));
-            return _tryPlay(attempt + 1);
-          }
-        } catch(_){}
-        return false;
+          aud.src = `/api/proxy?v=${song.id}&_t=${Date.now()}`;
+          aud.load();
+          await aud.play();
+          playing = true; setPlayBtns(true); startProgTimer();
+          started = true;
+        } catch (e3) {
+          toast('❌ Could not play. Tap to retry.');
+          playing = false; setPlayBtns(false);
+        }
       }
     }
 
-    const ok = await _tryPlay(0);
-    if (!ok) {
-      // Last resort: retry once more after a longer wait
-      toast('⏳ Preparing audio…');
-      await new Promise(r => setTimeout(r, 4000));
-      aud.src = `/api/audio?v=${song.id}&_t=${Date.now()}`;
-      aud.load();
-      await aud.play().then(() => {
-        playing = true; setPlayBtns(true); startProgTimer();
-      }).catch(() => {
-        toast('❌ Could not play. Tap to retry.');
-        playing = false; setPlayBtns(false);
-      });
-    }
-
+    // Update metadata once available
     const meta = await metaP;
     const sec = meta.seconds || 0;
     curTrack = {...song, title: meta.title||song.title, channel: meta.channel||song.channel, thumb: meta.thumb||song.thumb, seconds: sec};
@@ -865,7 +866,7 @@ async function playSong(song) {
     updateOverlay(curTrack.title, curTrack.channel, curTrack.thumb);
     updateProg(Math.floor(aud.currentTime||0), sec);
     setOverlayBg(curTrack.thumb);
-    if (playing) toast('▶ '+curTrack.title.slice(0,38));
+
   } catch(e) {
     toast('❌ Could not load. Try again.');
     playing = false; setPlayBtns(false);
@@ -991,15 +992,25 @@ aud.addEventListener('ended', () => {
 });
 aud.addEventListener('error', () => {
   if (!curTrack) return;
-  // Auto-retry once on stream error
   const vid = curTrack.id;
   toast('⏳ Reconnecting…');
-  setTimeout(() => {
-    aud.src = `/api/audio?v=${vid}&_t=${Date.now()}`;
-    aud.load();
-    aud.play().then(() => { playing=true; setPlayBtns(true); startProgTimer(); })
-              .catch(() => { toast('❌ Stream error. Try again.'); playing=false; setPlayBtns(false); });
-  }, 2000);
+  setTimeout(async () => {
+    try {
+      aud.src = `/api/proxy?v=${vid}&_t=${Date.now()}`;
+      aud.load();
+      await aud.play();
+      playing = true; setPlayBtns(true); startProgTimer();
+    } catch {
+      try {
+        aud.src = `/api/audio?v=${vid}&_t=${Date.now()}`;
+        aud.load();
+        await aud.play();
+        playing = true; setPlayBtns(true); startProgTimer();
+      } catch {
+        toast('❌ Stream error. Try again.'); playing = false; setPlayBtns(false);
+      }
+    }
+  }, 1500);
 });
 
 function startProgTimer() {

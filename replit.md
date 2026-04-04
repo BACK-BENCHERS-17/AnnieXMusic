@@ -31,6 +31,14 @@ config.py          # Configuration from environment
 ## YouTube Streaming (No Cookies Needed)
 Uses yt-dlp with `android_vr` + `ios_downgraded` player clients — works on Replit/cloud without any cookies or COOKIE_URL. The bot's internal API at port 8080 (`/api/yturl`) is used for fast stream URL fetching.
 
+## Web Player — Ultra-Fast Proxy Stream (`/api/proxy`)
+The web player at port 5000 now uses a **proxy streaming** endpoint:
+- `/api/proxy?v={videoId}` — extracts the YouTube CDN URL and pipes audio directly to the browser (no local download, sub-second start)
+- Falls back to `/api/audio` (local file) if already cached on disk
+- Supports byte-range requests for seeking
+- CDN URLs cached in-process with auto-expiry to avoid repeated extraction
+- File deletion: proxy mode never writes to disk; `/api/audio` fallback uses existing disk-management logic
+
 ## YouTube Search — Permanent Free Solution (Invidious API)
 Search is powered by **Invidious** — a free, open-source YouTube frontend with a public API.
 - **No API key needed, no quota limits, completely free forever**
