@@ -43,9 +43,12 @@ WEB_ENABLED: bool = getenv("WEB_ENABLED", "true").lower() in ("1", "true", "yes"
 WEB_HOST: str = getenv("WEB_HOST", "0.0.0.0")
 
 # Port the web server listens on.
-# Railway / Heroku inject $PORT automatically — that takes priority.
-# Override via WEB_PORT env var, or leave as 8080 for VPS/direct.
-WEB_PORT: int = int(getenv("PORT", getenv("WEB_PORT", "8080")))
+# • Railway / Heroku inject $PORT automatically — that takes priority.
+# • Replit webview requires port 5000 — auto-detected via REPLIT_DEV_DOMAIN.
+# • Override via WEB_PORT env var, or leave as 8080 for VPS/direct.
+_on_replit: bool = bool(getenv("REPLIT_DEV_DOMAIN"))
+_default_port: str = "5000" if _on_replit else "8080"
+WEB_PORT: int = int(getenv("PORT", getenv("WEB_PORT", _default_port)))
 
 # ── Public URL (what Telegram sees) ──────────────────────────────────────────
 # Your public domain or VPS IP.  Examples:

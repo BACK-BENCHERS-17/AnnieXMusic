@@ -22,12 +22,13 @@ args = "KHUSHI Bot"
 name = "KHUSHI Bot"
 author = "agent"
 
+[workflows.workflow.metadata]
+outputType = "webview"
+
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python -m KHUSHI"
-
-[workflows.workflow.metadata]
-outputType = "console"
+waitForPort = 5000
 
 [userenv]
 
@@ -42,10 +43,6 @@ STRING_SESSION = "BQIB6EEATpGZnHyOcmWlo6aAFMo82HaeUq0eNSggIR6F2ySYQeN_bR4O_1tx1N
 
 [[ports]]
 localPort = 5000
-externalPort = 5000
-
-[[ports]]
-localPort = 8080
 externalPort = 80
 
 [deployment]
