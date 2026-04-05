@@ -335,32 +335,59 @@ def _extract_artist(title: str) -> tuple:
 async def _fetch_reco_songs(last_title: str, last_vidid: str = "", n: int = 4) -> list:
     """Fetch n related songs from YouTube based on the last played song.
     Returns list of (vidid, title) tuples.
+    Uses yt_api_search (Invidious) as primary — more reliable.
     Falls back to static pool on error."""
     try:
-        from KHUSHI.utils.fast_stream import search_youtube
-
         clean_title, artist = _extract_artist(last_title)
 
         queries = []
         if artist:
             queries.append(f"{artist} best songs official")
             queries.append(f"{artist} new song 2025")
-        # Always include a similarity query
         queries.append(f"songs similar to {clean_title}")
         queries.append(f"{clean_title} official audio")
 
         seen = {last_vidid} if last_vidid else set()
         results = []
 
+        # Primary: yt_api_search (Invidious + YouTube Data API + youtubesearchpython)
+        try:
+            from KHUSHI.utils.yt_api import yt_api_search as _yt_search
+            _use_invidious = True
+        except Exception:
+            _yt_search = None
+            _use_invidious = False
+
+        # Fallback search using youtubesearchpython
+        try:
+            from KHUSHI.utils.fast_stream import search_youtube as _yt_fallback
+        except Exception:
+            _yt_fallback = None
+
         for q in queries:
             if len(results) >= n:
                 break
-            try:
-                found = await search_youtube(q, limit=8)
-            except Exception:
-                continue
-            for item in found:
-                vid = item.get("vid_id", "")
+            found_items = []
+            # Try primary (Invidious-backed) first
+            if _use_invidious and _yt_search is not None:
+                try:
+                    raw = await _yt_search(q, max_results=8)
+                    # yt_api_search returns {"id": ..., "title": ...}
+                    found_items = [
+                        {"vid_id": r.get("id", ""), "title": r.get("title", "")}
+                        for r in raw
+                    ]
+                except Exception:
+                    found_items = []
+            # If primary returned nothing, try youtubesearchpython
+            if not found_items and _yt_fallback is not None:
+                try:
+                    found_items = await _yt_fallback(q, limit=8)
+                except Exception:
+                    found_items = []
+
+            for item in found_items:
+                vid = item.get("vid_id", "") or item.get("id", "")
                 title = item.get("title", "")
                 if not vid or vid in seen or not title:
                     continue
