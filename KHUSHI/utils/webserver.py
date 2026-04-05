@@ -203,6 +203,20 @@ async def _api_trending(request: web.Request) -> web.Response:
 
 # ── API: /api/suggested ───────────────────────────────────────────────────────
 
+def _web_extract_artist(title: str):
+    """Extract (clean_title, artist) from common patterns like 'Song - Artist' or 'Song | Artist'."""
+    import re as _re
+    for sep in [" - ", " – ", " — ", " | "]:
+        if sep in title:
+            parts = title.split(sep, 1)
+            clean = parts[0].strip()
+            artist_raw = _re.sub(r"[\(\[].+?[\)\]]", "", parts[1]).strip()
+            artist_words = artist_raw.split()
+            artist = " ".join(artist_words[:2]) if len(artist_words) > 2 else artist_raw
+            return clean, artist
+    return title.strip(), ""
+
+
 async def _api_suggested(request: web.Request) -> web.Response:
     """Return songs related to the currently playing video (by video id or title)."""
     vid = request.rel_url.query.get("v", "").strip()
@@ -212,27 +226,20 @@ async def _api_suggested(request: web.Request) -> web.Response:
         return web.json_response({"songs": []})
 
     title = title_hint
-    if not title and vid:
-        try:
-            results = await _fetch_search(f"https://www.youtube.com/watch?v={vid}", limit=1)
-            if results:
-                title = results[0].get("title", "")
-        except Exception:
-            pass
 
     if not title:
         trending = await _get_trending()
         return web.json_response({"songs": trending[:8]})
 
-    import random as _rand
-    words = [w for w in title.split() if len(w) > 3]
-    base = _rand.choice(words) if words else title.split()[0] if title.split() else "hindi"
+    clean_title, artist = _web_extract_artist(title)
 
-    queries = [
-        f"songs like {title}",
-        f"{base} new song 2025",
-        f"{base} hit song official",
-    ]
+    # Build targeted queries — artist-first gives the most relevant results
+    queries = []
+    if artist:
+        queries.append(f"{artist} best songs official")
+        queries.append(f"{artist} new songs 2025")
+    queries.append(f"songs similar to {clean_title}")
+    queries.append(f"{clean_title} official audio")
 
     songs: list = []
     seen: set = {vid} if vid else set()
@@ -241,13 +248,18 @@ async def _api_suggested(request: web.Request) -> web.Response:
         if len(songs) >= 10:
             break
         try:
-            results = await _fetch_search(q, limit=12)
+            results = await _fetch_search(q, limit=10)
             for r in results:
                 if r["id"] not in seen and _is_individual_song(r):
                     seen.add(r["id"])
                     songs.append(r)
         except Exception:
             pass
+
+    # If search yielded nothing, fall back to trending
+    if not songs:
+        trending = await _get_trending()
+        return web.json_response({"songs": trending[:8]})
 
     return web.json_response({"songs": songs[:10]})
 

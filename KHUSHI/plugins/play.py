@@ -523,11 +523,19 @@ async def kspeed(_, message: Message, lang, chat_id):
 async def related_play_cb(client, query):
     """Play a related-song suggestion from the queue-end buttons."""
     await query.answer("ᴘʟᴀʏɪɴɢ… 🎵", show_alert=False)
-    song_name = query.data[3:]
+    raw = query.data[3:]  # Everything after "rp:"
     chat_id = query.message.chat.id
     user = query.from_user
     user_name = user.first_name or user.username or "ᴜꜱᴇʀ"
     user_id = user.id
+
+    # New format: "{11-char-vidid}:{title}"  vs old: "{song_name}"
+    known_vidid = None
+    if len(raw) >= 12 and raw[11] == ":":
+        known_vidid = raw[:11]
+        song_name = raw[12:]
+    else:
+        song_name = raw
 
     # Delete the suggestion card
     try:
@@ -540,15 +548,27 @@ async def related_play_cb(client, query):
 
     mystic = await client.send_message(chat_id, random.choice(AYU))
 
-    # ── YouTube search ────────────────────────────────────────────────────────
-    try:
-        title, duration_min, duration_sec, thumbnail, vidid = await YouTube.details(
-            song_name, videoid=False
-        )
-    except Exception as e:
-        return await mystic.edit_text(
-            _err(f"ɴᴏᴛʜɪɴɢ ꜰᴏᴜɴᴅ ꜰᴏʀ ᴛʜɪs sᴏɴɢ. (<code>{type(e).__name__}</code>)")
-        )
+    # ── Resolve track details ─────────────────────────────────────────────────
+    if known_vidid:
+        # We already know the video ID — fetch details directly (faster, no search)
+        try:
+            title, duration_min, duration_sec, thumbnail, vidid = await YouTube.details(
+                known_vidid, videoid=True
+            )
+        except Exception as e:
+            return await mystic.edit_text(
+                _err(f"ꜰᴇᴛᴄʜ ꜰᴀɪʟᴇᴅ: <code>{type(e).__name__}</code>")
+            )
+    else:
+        # Old format — search by song name
+        try:
+            title, duration_min, duration_sec, thumbnail, vidid = await YouTube.details(
+                song_name, videoid=False
+            )
+        except Exception as e:
+            return await mystic.edit_text(
+                _err(f"ɴᴏᴛʜɪɴɢ ꜰᴏᴜɴᴅ ꜰᴏʀ ᴛʜɪs sᴏɴɢ. (<code>{type(e).__name__}</code>)")
+            )
 
     if not vidid:
         return await mystic.edit_text(_err("ᴄᴏᴜʟᴅ ɴᴏᴛ ꜰᴇᴛᴄʜ ᴛʀᴀᴄᴋ ᴅᴇᴛᴀɪʟꜱ."))

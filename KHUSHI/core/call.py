@@ -284,12 +284,18 @@ _SAD_KEYWORDS = {"sad", "bekhayali", "judaai", "woh", "rona", "dard", "door", "a
 
 import random as _rnd
 
+_RECO_SKIP_KW = {
+    "compilation", "jukebox", "playlist", "nonstop", "non stop",
+    "top 10", "top 20", "top 50", "best of", "hits of", "all songs",
+    "back to back", "full album", "mashup", "medley", "collection",
+    "audio jukebox", "video jukebox", "evergreen", "ringtone",
+}
+
 
 def _pick_related_songs(last_title: str, n: int = 4) -> list:
+    """Static fallback pool — used only when YouTube search fails."""
     tl = last_title.lower()
     words = set(tl.split())
-
-    # Score each genre based on keyword overlap
     if words & _PUNJABI_KEYWORDS:
         primary = "punjabi"
     elif words & _HIPHOP_KEYWORDS:
@@ -302,17 +308,75 @@ def _pick_related_songs(last_title: str, n: int = 4) -> list:
         primary = "bollywood"
     else:
         primary = "bollywood"
-
-    primary_pool = _RECO_POOL[primary][:]
-    # Mix in some from bollywood/punjabi for variety
     secondary = "punjabi" if primary != "punjabi" else "bollywood"
-    mixed_pool = primary_pool + _rnd.sample(_RECO_POOL[secondary], min(4, len(_RECO_POOL[secondary])))
+    pool = _RECO_POOL[primary][:] + _rnd.sample(_RECO_POOL[secondary], min(4, len(_RECO_POOL[secondary])))
+    pool = [s for s in pool if last_title.lower() not in s.lower()]
+    _rnd.shuffle(pool)
+    return pool[:n]
 
-    # Remove the last played song if it's in the pool
-    mixed_pool = [s for s in mixed_pool if last_title.lower() not in s.lower()]
 
-    _rnd.shuffle(mixed_pool)
-    return mixed_pool[:n]
+def _extract_artist(title: str) -> tuple:
+    """Extract (clean_title, artist) from common song title patterns."""
+    for sep in [" - ", " – ", " — ", " | "]:
+        if sep in title:
+            parts = title.split(sep, 1)
+            clean = parts[0].strip()
+            artist_raw = parts[1].strip()
+            # Remove parenthetical extras like "(Official Video)", "[Lyrics]"
+            import re as _re
+            artist_raw = _re.sub(r"[\(\[].+?[\)\]]", "", artist_raw).strip()
+            # If remaining artist text is too long, take first 2 words
+            artist_words = artist_raw.split()
+            artist = " ".join(artist_words[:2]) if len(artist_words) > 2 else artist_raw
+            return clean, artist
+    return title.strip(), ""
+
+
+async def _fetch_reco_songs(last_title: str, last_vidid: str = "", n: int = 4) -> list:
+    """Fetch n related songs from YouTube based on the last played song.
+    Returns list of (vidid, title) tuples.
+    Falls back to static pool on error."""
+    try:
+        from KHUSHI.utils.fast_stream import search_youtube
+
+        clean_title, artist = _extract_artist(last_title)
+
+        queries = []
+        if artist:
+            queries.append(f"{artist} best songs official")
+            queries.append(f"{artist} new song 2025")
+        # Always include a similarity query
+        queries.append(f"songs similar to {clean_title}")
+        queries.append(f"{clean_title} official audio")
+
+        seen = {last_vidid} if last_vidid else set()
+        results = []
+
+        for q in queries:
+            if len(results) >= n:
+                break
+            try:
+                found = await search_youtube(q, limit=8)
+            except Exception:
+                continue
+            for item in found:
+                vid = item.get("vid_id", "")
+                title = item.get("title", "")
+                if not vid or vid in seen or not title:
+                    continue
+                tl = title.lower()
+                if any(kw in tl for kw in _RECO_SKIP_KW):
+                    continue
+                seen.add(vid)
+                results.append((vid, title))
+
+        if results:
+            return results[:n]
+    except Exception as e:
+        LOGGER(__name__).warning(f"[Reco] YouTube fetch failed: {e}")
+
+    # Fallback to static pool
+    return [("", s) for s in _pick_related_songs(last_title, n)]
 
 
 class Call:
@@ -1170,16 +1234,19 @@ class Call:
 
                 try:
                     last_title = popped.get("title", "") if popped else ""
+                    last_vidid = popped.get("vidid", "") if popped else ""
                     _sugg_chat_id = popped.get("chat_id", chat_id) if popped else chat_id
-                    _sugg = _pick_related_songs(last_title, 4)
+                    _sugg = await _fetch_reco_songs(last_title, last_vidid, 4)
 
                     # Build one-per-row song suggestion buttons
                     _rows = []
-                    for _s in _sugg:
-                        _lbl = (_s[:35] + "…") if len(_s) > 35 else _s
+                    for _vid, _name in _sugg:
+                        _lbl = (_name[:35] + "…") if len(_name) > 35 else _name
+                        # Include vidid in callback so clicking plays instantly (no re-search)
+                        _cb = f"rp:{_vid}:{_name[:30]}" if _vid else f"rp:{_name[:40]}"
                         _rows.append([StyledBtn(
                             text=_lbl,
-                            callback_data=f"rp:{_s[:40]}",
+                            callback_data=_cb,
                             style="primary",
                         )])
                     # Bottom: add-me and close each on own row
