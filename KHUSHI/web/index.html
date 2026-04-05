@@ -1053,6 +1053,7 @@ async function playSong(song) {
     try {
       await aud.play();
       playing = true; setPlayBtns(true); startProgTimer();
+      _startNoSleep();
       started = true;
       toast('▶ ' + song.title.slice(0, 38));
     } catch (e1) {
@@ -1097,8 +1098,10 @@ async function playSong(song) {
 function togglePlay() {
   if (!curTrack) return;
   if (aud.paused) {
+    _resumeNoSleep();
     aud.play().then(()=>{ playing=true; setPlayBtns(true); startProgTimer(); }).catch(()=>{});
   } else {
+    _lastUserPause = true;
     aud.pause(); playing=false; setPlayBtns(false); clearInterval(progTimer);
   }
 }
@@ -1184,23 +1187,106 @@ function setupMediaSession(title, artist, thumb) {
       ] : [],
     });
     navigator.mediaSession.setActionHandler('play',          () => { aud.play().catch(()=>{}); playing = true;  setPlayBtns(true);  startProgTimer(); });
-    navigator.mediaSession.setActionHandler('pause',         () => { aud.pause();               playing = false; setPlayBtns(false); clearInterval(progTimer); });
+    navigator.mediaSession.setActionHandler('pause',         () => { _lastUserPause = true; aud.pause(); playing = false; setPlayBtns(false); clearInterval(progTimer); });
     navigator.mediaSession.setActionHandler('nexttrack',     nextSong);
     navigator.mediaSession.setActionHandler('previoustrack', prevSong);
-    navigator.mediaSession.setActionHandler('stop',          () => { aud.pause(); playing = false; setPlayBtns(false); });
+    navigator.mediaSession.setActionHandler('stop',          () => { _lastUserPause = true; aud.pause(); playing = false; setPlayBtns(false); });
   } catch(e) {}
 }
 
-// Resume if browser interrupted audio when tab was hidden
+// ── Background audio keepalive ────────────────────────────────────────────────
+// NoSleep: keep an AudioContext alive with a silent loop so iOS keeps
+// the audio session active even when the browser is minimized.
+let _noSleepCtx = null;
+let _noSleepNode = null;
+function _startNoSleep() {
+  try {
+    if (_noSleepCtx && _noSleepCtx.state !== 'closed') return;
+    _noSleepCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const buf = _noSleepCtx.createBuffer(1, _noSleepCtx.sampleRate, _noSleepCtx.sampleRate);
+    _noSleepNode = _noSleepCtx.createBufferSource();
+    _noSleepNode.buffer = buf;
+    _noSleepNode.loop = true;
+    _noSleepNode.connect(_noSleepCtx.destination);
+    _noSleepNode.start(0);
+  } catch(e) {}
+}
+function _resumeNoSleep() {
+  try { if (_noSleepCtx && _noSleepCtx.state === 'suspended') _noSleepCtx.resume(); } catch(e) {}
+}
+
+// Reconnect audio stream (used after background drop)
+let _reconnectTimer = null;
+let _lastUserPause = false;
+function _reconnectAudio() {
+  if (!playing || !curTrack) return;
+  clearTimeout(_reconnectTimer);
+  _reconnectTimer = setTimeout(() => {
+    if (!playing || !curTrack || !aud.paused) return;
+    const savedTime = Math.floor(aud.currentTime || 0);
+    const newSrc = `/api/proxy?v=${curTrack.id}&_t=${Date.now()}`;
+    aud.src = newSrc;
+    aud.preload = 'auto';
+    aud.load();
+    const _onMeta = () => {
+      aud.removeEventListener('loadedmetadata', _onMeta);
+      if (savedTime > 1) {
+        try { aud.currentTime = savedTime; } catch(e) {}
+      }
+      aud.play().catch(() => {
+        // proxy failed, try local file
+        const t = savedTime;
+        aud.src = `/api/audio?v=${curTrack.id}&_t=${Date.now()}`;
+        aud.load();
+        aud.addEventListener('loadedmetadata', function _s() {
+          aud.removeEventListener('loadedmetadata', _s);
+          try { aud.currentTime = t; } catch(e) {}
+          aud.play().catch(() => {});
+        }, {once: true});
+      });
+    };
+    aud.addEventListener('loadedmetadata', _onMeta, {once: true});
+    setTimeout(() => {
+      aud.removeEventListener('loadedmetadata', _onMeta);
+      if (aud.paused && playing) aud.play().catch(() => {});
+    }, 6000);
+  }, 800);
+}
+
+// Resume/reconnect when coming back from background
 document.addEventListener('visibilitychange', () => {
+  _resumeNoSleep();
   if (!document.hidden && curTrack && playing && aud.paused) {
-    aud.play().catch(() => {});
+    _reconnectAudio();
+  }
+});
+
+// Stall/waiting detection — stream dropped mid-play
+aud.addEventListener('stalled', () => { if (playing && curTrack) _reconnectAudio(); });
+aud.addEventListener('waiting', () => {
+  // Only reconnect if stalled for more than 4s
+  clearTimeout(_reconnectTimer);
+  _reconnectTimer = setTimeout(() => {
+    if (playing && curTrack && aud.paused) _reconnectAudio();
+  }, 4000);
+});
+// Unexpected pause (not from user)
+aud.addEventListener('pause', () => {
+  if (_lastUserPause) { _lastUserPause = false; return; }
+  if (playing && curTrack) {
+    clearTimeout(_reconnectTimer);
+    _reconnectTimer = setTimeout(() => {
+      if (playing && curTrack && aud.paused) _reconnectAudio();
+    }, 1500);
   }
 });
 
 // Keep Media Session playback state in sync
-aud.addEventListener('play',  () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing'; });
-aud.addEventListener('pause', () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';  });
+aud.addEventListener('play',  () => {
+  if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+  _resumeNoSleep();
+});
+aud.addEventListener('pause', () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused'; });
 </script>
 </body>
 </html>
