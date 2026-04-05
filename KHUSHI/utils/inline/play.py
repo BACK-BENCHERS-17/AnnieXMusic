@@ -60,8 +60,9 @@ def _webplayer_btn():
     """Return the Web Player button row (appears above progress bar)."""
     return [[
         InlineKeyboardButton(
-            text="🎵 ᴡᴇʙ ᴘʟᴀʏᴇʀ",
+            text="ᴡᴇʙ ᴘʟᴀʏᴇʀ",
             url=f"https://t.me/{_BOT_USERNAME.lstrip('@')}/annie",
+            style="primary",
         )
     ]]
 
@@ -139,8 +140,7 @@ def stream_markup_timer(_, chat_id, played, dur, autoplay_on=None):
     ]
 
     return (
-        _webapp_btn()
-        + _webplayer_btn()
+        _webplayer_btn()
         + [progress_row]
         + control_buttons(_, chat_id, autoplay_on=autoplay_on)
         + [[InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close", style="danger")]]
@@ -149,8 +149,7 @@ def stream_markup_timer(_, chat_id, played, dur, autoplay_on=None):
 
 def stream_markup(_, chat_id, autoplay_on=None):
     return (
-        _webapp_btn()
-        + _webplayer_btn()
+        _webplayer_btn()
         + control_buttons(_, chat_id, autoplay_on=autoplay_on)
         + [[InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close", style="danger")]]
     )

@@ -379,17 +379,22 @@ def _client_download(vid: str, client: str, out_dir: str,
 
 def _direct_extract(vid: str) -> Optional[Dict]:
     """
-    Extract stream URL without any player_client restriction.
-    yt-dlp auto-selects its best default client — this works when per-client
-    extraction fails with 'Requested format is not available'.
+    Extract stream URL using android_vr first (jsless, no cookies, no bot-detection wall).
+    Falls back to unrestricted yt-dlp if android_vr fails (e.g. format not available).
     """
+    # PRIMARY: android_vr — jsless, no PO token, bypasses "Sign in to confirm" entirely
+    res = _client_extract(vid, "android_vr", None)
+    if res:
+        return res
+
+    # SECONDARY: no player_client restriction — yt-dlp picks best default
     o: Dict = {
         "quiet":              True,
         "no_warnings":        True,
         "nocheckcertificate": True,
         "source_address":     "0.0.0.0",
-        "socket_timeout":     10,
-        "retries":            1,
+        "socket_timeout":     6,
+        "retries":            0,
         "skip_download":      True,
         "format":             _AUDIO_FMT,
     }
@@ -408,18 +413,25 @@ def _direct_extract(vid: str) -> Optional[Dict]:
                 "client":   "direct",
             }
     except Exception as e:
-        _log.debug(f"[SmartYTDL] direct_extract {vid}: {e}")
+        _log.debug(f"[SmartYTDL] direct_extract fallback {vid}: {e}")
     return None
 
 
 def _direct_download(vid: str, out_dir: str, fmt: str,
                      cookie_file: Optional[str] = None) -> Optional[str]:
     """
-    Download without any player_client restriction.
-    yt-dlp will auto-select its default clients (android_vr in 2026).
-    This is the most reliable path — no extractor_args means full format access.
-    Uses a clean {vid}.ext filename so file_exists() can find it instantly.
+    Download using android_vr first — jsless client that bypasses YouTube bot-detection.
+    Falls back to unrestricted yt-dlp if android_vr fails.
+    android_vr is the default yt-dlp client in 2026 and works on cloud IPs without cookies.
     """
+    # PRIMARY: android_vr — fastest, no "Sign in" wall, works on cloud IPs
+    p = _client_download(vid, "android_vr", out_dir, fmt, None)
+    if p:
+        _log.info(f"[SmartYTDL] android_vr direct_download ok: {p}")
+        _registry.mark_ok("android_vr")
+        return p
+
+    # SECONDARY: unrestricted (no extractor_args) — yt-dlp auto-selects
     o: Dict = {
         "format":             fmt,
         "outtmpl":            os.path.join(out_dir, f"{vid}.%(ext)s"),
@@ -431,8 +443,8 @@ def _direct_download(vid: str, out_dir: str, fmt: str,
         "noprogress":         True,
         "nocheckcertificate": True,
         "source_address":     "0.0.0.0",
-        "socket_timeout":     15,
-        "retries":            2,
+        "socket_timeout":     10,
+        "retries":            1,
     }
     if cookie_file:
         o["cookiefile"] = cookie_file
@@ -447,7 +459,7 @@ def _direct_download(vid: str, out_dir: str, fmt: str,
                 _log.info(f"[SmartYTDL] direct_download ok: {p}")
                 return p
     except Exception as e:
-        _log.debug(f"[SmartYTDL] direct_download {vid}: {e}")
+        _log.debug(f"[SmartYTDL] direct_download unrestricted {vid}: {e}")
     return None
 
 

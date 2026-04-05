@@ -157,11 +157,11 @@ async def _download_audio(vid: str) -> Optional[str]:
         if existing:
             return existing
         try:
-            loop = asyncio.get_event_loop()
-            from KHUSHI.utils.ytdl_smart import smart_download
+            loop = asyncio.get_running_loop()
+            from KHUSHI.utils.ytdl_smart import smart_download, _AUDIO_FMT
             d = _download_dir()
             os.makedirs(d, exist_ok=True)
-            path = await loop.run_in_executor(None, smart_download, vid, d, "audio")
+            path = await loop.run_in_executor(None, smart_download, vid, d, _AUDIO_FMT)
             return path if path and os.path.isfile(path) else None
         except Exception as e:
             _log.warning(f"[WebAPI] audio download failed for {vid}: {e}")
@@ -561,18 +561,29 @@ async def _api_download(request: web.Request) -> web.Response:
     if not vid:
         return web.Response(status=400, text="missing v")
 
+    # ── Try local file first ──────────────────────────────────────────────────
     existing = _find_audio(vid)
     if not existing:
         existing = await _download_audio(vid)
 
-    if not existing or not os.path.isfile(existing):
-        return web.Response(status=404, text="not found")
+    if existing and os.path.isfile(existing):
+        ext = existing.rsplit(".", 1)[-1].lower()
+        return web.FileResponse(
+            existing,
+            headers={"Content-Disposition": f'attachment; filename="{vid}.{ext}"'},
+        )
 
-    ext = existing.rsplit(".", 1)[-1].lower()
-    return web.FileResponse(
-        existing,
-        headers={"Content-Disposition": f'attachment; filename="{vid}.{ext}"'},
-    )
+    # ── Fallback: redirect to CDN URL so browser downloads directly ──────────
+    # This ensures download always works even if local storage is full/slow.
+    try:
+        result = await _get_proxy_url(vid)
+        if result:
+            cdn_url, ext = result
+            return web.HTTPFound(cdn_url)
+    except Exception as e:
+        _log.warning(f"[Download] CDN fallback failed for {vid}: {e}")
+
+    return web.Response(status=503, text="download unavailable — try again")
 
 
 # ── API: /api/related ─────────────────────────────────────────────────────────

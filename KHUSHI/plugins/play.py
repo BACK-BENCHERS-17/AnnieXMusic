@@ -29,6 +29,7 @@ from config import AYU, BANNED_USERS, BOT_USERNAME, DURATION_LIMIT, OWNER_ID, PI
 from KHUSHI.utils.security import check_and_alert
 
 from KHUSHI.utils.ui import BRAND as _BRAND, E as _EM, msg as _msg, err as _err, info as _info, panel as _panel
+from KHUSHI.utils.exceptions import AssistantErr
 
 THUMB_OFF_VIDEO_URL = "https://files.catbox.moe/4vr2jc.mp4"
 
@@ -184,7 +185,17 @@ async def _handle_play(message: Message, video: bool = False):
             )
         else:
             db[chat_id] = []
-            await JARVIS.join_call(chat_id, chat_id, file_path, video=is_video_type)
+            try:
+                await JARVIS.join_call(chat_id, chat_id, file_path, video=is_video_type)
+            except AssistantErr as ae:
+                db.pop(chat_id, None)
+                return await message.reply_text(str(ae))
+            except Exception as je:
+                db.pop(chat_id, None)
+                return await message.reply_text(
+                    f"<blockquote>{_BRAND}</blockquote>\n\n"
+                    f"<blockquote>❌ ᴠᴄ ᴊᴏɪɴ ꜰᴀɪʟᴇᴅ.\n{_EM['dot']} {type(je).__name__}</blockquote>"
+                )
             await put_queue(
                 chat_id, chat_id, file_path, title, duration,
                 user_name, "telegram", user_id, streamtype,
@@ -271,7 +282,17 @@ async def _handle_play(message: Message, video: bool = False):
                             f"<blockquote>{_BRAND}</blockquote>\n\n"
                             f"<blockquote>❌ ᴄᴀɴɴᴏᴛ ꜰᴇᴛᴄʜ ʟɪᴠᴇ ꜱᴛʀᴇᴀᴍ.</blockquote>"
                         )
-                    await JARVIS.join_call(chat_id, chat_id, link, video=video)
+                    try:
+                        await JARVIS.join_call(chat_id, chat_id, link, video=video)
+                    except AssistantErr as ae:
+                        db.pop(chat_id, None)
+                        return await message.reply_text(str(ae))
+                    except Exception as je:
+                        db.pop(chat_id, None)
+                        return await message.reply_text(
+                            f"<blockquote>{_BRAND}</blockquote>\n\n"
+                            f"<blockquote>❌ ᴠᴄ ᴊᴏɪɴ ꜰᴀɪʟᴇᴅ.\n{_EM['dot']} {type(je).__name__}</blockquote>"
+                        )
                     await put_queue(
                         chat_id, chat_id, f"live_{vidid}", title, "Live",
                         user_name, vidid, user_id, "video" if video else "audio",
@@ -357,9 +378,19 @@ async def _handle_play(message: Message, video: bool = False):
         )
     else:
         db[chat_id] = []
-        await JARVIS.join_call(
-            chat_id, chat_id, file_path, video=video, image=thumbnail
-        )
+        try:
+            await JARVIS.join_call(
+                chat_id, chat_id, file_path, video=video, image=thumbnail
+            )
+        except AssistantErr as ae:
+            db.pop(chat_id, None)
+            return await mystic.edit_text(str(ae))
+        except Exception as je:
+            db.pop(chat_id, None)
+            return await mystic.edit_text(
+                f"<blockquote>{_BRAND}</blockquote>\n\n"
+                f"<blockquote>❌ ᴠᴄ ᴊᴏɪɴ ꜰᴀɪʟᴇᴅ.\n{_EM['dot']} {type(je).__name__}: {je}</blockquote>"
+            )
         await put_queue(
             chat_id, chat_id, stored_file, title_t, duration_min,
             user_name, vidid, user_id, streamtype,
@@ -561,7 +592,18 @@ async def related_play_cb(client, query):
         )
     else:
         db[chat_id] = []
-        await JARVIS.join_call(chat_id, chat_id, file_path, video=False, image=thumbnail)
+        try:
+            await JARVIS.join_call(chat_id, chat_id, file_path, video=False, image=thumbnail)
+        except AssistantErr as ae:
+            db.pop(chat_id, None)
+            return await client.send_message(chat_id, str(ae))
+        except Exception as je:
+            db.pop(chat_id, None)
+            return await client.send_message(
+                chat_id,
+                f"<blockquote>{_BRAND}</blockquote>\n\n"
+                f"<blockquote>❌ ᴠᴄ ᴊᴏɪɴ ꜰᴀɪʟᴇᴅ.\n{_EM['dot']} {type(je).__name__}</blockquote>",
+            )
         await put_queue(
             chat_id, chat_id, stored_file, title_t, duration_min,
             user_name, vidid, user_id, "audio",

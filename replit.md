@@ -1,7 +1,7 @@
 # KHUSHI — Telegram Music Bot
 
 ## Overview
-KHUSHI is a feature-rich Telegram music bot built with Pyrogram + PyTgCalls targeting Indian users. It streams audio/video in group voice chats with a focus on Hindi/Punjabi/Bollywood music. Supports YouTube, Spotify, SoundCloud, Apple Music, and Resso.
+KHUSHI (Annie Music Bot) is a feature-rich Telegram music bot built with Pyrogram + PyTgCalls targeting Indian users. It streams audio/video in group voice chats with a focus on Hindi/Punjabi/Bollywood music. Supports YouTube, Spotify, SoundCloud, Apple Music, and Resso. Includes a built-in web player (Mini App) at t.me/VcAnnieBot/annie with song suggestions, trending music, search, liked songs, and download.
 
 ## Project Structure
 ```
