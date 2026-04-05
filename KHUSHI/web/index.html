@@ -549,7 +549,7 @@ body::after{content:'';position:fixed;bottom:-30%;right:-20%;width:70%;height:70
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
-<audio id="aud" preload="none"></audio>
+<audio id="aud" preload="none" playsinline x-webkit-airplay="allow"></audio>
 
 <!-- Video Player Modal -->
 <div id="videoModal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.95);flex-direction:column;align-items:center;justify-content:center;">
@@ -583,6 +583,7 @@ let history = [], histIdx = -1, likedSet = new Map(), repeatOn = false, shuffleO
 let progTimer = null, volMuted = false, lastVol = 80;
 let curOvTab = 'player';
 let _suggTimer = null;
+let suggSongs = [];
 
 // ── Navigation ────────────────────────────────────────────────
 let curView = 'home';
@@ -777,6 +778,7 @@ async function loadSuggestions(song) {
     const d = await r.json();
     const songs = (d.songs||[]).slice(0,8);
     if (!songs.length) { hideSugg(); return; }
+    suggSongs = songs;
     list.innerHTML = songs.map(s => `
       <div class="sugg-row" onclick='playSong(${JSON.stringify(s)})'>
         <div class="sugg-art"><img src="${s.thumb||''}" alt="" loading="lazy" onerror="this.style.display='none'"/></div>
@@ -1029,6 +1031,7 @@ async function playSong(song) {
 
   updateMiniPlayer(song.title, song.channel, song.thumb);
   updateOverlay(song.title, song.channel, song.thumb);
+  setupMediaSession(song.title, song.channel, song.thumb);
   updateCardHighlight();
   updateLikeBtn();
   toast('⚡ Starting…');
@@ -1082,6 +1085,7 @@ async function playSong(song) {
     curTrack = {...song, title: meta.title||song.title, channel: meta.channel||song.channel, thumb: meta.thumb||song.thumb, seconds: sec};
     updateMiniPlayer(curTrack.title, curTrack.channel, curTrack.thumb);
     updateOverlay(curTrack.title, curTrack.channel, curTrack.thumb);
+    setupMediaSession(curTrack.title, curTrack.channel, curTrack.thumb);
     updateProg(Math.floor(aud.currentTime||0), sec);
 
   } catch(e) {
@@ -1132,6 +1136,15 @@ function nextSong() {
   } else if (histIdx < history.length - 1) {
     histIdx++;
     playSong(history[histIdx]);
+  } else if (suggSongs.length) {
+    // Play next from suggestions — most relevant to what was just playing
+    const curSuggIdx = suggSongs.findIndex(s => curTrack && s.id === curTrack.id);
+    const nextIdx = curSuggIdx >= 0 ? curSuggIdx + 1 : 0;
+    if (nextIdx < suggSongs.length) {
+      playSong(suggSongs[nextIdx]);
+    } else if (allSongs.length) {
+      playSong(allSongs[0]);
+    }
   } else if (allSongs.length) {
     const cur = allSongs.findIndex(s => curTrack && s.id === curTrack.id);
     const next = allSongs[(cur + 1) % allSongs.length];
@@ -1157,6 +1170,37 @@ aud.addEventListener('error', () => {
     aud.play().catch(()=>{});
   }
 });
+
+// ── Media Session API (keeps audio alive when minimized / lock screen) ─────
+function setupMediaSession(title, artist, thumb) {
+  if (!('mediaSession' in navigator)) return;
+  try {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title:  title  || 'Unknown',
+      artist: artist || '',
+      artwork: thumb ? [
+        { src: thumb, sizes: '300x300', type: 'image/jpeg' },
+        { src: thumb, sizes: '512x512', type: 'image/jpeg' },
+      ] : [],
+    });
+    navigator.mediaSession.setActionHandler('play',          () => { aud.play().catch(()=>{}); playing = true;  setPlayBtns(true);  startProgTimer(); });
+    navigator.mediaSession.setActionHandler('pause',         () => { aud.pause();               playing = false; setPlayBtns(false); clearInterval(progTimer); });
+    navigator.mediaSession.setActionHandler('nexttrack',     nextSong);
+    navigator.mediaSession.setActionHandler('previoustrack', prevSong);
+    navigator.mediaSession.setActionHandler('stop',          () => { aud.pause(); playing = false; setPlayBtns(false); });
+  } catch(e) {}
+}
+
+// Resume if browser interrupted audio when tab was hidden
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && curTrack && playing && aud.paused) {
+    aud.play().catch(() => {});
+  }
+});
+
+// Keep Media Session playback state in sync
+aud.addEventListener('play',  () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing'; });
+aud.addEventListener('pause', () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';  });
 </script>
 </body>
 </html>
