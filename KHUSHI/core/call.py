@@ -335,11 +335,41 @@ def _extract_artist(title: str) -> tuple:
 async def _fetch_reco_songs(last_title: str, last_vidid: str = "", n: int = 4) -> list:
     """Fetch n related songs from YouTube based on the last played song.
     Returns list of (vidid, title) tuples.
-    Uses yt_api_search (Invidious) as primary — more reliable.
-    Falls back to static pool on error."""
+    Priority:
+      1. Invidious recommendedVideos (actual YouTube algorithm, most relevant)
+      2. Invidious / YouTube API keyword search (artist or title based)
+      3. youtubesearchpython keyword search
+      4. Static pool (last resort)
+    """
     try:
-        clean_title, artist = _extract_artist(last_title)
+        seen = {last_vidid} if last_vidid else set()
+        results = []
 
+        # ── Priority 1: Invidious recommendedVideos (actual YouTube algorithm) ──
+        if last_vidid:
+            try:
+                from KHUSHI.utils.yt_api import yt_api_related_videos as _yt_related
+                related = await _yt_related(last_vidid, max_results=n + 4)
+                for r in related:
+                    vid = r.get("id", "")
+                    title = r.get("title", "")
+                    if not vid or vid in seen or not title:
+                        continue
+                    tl = title.lower()
+                    if any(kw in tl for kw in _RECO_SKIP_KW):
+                        continue
+                    seen.add(vid)
+                    results.append((vid, title))
+                    if len(results) >= n:
+                        break
+            except Exception as _re:
+                LOGGER(__name__).debug(f"[Reco] Related videos failed: {_re}")
+
+        if len(results) >= n:
+            return results[:n]
+
+        # ── Priority 2: Keyword search (artist/title based) ──────────────────
+        clean_title, artist = _extract_artist(last_title)
         queries = []
         if artist:
             queries.append(f"{artist} best songs official")
@@ -347,18 +377,11 @@ async def _fetch_reco_songs(last_title: str, last_vidid: str = "", n: int = 4) -
         queries.append(f"songs similar to {clean_title}")
         queries.append(f"{clean_title} official audio")
 
-        seen = {last_vidid} if last_vidid else set()
-        results = []
-
-        # Primary: yt_api_search (Invidious + YouTube Data API + youtubesearchpython)
         try:
             from KHUSHI.utils.yt_api import yt_api_search as _yt_search
-            _use_invidious = True
         except Exception:
             _yt_search = None
-            _use_invidious = False
 
-        # Fallback search using youtubesearchpython
         try:
             from KHUSHI.utils.fast_stream import search_youtube as _yt_fallback
         except Exception:
@@ -368,18 +391,15 @@ async def _fetch_reco_songs(last_title: str, last_vidid: str = "", n: int = 4) -
             if len(results) >= n:
                 break
             found_items = []
-            # Try primary (Invidious-backed) first
-            if _use_invidious and _yt_search is not None:
+            if _yt_search is not None:
                 try:
                     raw = await _yt_search(q, max_results=8)
-                    # yt_api_search returns {"id": ..., "title": ...}
                     found_items = [
                         {"vid_id": r.get("id", ""), "title": r.get("title", "")}
                         for r in raw
                     ]
                 except Exception:
                     found_items = []
-            # If primary returned nothing, try youtubesearchpython
             if not found_items and _yt_fallback is not None:
                 try:
                     found_items = await _yt_fallback(q, limit=8)
@@ -402,7 +422,7 @@ async def _fetch_reco_songs(last_title: str, last_vidid: str = "", n: int = 4) -
     except Exception as e:
         LOGGER(__name__).warning(f"[Reco] YouTube fetch failed: {e}")
 
-    # Fallback to static pool
+    # ── Fallback: static pool ─────────────────────────────────────────────────
     return [("", s) for s in _pick_related_songs(last_title, n)]
 
 

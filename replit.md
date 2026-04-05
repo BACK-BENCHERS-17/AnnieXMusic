@@ -110,6 +110,13 @@ All `from KHUSHI import app/userbot` at module level were converted to lazy impo
 - **Workflow**: "KHUSHI Bot" — `python -m KHUSHI`
 - **Web player**: KHUSHI/web/index.html
 
+## Bug Fixes (April 2026 — Session 4)
+- **Channel play fixed** (`/cplay`, `/cvplay`): `_handle_play` in `KHUSHI/plugins/play.py` now detects channel-prefixed commands, resolves the linked channel ID via `get_cmode`, and correctly routes VC operations (join_call, put_queue, is_active_chat, db) to the channel while keeping notifications in the group. Variables renamed: `msg_chat_id` (group) and `vc_chat_id` (channel or group).
+- **Seek `DocumentInvalid` fixed**: `kseek` handler now blocks seeking on live streams (checks `dur == "Live"` or `file.startswith("live_")`). Exception handler distinguishes `DocumentInvalid`, `NotInCallError`, `ConnectionNotFound`, `FileError` and `AssistantErr` with specific human-readable messages.
+- **Bot auto-suggestions improved**: `_fetch_reco_songs` in `KHUSHI/core/call.py` now uses `yt_api_related_videos` (Invidious `recommendedVideos` — actual YouTube algorithm) as the primary source for post-queue suggestions. Keyword search is now a secondary fallback, static pool is the last resort.
+- **Web player suggestions improved**: `/api/suggested` endpoint in `KHUSHI/utils/webserver.py` now uses `yt_api_related_videos` as the primary source when a video ID is present. Keyword search and trending are secondary/tertiary fallbacks.
+- **`yt_api_related_videos` added** to `KHUSHI/utils/yt_api.py`: fetches `recommendedVideos` from Invidious for a given video ID, filters live streams and long compilations (>12 min).
+
 ## Bug Fixes (March 2026 — Session 2)
 - **`/start` crash fix**: `asyncio.gather(get_served_chats, get_served_users, ...)` wrapped in try-except — MongoDB DNS failures no longer crash the handler, bot sends start message with fallback stats
 - **`stream_call` crash fix**: `group_assistant()` call in `ANNIEMUSIC/core/call.py` wrapped in try-except — MongoDB DNS failures no longer crash stream_call

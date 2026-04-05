@@ -225,60 +225,67 @@ async def _api_suggested(request: web.Request) -> web.Response:
     if not vid and not title_hint:
         return web.json_response({"songs": []})
 
-    title = title_hint
-
-    if not title:
-        trending = await _get_trending()
-        return web.json_response({"songs": trending[:8]})
-
-    clean_title, artist = _web_extract_artist(title)
-
-    # When no clear artist separator exists, guess artist from first word(s)
-    # e.g. "KALAASTAR Honey Singh" → try "KALAASTAR" as potential artist keyword
-    title_words = clean_title.split()
-    first_word = title_words[0] if title_words else ""
-
-    # Build targeted queries — artist-first gives the most relevant results
-    queries = []
-    if artist:
-        queries.append(f"{artist} best songs official")
-        queries.append(f"{artist} new songs 2025")
-        queries.append(f"{artist} {clean_title} similar")
-    else:
-        # No separator found — use first word as artist hint
-        if first_word and len(first_word) > 2:
-            queries.append(f"{first_word} songs official")
-            queries.append(f"{first_word} new songs 2025")
-    queries.append(f"songs similar to {clean_title}")
-    queries.append(f"{clean_title} official audio")
-
     songs: list = []
     seen: set = {vid} if vid else set()
 
-    for q in queries:
-        if len(songs) >= 10:
-            break
+    # ── Priority 1: Invidious recommendedVideos (actual YouTube algorithm) ────
+    if vid:
         try:
-            results = await _fetch_search(q, limit=10)
-            for r in results:
-                if r["id"] not in seen and _is_individual_song(r):
-                    seen.add(r["id"])
+            from KHUSHI.utils.yt_api import yt_api_related_videos
+            related = await yt_api_related_videos(vid, max_results=14)
+            for r in related:
+                rid = r.get("id", "")
+                if rid and rid not in seen and _is_individual_song(r):
+                    seen.add(rid)
                     songs.append(r)
         except Exception:
             pass
 
-    # If search yielded nothing, try a broader search on just the clean title
-    if not songs and clean_title:
-        try:
-            results = await _fetch_search(f"{clean_title} song", limit=12)
-            for r in results:
-                if r["id"] not in seen and _is_individual_song(r):
-                    seen.add(r["id"])
-                    songs.append(r)
-        except Exception:
-            pass
+    if len(songs) >= 8:
+        return web.json_response({"songs": songs[:10]})
 
-    # Only fall back to trending as absolute last resort
+    # ── Priority 2: Keyword search based on title ─────────────────────────────
+    title = title_hint
+    if title:
+        clean_title, artist = _web_extract_artist(title)
+        title_words = clean_title.split()
+        first_word = title_words[0] if title_words else ""
+
+        queries = []
+        if artist:
+            queries.append(f"{artist} best songs official")
+            queries.append(f"{artist} new songs 2025")
+        else:
+            if first_word and len(first_word) > 2:
+                queries.append(f"{first_word} songs official")
+                queries.append(f"{first_word} new songs 2025")
+        queries.append(f"songs similar to {clean_title}")
+        queries.append(f"{clean_title} official audio")
+
+        for q in queries:
+            if len(songs) >= 10:
+                break
+            try:
+                results = await _fetch_search(q, limit=10)
+                for r in results:
+                    if r["id"] not in seen and _is_individual_song(r):
+                        seen.add(r["id"])
+                        songs.append(r)
+            except Exception:
+                pass
+
+        # Broader fallback if still nothing
+        if not songs and clean_title:
+            try:
+                results = await _fetch_search(f"{clean_title} song", limit=12)
+                for r in results:
+                    if r["id"] not in seen and _is_individual_song(r):
+                        seen.add(r["id"])
+                        songs.append(r)
+            except Exception:
+                pass
+
+    # ── Absolute last resort: trending ────────────────────────────────────────
     if not songs:
         trending = await _get_trending()
         return web.json_response({"songs": trending[:8]})

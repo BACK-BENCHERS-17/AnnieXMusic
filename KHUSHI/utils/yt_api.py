@@ -275,6 +275,64 @@ async def yt_api_video_details(video_id: str) -> Optional[Dict]:
     return None
 
 
+async def yt_api_related_videos(video_id: str, max_results: int = 8) -> List[Dict]:
+    """
+    Fetch YouTube-recommended related videos for a given video ID.
+    Uses Invidious's recommendedVideos field (actual YouTube algorithm).
+    Falls back to keyword search if unavailable.
+    """
+    if not video_id:
+        return []
+
+    timeout = aiohttp.ClientTimeout(total=8)
+    instances = _available_instances()
+
+    async with aiohttp.ClientSession(timeout=timeout) as session:
+        for instance in instances[:4]:
+            try:
+                url = f"{instance}/api/v1/videos/{video_id}"
+                params = {"fields": "recommendedVideos"}
+                async with session.get(url, params=params) as resp:
+                    if resp.status != 200:
+                        _mark_failed(instance)
+                        continue
+                    data = await resp.json(content_type=None)
+                    recs = data.get("recommendedVideos") or []
+                    results = []
+                    for v in recs:
+                        vid = v.get("videoId", "")
+                        title = v.get("title", "")
+                        secs = int(v.get("lengthSeconds") or 0)
+                        if not vid or not title:
+                            continue
+                        # Skip livestreams (duration 0) and very long videos (>12min)
+                        if secs == 0 or secs > 720:
+                            continue
+                        thumbs = v.get("videoThumbnails") or []
+                        thumb = next(
+                            (t["url"] for t in thumbs if t.get("quality") == "medium"),
+                            f"https://img.youtube.com/vi/{vid}/mqdefault.jpg",
+                        )
+                        if thumb and thumb.startswith("/vi/"):
+                            thumb = f"https://img.youtube.com{thumb}"
+                        results.append({
+                            "id": vid,
+                            "title": title,
+                            "channel": v.get("author", ""),
+                            "duration": _seconds_to_min(secs),
+                            "thumb": thumb,
+                        })
+                        if len(results) >= max_results:
+                            break
+                    if results:
+                        return results
+            except Exception:
+                _mark_failed(instance)
+                continue
+
+    return []
+
+
 def is_api_available() -> bool:
     """Always True — Invidious is always available (free, no key needed)."""
     return True

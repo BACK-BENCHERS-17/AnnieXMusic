@@ -86,18 +86,36 @@ async def _handle_play(message: Message, video: bool = False):
     except Exception:
         pass
 
-    chat_id = message.chat.id
+    msg_chat_id = message.chat.id  # group — always used for sending messages
     user = message.from_user
     user_name = user.mention
     user_id = user.id
 
     if await _check_maintenance(message):
         return
-    if await _check_playtype(message, chat_id):
+    if await _check_playtype(message, msg_chat_id):
         return
 
-    lang = await get_lang(chat_id)
+    lang = await get_lang(msg_chat_id)
     _ = get_string(lang)
+
+    # ── Channel play detection ──────────────────────────────────────────────────
+    # /cplay and /cvplay route audio to the linked channel's VC instead of group
+    cmd = message.command[0].lower().lstrip("/!.")
+    is_channel_cmd = cmd.startswith("c")  # cplay / cvplay
+    vc_chat_id = msg_chat_id              # default: same as group
+    channel_name = None
+    if is_channel_cmd:
+        from KHUSHI.utils.database import get_cmode
+        _linked = await get_cmode(msg_chat_id)
+        if _linked is None:
+            return await message.reply_text(_["setting_7"])
+        try:
+            _ch_obj = await app.get_chat(_linked)
+            channel_name = _ch_obj.title
+        except Exception:
+            return await message.reply_text(_["cplay_4"])
+        vc_chat_id = _linked
 
     # Detect file reply
     tg_audio = None
@@ -128,7 +146,7 @@ async def _handle_play(message: Message, video: bool = False):
                 "</blockquote>"
             )
             await app.send_message(
-                chat_id,
+                msg_chat_id,
                 _play_caption,
                 reply_markup=_play_kb,
                 parse_mode=enums.ParseMode.HTML,
@@ -138,7 +156,7 @@ async def _handle_play(message: Message, video: bool = False):
 
     # ── Loading indicator ──────────────────────────────────────────────────────
     try:
-        mystic = await app.send_message(chat_id, random.choice(AYU))
+        mystic = await app.send_message(msg_chat_id, random.choice(AYU))
     except Exception:
         return
 
@@ -171,43 +189,43 @@ async def _handle_play(message: Message, video: bool = False):
         except Exception:
             pass
 
-        if await is_active_chat(chat_id):
+        if await is_active_chat(vc_chat_id):
             await put_queue(
-                chat_id, chat_id, file_path, title, duration,
+                vc_chat_id, msg_chat_id, file_path, title, duration,
                 user_name, "telegram", user_id, streamtype,
             )
-            position = len(db.get(chat_id)) - 1
-            btn = aq_markup(_, chat_id)
+            position = len(db.get(vc_chat_id)) - 1
+            btn = aq_markup(_, vc_chat_id)
             await app.send_message(
-                chat_id=chat_id,
+                chat_id=msg_chat_id,
                 text=_["queue_4"].format(position, title[:27], duration, user_name),
                 reply_markup=InlineKeyboardMarkup(btn),
             )
         else:
-            db[chat_id] = []
+            db[vc_chat_id] = []
             try:
-                await JARVIS.join_call(chat_id, chat_id, file_path, video=is_video_type)
+                await JARVIS.join_call(vc_chat_id, msg_chat_id, file_path, video=is_video_type)
             except AssistantErr as ae:
-                db.pop(chat_id, None)
+                db.pop(vc_chat_id, None)
                 return await message.reply_text(str(ae))
             except Exception as je:
-                db.pop(chat_id, None)
+                db.pop(vc_chat_id, None)
                 return await message.reply_text(
                     f"<blockquote>{_BRAND}</blockquote>\n\n"
                     f"<blockquote>❌ ᴠᴄ ᴊᴏɪɴ ꜰᴀɪʟᴇᴅ.\n{_EM['dot']} {type(je).__name__}</blockquote>"
                 )
             await put_queue(
-                chat_id, chat_id, file_path, title, duration,
+                vc_chat_id, msg_chat_id, file_path, title, duration,
                 user_name, "telegram", user_id, streamtype,
             )
-            button = stream_markup_timer(_, chat_id, "0:00", duration, autoplay_on=await is_autoplay(chat_id))
+            button = stream_markup_timer(_, vc_chat_id, "0:00", duration, autoplay_on=await is_autoplay(vc_chat_id))
             caption = _["stream_1"].format(
                 SUPPORT_CHAT, title[:23], duration, user_name
             )
-            run = await _send_stream_msg(chat_id, caption, InlineKeyboardMarkup(button))
-            if db.get(chat_id):
-                db[chat_id][0]["mystic"] = run
-                db[chat_id][0]["markup"] = "tg"
+            run = await _send_stream_msg(msg_chat_id, caption, InlineKeyboardMarkup(button))
+            if db.get(vc_chat_id):
+                db[vc_chat_id][0]["mystic"] = run
+                db[vc_chat_id][0]["markup"] = "tg"
         return
 
     # ── YouTube URL or search query ────────────────────────────────────────────
@@ -262,20 +280,20 @@ async def _handle_play(message: Message, video: bool = False):
                 except Exception:
                     pass
 
-                if await is_active_chat(chat_id):
+                if await is_active_chat(vc_chat_id):
                     await put_queue(
-                        chat_id, chat_id, f"live_{vidid}", title, "Live",
+                        vc_chat_id, msg_chat_id, f"live_{vidid}", title, "Live",
                         user_name, vidid, user_id, "video" if video else "audio",
                     )
-                    position = len(db.get(chat_id)) - 1
-                    btn = aq_markup(_, chat_id)
+                    position = len(db.get(vc_chat_id)) - 1
+                    btn = aq_markup(_, vc_chat_id)
                     await app.send_message(
-                        chat_id=chat_id,
+                        chat_id=msg_chat_id,
                         text=_["queue_4"].format(position, title[:27], "Live", user_name),
                         reply_markup=InlineKeyboardMarkup(btn),
                     )
                 else:
-                    db[chat_id] = []
+                    db[vc_chat_id] = []
                     n, link = await YouTube.video(query)
                     if n == 0 or not link:
                         return await message.reply_text(
@@ -283,29 +301,29 @@ async def _handle_play(message: Message, video: bool = False):
                             f"<blockquote>❌ ᴄᴀɴɴᴏᴛ ꜰᴇᴛᴄʜ ʟɪᴠᴇ ꜱᴛʀᴇᴀᴍ.</blockquote>"
                         )
                     try:
-                        await JARVIS.join_call(chat_id, chat_id, link, video=video)
+                        await JARVIS.join_call(vc_chat_id, msg_chat_id, link, video=video)
                     except AssistantErr as ae:
-                        db.pop(chat_id, None)
+                        db.pop(vc_chat_id, None)
                         return await message.reply_text(str(ae))
                     except Exception as je:
-                        db.pop(chat_id, None)
+                        db.pop(vc_chat_id, None)
                         return await message.reply_text(
                             f"<blockquote>{_BRAND}</blockquote>\n\n"
                             f"<blockquote>❌ ᴠᴄ ᴊᴏɪɴ ꜰᴀɪʟᴇᴅ.\n{_EM['dot']} {type(je).__name__}</blockquote>"
                         )
                     await put_queue(
-                        chat_id, chat_id, f"live_{vidid}", title, "Live",
+                        vc_chat_id, msg_chat_id, f"live_{vidid}", title, "Live",
                         user_name, vidid, user_id, "video" if video else "audio",
                     )
-                    button = stream_markup(_, chat_id)
+                    button = stream_markup(_, vc_chat_id)
                     caption = _["stream_1"].format(
                         f"https://t.me/{BOT_USERNAME.lstrip('@')}?start=info_{vidid}",
                         title[:23], "Live", user_name,
                     )
-                    run = await _send_stream_msg(chat_id, caption, InlineKeyboardMarkup(button))
-                    if db.get(chat_id):
-                        db[chat_id][0]["mystic"] = run
-                        db[chat_id][0]["markup"] = "tg"
+                    run = await _send_stream_msg(msg_chat_id, caption, InlineKeyboardMarkup(button))
+                    if db.get(vc_chat_id):
+                        db[vc_chat_id][0]["mystic"] = run
+                        db[vc_chat_id][0]["markup"] = "tg"
                 return
         except Exception:
             pass
@@ -364,48 +382,48 @@ async def _handle_play(message: Message, video: bool = False):
     title_t = title.title()
 
     # ── Queue or Play ──────────────────────────────────────────────────────────
-    if await is_active_chat(chat_id):
+    if await is_active_chat(vc_chat_id):
         await put_queue(
-            chat_id, chat_id, stored_file, title_t, duration_min,
+            vc_chat_id, msg_chat_id, stored_file, title_t, duration_min,
             user_name, vidid, user_id, streamtype,
         )
-        position = len(db.get(chat_id)) - 1
-        btn = aq_markup(_, chat_id)
+        position = len(db.get(vc_chat_id)) - 1
+        btn = aq_markup(_, vc_chat_id)
         await app.send_message(
-            chat_id=chat_id,
+            chat_id=msg_chat_id,
             text=_["queue_4"].format(position, title_t[:27], duration_min, user_name),
             reply_markup=InlineKeyboardMarkup(btn),
         )
     else:
-        db[chat_id] = []
+        db[vc_chat_id] = []
         try:
             await JARVIS.join_call(
-                chat_id, chat_id, file_path, video=video, image=thumbnail
+                vc_chat_id, msg_chat_id, file_path, video=video, image=thumbnail
             )
         except AssistantErr as ae:
-            db.pop(chat_id, None)
+            db.pop(vc_chat_id, None)
             return await mystic.edit_text(str(ae))
         except Exception as je:
-            db.pop(chat_id, None)
+            db.pop(vc_chat_id, None)
             return await mystic.edit_text(
                 f"<blockquote>{_BRAND}</blockquote>\n\n"
                 f"<blockquote>❌ ᴠᴄ ᴊᴏɪɴ ꜰᴀɪʟᴇᴅ.\n{_EM['dot']} {type(je).__name__}: {je}</blockquote>"
             )
         await put_queue(
-            chat_id, chat_id, stored_file, title_t, duration_min,
+            vc_chat_id, msg_chat_id, stored_file, title_t, duration_min,
             user_name, vidid, user_id, streamtype,
         )
-        button = stream_markup_timer(_, chat_id, "0:00", duration_min, autoplay_on=await is_autoplay(chat_id))
+        button = stream_markup_timer(_, vc_chat_id, "0:00", duration_min, autoplay_on=await is_autoplay(vc_chat_id))
         caption = _["stream_1"].format(
             f"https://t.me/{BOT_USERNAME.lstrip('@')}?start=info_{vidid}",
             title_t[:23],
             duration_min,
             user_name,
         )
-        run = await _send_stream_msg(chat_id, caption, InlineKeyboardMarkup(button))
-        if db.get(chat_id):
-            db[chat_id][0]["mystic"] = run
-            db[chat_id][0]["markup"] = "stream"
+        run = await _send_stream_msg(msg_chat_id, caption, InlineKeyboardMarkup(button))
+        if db.get(vc_chat_id):
+            db[vc_chat_id][0]["mystic"] = run
+            db[vc_chat_id][0]["markup"] = "stream"
 
 
 # ── PLAY COMMAND ──────────────────────────────────────────────────────────────
@@ -450,6 +468,13 @@ async def kseek(_, message: Message, lang, chat_id):
         return await message.reply_text(
             _msg("ɴᴏᴛʜɪɴɢ ᴘʟᴀʏɪɴɢ", "ꜱᴛᴀʀᴛ ᴀ ꜱᴏɴɢ ꜰɪʀꜱᴛ ᴡɪᴛʜ <code>/play</code>.", emoji_key="warn")
         )
+    # Block seeking on live streams
+    _dur_val = str(check[0].get("dur", "")).strip().lower()
+    _file_val = str(check[0].get("file", ""))
+    if _dur_val == "live" or _file_val.startswith("live_"):
+        return await message.reply_text(
+            _err("ꜱᴇᴇᴋɪɴɢ ɪꜱ ɴᴏᴛ ꜱᴜᴘᴘᴏʀᴛᴇᴅ ꜰᴏʀ ʟɪᴠᴇ ꜱᴛʀᴇᴀᴍꜱ.")
+        )
     try:
         secs_arg = int(message.command[1])
     except ValueError:
@@ -479,7 +504,16 @@ async def kseek(_, message: Message, lang, chat_id):
             _msg(label, f"ᴊᴜᴍᴘᴇᴅ ᴛᴏ <code>{played}</code> / <code>{dur}</code>", emoji_key=em_key)
         )
     except Exception as e:
-        await message.reply_text(_err(f"ꜱᴇᴇᴋ ꜰᴀɪʟᴇᴅ: <code>{type(e).__name__}</code>"))
+        ename = type(e).__name__
+        if ename == "DocumentInvalid":
+            errmsg = "ᴠᴏɪᴄᴇ ᴄᴀʟʟ ꜱᴇꜱꜱɪᴏɴ ɪꜱ ɴᴏ ʟᴏɴɢᴇʀ ᴠᴀʟɪᴅ — ᴘʟᴇᴀꜱᴇ ꜱᴛᴏᴘ ᴀɴᴅ ʀᴇꜱᴛᴀʀᴛ ᴘʟᴀʏʙᴀᴄᴋ."
+        elif ename in ("NotInCallError", "ConnectionNotFound"):
+            errmsg = "ʙᴏᴛ ɪꜱ ɴᴏᴛ ɪɴ ᴀɴ ᴀᴄᴛɪᴠᴇ ᴠᴏɪᴄᴇ ᴄᴀʟʟ."
+        elif ename in ("FileError", "AssistantErr"):
+            errmsg = "ꜱᴛʀᴇᴀᴍ ꜰɪʟᴇ ɴᴏ ʟᴏɴɢᴇʀ ᴀᴠᴀɪʟᴀʙʟᴇ — ᴘʟᴇᴀꜱᴇ ᴘʟᴀʏ ᴛʜᴇ ꜱᴏɴɢ ᴀɢᴀɪɴ."
+        else:
+            errmsg = f"ꜱᴇᴇᴋ ꜰᴀɪʟᴇᴅ: <code>{ename}</code>"
+        await message.reply_text(_err(errmsg))
 
 
 # ── SPEED COMMAND ─────────────────────────────────────────────────────────────
