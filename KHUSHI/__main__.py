@@ -113,11 +113,32 @@ def _sigterm(sig, frame):
 
 async def _start_web():
     try:
-        from web_config import WEB_ENABLED, WEB_HOST, WEB_PORT
+        from web_config import WEB_ENABLED, WEB_HOST, WEB_PORT, WEB_DOMAIN
         if not WEB_ENABLED:
             return
-        from KHUSHI.utils.webserver import start_webserver
-        await start_webserver(WEB_HOST, WEB_PORT)
+        from KHUSHI.utils.webserver import start_webserver, BOUND_PORT
+        runner = await start_webserver(WEB_HOST, WEB_PORT)
+        if runner is None:
+            return
+
+        # Re-import after binding to get the actually bound port
+        from KHUSHI.utils import webserver as _ws
+        actual_port = _ws.BOUND_PORT or WEB_PORT
+
+        # If no custom domain is set, patch the runtime URL to reflect the
+        # actual bound port (matters when a fallback port was used on VPS)
+        if not WEB_DOMAIN and actual_port != WEB_PORT:
+            import KHUSHI.utils.weburl as _wu
+            vps_host = os.environ.get("WEB_DOMAIN", "") or "localhost"
+            _wu.WEB_URL = f"http://{vps_host}:{actual_port}"
+            LOGGER("KHUSHI").warning(
+                f"Web URL updated to http://{vps_host}:{actual_port} "
+                f"(fallback — set WEB_DOMAIN=annie.qzz.io in env for your domain)"
+            )
+        elif WEB_DOMAIN:
+            LOGGER("KHUSHI").info(
+                f"Web player public URL: https://{WEB_DOMAIN} (bound internally on :{actual_port})"
+            )
     except ImportError:
         pass
     except Exception as e:

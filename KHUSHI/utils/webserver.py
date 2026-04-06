@@ -664,7 +664,12 @@ def _make_app() -> web.Application:
 
 
 async def start_webserver(host: str, port: int) -> web.AppRunner:
-    """Start the aiohttp web server and return the runner (for later cleanup)."""
+    """Start the aiohttp web server and return the runner (for later cleanup).
+
+    If the requested port is in use, automatically tries a list of common
+    fallback ports so the web player never silently fails to start.
+    Returns (runner, actual_port) via module-level BOUND_PORT variable.
+    """
     try:
         from web_config import WEB_ENABLED
         if not WEB_ENABLED:
@@ -673,10 +678,40 @@ async def start_webserver(host: str, port: int) -> web.AppRunner:
     except ImportError:
         pass
 
-    app = _make_app()
-    runner = web.AppRunner(app)
+    # Ports to try in order: configured first, then common fallbacks
+    _fallbacks = [port, 8080, 5000, 8000, 8008, 9000, 3000, 7000]
+    _candidates = list(dict.fromkeys(_fallbacks))  # deduplicate, keep order
+
+    app_obj = _make_app()
+    runner = web.AppRunner(app_obj)
     await runner.setup()
-    site = web.TCPSite(runner, host, port)
-    await site.start()
-    _log.info(f"Web player running on http://{host}:{port}")
-    return runner
+
+    last_err = None
+    for try_port in _candidates:
+        try:
+            site = web.TCPSite(runner, host, try_port)
+            await site.start()
+            global BOUND_PORT
+            BOUND_PORT = try_port
+            if try_port != port:
+                _log.warning(
+                    f"Port {port} was busy — web player bound to fallback port {try_port}. "
+                    f"Update WEB_PORT={try_port} in your env or add a firewall rule for port {try_port}."
+                )
+            _log.info(f"Web player running on http://{host}:{try_port}")
+            return runner
+        except OSError as e:
+            _log.debug(f"Port {try_port} in use ({e}), trying next…")
+            last_err = e
+            continue
+
+    # All ports failed — log clearly and continue (bot still works without web)
+    _log.error(
+        f"Web player could NOT start — all candidate ports are busy: {_candidates}. "
+        f"Free one of these ports or set WEB_ENABLED=false to suppress this error."
+    )
+    return None
+
+
+# Actual port the server bound to (set by start_webserver after successful bind)
+BOUND_PORT: int = 0
