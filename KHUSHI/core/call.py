@@ -867,100 +867,148 @@ class Call:
                     ])
                 )
             except ChannelInvalid:
-                # ChannelInvalid means the assistant's Pyrogram peer cache has a wrong
-                # or missing access_hash for this chat. This is NOT about the assistant
-                # not being in the group — it is purely a peer resolution failure.
-                # Fix: grab the correct access_hash from the main bot (which already
-                # resolved it) and force channels.GetChannels on the assistant client
-                # so Pyrogram stores the correct peer and retries instantly.
+                # ChannelInvalid = assistant's Pyrogram peer cache is empty/stale for
+                # this chat, OR the assistant was banned. Strategy (in priority order):
+                #   M1 – inject correct peer directly into assistant's SQLite storage
+                #   M2 – resolve by public username on assistant (if group is public)
+                #   M3 – check membership:
+                #          already inside → M1/M2 should have fixed; retry GetChannels
+                #          not inside     → add via bot, then invite link
                 LOGGER(__name__).info(
-                    f"[PLAY] ChannelInvalid — re-warming assistant peer cache for chat={chat_id}"
+                    f"[PLAY] ChannelInvalid — fixing assistant peer cache for chat={chat_id}"
                 )
                 _ci_fixed = False
 
-                # Get the raw Pyrogram client for this chat's assigned assistant
+                # Common: get assistant's raw Pyrogram client once
                 try:
-                    from KHUSHI.utils.database import get_assistant_number, get_client as _get_client
+                    from KHUSHI.utils.database import get_assistant_number, get_client as _get_ci_client
                     _asst_num = await get_assistant_number(chat_id)
-                    _ci_raw = await _get_client(_asst_num) if _asst_num else None
+                    _ci_raw = await _get_ci_client(_asst_num) if _asst_num else None
                 except Exception:
                     _ci_raw = None
 
-                # ── Method 1: re-warm peer cache using main bot's access hash ─────
-                # The assistant may already be in the group — just Pyrogram's local
-                # SQLite cache has a stale/missing access_hash. Resolve via raw API.
-                try:
-                    from pyrogram.raw import functions as _rf, types as _rt
-                    _main_peer = await app.resolve_peer(chat_id)
-                    _raw_id    = getattr(_main_peer, 'channel_id', None)
-                    _access_h  = getattr(_main_peer, 'access_hash', None)
-                    if _ci_raw and _raw_id and _access_h:
-                        await _ci_raw.invoke(
-                            _rf.channels.GetChannels(
-                                id=[_rt.InputChannel(channel_id=_raw_id, access_hash=_access_h)]
+                _asst_id = None
+                if _ci_raw:
+                    try:
+                        _asst_id = (await _ci_raw.get_me()).id
+                    except Exception:
+                        pass
+
+                # ── M1: Inject peer directly into assistant's local SQLite ────────
+                # Grab channel_id + access_hash from bot's resolved peer and write
+                # them straight into the assistant's storage — no API round-trip
+                # needed, so ChannelInvalid cannot happen on the next play() call.
+                if _ci_raw and not _ci_fixed:
+                    try:
+                        from pyrogram.raw import functions as _rf, types as _rt
+                        _main_peer = await app.resolve_peer(chat_id)
+                        _raw_id   = getattr(_main_peer, "channel_id", None)
+                        _acc_hash = getattr(_main_peer, "access_hash", None)
+                        if _raw_id is not None and _acc_hash is not None:
+                            _chat_obj = await app.get_chat(chat_id)
+                            _uname_ci = getattr(_chat_obj, "username", None)
+                            # Direct storage write — bypasses API call entirely
+                            await _ci_raw.storage.update_peers([
+                                (_raw_id, _acc_hash, "channel", _uname_ci, None)
+                            ])
+                            LOGGER(__name__).info(
+                                f"[PLAY] M1: peer injected into assistant SQLite for chat={chat_id}"
                             )
-                        )
-                        LOGGER(__name__).info(
-                            f"[PLAY] Peer cache re-warmed (ChannelInvalid) for chat={chat_id}"
-                        )
-                        await asyncio.sleep(0.5)
-                        await assistant.play(chat_id, stream)
-                        _ci_fixed = True
-                        break
-                except Exception as _ci_warm_err:
-                    LOGGER(__name__).warning(f"[PLAY] Peer re-warm failed: {_ci_warm_err}")
+                            await asyncio.sleep(0.3)
+                            await assistant.play(chat_id, stream)
+                            _ci_fixed = True
+                            break
+                    except Exception as _m1_err:
+                        LOGGER(__name__).warning(f"[PLAY] M1 (peer inject) failed: {_m1_err}")
 
-                # ── Method 2: assistant calls get_chat directly ───────────────────
-                if not _ci_fixed and _ci_raw:
+                # ── M2: Public group — resolve by username on assistant ───────────
+                if _ci_raw and not _ci_fixed:
                     try:
-                        await _ci_raw.get_chat(chat_id)
-                        await asyncio.sleep(0.5)
-                        await assistant.play(chat_id, stream)
-                        _ci_fixed = True
-                        break
-                    except Exception as _ci_gc_err:
-                        LOGGER(__name__).warning(f"[PLAY] get_chat warm failed: {_ci_gc_err}")
+                        _chat_obj2 = await app.get_chat(chat_id)
+                        _uname2 = getattr(_chat_obj2, "username", None)
+                        if _uname2:
+                            await _ci_raw.get_chat(_uname2)
+                            LOGGER(__name__).info(
+                                f"[PLAY] M2: resolved via @{_uname2} on assistant"
+                            )
+                            await asyncio.sleep(0.3)
+                            await assistant.play(chat_id, stream)
+                            _ci_fixed = True
+                            break
+                    except Exception as _m2_err:
+                        LOGGER(__name__).warning(f"[PLAY] M2 (username resolve) failed: {_m2_err}")
 
-                # ── Method 3: add/invite assistant (last resort) ──────────────────
-                if not _ci_fixed:
+                # ── M3: Check membership — only invite/add if NOT already inside ──
+                if _ci_raw and not _ci_fixed and _asst_id:
+                    _is_member = False
                     try:
-                        _asst_id = None
-                        if _ci_raw:
+                        from pyrogram.enums import ChatMemberStatus as _CMS
+                        _mbr = await app.get_chat_member(chat_id, _asst_id)
+                        _is_member = _mbr.status not in (
+                            _CMS.BANNED, _CMS.LEFT, _CMS.RESTRICTED
+                        )
+                    except Exception:
+                        pass  # treat as not member when uncertain
+
+                    if _is_member:
+                        # Assistant IS in the group — peer storage inject above should
+                        # have fixed it; try one more raw GetChannels pass.
+                        try:
+                            from pyrogram.raw import functions as _rf3, types as _rt3
+                            _mp3  = await app.resolve_peer(chat_id)
+                            _rid3 = getattr(_mp3, "channel_id", None)
+                            _ah3  = getattr(_mp3, "access_hash", None)
+                            if _rid3 and _ah3:
+                                await _ci_raw.invoke(
+                                    _rf3.channels.GetChannels(
+                                        id=[_rt3.InputChannel(
+                                            channel_id=_rid3, access_hash=_ah3
+                                        )]
+                                    )
+                                )
+                                await asyncio.sleep(0.5)
+                                await assistant.play(chat_id, stream)
+                                _ci_fixed = True
+                                break
+                        except Exception as _m3a_err:
+                            LOGGER(__name__).warning(
+                                f"[PLAY] M3a (GetChannels retry) failed: {_m3a_err}"
+                            )
+                    else:
+                        # Assistant is NOT in the group — add via bot first
+                        try:
+                            await app.add_chat_members(chat_id, _asst_id)
                             try:
-                                _asst_id = (await _ci_raw.get_me()).id
+                                await _ci_raw.get_chat(chat_id)
                             except Exception:
                                 pass
-                        if _asst_id:
-                            await app.add_chat_members(chat_id, _asst_id)
-                            if _ci_raw:
-                                try:
-                                    await _ci_raw.get_chat(chat_id)
-                                except Exception:
-                                    pass
                             await asyncio.sleep(2)
                             await assistant.play(chat_id, stream)
                             _ci_fixed = True
                             break
-                    except Exception as _ci_add_err:
-                        LOGGER(__name__).warning(f"[PLAY] add_chat_members failed: {_ci_add_err}")
+                        except Exception as _m3b_err:
+                            LOGGER(__name__).warning(
+                                f"[PLAY] M3b (add_chat_members) failed: {_m3b_err}"
+                            )
 
-                if not _ci_fixed and _ci_raw:
+                # ── M4: Join via fresh invite link ────────────────────────────────
+                if _ci_raw and not _ci_fixed:
                     try:
-                        _invite = await app.create_chat_invite_link(chat_id)
-                        await _ci_raw.join_chat(_invite.invite_link)
+                        _inv = await app.create_chat_invite_link(chat_id)
+                        await _ci_raw.join_chat(_inv.invite_link)
                         await asyncio.sleep(2)
                         await assistant.play(chat_id, stream)
                         _ci_fixed = True
                         break
-                    except Exception as _ci_inv_err:
-                        LOGGER(__name__).warning(f"[PLAY] Invite-join failed: {_ci_inv_err}")
+                    except Exception as _m4_err:
+                        LOGGER(__name__).warning(f"[PLAY] M4 (invite-join) failed: {_m4_err}")
 
                 if not _ci_fixed:
                     raise AssistantErr(
                         _ui_panel("ᴀssɪsᴛᴀɴᴛ ᴇʀʀᴏʀ", [
-                            f"{_UIE['cross']} <b>ᴀssɪsᴛᴀɴᴛ ᴄᴀɴɴᴏᴛ ᴊᴏɪɴ ᴛʜɪs ɢʀᴏᴜᴘ.</b>",
-                            f"{_UIE['dot']} ᴘʟᴇᴀsᴇ <b>ᴀᴅᴅ</b> ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀᴄᴄᴏᴜɴᴛ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.",
-                            f"{_UIE['dot']} ɪꜰ ᴀʟʀᴇᴀᴅʏ ɪɴ ɢʀᴏᴜᴘ, ʀᴇᴍᴏᴠᴇ ᴀɴᴅ ʀᴇ-ᴀᴅᴅ ɪᴛ.",
+                            f"{_UIE['cross']} <b>ᴀssɪsᴛᴀɴᴛ ᴩᴇᴇʀ ʀᴇsᴏʟᴜᴛɪᴏɴ ꜰᴀɪʟᴇᴅ.</b>",
+                            f"{_UIE['dot']} ᴀssɪsᴛᴀɴᴛ ᴍᴀʏ ʜᴀᴠᴇ ʙᴇᴇɴ <b>ʙᴀɴɴᴇᴅ</b> ꜰʀᴏᴍ ᴛʜɪs ɢʀᴏᴜᴩ.",
+                            f"{_UIE['dot']} ᴜɴʙᴀɴ ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.",
                         ])
                     )
             except ChannelPrivate:
