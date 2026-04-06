@@ -13,16 +13,22 @@ def _safe_text(text: str) -> str:
 
 
 from pyrogram import enums, filters
+from pyrogram.enums import ChatMemberStatus
 from pyrogram.parser import Parser
 from pyrogram.raw import functions as raw_func, types as raw_types
-from pyrogram.types import InlineKeyboardMarkup, InputMediaPhoto, Message
+from pyrogram.types import ChatMemberUpdated, InlineKeyboardMarkup, InputMediaPhoto, Message
 
 from KHUSHI import app
-from KHUSHI.utils.database import get_lang
+from KHUSHI.utils.database import (
+    add_served_chat,
+    get_lang,
+    get_served_chats,
+    remove_served_chat,
+)
 from KHUSHI.utils.inline import InlineKeyboardButton
 from KHUSHI.utils.reactions import react_to_command
 from KHUSHI.utils.inline.help import first_page, second_page, help_back_markup, private_help_panel
-from config import BANNED_USERS, HELP_IMG_URL, START_IMGS, SUPPORT_CHAT, SUPPORT_CHANNEL
+from config import BANNED_USERS, HELP_IMG_URL, LOGGER_ID, START_IMGS, SUPPORT_CHAT, SUPPORT_CHANNEL
 from strings import get_string, helpers
 
 _BRAND = (
@@ -246,7 +252,83 @@ async def khushi_start_group(client, message: Message):
         await message.reply_text(caption, reply_markup=markup, disable_web_page_preview=True)
 
 
-# ── Bot added to group — welcome message ─────────────────────────────────────
+# ── Helper: send join/leave log to LOGGER_ID ─────────────────────────────────
+
+async def _send_join_log(chat, adder):
+    """Send an advanced styled group-join log to the logger channel."""
+    if not LOGGER_ID:
+        return
+    try:
+        total = len(await get_served_chats())
+        uname = f"@{chat.username}" if getattr(chat, "username", None) else "ɴᴏɴᴇ"
+        adder_text = adder.mention if adder else "ᴜɴᴋɴᴏᴡɴ"
+        adder_id   = adder.id if adder else "—"
+        log_text = (
+            f"<blockquote>{_BRAND}</blockquote>\n\n"
+            "<blockquote>"
+            "<emoji id='5039827436737397847'>✨</emoji> "
+            "<b>ɴᴇᴡ ɢʀᴏᴜᴩ ᴊᴏɪɴᴇᴅ</b>\n\n"
+            "<emoji id='5972072533833289156'>🔹</emoji> "
+            f"<b>ɢʀᴏᴜᴩ :</b> {chat.title}\n"
+            "<emoji id='5972072533833289156'>🔹</emoji> "
+            f"<b>ɪᴅ :</b> <code>{chat.id}</code>\n"
+            "<emoji id='5972072533833289156'>🔹</emoji> "
+            f"<b>ᴜsᴇʀɴᴀᴍᴇ :</b> {uname}\n\n"
+            "<emoji id='5042334757040423886'>⚡️</emoji> "
+            f"<b>ᴀᴅᴅᴇᴅ ʙʏ :</b> {adder_text}\n"
+            "<emoji id='5042334757040423886'>⚡️</emoji> "
+            f"<b>ᴜsᴇʀ ɪᴅ :</b> <code>{adder_id}</code>\n\n"
+            "<emoji id='5041975203853239332'>🎁</emoji> "
+            f"<b>ᴛᴏᴛᴀʟ ɢʀᴏᴜᴩs :</b> <code>{total}</code>"
+            "</blockquote>"
+        )
+        await app.send_message(
+            LOGGER_ID, log_text,
+            parse_mode=enums.ParseMode.HTML,
+            disable_web_page_preview=True,
+        )
+    except Exception as _e:
+        _LOGGER.warning(f"[JoinLog] Failed to send join log: {_e}")
+
+
+async def _send_leave_log(chat_id: int, chat_title: str, chat_username: str, remover):
+    """Send an advanced styled group-leave log to the logger channel."""
+    if not LOGGER_ID:
+        return
+    try:
+        total = len(await get_served_chats())
+        uname = f"@{chat_username}" if chat_username else "ɴᴏɴᴇ"
+        remover_text = remover.mention if remover else "ᴜɴᴋɴᴏᴡɴ"
+        remover_id   = remover.id if remover else "—"
+        log_text = (
+            f"<blockquote>{_BRAND}</blockquote>\n\n"
+            "<blockquote>"
+            "<emoji id='5039598514980520994'>❤️‍🔥</emoji> "
+            "<b>ʟᴇꜰᴛ / ʀᴇᴍᴏᴠᴇᴅ ꜰʀᴏᴍ ɢʀᴏᴜᴩ</b>\n\n"
+            "<emoji id='5972072533833289156'>🔹</emoji> "
+            f"<b>ɢʀᴏᴜᴩ :</b> {chat_title}\n"
+            "<emoji id='5972072533833289156'>🔹</emoji> "
+            f"<b>ɪᴅ :</b> <code>{chat_id}</code>\n"
+            "<emoji id='5972072533833289156'>🔹</emoji> "
+            f"<b>ᴜsᴇʀɴᴀᴍᴇ :</b> {uname}\n\n"
+            "<emoji id='5042334757040423886'>⚡️</emoji> "
+            f"<b>ʀᴇᴍᴏᴠᴇᴅ ʙʏ :</b> {remover_text}\n"
+            "<emoji id='5042334757040423886'>⚡️</emoji> "
+            f"<b>ᴜsᴇʀ ɪᴅ :</b> <code>{remover_id}</code>\n\n"
+            "<emoji id='5041975203853239332'>🎁</emoji> "
+            f"<b>ʀᴇᴍᴀɪɴɪɴɢ ɢʀᴏᴜᴩs :</b> <code>{total}</code>"
+            "</blockquote>"
+        )
+        await app.send_message(
+            LOGGER_ID, log_text,
+            parse_mode=enums.ParseMode.HTML,
+            disable_web_page_preview=True,
+        )
+    except Exception as _e:
+        _LOGGER.warning(f"[LeaveLog] Failed to send leave log: {_e}")
+
+
+# ── Bot added to group — welcome + log ───────────────────────────────────────
 
 @app.on_message(filters.new_chat_members)
 async def bot_added_to_group(client, message: Message):
@@ -259,15 +341,26 @@ async def bot_added_to_group(client, message: Message):
         return
 
     grp = message.chat.title or "ᴀᴀᴘᴋᴀ ɢʀᴏᴜᴩ"
-    adder = message.from_user.mention if message.from_user else "ᴀᴅᴍɪɴ"
+    adder = message.from_user
 
+    # ── Register this chat in DB ──────────────────────────────────────────────
+    try:
+        await add_served_chat(message.chat.id)
+    except Exception:
+        pass
+
+    # ── Advanced log to LOGGER_ID ─────────────────────────────────────────────
+    await _send_join_log(message.chat, adder)
+
+    # ── Welcome message in the group ──────────────────────────────────────────
+    adder_mention = adder.mention if adder else "ᴀᴅᴍɪɴ"
     caption = (
         f"<blockquote>{_BRAND}</blockquote>\n\n"
         "<blockquote>"
         "<emoji id='5039598514980520994'>❤️‍🔥</emoji>"
         f" <b>ʜᴇʟʟᴏ {grp}!</b>\n\n"
         "<emoji id='5972072533833289156'>🔹</emoji>"
-        f" ᴛʜᴀɴᴋ ʏᴏᴜ {adder} ꜰᴏʀ ᴀᴅᴅɪɴɢ ᴍᴇ!\n\n"
+        f" ᴛʜᴀɴᴋ ʏᴏᴜ {adder_mention} ꜰᴏʀ ᴀᴅᴅɪɴɢ ᴍᴇ!\n\n"
         "<emoji id='5042334757040423886'>⚡️</emoji>"
         " <b>ᴍᴇʀɪ ᴩᴏᴡᴇʀ</b>\n"
         "<emoji id='5972072533833289156'>🔹</emoji> 🎵 ʜɪɴᴅɪ · ᴩᴜɴᴊᴀʙɪ · ʙᴏʟʟʏᴡᴏᴏᴅ · ɪɴᴛᴇʀɴᴀᴛɪᴏɴᴀʟ\n"
@@ -293,6 +386,49 @@ async def bot_added_to_group(client, message: Message):
     sent = await _try_send_photo(client, message.chat.id, img, caption, markup)
     if not sent:
         await message.reply_text(caption, reply_markup=markup, disable_web_page_preview=True)
+
+
+# ── Bot removed from group — leave log ───────────────────────────────────────
+
+@app.on_chat_member_updated(filters.group)
+async def bot_member_updated(client, update: ChatMemberUpdated):
+    """Detect when the bot is removed/banned from a group and log it."""
+    try:
+        me = await client.get_me()
+        bot_id = me.id
+
+        new = update.new_chat_member
+        old = update.old_chat_member
+
+        # Only care about the bot itself
+        if not new or new.user.id != bot_id:
+            return
+
+        new_status = new.status
+        old_status = old.status if old else None
+
+        # Bot was removed / banned / left
+        left_statuses = {ChatMemberStatus.BANNED, ChatMemberStatus.LEFT, ChatMemberStatus.RESTRICTED}
+        was_active = old_status in {ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.MEMBER, ChatMemberStatus.OWNER}
+        is_gone    = new_status in left_statuses
+
+        if was_active and is_gone:
+            chat = update.chat
+            chat_id    = chat.id
+            chat_title = getattr(chat, "title", str(chat_id))
+            chat_uname = getattr(chat, "username", None)
+            remover    = update.from_user
+
+            # Remove from served chats DB
+            try:
+                await remove_served_chat(chat_id)
+            except Exception:
+                pass
+
+            await _send_leave_log(chat_id, chat_title, chat_uname, remover)
+
+    except Exception as _e:
+        _LOGGER.debug(f"[MemberUpdate] Error: {_e}")
 
 
 # ── /help ─────────────────────────────────────────────────────────────────────
