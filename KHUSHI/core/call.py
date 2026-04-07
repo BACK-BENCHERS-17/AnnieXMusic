@@ -85,8 +85,8 @@ _CDN_FFMPEG_FLAGS = (
     "-reconnect_delay_max 3 "
     "-fflags +genpts "
     "-thread_queue_size 4096 "
-    "-analyzeduration 5000000 "
-    "-probesize 5000000"
+    "-analyzeduration 300000 "
+    "-probesize 500000"
 )
 
 
@@ -1585,6 +1585,9 @@ class Call:
                         pass
                     self.active_calls.discard(chat_id)
                     return await app.send_message(original_chat_id, text=_["call_6"])
+
+                # Pre-warm the next song in queue while this one plays
+                trigger_prefetch(chat_id)
 
                 if videoid == "telegram":
                     button = stream_markup_timer(_, chat_id, "0:00", check[0]["dur"], autoplay_on=await is_autoplay(chat_id))
