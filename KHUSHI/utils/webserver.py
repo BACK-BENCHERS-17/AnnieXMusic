@@ -186,6 +186,362 @@ async def _handle_health(request: web.Request) -> web.Response:
     return web.Response(text="OK", content_type="text/plain")
 
 
+# ── /api  →  API index (JSON listing) ────────────────────────────────────────
+
+async def _handle_api_index(request: web.Request) -> web.Response:
+    """Return a JSON listing of all available public API endpoints."""
+    endpoints = [
+        {
+            "method": "GET",
+            "path": "/api/status",
+            "description": "Active voice chats and currently playing tracks",
+            "params": [],
+        },
+        {
+            "method": "GET",
+            "path": "/api/search",
+            "description": "Search YouTube for songs",
+            "params": [{"name": "q", "required": True, "description": "Search query"}],
+        },
+        {
+            "method": "GET",
+            "path": "/api/trending",
+            "description": "Trending songs across Hindi, Punjabi, Bollywood, Romantic, International categories (cached 30 min)",
+            "params": [],
+        },
+        {
+            "method": "GET",
+            "path": "/api/suggested",
+            "description": "Related song recommendations for a given video",
+            "params": [
+                {"name": "v",     "required": False, "description": "YouTube video ID (11 chars)"},
+                {"name": "title", "required": False, "description": "Song title hint for search fallback"},
+            ],
+        },
+        {
+            "method": "GET",
+            "path": "/api/stream",
+            "description": "Metadata (title, thumbnail, URL) for a YouTube video",
+            "params": [{"name": "v", "required": True, "description": "YouTube video ID"}],
+        },
+        {
+            "method": "GET",
+            "path": "/api/proxy",
+            "description": "Fast CDN audio stream (supports Range requests for seeking)",
+            "params": [{"name": "v", "required": True, "description": "YouTube video ID"}],
+        },
+        {
+            "method": "GET",
+            "path": "/api/audio",
+            "description": "Locally downloaded audio file (downloads if not cached)",
+            "params": [{"name": "v", "required": True, "description": "YouTube video ID"}],
+        },
+        {
+            "method": "GET",
+            "path": "/api/video",
+            "description": "Locally downloaded video file",
+            "params": [{"name": "v", "required": True, "description": "YouTube video ID"}],
+        },
+        {
+            "method": "GET",
+            "path": "/api/download",
+            "description": "Download audio file (local file or CDN redirect)",
+            "params": [{"name": "v", "required": True, "description": "YouTube video ID"}],
+        },
+        {
+            "method": "GET",
+            "path": "/health",
+            "description": "Health check endpoint (returns 200 OK)",
+            "params": [],
+        },
+    ]
+    return web.json_response({
+        "name": "KHUSHI (Annie) Bot API",
+        "version": "2.0",
+        "docs": "/docs",
+        "endpoints": endpoints,
+    })
+
+
+# ── /docs  →  HTML API documentation page ────────────────────────────────────
+
+_DOCS_HTML = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>KHUSHI API Docs</title>
+<style>
+  :root {
+    --bg: #0d0d0d; --surface: #161616; --card: #1e1e1e;
+    --accent: #a259ff; --accent2: #7c3aed;
+    --text: #e4e4e4; --muted: #888; --border: #2a2a2a;
+    --get: #22c55e; --post: #3b82f6;
+    --font: 'Segoe UI', system-ui, sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:var(--font); min-height:100vh; }
+  header {
+    background: linear-gradient(135deg, #1a0a2e 0%, #16213e 50%, #0f3460 100%);
+    padding: 48px 24px 36px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 { font-size: 2rem; font-weight: 700; color: #fff; letter-spacing: -0.5px; }
+  header h1 span { color: var(--accent); }
+  header p { margin-top: 8px; color: var(--muted); font-size: 0.95rem; }
+  .badge {
+    display: inline-block; margin-top: 14px;
+    background: var(--accent2); color: #fff;
+    padding: 3px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600;
+  }
+  main { max-width: 860px; margin: 0 auto; padding: 36px 20px 64px; }
+  .section-title {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--muted);
+    margin: 32px 0 14px;
+  }
+  .endpoint {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: border-color .15s;
+  }
+  .endpoint:hover { border-color: var(--accent); }
+  .ep-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 18px; cursor: pointer;
+  }
+  .method {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: .8px;
+    padding: 3px 9px; border-radius: 5px; flex-shrink: 0;
+    background: #14532d; color: var(--get);
+  }
+  .path { font-family: monospace; font-size: 0.95rem; color: #c4b5fd; flex: 1; }
+  .desc { color: var(--muted); font-size: 0.85rem; }
+  .ep-body { padding: 0 18px 16px; }
+  .params-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+                  letter-spacing: 1px; color: var(--muted); margin-bottom: 8px; }
+  .param-row {
+    display: flex; align-items: baseline; gap: 10px;
+    padding: 6px 0; border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+  }
+  .param-name { font-family: monospace; color: #fcd34d; flex-shrink: 0; }
+  .param-req  { font-size: 0.72rem; color: #f87171; font-weight: 600; }
+  .param-opt  { font-size: 0.72rem; color: var(--muted); font-weight: 600; }
+  .param-desc { color: var(--muted); }
+  .no-params  { color: var(--muted); font-size: 0.82rem; font-style: italic; }
+  .try-row { margin-top: 12px; }
+  .try-row a {
+    font-size: 0.8rem; color: var(--accent);
+    text-decoration: none; padding: 4px 10px;
+    border: 1px solid var(--accent2); border-radius: 6px;
+  }
+  .try-row a:hover { background: var(--accent2); color: #fff; }
+  .note {
+    background: #1a1a2e; border: 1px solid #2d1b69;
+    border-radius: 8px; padding: 14px 18px; margin-bottom: 28px;
+    font-size: 0.85rem; color: #a78bfa;
+  }
+  .note strong { color: #c4b5fd; }
+  footer { text-align:center; padding: 24px; color: var(--muted); font-size:0.8rem; }
+</style>
+</head>
+<body>
+<header>
+  <h1>&#9654; <span>KHUSHI</span> API</h1>
+  <p>Built-in REST API for the Annie music bot web player</p>
+  <span class="badge">v2.0</span>
+</header>
+<main>
+  <div class="note">
+    <strong>Base URL:</strong> <code>https://your-domain.com</code> &nbsp;|&nbsp;
+    Internal routes (<code>/api/yturl</code>, <code>/api/ytdl</code>, <code>/api/prepare</code>)
+    are protected by a server-side secret key and cannot be called from outside.
+  </div>
+
+  <div class="section-title">Public Endpoints</div>
+
+  <div class="endpoint">
+    <div class="ep-header">
+      <span class="method">GET</span>
+      <span class="path">/api/status</span>
+      <span class="desc">Active voice chats &amp; now-playing info</span>
+    </div>
+    <div class="ep-body">
+      <div class="no-params">No parameters required</div>
+      <div class="try-row"><a href="/api/status" target="_blank">Try it &rarr;</a></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header">
+      <span class="method">GET</span>
+      <span class="path">/api/search?q=</span>
+      <span class="desc">Search YouTube for songs</span>
+    </div>
+    <div class="ep-body">
+      <div class="params-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">q</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">Search query string</span>
+      </div>
+      <div class="try-row"><a href="/api/search?q=arijit+singh" target="_blank">Try it &rarr;</a></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header">
+      <span class="method">GET</span>
+      <span class="path">/api/trending</span>
+      <span class="desc">Trending songs (cached 30 min)</span>
+    </div>
+    <div class="ep-body">
+      <div class="no-params">No parameters required</div>
+      <div class="try-row"><a href="/api/trending" target="_blank">Try it &rarr;</a></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header">
+      <span class="method">GET</span>
+      <span class="path">/api/suggested</span>
+      <span class="desc">Related song recommendations</span>
+    </div>
+    <div class="ep-body">
+      <div class="params-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">v</span>
+        <span class="param-opt">optional</span>
+        <span class="param-desc">YouTube video ID (11 chars) — uses YouTube algorithm</span>
+      </div>
+      <div class="param-row">
+        <span class="param-name">title</span>
+        <span class="param-opt">optional</span>
+        <span class="param-desc">Song title hint for keyword-based search fallback</span>
+      </div>
+      <div class="try-row"><a href="/api/suggested?v=dQw4w9WgXcQ&title=Never+Gonna+Give+You+Up" target="_blank">Try it &rarr;</a></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header">
+      <span class="method">GET</span>
+      <span class="path">/api/stream</span>
+      <span class="desc">Song metadata (title, thumbnail, YouTube URL)</span>
+    </div>
+    <div class="ep-body">
+      <div class="params-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">v</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">YouTube video ID (11 chars)</span>
+      </div>
+      <div class="try-row"><a href="/api/stream?v=dQw4w9WgXcQ" target="_blank">Try it &rarr;</a></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header">
+      <span class="method">GET</span>
+      <span class="path">/api/proxy</span>
+      <span class="desc">Fast CDN audio stream — no local download, supports Range/seeking</span>
+    </div>
+    <div class="ep-body">
+      <div class="params-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">v</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">YouTube video ID (11 chars)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header">
+      <span class="method">GET</span>
+      <span class="path">/api/audio</span>
+      <span class="desc">Locally cached audio file (downloads on first request)</span>
+    </div>
+    <div class="ep-body">
+      <div class="params-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">v</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">YouTube video ID (11 chars)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header">
+      <span class="method">GET</span>
+      <span class="path">/api/video</span>
+      <span class="desc">Locally cached video file</span>
+    </div>
+    <div class="ep-body">
+      <div class="params-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">v</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">YouTube video ID (11 chars)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header">
+      <span class="method">GET</span>
+      <span class="path">/api/download</span>
+      <span class="desc">Download audio — serves local file or redirects to CDN</span>
+    </div>
+    <div class="ep-body">
+      <div class="params-title">Parameters</div>
+      <div class="param-row">
+        <span class="param-name">v</span>
+        <span class="param-req">required</span>
+        <span class="param-desc">YouTube video ID (11 chars)</span>
+      </div>
+      <div class="try-row"><a href="/api/download?v=dQw4w9WgXcQ" target="_blank">Try download &rarr;</a></div>
+    </div>
+  </div>
+
+  <div class="section-title">Internal Endpoints (Protected)</div>
+  <div class="note" style="color:#6b7280; border-color:#374151;">
+    These routes require a <strong style="color:#9ca3af;">secret key</strong> (<code>?key=...</code>) that is generated at runtime.
+    They are only called by the bot internally and will return <strong>401 Unauthorized</strong> otherwise.
+    <br/><br/>
+    <code>GET /api/yturl?v=&lt;id&gt;&amp;key=&lt;secret&gt;</code> — Extract CDN stream URL<br/>
+    <code>GET /api/ytdl?v=&lt;id&gt;&amp;key=&lt;secret&gt;</code> — Download and cache audio locally<br/>
+    <code>GET /api/prepare?v=&lt;id&gt;&amp;key=&lt;secret&gt;</code> — Pre-warm CDN URL cache
+  </div>
+
+  <div class="section-title">Other Routes</div>
+  <div class="endpoint">
+    <div class="ep-header">
+      <span class="method">GET</span>
+      <span class="path">/health</span>
+      <span class="desc">Health check — returns 200 OK (used by Railway)</span>
+    </div>
+    <div class="ep-body">
+      <div class="try-row"><a href="/health" target="_blank">Check health &rarr;</a></div>
+    </div>
+  </div>
+
+</main>
+<footer>KHUSHI (Annie) Music Bot &mdash; API v2.0</footer>
+</body>
+</html>"""
+
+
+async def _handle_docs(request: web.Request) -> web.Response:
+    return web.Response(text=_DOCS_HTML, content_type="text/html", charset="utf-8")
+
+
 async def _handle_static(request: web.Request) -> web.Response:
     filename = request.match_info.get("filename", "")
     path = os.path.join(_WEB_DIR, filename)
@@ -737,6 +1093,8 @@ def _make_app() -> web.Application:
     app = web.Application()
     app.router.add_get("/",                  _handle_index)
     app.router.add_get("/health",            _handle_health)
+    app.router.add_get("/api",               _handle_api_index)
+    app.router.add_get("/docs",              _handle_docs)
     app.router.add_get("/api/trending",      _api_trending)
     app.router.add_get("/api/suggested",     _api_suggested)
     app.router.add_get("/api/status",        _api_status)
