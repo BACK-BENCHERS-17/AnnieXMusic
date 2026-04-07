@@ -627,19 +627,32 @@ async def _api_download(request: web.Request) -> web.Response:
     return web.Response(status=503, text="download unavailable — try again")
 
 
-# ── API: /api/related ─────────────────────────────────────────────────────────
+# ── API: /api/ytdl (internal) ─────────────────────────────────────────────────
+# Called by downloader.py's download_from_own_api() to download audio as MP3.
+# Returns {"path": "<local_file_path>"} on success.
 
-async def _api_related(request: web.Request) -> web.Response:
+async def _api_ytdl(request: web.Request) -> web.Response:
+    from KHUSHI.utils.internal_secret import get_secret
     vid = request.rel_url.query.get("v", "").strip()
-    if not vid:
-        return web.json_response({"results": []})
-    try:
-        results = await _fetch_search(f"https://www.youtube.com/watch?v={vid}", limit=10)
-        if not results:
-            results = await _fetch_search("Hindi trending songs", limit=10)
-        return web.json_response({"results": results})
-    except Exception:
-        return web.json_response({"results": []})
+    key = request.rel_url.query.get("key", "").strip()
+
+    if not vid or len(vid) != 11:
+        return web.json_response({"error": "Invalid video id"}, status=400)
+
+    if key != get_secret():
+        return web.json_response({"error": "Unauthorized"}, status=401)
+
+    # Check if already cached
+    existing = _find_audio(vid)
+    if existing:
+        return web.json_response({"path": existing})
+
+    # Download audio
+    path = await _download_audio(vid)
+    if path and os.path.isfile(path):
+        return web.json_response({"path": path})
+
+    return web.json_response({"error": "Download failed"}, status=500)
 
 
 # ── API: /api/yturl (internal) ────────────────────────────────────────────────
@@ -733,7 +746,7 @@ def _make_app() -> web.Application:
     app.router.add_get("/api/proxy",         _api_proxy)
     app.router.add_get("/api/video",         _api_video)
     app.router.add_get("/api/download",      _api_download)
-    app.router.add_get("/api/related",       _api_related)
+    app.router.add_get("/api/ytdl",          _api_ytdl)
     app.router.add_get("/api/yturl",         _api_yturl)
     app.router.add_get("/api/prepare",       _api_prepare)
     app.router.add_get("/static/{filename:.+}", _handle_static)
