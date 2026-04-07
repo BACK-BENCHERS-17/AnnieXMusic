@@ -642,6 +642,82 @@ async def _api_related(request: web.Request) -> web.Response:
         return web.json_response({"results": []})
 
 
+# ── API: /api/yturl (internal) ────────────────────────────────────────────────
+# Called by downloader.py to get a CDN stream URL without a full yt-dlp download.
+# Protected by the internal secret key.
+
+async def _api_yturl(request: web.Request) -> web.Response:
+    from KHUSHI.utils.internal_secret import get_secret
+    vid = request.rel_url.query.get("v", "").strip()
+    key = request.rel_url.query.get("key", "").strip()
+
+    if not vid or len(vid) != 11:
+        return web.json_response({"error": "Invalid video id"}, status=400)
+
+    if key != get_secret():
+        return web.json_response({"error": "Unauthorized"}, status=401)
+
+    try:
+        loop = asyncio.get_running_loop()
+        from KHUSHI.utils.ytdl_smart import smart_extract_url
+        info = await loop.run_in_executor(None, smart_extract_url, vid)
+        if not info or not info.get("url"):
+            return web.json_response({"error": "Could not fetch stream URL"}, status=500)
+        return web.json_response({
+            "url":      info["url"],
+            "ext":      info.get("ext", "m4a"),
+            "title":    info.get("title", ""),
+            "channel":  info.get("channel", ""),
+            "duration": info.get("duration", ""),
+            "seconds":  info.get("duration_secs", 0),
+        })
+    except Exception as e:
+        _log.warning(f"[yturl] Failed for {vid}: {e}")
+        return web.json_response({"error": str(e)}, status=500)
+
+
+# ── API: /api/prepare (internal) ──────────────────────────────────────────────
+# Pre-warms the CDN URL cache for a given video ID.
+# Called by downloader.py in background; always returns 200 (fire-and-forget).
+
+async def _api_prepare(request: web.Request) -> web.Response:
+    from KHUSHI.utils.internal_secret import get_secret
+    vid = request.rel_url.query.get("v", "").strip()
+    key = request.rel_url.query.get("key", "").strip()
+
+    if not vid or len(vid) != 11:
+        return web.json_response({"ok": False, "error": "Invalid video id"}, status=400)
+
+    if key != get_secret():
+        return web.json_response({"ok": False, "error": "Unauthorized"}, status=401)
+
+    async def _warm():
+        try:
+            hit = _get_proxy_cached(vid)
+            if not hit:
+                await _get_proxy_url(vid)
+        except Exception:
+            pass
+
+    asyncio.create_task(_warm())
+    return web.json_response({"ok": True, "vid": vid})
+
+
+# ── Catch-all: SPA fallback → serve index.html ───────────────────────────────
+
+async def _handle_spa_fallback(request: web.Request) -> web.Response:
+    """
+    For any path that doesn't match a known API or static file,
+    serve index.html so the web player's client-side routing works on Railway.
+    """
+    try:
+        with open(_INDEX, "r", encoding="utf-8") as f:
+            html = f.read()
+        return web.Response(text=html, content_type="text/html", charset="utf-8")
+    except FileNotFoundError:
+        raise web.HTTPNotFound()
+
+
 # ── App factory ───────────────────────────────────────────────────────────────
 
 def _make_app() -> web.Application:
@@ -658,8 +734,10 @@ def _make_app() -> web.Application:
     app.router.add_get("/api/video",         _api_video)
     app.router.add_get("/api/download",      _api_download)
     app.router.add_get("/api/related",       _api_related)
+    app.router.add_get("/api/yturl",         _api_yturl)
+    app.router.add_get("/api/prepare",       _api_prepare)
     app.router.add_get("/static/{filename:.+}", _handle_static)
-    app.router.add_get("/{filename:.+}",     _handle_static)
+    app.router.add_get("/{filename:.+}",     _handle_spa_fallback)
     return app
 
 

@@ -263,6 +263,24 @@ async def _send_join_log(chat, adder):
         uname = f"@{chat.username}" if getattr(chat, "username", None) else "ɴᴏɴᴇ"
         adder_text = adder.mention if adder else "ᴜɴᴋɴᴏᴡɴ"
         adder_id   = adder.id if adder else "—"
+        adder_uname = (
+            f"@{adder.username}" if adder and getattr(adder, "username", None) else "ɴᴏɴᴇ"
+        )
+
+        # Try to fetch member count
+        member_count = "—"
+        try:
+            member_count = (await app.get_chat(chat.id)).members_count or "—"
+        except Exception:
+            pass
+
+        # Try to get invite link
+        invite_link = "—"
+        try:
+            invite_link = (await app.get_chat(chat.id)).invite_link or "—"
+        except Exception:
+            pass
+
         log_text = (
             f"<blockquote>{_BRAND}</blockquote>\n\n"
             "<blockquote>"
@@ -273,11 +291,17 @@ async def _send_join_log(chat, adder):
             "<emoji id='5972072533833289156'>🔹</emoji> "
             f"<b>ɪᴅ :</b> <code>{chat.id}</code>\n"
             "<emoji id='5972072533833289156'>🔹</emoji> "
-            f"<b>ᴜsᴇʀɴᴀᴍᴇ :</b> {uname}\n\n"
+            f"<b>ᴜsᴇʀɴᴀᴍᴇ :</b> {uname}\n"
+            "<emoji id='5972072533833289156'>🔹</emoji> "
+            f"<b>ᴍᴇᴍʙᴇʀs :</b> <code>{member_count}</code>\n"
+            "<emoji id='5972072533833289156'>🔹</emoji> "
+            f"<b>ɪɴᴠɪᴛᴇ :</b> {invite_link}\n\n"
             "<emoji id='5042334757040423886'>⚡️</emoji> "
             f"<b>ᴀᴅᴅᴇᴅ ʙʏ :</b> {adder_text}\n"
             "<emoji id='5042334757040423886'>⚡️</emoji> "
-            f"<b>ᴜsᴇʀ ɪᴅ :</b> <code>{adder_id}</code>\n\n"
+            f"<b>ᴜsᴇʀ ɪᴅ :</b> <code>{adder_id}</code>\n"
+            "<emoji id='5042334757040423886'>⚡️</emoji> "
+            f"<b>ᴜsᴇʀɴᴀᴍᴇ :</b> {adder_uname}\n\n"
             "<emoji id='5041975203853239332'>🎁</emoji> "
             f"<b>ᴛᴏᴛᴀʟ ɢʀᴏᴜᴩs :</b> <code>{total}</code>"
             "</blockquote>"
@@ -300,6 +324,9 @@ async def _send_leave_log(chat_id: int, chat_title: str, chat_username: str, rem
         uname = f"@{chat_username}" if chat_username else "ɴᴏɴᴇ"
         remover_text = remover.mention if remover else "ᴜɴᴋɴᴏᴡɴ"
         remover_id   = remover.id if remover else "—"
+        remover_uname = (
+            f"@{remover.username}" if remover and getattr(remover, "username", None) else "ɴᴏɴᴇ"
+        )
         log_text = (
             f"<blockquote>{_BRAND}</blockquote>\n\n"
             "<blockquote>"
@@ -314,7 +341,9 @@ async def _send_leave_log(chat_id: int, chat_title: str, chat_username: str, rem
             "<emoji id='5042334757040423886'>⚡️</emoji> "
             f"<b>ʀᴇᴍᴏᴠᴇᴅ ʙʏ :</b> {remover_text}\n"
             "<emoji id='5042334757040423886'>⚡️</emoji> "
-            f"<b>ᴜsᴇʀ ɪᴅ :</b> <code>{remover_id}</code>\n\n"
+            f"<b>ᴜsᴇʀ ɪᴅ :</b> <code>{remover_id}</code>\n"
+            "<emoji id='5042334757040423886'>⚡️</emoji> "
+            f"<b>ᴜsᴇʀɴᴀᴍᴇ :</b> {remover_uname}\n\n"
             "<emoji id='5041975203853239332'>🎁</emoji> "
             f"<b>ʀᴇᴍᴀɪɴɪɴɢ ɢʀᴏᴜᴩs :</b> <code>{total}</code>"
             "</blockquote>"

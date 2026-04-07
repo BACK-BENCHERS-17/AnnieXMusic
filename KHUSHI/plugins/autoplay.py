@@ -5,7 +5,7 @@ from pyrogram.types import InlineKeyboardMarkup, Message
 
 from KHUSHI import app
 from KHUSHI.utils.database import autoplay_off, autoplay_on, is_autoplay
-from KHUSHI.utils.decorators import AdminRightsCheck
+from KHUSHI.utils.decorators import GroupAdminCheck as AdminRightsCheck
 from KHUSHI.utils.inline import close_markup, InlineKeyboardButton
 from config import BANNED_USERS
 

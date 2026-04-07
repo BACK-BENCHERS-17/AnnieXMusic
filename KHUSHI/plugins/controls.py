@@ -90,6 +90,51 @@ async def kresume(_, message: Message, lang, chat_id):
     )
 
 
+# ── RELOAD (Refresh Admin Cache) ──────────────────────────────────────────────
+@app.on_message(
+    filters.command(["reload", "refresh"], prefixes=["/", "!", "."]) & filters.group & ~BANNED_USERS
+)
+async def kreload(client, message: Message):
+    """Refresh the admin list cache for this group."""
+    from KHUSHI.utils.database import get_lang
+    from strings import get_string
+    try:
+        language = await get_lang(message.chat.id)
+        _ = get_string(language)
+    except Exception:
+        _ = get_string("en")
+
+    if message.sender_chat:
+        return await message.reply_text(_reply("❌ ᴀɴᴏɴʏᴍᴏᴜs ᴀᴅᴍɪɴs ᴄᴀɴɴᴏᴛ ᴜꜱᴇ ᴛʜɪs."))
+
+    from KHUSHI.misc import SUDOERS
+    from config import adminlist
+
+    chat_id = message.chat.id
+
+    try:
+        from pyrogram.enums import ChatMembersFilter
+        admin_ids = []
+        async for m in client.get_chat_members(chat_id, filter=ChatMembersFilter.ADMINISTRATORS):
+            if not m.user.is_bot:
+                admin_ids.append(m.user.id)
+        adminlist[chat_id] = admin_ids
+        count = len(adminlist[chat_id])
+        await message.reply_text(
+            _reply(
+                f"{_EM['zap']} <b>ᴀᴅᴍɪɴ ʟɪsᴛ ʀᴇꜰʀᴇsʜᴇᴅ</b>\n"
+                f"{_EM['dot']} <b>{count}</b> ᴀᴅᴍɪɴs ᴄᴀᴄʜᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ.\n"
+                f"{_EM['dot']} ʙʏ : {message.from_user.mention}"
+            ),
+            reply_markup=_close(),
+        )
+    except Exception as e:
+        await message.reply_text(
+            _reply(f"❌ ʀᴇʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ: <code>{type(e).__name__}</code>"),
+            reply_markup=_close(),
+        )
+
+
 # ── STOP ──────────────────────────────────────────────────────────────────────
 @app.on_message(
     filters.command(["stop", "end", "cstop", "cend"], prefixes=["/", "!", "."]) & filters.group & ~BANNED_USERS

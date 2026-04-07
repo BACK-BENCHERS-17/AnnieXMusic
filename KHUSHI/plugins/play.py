@@ -555,11 +555,15 @@ async def kspeed(_, message: Message, lang, chat_id):
 # ── RELATED SONG PLAY CALLBACK (rp:{song_name}) ───────────────────────────────
 @app.on_callback_query(filters.regex(r"^rp:") & ~BANNED_USERS)
 async def related_play_cb(client, query):
-    """Play a related-song suggestion from the queue-end buttons."""
-    await query.answer("ᴘʟᴀʏɪɴɢ… 🎵", show_alert=False)
+    """Play a related-song suggestion from the queue-end buttons.
+    In private chat (DM): downloads and sends the audio file.
+    In groups: plays in voice chat.
+    """
     raw = query.data[3:]  # Everything after "rp:"
     chat_id = query.message.chat.id
     user = query.from_user
+    is_private = chat_id > 0  # positive IDs = private/DM chats
+
     user_name = user.first_name or user.username or "ᴜꜱᴇʀ"
     user_id = user.id
 
@@ -571,16 +575,24 @@ async def related_play_cb(client, query):
     else:
         song_name = raw
 
+    if is_private:
+        await query.answer("⬇️ ᴅᴏᴡɴʟᴏᴀᴅɪɴɢ…", show_alert=False)
+    else:
+        await query.answer("ᴘʟᴀʏɪɴɢ… 🎵", show_alert=False)
+
     # Delete the suggestion card
     try:
         await query.message.delete()
     except Exception:
         pass
 
-    lang = await get_lang(chat_id)
+    lang = await get_lang(chat_id if not is_private else user_id)
     _ = get_string(lang)
 
-    mystic = await client.send_message(chat_id, random.choice(AYU))
+    mystic = await client.send_message(
+        chat_id,
+        "⬇️ ᴅᴏᴡɴʟᴏᴀᴅɪɴɢ ꜱᴏɴɢ…" if is_private else random.choice(AYU)
+    )
 
     # ── Resolve track details ─────────────────────────────────────────────────
     if known_vidid:
@@ -611,6 +623,37 @@ async def related_play_cb(client, query):
         return await mystic.edit_text(_err("ᴛʀᴀᴄᴋ ɪs ᴛᴏᴏ ʟᴏɴɢ ᴛᴏ ᴘʟᴀʏ."))
 
     asyncio.create_task(_trigger_bg_cache(vidid))
+
+    # ── DM: Download and send audio file directly ──────────────────────────────
+    if is_private:
+        try:
+            file_path, direct = await YouTube.download(vidid, None, videoid=True, video=False)
+        except Exception as e:
+            return await mystic.edit_text(
+                _err(f"ᴅᴏᴡɴʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ: <code>{type(e).__name__}</code>")
+            )
+        if not file_path:
+            return await mystic.edit_text(_err("ᴅᴏᴡɴʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ — ᴘʟᴇᴀꜱᴇ ᴛʀʏ ᴀɢᴀɪɴ."))
+        try:
+            await mystic.delete()
+        except Exception:
+            pass
+        title_t = title.title()
+        try:
+            await client.send_audio(
+                chat_id=chat_id,
+                audio=file_path,
+                title=title_t,
+                duration=duration_sec or 0,
+                caption=(
+                    f"<b>{title_t}</b>\n"
+                    f"<emoji id='5972072533833289156'>🔹</emoji> ᴅᴜʀᴀᴛɪᴏɴ: <code>{duration_min}</code>\n"
+                    f"<emoji id='5042334757040423886'>⚡️</emoji> ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴋʜᴜsʜɪ"
+                ),
+            )
+        except Exception:
+            await client.send_document(chat_id=chat_id, document=file_path, caption=title_t)
+        return
 
     # ── Download ──────────────────────────────────────────────────────────────
     try:
