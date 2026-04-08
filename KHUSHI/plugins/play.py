@@ -414,11 +414,14 @@ async def _handle_play(message: Message, video: bool = False):
             user_name, vidid, user_id, streamtype,
         )
         button = stream_markup_timer(_, vc_chat_id, "0:00", duration_min, autoplay_on=await is_autoplay(vc_chat_id))
-        caption = _["stream_1"].format(
-            f"https://t.me/{BOT_USERNAME.lstrip('@')}?start=info_{vidid}",
-            title_t[:23],
-            duration_min,
-            user_name,
+        _title_short = title_t[:35] + "..." if len(title_t) > 35 else title_t
+        caption = _panel(
+            "ɴᴏᴡ ᴩʟᴀʏɪɴɢ",
+            [
+                f"{_EM['music']} <b>ɴᴏᴡ ᴘʟᴀʏɪɴɢ:</b> <a href='https://www.youtube.com/watch?v={vidid}'>{_title_short}</a>",
+                f"{_EM['clock']} <b>ᴅᴜʀᴀᴛɪᴏɴ:</b>  {duration_min}",
+                f"{_EM['mic']} <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ:</b>  {user_name}",
+            ],
         )
         run = await _send_stream_msg(msg_chat_id, caption, InlineKeyboardMarkup(button))
         if db.get(vc_chat_id):

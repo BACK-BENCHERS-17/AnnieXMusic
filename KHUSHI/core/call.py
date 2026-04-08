@@ -894,6 +894,15 @@ class Call:
                     except Exception:
                         pass
 
+                # ── Pre-warm bot's own peer cache before M1 (critical) ────────────
+                # If the bot itself hasn't seen this chat, resolve_peer will fail in M1.
+                # get_chat() forces Telegram to return full channel info including access_hash.
+                try:
+                    await app.get_chat(chat_id)
+                    LOGGER(__name__).info(f"[PLAY] Bot peer pre-warmed for ChannelInvalid fix | chat={chat_id}")
+                except Exception as _pw2_err:
+                    LOGGER(__name__).warning(f"[PLAY] Bot peer pre-warm failed: {_pw2_err}")
+
                 # ── M1: Inject peer directly into assistant's local SQLite ────────
                 # Grab channel_id + access_hash from bot's resolved peer and write
                 # them straight into the assistant's storage — no API round-trip
@@ -1153,20 +1162,22 @@ class Call:
                                     return False
                             return 60 <= dur_secs <= 600  # 1–10 minutes
 
-                        # Build individual-song focused queries
+                        # Build individual-song focused queries — use more of title for better match
                         _suffixes = [
-                            "new song", "latest song", "official video",
-                            "new hindi song", "hit song", "official audio",
-                            "song 2025", "new release", "latest hit",
+                            "official audio", "official video",
+                            "new song", "hit song", "latest song",
                         ]
-                        _words = [w for w in last_title.split() if len(w) > 3]
-                        _base = _random.choice(_words) if _words else (
-                            last_title.split()[0] if last_title else "hindi"
+                        _title_words = last_title.split()
+                        # Use first 2-3 meaningful words of the title for targeted search
+                        _meaningful = [w for w in _title_words if len(w) > 2][:3]
+                        _base = " ".join(_meaningful) if _meaningful else (
+                            last_title[:30] if last_title else "hindi hits"
                         )
                         # Try up to 3 different queries to maximise variety
                         all_candidates: list = []
                         for _attempt in range(3):
-                            _query = f"{_base} {_random.choice(_suffixes)}"
+                            _suffix = _random.choice(_suffixes)
+                            _query = f"{_base} {_suffix}" if _attempt == 0 else f"{_base} {_random.choice(_suffixes)}"
                             try:
                                 _res = await VideosSearch(_query, limit=15).next()
                                 all_candidates += (_res.get("result") or [])
@@ -1286,6 +1297,7 @@ class Call:
                                         ],
                                     )
                                     _ap_markup = InlineKeyboardMarkup(btn)
+                                    LOGGER(__name__).info(f"[AUTOPLAY] Sending notification to chat={original_chat_id} song={ap_title_short}")
                                     ap_msg = await send_msg_invert_preview(
                                         app,
                                         original_chat_id,
@@ -1293,8 +1305,9 @@ class Call:
                                         reply_markup=_ap_markup,
                                     )
                                     db[chat_id][0]["mystic"] = ap_msg
-                                except Exception:
-                                    pass
+                                    LOGGER(__name__).info(f"[AUTOPLAY] Notification sent OK for chat={original_chat_id}")
+                                except Exception as _ap_notif_err:
+                                    LOGGER(__name__).warning(f"[AUTOPLAY] Notification failed for chat={original_chat_id}: {_ap_notif_err}")
                                 _start_progress_timer(chat_id)
                                 return
                             else:
