@@ -1,1 +1,1 @@
-worker: python3 -m KHUSHI
+web: python3 -m KHUSHI
