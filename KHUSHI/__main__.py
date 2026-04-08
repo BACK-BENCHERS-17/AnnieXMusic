@@ -23,6 +23,22 @@ from config import BANNED_USERS
 _PLUGIN_DIR = os.path.join(os.path.dirname(__file__), "plugins")
 
 
+def _log_env_info():
+    try:
+        import pyrogram
+        version = pyrogram.__version__
+    except Exception:
+        version = "unknown"
+    try:
+        from pyrogram.enums import ButtonStyle
+        btn_ok = f"OK ({ButtonStyle.SUCCESS})"
+    except Exception as e:
+        btn_ok = f"MISSING ({e})"
+    LOGGER("KHUSHI").info(
+        f"ENV: pyrogram={version} | ButtonStyle={btn_ok}"
+    )
+
+
 def _load_plugins():
     import glob
     paths = glob.glob(_PLUGIN_DIR + "/*.py")
@@ -151,6 +167,7 @@ async def main():
     LOGGER("KHUSHI").info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     LOGGER("KHUSHI").info("       A N N I E  |  Music Bot     ")
     LOGGER("KHUSHI").info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    _log_env_info()
 
     # Populate banned sets
     try:

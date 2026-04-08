@@ -38,7 +38,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt && \
     pip uninstall -y pyrogram || true && \
-    pip install --no-cache-dir --force-reinstall pyrofork==2.3.69
+    pip install --no-cache-dir --force-reinstall pyrofork==2.3.69 && \
+    python3 -c "import pyrogram; from pyrogram.enums import ButtonStyle; print('BUILD OK: pyrogram', pyrogram.__version__, '| ButtonStyle:', ButtonStyle.SUCCESS)"
 
 # Copy everything else
 COPY . .
