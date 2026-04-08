@@ -13,7 +13,6 @@ gpytranslate
 gtts
 heroku3
 httpx[http2]==0.28.1
-pyrofork==2.3.69
 lexica-api
 motor
 nekosbest
@@ -43,3 +42,4 @@ unidecode
 wget
 yt-dlp[default] @ git+https://github.com/yt-dlp/yt-dlp.git
 nudenet
+pyrofork==2.3.69

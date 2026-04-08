@@ -36,7 +36,9 @@ RUN apt-get update && \
 # Copy requirements and install
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir -r requirements.txt && \
+    pip uninstall -y pyrogram || true && \
+    pip install --no-cache-dir --force-reinstall pyrofork==2.3.69
 
 # Copy everything else
 COPY . .
