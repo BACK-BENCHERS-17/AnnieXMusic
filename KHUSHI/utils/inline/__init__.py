@@ -22,12 +22,6 @@ if _HAS_BUTTON_STYLE:
 else:
     _STYLE_MAP = {}
 
-_EMOJI_PREFIX = {
-    "primary": "🔵 ",
-    "success": "✅ ",
-    "danger":  "🔴 ",
-}
-
 def InlineKeyboardButton(*args, **kwargs):
     raw_style = kwargs.pop("style", None)
 
@@ -36,18 +30,6 @@ def InlineKeyboardButton(*args, **kwargs):
             kwargs["style"] = _STYLE_MAP.get(raw_style.lower(), ButtonStyle.DEFAULT)
         else:
             kwargs["style"] = raw_style
-    elif not _HAS_STYLE and raw_style is not None:
-        style_key = raw_style.lower() if isinstance(raw_style, str) else None
-        prefix = _EMOJI_PREFIX.get(style_key, "")
-        if prefix:
-            if args:
-                text = args[0]
-                if not text.startswith(prefix.strip()):
-                    args = (prefix + text,) + args[1:]
-            elif "text" in kwargs:
-                text = kwargs["text"]
-                if not text.startswith(prefix.strip()):
-                    kwargs["text"] = prefix + text
 
     if not _HAS_ICON:
         kwargs.pop("icon_custom_emoji_id", None)
