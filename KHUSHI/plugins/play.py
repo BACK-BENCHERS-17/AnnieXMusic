@@ -234,6 +234,7 @@ async def _handle_play(message: Message, video: bool = False):
             if db.get(vc_chat_id):
                 db[vc_chat_id][0]["mystic"] = run
                 db[vc_chat_id][0]["markup"] = "tg"
+            _start_progress_timer(vc_chat_id)
         return
 
     # ── YouTube URL or search query ────────────────────────────────────────────
@@ -337,6 +338,7 @@ async def _handle_play(message: Message, video: bool = False):
                     if db.get(vc_chat_id):
                         db[vc_chat_id][0]["mystic"] = run
                         db[vc_chat_id][0]["markup"] = "tg"
+                    _start_progress_timer(vc_chat_id)
                 return
         except Exception:
             pass
@@ -440,6 +442,7 @@ async def _handle_play(message: Message, video: bool = False):
         if db.get(vc_chat_id):
             db[vc_chat_id][0]["mystic"] = run
             db[vc_chat_id][0]["markup"] = "stream"
+        _start_progress_timer(vc_chat_id)
 
 
 # ── PLAY COMMAND ──────────────────────────────────────────────────────────────

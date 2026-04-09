@@ -1,8 +1,17 @@
+import logging
 from random import randint
 
 from pyrogram import raw
 from pyrogram.enums import ParseMode
 from pyrogram.parser import html as html_mod
+
+_log = logging.getLogger(__name__)
+
+
+def _strip_invisible_link(text: str) -> str:
+    """Remove the zero-width space link prefix used for invert_media trick."""
+    import re
+    return re.sub(r'^<a href="[^"]*">&#8203;</a>', "", text, count=1)
 
 
 async def send_msg_invert_preview(
@@ -15,8 +24,9 @@ async def send_msg_invert_preview(
     """
     Send a message with the link preview displayed ABOVE the text
     (invert_media=True) using Pyrogram's raw API.
-    Falls back to a normal send_message if the raw call fails.
+    Falls back through multiple layers if the raw call fails.
     """
+    # ── Layer 1: Raw API with invert_media ───────────────────────────────────
     try:
         parser = html_mod.HTML(client)
         parsed = await parser.parse(text)
@@ -43,20 +53,59 @@ async def send_msg_invert_preview(
             )
         )
 
-        for update in result.updates:
-            if isinstance(
-                update,
-                (raw.types.UpdateNewMessage, raw.types.UpdateNewChannelMessage),
-            ):
-                return await client.get_messages(chat_id, update.message.id)
+        if hasattr(result, "updates"):
+            for update in result.updates:
+                if isinstance(
+                    update,
+                    (raw.types.UpdateNewMessage, raw.types.UpdateNewChannelMessage),
+                ):
+                    return await client.get_messages(chat_id, update.message.id)
 
-        return None
+            for update in result.updates:
+                if isinstance(update, raw.types.UpdateMessageID):
+                    try:
+                        return await client.get_messages(chat_id, update.id)
+                    except Exception:
+                        pass
 
-    except Exception:
+        elif hasattr(result, "id"):
+            try:
+                return await client.get_messages(chat_id, result.id)
+            except Exception:
+                pass
+
+        _log.warning(
+            "[raw_send] Layer 1 sent but could not resolve message object "
+            "for chat=%s — falling through to Layer 2", chat_id
+        )
+
+    except Exception as e:
+        _log.warning("[raw_send] Layer 1 (raw+invert_media) failed for chat=%s: %s", chat_id, e)
+
+    # ── Layer 2: Regular send_message with link preview ──────────────────────
+    try:
         return await client.send_message(
             chat_id,
             text=text,
             reply_markup=reply_markup,
             parse_mode=ParseMode.HTML,
             disable_web_page_preview=False,
+            reply_to_message_id=reply_to_message_id,
         )
+    except Exception as e:
+        _log.warning("[raw_send] Layer 2 (send_message w/ preview) failed for chat=%s: %s", chat_id, e)
+
+    # ── Layer 3: Plain send_message without link preview ────────────────────
+    try:
+        clean_text = _strip_invisible_link(text)
+        return await client.send_message(
+            chat_id,
+            text=clean_text,
+            reply_markup=reply_markup,
+            parse_mode=ParseMode.HTML,
+            disable_web_page_preview=True,
+            reply_to_message_id=reply_to_message_id,
+        )
+    except Exception as e:
+        _log.error("[raw_send] Layer 3 (plain send_message) also failed for chat=%s: %s", chat_id, e)
+        return None
