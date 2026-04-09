@@ -407,19 +407,6 @@ class YouTubeAPI:
                 if status == 1:
                     return stream_url, None
                 raise ValueError("Unable to fetch live stream link")
-            if await is_on_off(1):
-                p = await yt_dlp_download(link, type="video")
-                return (p, True) if p else (None, None)
-            info = await _extract_info(
-                link,
-                {
-                    "format": "best[height<=?720][width<=?1280][vcodec!=none][acodec!=none]/best[height<=?720][width<=?1280]/best",
-                    "skip_download": True,
-                },
-            )
-            stream_url = _pick_stream_url(info or {})
-            if stream_url:
-                return stream_url, None
             p = await yt_dlp_download(link, type="video")
             return (p, True) if p else (None, None)
 

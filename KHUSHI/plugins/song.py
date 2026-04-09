@@ -113,8 +113,8 @@ def _dl_yt(vid_id: str, quality: str) -> Optional[str]:
         "quiet":               True,
         "no_warnings":         True,
         "retries":             5,
+        "prefer_ffmpeg":       True,
         "merge_output_format": "mp4",
-        "postprocessors":      [],
     })
     try:
         with yt_dlp.YoutubeDL(opts) as ydl:

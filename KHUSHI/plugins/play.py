@@ -367,7 +367,13 @@ async def _handle_play(message: Message, video: bool = False):
             f"{_EM['dot']} ᴍᴀx: <code>{DURATION_LIMIT // 60} ᴍɪɴᴜᴛᴇꜱ</code></blockquote>"
         )
 
-    # Pre-warm CDN URL cache as soon as we have the vidid
+    # Pre-warm CDN URL cache as soon as we have the vidid.
+    # For audio: fast_get_stream warms the in-process URL cache so that the
+    # YouTube.download() call below gets an instant cache hit instead of waiting
+    # 5-8s for yt-dlp extraction. For video: trigger_bg_cache for file caching.
+    if not video:
+        from KHUSHI.utils.downloader import fast_get_stream as _fgs_warm
+        asyncio.create_task(_fgs_warm(vidid))
     asyncio.create_task(_trigger_bg_cache(vidid))
 
     # ── Download ───────────────────────────────────────────────────────────────
