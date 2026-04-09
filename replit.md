@@ -110,6 +110,9 @@ All `from KHUSHI import app/userbot` at module level were converted to lazy impo
 - **Workflow**: "KHUSHI Bot" — `python -m KHUSHI`
 - **Web player**: KHUSHI/web/index.html
 
+## Railway Deployment Fix (April 2026)
+- **ButtonStyle on Railway**: pyrofork 2.3.69 has `button_style.py` but does NOT export `ButtonStyle` from `pyrogram/enums/__init__.py` on a clean install. On Replit it worked because base pyrogram was already present. Fixed in `Dockerfile` by adding a `RUN python3` patch step that: (1) creates `button_style.py` if missing (IntEnum stub), (2) appends `from .button_style import ButtonStyle` to `__init__.py` if not already there, then verifies the import before proceeding. Build now prints `BUILD OK: pyrogram X.X.X | ButtonStyle: ButtonStyle.SUCCESS`.
+
 ## Bug Fixes (April 2026 — Session 4)
 - **Channel play fixed** (`/cplay`, `/cvplay`): `_handle_play` in `KHUSHI/plugins/play.py` now detects channel-prefixed commands, resolves the linked channel ID via `get_cmode`, and correctly routes VC operations (join_call, put_queue, is_active_chat, db) to the channel while keeping notifications in the group. Variables renamed: `msg_chat_id` (group) and `vc_chat_id` (channel or group).
 - **Seek `DocumentInvalid` fixed**: `kseek` handler now blocks seeking on live streams (checks `dur == "Live"` or `file.startswith("live_")`). Exception handler distinguishes `DocumentInvalid`, `NotInCallError`, `ConnectionNotFound`, `FileError` and `AssistantErr` with specific human-readable messages.
