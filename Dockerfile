@@ -38,46 +38,12 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Patch pyrofork: ButtonStyle exists in button_style.py but is not exported
-# from pyrogram/enums/__init__.py on a clean install. Add the export if missing.
-RUN python3 - <<'EOF'
-import os
-import pyrogram.enums as enums_pkg
-
-enums_dir = os.path.dirname(enums_pkg.__file__)
-init_path  = os.path.join(enums_dir, "__init__.py")
-bs_path    = os.path.join(enums_dir, "button_style.py")
-
-if not os.path.exists(bs_path):
-    # ButtonStyle module doesn't exist at all — create a minimal stub
-    print("button_style.py not found — creating stub")
-    with open(bs_path, "w") as f:
-        f.write(
-            "from enum import IntEnum\n\n"
-            "class ButtonStyle(IntEnum):\n"
-            "    DEFAULT = 0\n"
-            "    PRIMARY = 1\n"
-            "    SUCCESS = 2\n"
-            "    DANGER  = 3\n"
-        )
-
-with open(init_path, "r") as f:
-    content = f.read()
-
-if "ButtonStyle" not in content:
-    with open(init_path, "a") as f:
-        f.write("\nfrom .button_style import ButtonStyle\n")
-    print("Patched: ButtonStyle exported into pyrogram.enums")
-else:
-    print("ButtonStyle already exported — no patch needed")
-EOF
+# Copy patch script and run it to fix ButtonStyle export in pyrogram.enums
+COPY scripts/patch_pyrogram.py /tmp/patch_pyrogram.py
+RUN python3 /tmp/patch_pyrogram.py
 
 # Verify the patch worked — FAIL the build loudly if ButtonStyle is broken
-RUN python3 -c "
-import pyrogram
-from pyrogram.enums import ButtonStyle
-print('BUILD OK: pyrogram', pyrogram.__version__, '| ButtonStyle:', ButtonStyle.SUCCESS)
-"
+RUN python3 -c "import pyrogram; from pyrogram.enums import ButtonStyle; print('BUILD OK: pyrogram', pyrogram.__version__, '| ButtonStyle:', ButtonStyle.SUCCESS)"
 
 # Copy everything else
 COPY . .
