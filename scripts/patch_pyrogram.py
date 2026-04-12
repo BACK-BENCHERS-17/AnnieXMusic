@@ -379,31 +379,38 @@ if os.path.exists(_rt_init):
 
 # ─────────────────────────────────────────────────────────────────────────────
 # STEP 9 — patch InlineKeyboardButton.write() on disk if still missing style
+#
+# IMPORTANT: InlineKeyboardMarkup.write() calls  `await b.write(client)`,
+# so write() MUST be an async coroutine.  A plain (sync) def will raise
+# "TypeError: object KeyboardButtonXxx can't be used in 'await' expression".
 # ─────────────────────────────────────────────────────────────────────────────
 _ikb_path = os.path.join(_bk_dir, "inline_keyboard_button.py")
 if os.path.exists(_ikb_path):
     with open(_ikb_path) as f:
         _ikb_src = f.read()
 
-    if "KeyboardButtonStyle" not in _ikb_src:
-        print("[patch] Patching InlineKeyboardButton.write() on disk …")
+    # Only skip when the file already has BOTH the async keyword AND KeyboardButtonStyle
+    _already_ok = ("KeyboardButtonStyle" in _ikb_src) and ("async def write" in _ikb_src)
 
+    if not _already_ok:
+        print("[patch] Patching InlineKeyboardButton.write() on disk (async) …")
+
+        # Full async write() that exactly matches the Replit/git-pyrofork version.
+        # Uses getattr() guards so it works even when __init__ hasn't been patched yet.
         _NEW_WRITE = '''
-    def write(self, client):
+    async def write(self, client):
         # ButtonStyle patch — injected by patch_pyrogram.py
-        _style_obj = None
         try:
             from pyrogram.enums import ButtonStyle as _BS
             from pyrogram.raw.types import KeyboardButtonStyle as _KBS
             _s    = getattr(self, "style", _BS.DEFAULT)
             _icon = getattr(self, "icon_custom_emoji_id", None)
-            if _s != _BS.DEFAULT or _icon is not None:
-                _style_obj = _KBS(
-                    bg_primary=(_s == _BS.PRIMARY),
-                    bg_danger =(_s == _BS.DANGER),
-                    bg_success=(_s == _BS.SUCCESS),
-                    icon=_icon,
-                )
+            _style_obj = _KBS(
+                bg_primary=(_s == _BS.PRIMARY),
+                bg_danger =(_s == _BS.DANGER),
+                bg_success=(_s == _BS.SUCCESS),
+                icon=_icon,
+            ) if (_s != _BS.DEFAULT or _icon is not None) else None
         except Exception:
             _style_obj = None
 
@@ -415,6 +422,20 @@ if os.path.exists(_ikb_path):
 
         if self.url is not None:
             return raw.types.KeyboardButtonUrl(text=self.text, url=self.url, style=_style_obj)
+
+        if getattr(self, "login_url", None) is not None:
+            return self.login_url.write(
+                text=self.text,
+                bot=await client.resolve_peer(self.login_url.bot_username or "self"),
+                style=_style_obj,
+            )
+
+        if getattr(self, "user_id", None) is not None:
+            return raw.types.InputKeyboardButtonUserProfile(
+                text=self.text,
+                user_id=await client.resolve_peer(self.user_id),
+                style=_style_obj,
+            )
 
         if self.switch_inline_query is not None:
             return raw.types.KeyboardButtonSwitchInline(
@@ -443,7 +464,8 @@ if os.path.exists(_ikb_path):
         return raw.types.KeyboardButton(text=self.text)
 
 '''
-        _m = re.search(r'\n    def write\(self.*?\n    (?=def |\Z)', _ikb_src, re.DOTALL)
+        # Replace any existing write() method (sync or async) or append if absent
+        _m = re.search(r'\n    (?:async )?def write\(self.*?\n    (?=def |\Z)', _ikb_src, re.DOTALL)
         if _m:
             _ikb_src = _ikb_src[:_m.start()] + "\n" + _NEW_WRITE + "    " + _ikb_src[_m.end():]
         else:
@@ -451,11 +473,11 @@ if os.path.exists(_ikb_path):
 
         with open(_ikb_path, "w") as f:
             f.write(_ikb_src)
-        print("[patch] InlineKeyboardButton.write() patched on disk")
+        print("[patch] InlineKeyboardButton.write() patched on disk (async)")
     else:
-        print("[patch] InlineKeyboardButton.write() already has KeyboardButtonStyle — skipping")
+        print("[patch] InlineKeyboardButton.write() already async+KeyboardButtonStyle — skipping")
 
-    # Ensure __init__ has style param
+    # Ensure __init__ has style + icon_custom_emoji_id params (git version already has them)
     with open(_ikb_path) as f:
         _ikb_src2 = f.read()
     if "self.style" not in _ikb_src2:
@@ -463,12 +485,8 @@ if os.path.exists(_ikb_path):
         if _m2:
             _orig = _m2.group(1)
             if "style" not in _orig:
-                _new  = _orig.rstrip(")")
-                if _new.endswith("= None"):
-                    _new += ",\n        style=None\n    )"
-                else:
-                    _new += "\n    )"
-                _ikb_src2 = _ikb_src2.replace(_orig, _new + "\n        self.style = style", 1)
+                _patched = _orig.rstrip(")") + ",\n        style=None\n    )\n        self.style = style"
+                _ikb_src2 = _ikb_src2.replace(_orig, _patched, 1)
                 with open(_ikb_path, "w") as f:
                     f.write(_ikb_src2)
                 print("[patch] style param added to IKB.__init__")
