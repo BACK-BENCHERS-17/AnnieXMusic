@@ -42,4 +42,4 @@ unidecode
 wget
 yt-dlp[default] @ git+https://github.com/yt-dlp/yt-dlp.git
 nudenet
-pyrofork==2.3.69
+git+https://github.com/Mayuri-Chan/pyrofork.git
