@@ -1,17 +1,21 @@
 """
-patch_pyrogram.py — Upgrades pyrofork/pyrogram to full TL Layer 222
-                    with proper ButtonStyle (coloured buttons) support.
+patch_pyrogram.py — Ensures pyrofork/kurigram/pyrogram has full TL Layer 222
+                    with ButtonStyle (coloured buttons) support.
+
+Designed to be a SAFE NO-OP when kurigram==2.2.19 is installed (which already
+has everything correct).  Only writes/patches when the installed library has
+old Layer 220 IDs or is missing ButtonStyle entirely.
 
 Applied steps:
-  1. Ensure button_style.py enum exists (pyrogram.enums.ButtonStyle)
+  1. Ensure button_style.py enum exists   (pyrogram.enums.ButtonStyle)
   2. Export ButtonStyle from pyrogram.enums
-  3. Write the KeyboardButtonStyle raw TL type (Layer 222, ID 0x4fdd3430)
-  4. Upgrade KeyboardButtonCallback to Layer 222 (ID 0xe62bc960, adds style)
-  5. Upgrade KeyboardButtonUrl to Layer 222 (ID 0xd80c25ec, adds style)
-  6. Upgrade KeyboardButtonSwitchInline to Layer 222 (ID 0x991399fc, adds style)
-  7. Update raw/all.py — layer constant + type-ID mappings
+  3. Write KeyboardButtonStyle raw TL type — only if missing or wrong ID
+  4. Upgrade KeyboardButtonCallback        — only if ID ≠ 0xe62bc960
+  5. Upgrade KeyboardButtonUrl             — only if ID ≠ 0xd80c25ec
+  6. Upgrade KeyboardButtonSwitchInline    — only if ID ≠ 0x991399fc
+  7. Update raw/all.py                     — layer const + type-ID mappings
   8. Export KeyboardButtonStyle from raw.types
-  9. Patch InlineKeyboardButton.write() on disk if still missing style
+  9. Patch InlineKeyboardButton.write()    — only if not already async+KBS
  10. Reload all pyrogram modules and verify
 """
 
@@ -21,7 +25,7 @@ import sys
 
 import pyrogram.enums as _enums_pkg
 
-_pyro_root    = os.path.dirname(os.path.dirname(_enums_pkg.__file__))  # site-packages/pyrogram
+_pyro_root    = os.path.dirname(os.path.dirname(_enums_pkg.__file__))
 _enums_dir    = os.path.dirname(_enums_pkg.__file__)
 _raw_types_dir = os.path.join(_pyro_root, "raw", "types")
 _raw_dir       = os.path.join(_pyro_root, "raw")
@@ -31,13 +35,15 @@ _bk_dir        = os.path.join(_pyro_root, "types", "bots_and_keyboards")
 # helpers
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _write_if_different(path: str, content: str, label: str) -> None:
-    if os.path.exists(path):
-        with open(path) as f:
-            existing = f.read()
-        if existing == content:
-            print(f"[patch] {label} already up-to-date — skipping")
-            return
+def _file_has_id(path: str, hex_id: str) -> bool:
+    """Return True when the file already contains the given hex ID string."""
+    if not os.path.exists(path):
+        return False
+    with open(path) as f:
+        return hex_id.lower() in f.read().lower()
+
+
+def _write_file(path: str, content: str, label: str) -> None:
     with open(path, "w") as f:
         f.write(content)
     print(f"[patch] {label} written")
@@ -53,7 +59,8 @@ def _reload_pyrogram() -> None:
 # STEP 1 — button_style.py
 # ─────────────────────────────────────────────────────────────────────────────
 _bs_path = os.path.join(_enums_dir, "button_style.py")
-_BS_CONTENT = '''\
+if not os.path.exists(_bs_path):
+    _write_file(_bs_path, '''\
 from enum import auto
 
 try:
@@ -72,8 +79,9 @@ except ImportError:
         PRIMARY = 1
         DANGER  = 3
         SUCCESS = 2
-'''
-_write_if_different(_bs_path, _BS_CONTENT, "pyrogram/enums/button_style.py")
+''', "pyrogram/enums/button_style.py")
+else:
+    print("[patch] pyrogram/enums/button_style.py exists — skipping")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # STEP 2 — export ButtonStyle from pyrogram.enums.__init__
@@ -91,7 +99,9 @@ else:
 # ─────────────────────────────────────────────────────────────────────────────
 # STEP 3 — KeyboardButtonStyle raw TL type  (Layer 222, ID 0x4fdd3430)
 # ─────────────────────────────────────────────────────────────────────────────
-_KBS_CONTENT = '''\
+_kbs_path = os.path.join(_raw_types_dir, "keyboard_button_style.py")
+if not _file_has_id(_kbs_path, "0x4fdd3430"):
+    _write_file(_kbs_path, '''\
 from io import BytesIO
 from typing import List, Optional, Any
 
@@ -138,14 +148,16 @@ class KeyboardButtonStyle(TLObject):
         if self.icon is not None:
             b.write(Long(self.icon))
         return b.getvalue()
-'''
-_kbs_path = os.path.join(_raw_types_dir, "keyboard_button_style.py")
-_write_if_different(_kbs_path, _KBS_CONTENT, "pyrogram/raw/types/keyboard_button_style.py")
+''', "pyrogram/raw/types/keyboard_button_style.py")
+else:
+    print("[patch] KeyboardButtonStyle already has correct ID 0x4fdd3430 — skipping")
 
 # ─────────────────────────────────────────────────────────────────────────────
-# STEP 4 — KeyboardButtonCallback  (Layer 222, ID 0xe62bc960, adds style)
+# STEP 4 — KeyboardButtonCallback  (Layer 222, ID 0xe62bc960)
 # ─────────────────────────────────────────────────────────────────────────────
-_KBC_CONTENT = '''\
+_kbc_path = os.path.join(_raw_types_dir, "keyboard_button_callback.py")
+if not _file_has_id(_kbc_path, "0xe62bc960"):
+    _write_file(_kbc_path, '''\
 from io import BytesIO
 from typing import TYPE_CHECKING, List, Optional, Any
 
@@ -194,16 +206,16 @@ class KeyboardButtonCallback(TLObject):
         b.write(String(self.text))
         b.write(Bytes(self.data))
         return b.getvalue()
-'''
-_write_if_different(
-    os.path.join(_raw_types_dir, "keyboard_button_callback.py"),
-    _KBC_CONTENT, "pyrogram/raw/types/keyboard_button_callback.py"
-)
+''', "pyrogram/raw/types/keyboard_button_callback.py")
+else:
+    print("[patch] KeyboardButtonCallback already has correct ID 0xe62bc960 — skipping")
 
 # ─────────────────────────────────────────────────────────────────────────────
-# STEP 5 — KeyboardButtonUrl  (Layer 222, ID 0xd80c25ec, adds style)
+# STEP 5 — KeyboardButtonUrl  (Layer 222, ID 0xd80c25ec)
 # ─────────────────────────────────────────────────────────────────────────────
-_KBU_CONTENT = '''\
+_kbu_path = os.path.join(_raw_types_dir, "keyboard_button_url.py")
+if not _file_has_id(_kbu_path, "0xd80c25ec"):
+    _write_file(_kbu_path, '''\
 from io import BytesIO
 from typing import TYPE_CHECKING, List, Optional, Any
 
@@ -247,16 +259,16 @@ class KeyboardButtonUrl(TLObject):
         b.write(String(self.text))
         b.write(String(self.url))
         return b.getvalue()
-'''
-_write_if_different(
-    os.path.join(_raw_types_dir, "keyboard_button_url.py"),
-    _KBU_CONTENT, "pyrogram/raw/types/keyboard_button_url.py"
-)
+''', "pyrogram/raw/types/keyboard_button_url.py")
+else:
+    print("[patch] KeyboardButtonUrl already has correct ID 0xd80c25ec — skipping")
 
 # ─────────────────────────────────────────────────────────────────────────────
-# STEP 6 — KeyboardButtonSwitchInline  (Layer 222, ID 0x991399fc, adds style)
+# STEP 6 — KeyboardButtonSwitchInline  (Layer 222, ID 0x991399fc)
 # ─────────────────────────────────────────────────────────────────────────────
-_KBSI_CONTENT = '''\
+_kbsi_path = os.path.join(_raw_types_dir, "keyboard_button_switch_inline.py")
+if not _file_has_id(_kbsi_path, "0x991399fc"):
+    _write_file(_kbsi_path, '''\
 from io import BytesIO
 from typing import TYPE_CHECKING, List, Optional, Any
 
@@ -311,11 +323,9 @@ class KeyboardButtonSwitchInline(TLObject):
         if self.peer_types:
             b.write(Vector(self.peer_types))
         return b.getvalue()
-'''
-_write_if_different(
-    os.path.join(_raw_types_dir, "keyboard_button_switch_inline.py"),
-    _KBSI_CONTENT, "pyrogram/raw/types/keyboard_button_switch_inline.py"
-)
+''', "pyrogram/raw/types/keyboard_button_switch_inline.py")
+else:
+    print("[patch] KeyboardButtonSwitchInline already has correct ID 0x991399fc — skipping")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # STEP 7 — raw/all.py: update layer constant + type-ID mappings
@@ -327,26 +337,22 @@ if os.path.exists(_all_py):
 
     _changed = False
 
-    # upgrade layer constant
     if re.search(r"layer\s*=\s*2[01]\d", _all_content):
         _all_content = re.sub(r"(layer\s*=\s*)2[01]\d", r"\g<1>222", _all_content)
         _changed = True
 
-    # old → new type-ID mappings for keyboard buttons
     _id_replacements = {
-        "0x35bbdb6b": "0xe62bc960",  # KeyboardButtonCallback
-        "0x258aff05": "0xd80c25ec",  # KeyboardButtonUrl
-        "0x93b9fbb5": "0x991399fc",  # KeyboardButtonSwitchInline
+        "0x35bbdb6b": "0xe62bc960",
+        "0x258aff05": "0xd80c25ec",
+        "0x93b9fbb5": "0x991399fc",
     }
     for old_id, new_id in _id_replacements.items():
         if old_id in _all_content and new_id not in _all_content:
             _all_content = _all_content.replace(old_id, new_id)
             _changed = True
 
-    # add KeyboardButtonStyle mapping if missing
     _kbs_mapping = '    0x4fdd3430: "pyrogram.raw.types.KeyboardButtonStyle",\n'
     if "0x4fdd3430" not in _all_content:
-        # insert after the first opening brace of the objects dict
         _all_content = _all_content.replace(
             "objects = {\n",
             "objects = {\n" + _kbs_mapping,
@@ -378,25 +384,22 @@ if os.path.exists(_rt_init):
         print("[patch] KeyboardButtonStyle already in raw.types.__init__ — skipping")
 
 # ─────────────────────────────────────────────────────────────────────────────
-# STEP 9 — patch InlineKeyboardButton.write() on disk if still missing style
+# STEP 9 — patch InlineKeyboardButton.write() if not already async + KBS
 #
-# IMPORTANT: InlineKeyboardMarkup.write() calls  `await b.write(client)`,
-# so write() MUST be an async coroutine.  A plain (sync) def will raise
-# "TypeError: object KeyboardButtonXxx can't be used in 'await' expression".
+# CRITICAL: InlineKeyboardMarkup.write() calls `await b.write(client)`.
+# write() MUST be an async coroutine.  A sync def raises:
+#   "TypeError: object KeyboardButtonXxx can't be used in 'await' expression"
 # ─────────────────────────────────────────────────────────────────────────────
 _ikb_path = os.path.join(_bk_dir, "inline_keyboard_button.py")
 if os.path.exists(_ikb_path):
     with open(_ikb_path) as f:
         _ikb_src = f.read()
 
-    # Only skip when the file already has BOTH the async keyword AND KeyboardButtonStyle
     _already_ok = ("KeyboardButtonStyle" in _ikb_src) and ("async def write" in _ikb_src)
 
     if not _already_ok:
-        print("[patch] Patching InlineKeyboardButton.write() on disk (async) …")
+        print("[patch] Patching InlineKeyboardButton.write() (async) …")
 
-        # Full async write() that exactly matches the Replit/git-pyrofork version.
-        # Uses getattr() guards so it works even when __init__ hasn't been patched yet.
         _NEW_WRITE = '''
     async def write(self, client):
         # ButtonStyle patch — injected by patch_pyrogram.py
@@ -464,7 +467,6 @@ if os.path.exists(_ikb_path):
         return raw.types.KeyboardButton(text=self.text)
 
 '''
-        # Replace any existing write() method (sync or async) or append if absent
         _m = re.search(r'\n    (?:async )?def write\(self.*?\n    (?=def |\Z)', _ikb_src, re.DOTALL)
         if _m:
             _ikb_src = _ikb_src[:_m.start()] + "\n" + _NEW_WRITE + "    " + _ikb_src[_m.end():]
@@ -473,11 +475,11 @@ if os.path.exists(_ikb_path):
 
         with open(_ikb_path, "w") as f:
             f.write(_ikb_src)
-        print("[patch] InlineKeyboardButton.write() patched on disk (async)")
+        print("[patch] InlineKeyboardButton.write() patched (async)")
     else:
         print("[patch] InlineKeyboardButton.write() already async+KeyboardButtonStyle — skipping")
 
-    # Ensure __init__ has style + icon_custom_emoji_id params (git version already has them)
+    # Ensure __init__ has style + icon params (kurigram already has them)
     with open(_ikb_path) as f:
         _ikb_src2 = f.read()
     if "self.style" not in _ikb_src2:
@@ -513,6 +515,18 @@ try:
     print(f"[patch] KeyboardButtonStyle    ID = {hex(KeyboardButtonStyle.ID)} ✓")
 except Exception as e:
     print(f"[patch] VERIFY FAILED (raw types): {e}")
+    sys.exit(1)
+
+import inspect as _inspect
+try:
+    from pyrogram.types import InlineKeyboardButton as _IKB
+    _ikb_src_check = _inspect.getsource(_IKB.write)
+    assert "async def write" in _ikb_src_check, "write() is not async!"
+    assert "KeyboardButtonStyle" in _ikb_src_check or "KeyboardButtonCallback" in _ikb_src_check, \
+        "write() doesn't build KeyboardButton objects!"
+    print("[patch] InlineKeyboardButton.write() is async ✓")
+except Exception as e:
+    print(f"[patch] VERIFY FAILED (IKB write): {e}")
     sys.exit(1)
 
 print("[patch] All patches applied — button colours will work on Railway.")
