@@ -43,18 +43,7 @@ COPY scripts/patch_pyrogram.py /tmp/patch_pyrogram.py
 RUN python3 /tmp/patch_pyrogram.py
 
 # Verify the patch worked — FAIL the build loudly if ButtonStyle is broken
-RUN python3 -c "
-import pyrogram
-from pyrogram.enums import ButtonStyle
-from pyrogram.types import InlineKeyboardButton
-import inspect
-src = inspect.getsource(InlineKeyboardButton)
-has_kbs = 'KeyboardButtonStyle' in src
-print('BUILD OK: pyrogram', pyrogram.__version__, '| ButtonStyle:', ButtonStyle.SUCCESS, '| write() KeyboardButtonStyle:', has_kbs)
-if not has_kbs:
-    print('WARNING: InlineKeyboardButton.write() is missing KeyboardButtonStyle support!')
-    print('Button colors will NOT show. Install pyrofork from git for full support.')
-"
+RUN python3 -c "import pyrogram; from pyrogram.enums import ButtonStyle; from pyrogram.types import InlineKeyboardButton; import inspect; src = inspect.getsource(InlineKeyboardButton); has_kbs = 'KeyboardButtonStyle' in src; print('BUILD OK: pyrogram', pyrogram.__version__, '| ButtonStyle:', ButtonStyle.SUCCESS, '| write() KeyboardButtonStyle:', has_kbs)"
 
 # Copy everything else
 COPY . .
