@@ -38,9 +38,37 @@ from KHUSHI.utils.inline import stream_markup, stream_markup_timer, add_to_chann
 from KHUSHI.utils.stream.autoclear import auto_clean
 from KHUSHI.utils.thumbnails import get_thumb
 from KHUSHI.utils.errors import capture_internal_err, send_large_error
-from KHUSHI.utils.raw_send import send_msg_invert_preview
 
-THUMB_OFF_VIDEO_URL = "https://files.catbox.moe/4vr2jc.mp4"
+
+async def _notify_now_playing(
+    chat_id: int,
+    caption: str,
+    markup,
+    photo=None,
+) -> object:
+    """Send a 'Now Playing' notification using send_photo when a thumbnail is available,
+    falling back to a plain text message. Replaces the catbox.moe invert_media trick."""
+    if photo:
+        try:
+            return await app.send_photo(
+                chat_id,
+                photo=photo,
+                caption=caption,
+                reply_markup=markup,
+                parse_mode=ParseMode.HTML,
+            )
+        except Exception:
+            pass
+    try:
+        return await app.send_message(
+            chat_id,
+            text=caption,
+            reply_markup=markup,
+            parse_mode=ParseMode.HTML,
+            disable_web_page_preview=True,
+        )
+    except Exception:
+        return None
 
 autoend = {}
 counter = {}
@@ -1298,11 +1326,15 @@ class Call:
                                     )
                                     _ap_markup = InlineKeyboardMarkup(btn)
                                     LOGGER(__name__).info(f"[AUTOPLAY] Sending notification to chat={original_chat_id} song={ap_title_short}")
-                                    ap_msg = await send_msg_invert_preview(
-                                        app,
+                                    try:
+                                        _ap_photo = await get_thumb(ap_vidid)
+                                    except Exception:
+                                        _ap_photo = None
+                                    ap_msg = await _notify_now_playing(
                                         original_chat_id,
-                                        text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_ap_caption}',
-                                        reply_markup=_ap_markup,
+                                        _ap_caption,
+                                        _ap_markup,
+                                        photo=_ap_photo,
                                     )
                                     db[chat_id][0]["mystic"] = ap_msg
                                     LOGGER(__name__).info(f"[AUTOPLAY] Notification sent OK for chat={original_chat_id}")
@@ -1492,14 +1524,18 @@ class Call:
                     check[0]["dur"],
                     user,
                 )
-                run = await send_msg_invert_preview(
-                    app,
+                try:
+                    _live_photo = await get_thumb(videoid)
+                except Exception:
+                    _live_photo = None
+                run = await _notify_now_playing(
                     original_chat_id,
-                    text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
-                    reply_markup=InlineKeyboardMarkup(button),
+                    _cap,
+                    InlineKeyboardMarkup(button),
+                    photo=_live_photo,
                 )
                 db[chat_id][0]["mystic"] = run
-                db[chat_id][0]["markup"] = "tg"
+                db[chat_id][0]["markup"] = "stream"
                 _start_progress_timer(chat_id)
 
             elif "vid_" in queued:
@@ -1543,11 +1579,15 @@ class Call:
                     check[0]["dur"],
                     user,
                 )
-                run = await send_msg_invert_preview(
-                    app,
+                try:
+                    _vid_photo = await get_thumb(videoid)
+                except Exception:
+                    _vid_photo = None
+                run = await _notify_now_playing(
                     original_chat_id,
-                    text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
-                    reply_markup=InlineKeyboardMarkup(button),
+                    _cap,
+                    InlineKeyboardMarkup(button),
+                    photo=_vid_photo,
                 )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "stream"
@@ -1567,21 +1607,12 @@ class Call:
                     return await app.send_message(original_chat_id, text=_["call_6"])
 
                 button = stream_markup(_, chat_id, autoplay_on=await is_autoplay(chat_id))
-                if _thumb_on:
-                    run = await app.send_photo(
-                        chat_id=original_chat_id,
-                        photo=config.STREAM_IMG_URL,
-                        caption=_["stream_2"].format(user),
-                        reply_markup=InlineKeyboardMarkup(button),
-                        has_spoiler=True,
-                    )
-                else:
-                    run = await send_msg_invert_preview(
-                        app,
-                        original_chat_id,
-                        text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_["stream_2"].format(user)}',
-                        reply_markup=InlineKeyboardMarkup(button),
-                    )
+                run = await _notify_now_playing(
+                    original_chat_id,
+                    _["stream_2"].format(user),
+                    InlineKeyboardMarkup(button),
+                    photo=config.STREAM_IMG_URL if _thumb_on else None,
+                )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "tg"
                 _start_progress_timer(chat_id)
@@ -1607,25 +1638,13 @@ class Call:
                     _cap = _["stream_1"].format(
                         config.SUPPORT_CHAT, title[:23], check[0]["dur"], user
                     )
-                    if _thumb_on:
-                        run = await app.send_photo(
-                            chat_id=original_chat_id,
-                            photo=(
-                                config.TELEGRAM_AUDIO_URL
-                                if str(streamtype) == "audio"
-                                else config.TELEGRAM_VIDEO_URL
-                            ),
-                            caption=_cap,
-                            reply_markup=InlineKeyboardMarkup(button),
-                            has_spoiler=True,
-                        )
-                    else:
-                        run = await send_msg_invert_preview(
-                            app,
-                            original_chat_id,
-                            text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
-                            reply_markup=InlineKeyboardMarkup(button),
-                        )
+                    _tg_photo = (
+                        (config.TELEGRAM_AUDIO_URL if str(streamtype) == "audio" else config.TELEGRAM_VIDEO_URL)
+                        if _thumb_on else None
+                    )
+                    run = await _notify_now_playing(
+                        original_chat_id, _cap, InlineKeyboardMarkup(button), photo=_tg_photo
+                    )
                     db[chat_id][0]["mystic"] = run
                     db[chat_id][0]["markup"] = "tg"
                     _start_progress_timer(chat_id)
@@ -1635,21 +1654,10 @@ class Call:
                     _cap = _["stream_1"].format(
                         config.SUPPORT_CHAT, title[:23], check[0]["dur"], user
                     )
-                    if _thumb_on:
-                        run = await app.send_photo(
-                            chat_id=original_chat_id,
-                            photo=config.SOUNCLOUD_IMG_URL,
-                            caption=_cap,
-                            reply_markup=InlineKeyboardMarkup(button),
-                            has_spoiler=True,
-                        )
-                    else:
-                        run = await send_msg_invert_preview(
-                            app,
-                            original_chat_id,
-                            text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
-                            reply_markup=InlineKeyboardMarkup(button),
-                        )
+                    run = await _notify_now_playing(
+                        original_chat_id, _cap, InlineKeyboardMarkup(button),
+                        photo=config.SOUNCLOUD_IMG_URL if _thumb_on else None,
+                    )
                     db[chat_id][0]["mystic"] = run
                     db[chat_id][0]["markup"] = "tg"
                     _start_progress_timer(chat_id)
@@ -1662,11 +1670,12 @@ class Call:
                         check[0]["dur"],
                         user,
                     )
-                    run = await send_msg_invert_preview(
-                        app,
-                        original_chat_id,
-                        text=f'<a href="{THUMB_OFF_VIDEO_URL}">\u200C</a>{_cap}',
-                        reply_markup=InlineKeyboardMarkup(button),
+                    try:
+                        _yt_photo = await get_thumb(videoid) if _thumb_on else None
+                    except Exception:
+                        _yt_photo = None
+                    run = await _notify_now_playing(
+                        original_chat_id, _cap, InlineKeyboardMarkup(button), photo=_yt_photo
                     )
                     db[chat_id][0]["mystic"] = run
                     db[chat_id][0]["markup"] = "stream"

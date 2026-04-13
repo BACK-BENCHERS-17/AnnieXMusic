@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import os
 from random import randint
 from typing import Union
@@ -19,10 +20,9 @@ from KHUSHI.utils.pastebin import ANNIEBIN
 from KHUSHI.utils.stream.queue import put_queue, put_queue_index
 from KHUSHI.utils.thumbnails import get_thumb
 from KHUSHI.utils.errors import capture_internal_err
-from KHUSHI.utils.raw_send import send_msg_invert_preview
 from KHUSHI.plugins.Kishu.nsfw_filter import has_nsfw_text, is_thumb_nsfw_local
 
-THUMB_OFF_VIDEO_URL = "https://files.catbox.moe/4vr2jc.mp4"
+_log = logging.getLogger(__name__)
 
 # Per-group whitelist: chat_id -> set of whitelisted vidids (by owner/admin)
 NSFW_WHITELIST: dict[int, set] = {}
@@ -37,19 +37,33 @@ async def _send_stream_msg(
     has_spoiler: bool = False,
 ) -> object:
     """
-    Thumbnail permanently disabled.
-    Sends the stream message with the video URL as a link preview shown ABOVE
-    the text (invert_media=True via send_msg_invert_preview).
+    Send a stream notification with a thumbnail photo when available.
+    Uses send_photo for rich appearance; falls back to plain text message.
     """
-    # Embed the video URL as an invisible hyperlink at the start of the text.
-    # send_msg_invert_preview uses invert_media=True → preview appears at the TOP.
-    link_text = f'<a href="{THUMB_OFF_VIDEO_URL}">&#8203;</a>'
-    return await send_msg_invert_preview(
-        app,
-        original_chat_id,
-        text=f"{link_text}{caption}",
-        reply_markup=reply_markup,
-    )
+    if photo:
+        try:
+            return await app.send_photo(
+                original_chat_id,
+                photo=photo,
+                caption=caption,
+                reply_markup=reply_markup,
+                parse_mode=ParseMode.HTML,
+                has_spoiler=has_spoiler,
+            )
+        except Exception as e:
+            _log.warning(f"[notify] send_photo failed for chat={original_chat_id}: {e}")
+
+    try:
+        return await app.send_message(
+            original_chat_id,
+            text=caption,
+            reply_markup=reply_markup,
+            parse_mode=ParseMode.HTML,
+            disable_web_page_preview=True,
+        )
+    except Exception as e:
+        _log.error(f"[notify] send_message also failed for chat={original_chat_id}: {e}")
+        return None
 
 
 async def _stop_and_block(

@@ -302,7 +302,21 @@ async def yt_dlp_download(
         async def run():
             fmt = "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=720]+bestaudio/best[height<=720]/best"
 
+            def _video_file_exists(video_id: str) -> Optional[str]:
+                """Check for video files specifically (mp4 first) — never return audio-only m4a."""
+                for ext in ("mp4", "mkv", "webm", "mov"):
+                    p = f"{_DOWNLOAD_DIR}/{video_id}.{ext}"
+                    if os.path.exists(p) and os.path.getsize(p) > 0:
+                        return p
+                return None
+
             def _do():
+                # Check if a video file already exists before re-downloading
+                existing = _video_file_exists(vid)
+                if existing:
+                    LOGGER(__name__).info(f"[DL] Video cache hit: {existing}")
+                    return existing
+
                 opts = _ytdlp_base_opts()
                 opts.update({
                     "format": fmt,
@@ -322,7 +336,9 @@ async def yt_dlp_download(
                             pass
                 except Exception as e:
                     LOGGER(__name__).error(f"[DL] video error for {vid}: {e}")
-                return file_exists(vid)
+
+                # Return video file specifically — do NOT fall back to audio-only m4a
+                return _video_file_exists(vid)
 
             return await _with_sem(loop.run_in_executor(None, _do))
 
@@ -421,6 +437,7 @@ async def download_from_own_api(vid: str) -> Optional[str]:
 
 
 _bg_download_tasks: Dict[str, asyncio.Task] = {}
+_fgs_inflight: Dict[str, asyncio.Task] = {}  # dedup concurrent fast_get_stream calls
 
 _DISK_WARN_PCT  = 85   # warn and skip download above this
 _DISK_CLEAN_PCT = 90   # auto-delete oldest files above this
@@ -562,92 +579,110 @@ async def fast_get_stream(vid: str) -> Optional[str]:
     except Exception as e:
         LOGGER(__name__).debug(f"[FAST] MongoDB URL cache check failed for {vid}: {e}")
 
-    loop = asyncio.get_running_loop()
-
-    async def _webserver_check():
+    # ── Slow path: deduplicate concurrent calls for the same video ID ────────────
+    # When play.py fires fast_get_stream as a background task AND YouTube.download()
+    # calls it simultaneously, they share the same in-flight task instead of running
+    # two independent extractions. This eliminates the duplicate SmartYTDL race and
+    # shaves 1-3 seconds off first-play latency on cache miss.
+    existing = _fgs_inflight.get(vid)
+    if existing and not existing.done():
+        LOGGER(__name__).info(f"[FAST] Sharing in-flight extraction for {vid}")
         try:
-            result = await api_get_stream_url(vid)
-            if result:
-                cdn_url, ext = result
-                _cache_cdn_url(vid, cdn_url, ext)
-                asyncio.create_task(_mongo_put(vid, cdn_url, ext))
-                LOGGER(__name__).info(f"[FAST] Webserver cache hit for {vid}")
-                return cdn_url
-        except Exception as e:
-            LOGGER(__name__).debug(f"[FAST] Webserver URL cache miss for {vid}: {e}")
-        return None
-
-    async def _extract():
-        try:
-            info = await loop.run_in_executor(None, smart_extract_url, vid)
-            if info and info.get("url"):
-                cdn_url = info["url"]
-                ext = info.get("ext", "m4a")
-                _cache_cdn_url(vid, cdn_url, ext)
-                asyncio.create_task(_mongo_put(vid, cdn_url, ext))
-                LOGGER(__name__).info(
-                    f"[FAST] SmartYTDL extracted URL for {vid} via {info.get('client', '?')}"
-                )
-                return cdn_url
-        except Exception as e:
-            LOGGER(__name__).debug(f"[FAST] URL extraction failed for {vid}: {e}")
-        return None
-
-    # Race webserver cache check vs fresh extraction — both start at t=0.
-    # First non-None result wins. If webserver hits (~10 ms), extraction is cancelled.
-    # If webserver misses (~10-50 ms), extraction is already 50 ms into running.
-    tasks = [
-        asyncio.create_task(_webserver_check()),
-        asyncio.create_task(_extract()),
-    ]
-    url = None
-    for coro in asyncio.as_completed(tasks):
-        try:
-            result = await coro
-            if result:
-                url = result
-                break
+            return await asyncio.shield(existing)
         except Exception:
             pass
 
-    # Cancel any still-running tasks
-    for t in tasks:
-        if not t.done():
-            t.cancel()
+    async def _slow_extract() -> Optional[str]:
+        from KHUSHI.utils.url_cache import put_url as _put_url
+        loop = asyncio.get_running_loop()
 
-    if url:
-        asyncio.create_task(_trigger_bg_cache(vid))
-        return url
+        async def _webserver_check():
+            try:
+                result = await api_get_stream_url(vid)
+                if result:
+                    cdn_url, ext = result
+                    _cache_cdn_url(vid, cdn_url, ext)
+                    asyncio.create_task(_put_url(vid, cdn_url, ext))
+                    LOGGER(__name__).info(f"[FAST] Webserver cache hit for {vid}")
+                    return cdn_url
+            except Exception as e:
+                LOGGER(__name__).debug(f"[FAST] Webserver URL cache miss for {vid}: {e}")
+            return None
 
-    # ── Check if background cache completed during URL extraction ───────────────
-    cached_now = file_exists(vid)
-    if cached_now:
-        LOGGER(__name__).info(f"[FAST] BG cache hit after extraction for {vid}")
-        return cached_now
+        async def _extract():
+            try:
+                info = await loop.run_in_executor(None, smart_extract_url, vid)
+                if info and info.get("url"):
+                    cdn_url = info["url"]
+                    ext = info.get("ext", "m4a")
+                    _cache_cdn_url(vid, cdn_url, ext)
+                    asyncio.create_task(_put_url(vid, cdn_url, ext))
+                    LOGGER(__name__).info(
+                        f"[FAST] SmartYTDL extracted URL for {vid} via {info.get('client', '?')}"
+                    )
+                    return cdn_url
+            except Exception as e:
+                LOGGER(__name__).debug(f"[FAST] URL extraction failed for {vid}: {e}")
+            return None
 
-    # ── Wait for in-flight BG download task — avoids duplicate full download ───
-    # The BG task (started by _trigger_bg_cache in play.py) runs smart_download
-    # which uses _direct_download. If it's still running, wait for it instead of
-    # kicking off another identical download — saves 10-15 seconds on cache miss.
-    bg_task = _bg_download_tasks.get(vid)
-    if bg_task and not bg_task.done():
-        LOGGER(__name__).info(f"[FAST] Waiting for in-flight BG task for {vid}")
-        try:
-            await asyncio.wait_for(asyncio.shield(bg_task), timeout=35.0)
-        except Exception:
-            pass
-        cached_after_bg = file_exists(vid)
-        if cached_after_bg:
-            LOGGER(__name__).info(f"[FAST] BG task completed, using: {cached_after_bg}")
-            return cached_after_bg
+        # Race webserver cache check vs fresh extraction — both start at t=0.
+        tasks = [
+            asyncio.create_task(_webserver_check()),
+            asyncio.create_task(_extract()),
+        ]
+        url = None
+        for coro in asyncio.as_completed(tasks):
+            try:
+                result = await coro
+                if result:
+                    url = result
+                    break
+            except Exception:
+                pass
 
-    # ── Full download fallback (only if BG task also failed or doesn't exist) ──
-    LOGGER(__name__).warning(f"[FAST] All URL methods failed for {vid}, falling back to full download")
-    link_full = f"https://www.youtube.com/watch?v={vid}"
-    path = await download_audio_concurrent(link_full)
-    if path:
-        LOGGER(__name__).info(f"[FAST] Fallback download done: {path}")
-    return path
+        for t in tasks:
+            if not t.done():
+                t.cancel()
+
+        if url:
+            asyncio.create_task(_trigger_bg_cache(vid))
+            return url
+
+        # Check if background cache completed during URL extraction
+        cached_now = file_exists(vid)
+        if cached_now:
+            LOGGER(__name__).info(f"[FAST] BG cache hit after extraction for {vid}")
+            return cached_now
+
+        # Wait for in-flight BG download task — avoids duplicate full download
+        bg_task = _bg_download_tasks.get(vid)
+        if bg_task and not bg_task.done():
+            LOGGER(__name__).info(f"[FAST] Waiting for in-flight BG task for {vid}")
+            try:
+                await asyncio.wait_for(asyncio.shield(bg_task), timeout=35.0)
+            except Exception:
+                pass
+            cached_after_bg = file_exists(vid)
+            if cached_after_bg:
+                LOGGER(__name__).info(f"[FAST] BG task completed, using: {cached_after_bg}")
+                return cached_after_bg
+
+        # Full download fallback (only if BG task also failed or doesn't exist)
+        LOGGER(__name__).warning(f"[FAST] All URL methods failed for {vid}, falling back to full download")
+        link_full = f"https://www.youtube.com/watch?v={vid}"
+        path = await download_audio_concurrent(link_full)
+        if path:
+            LOGGER(__name__).info(f"[FAST] Fallback download done: {path}")
+        return path
+
+    task = asyncio.create_task(_slow_extract())
+    _fgs_inflight[vid] = task
+    try:
+        return await task
+    except Exception:
+        return None
+    finally:
+        _fgs_inflight.pop(vid, None)
 
 
 def _kick_bg_download(vid: str, link: str) -> None:

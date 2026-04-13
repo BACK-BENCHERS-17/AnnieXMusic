@@ -1,9 +1,11 @@
 """KHUSHI — Play Plugin: direct VC stream, same notification as AnnieMusic."""
 
 import asyncio
+import logging
 import random
 
 from pyrogram import enums, filters
+from pyrogram.enums import ParseMode
 from pyrogram.types import InlineKeyboardMarkup, Message
 
 from KHUSHI.utils.inline import InlineKeyboardButton
@@ -22,7 +24,6 @@ from KHUSHI.utils.database import (
 from KHUSHI.utils.decorators import KhushiAdminCheck as AdminRightsCheck
 from KHUSHI.utils.downloader import _trigger_bg_cache, extract_video_id
 from KHUSHI.utils.inline import aq_markup, stream_markup, stream_markup_timer
-from KHUSHI.utils.raw_send import send_msg_invert_preview
 from KHUSHI.utils.stream.queue import put_queue
 from KHUSHI.utils.thumbnails import get_thumb
 from config import AYU, BANNED_USERS, BOT_USERNAME, DURATION_LIMIT, OWNER_ID, PING_IMG_URL, START_IMGS, SUPPORT_CHAT, adminlist
@@ -31,18 +32,45 @@ from KHUSHI.utils.security import check_and_alert
 from KHUSHI.utils.ui import BRAND as _BRAND, E as _EM, msg as _msg, err as _err, info as _info, panel as _panel
 from KHUSHI.utils.exceptions import AssistantErr
 
-THUMB_OFF_VIDEO_URL = "https://files.catbox.moe/4vr2jc.mp4"
+_log = logging.getLogger(__name__)
 
 
-async def _send_stream_msg(chat_id: int, caption: str, reply_markup) -> object:
-    """Send stream notification — same mechanism as AnnieMusic (invert_media banner)."""
-    link_text = f'<a href="{THUMB_OFF_VIDEO_URL}">&#8203;</a>'
-    return await send_msg_invert_preview(
-        app,
-        chat_id,
-        text=f"{link_text}{caption}",
-        reply_markup=reply_markup,
-    )
+async def _send_stream_msg(
+    chat_id: int,
+    caption: str,
+    reply_markup,
+    thumbnail: str = None,
+) -> object:
+    """
+    Send stream notification with photo thumbnail when available.
+
+    If `thumbnail` is provided (YouTube thumbnail URL), sends a photo message
+    with the caption — looks great and is reliable.
+    Falls back to a plain text message when no thumbnail is available.
+    """
+    if thumbnail:
+        try:
+            return await app.send_photo(
+                chat_id,
+                photo=thumbnail,
+                caption=caption,
+                reply_markup=reply_markup,
+                parse_mode=ParseMode.HTML,
+            )
+        except Exception as e:
+            _log.warning(f"[notify] send_photo failed for chat={chat_id}: {e}")
+
+    try:
+        return await app.send_message(
+            chat_id,
+            text=caption,
+            reply_markup=reply_markup,
+            parse_mode=ParseMode.HTML,
+            disable_web_page_preview=True,
+        )
+    except Exception as e:
+        _log.error(f"[notify] send_message also failed for chat={chat_id}: {e}")
+        return None
 
 
 async def _check_maintenance(message: Message) -> bool:
@@ -233,7 +261,7 @@ async def _handle_play(message: Message, video: bool = False):
             run = await _send_stream_msg(msg_chat_id, caption, InlineKeyboardMarkup(button))
             if db.get(vc_chat_id):
                 db[vc_chat_id][0]["mystic"] = run
-                db[vc_chat_id][0]["markup"] = "tg"
+                db[vc_chat_id][0]["markup"] = "stream"
             _start_progress_timer(vc_chat_id)
         return
 
@@ -334,10 +362,10 @@ async def _handle_play(message: Message, video: bool = False):
                             f"{_EM['mic']} <b>ʀᴇǫᴜᴇꜱᴛᴇᴅ ʙʏ:</b>  {user_name}",
                         ],
                     )
-                    run = await _send_stream_msg(msg_chat_id, caption, InlineKeyboardMarkup(button))
+                    run = await _send_stream_msg(msg_chat_id, caption, InlineKeyboardMarkup(button), thumbnail=thumbnail)
                     if db.get(vc_chat_id):
                         db[vc_chat_id][0]["mystic"] = run
-                        db[vc_chat_id][0]["markup"] = "tg"
+                        db[vc_chat_id][0]["markup"] = "stream"
                     _start_progress_timer(vc_chat_id)
                 return
         except Exception:
@@ -444,7 +472,7 @@ async def _handle_play(message: Message, video: bool = False):
                 f"{_EM['mic']} <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ:</b>  {user_name}",
             ],
         )
-        run = await _send_stream_msg(msg_chat_id, caption, InlineKeyboardMarkup(button))
+        run = await _send_stream_msg(msg_chat_id, caption, InlineKeyboardMarkup(button), thumbnail=thumbnail)
         if db.get(vc_chat_id):
             db[vc_chat_id][0]["mystic"] = run
             db[vc_chat_id][0]["markup"] = "stream"
@@ -740,7 +768,7 @@ async def related_play_cb(client, query):
                 f"{_EM['mic']} <b>ʀᴇǫᴜᴇꜱᴛᴇᴅ ʙʏ:</b>  {user_name}",
             ],
         )
-        run = await _send_stream_msg(chat_id, caption, InlineKeyboardMarkup(button))
+        run = await _send_stream_msg(chat_id, caption, InlineKeyboardMarkup(button), thumbnail=thumbnail)
         if db.get(chat_id):
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "stream"
