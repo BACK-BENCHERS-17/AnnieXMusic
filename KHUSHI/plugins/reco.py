@@ -2,9 +2,11 @@
 
 import asyncio
 import html
+import logging
 import random
 
 from pyrogram import enums, filters
+from pyrogram.types import InlineKeyboardButton as _PlainBtn
 from pyrogram.types import InlineKeyboardMarkup, Message
 
 from KHUSHI.utils.inline import InlineKeyboardButton
@@ -13,6 +15,8 @@ from KHUSHI import app
 from KHUSHI.core.mongo import mongodb
 from KHUSHI.utils.decorators import KhushiGroupAdmin as AdminRightsCheck
 from config import BANNED_USERS, SUPPORT_CHAT
+
+LOGGER = logging.getLogger(__name__)
 
 _recodb = mongodb.reco_settings
 
@@ -288,34 +292,61 @@ async def reco_cmd(client, message: Message):
         f"{_EM['star']} ᴛᴀᴘ ᴀɴʏ ʙᴜᴛᴛᴏɴ ʙᴇʟᴏᴡ ᴛᴏ ᴘʟᴀʏ ɪɴsᴛᴀɴᴛʟʏ!"
     )
 
-    # One button per song, one per row + support/close at bottom
-    song_rows = []
-    for s in picks:
-        label = s[:35] + "…" if len(s) > 35 else s
-        song_rows.append([InlineKeyboardButton(
-            label,
-            callback_data=f"rp:{s[:40]}",
-            style="primary",
-        )])
+    # ── Build song buttons (styled first, plain fallback) ─────────────────────
+    def _make_rows(styled: bool) -> list:
+        rows = []
+        for s in picks:
+            label = s[:35] + "…" if len(s) > 35 else s
+            cb = f"rp:{s[:40]}"
+            if styled:
+                rows.append([InlineKeyboardButton(label, callback_data=cb, style="primary")])
+            else:
+                rows.append([_PlainBtn(label, callback_data=cb)])
+        if styled:
+            rows.append([
+                InlineKeyboardButton("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=_sc_url()),
+                InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
+            ])
+        else:
+            rows.append([
+                _PlainBtn("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=_sc_url()),
+                _PlainBtn("˹ᴄʟᴏꜱᴇ˼", callback_data="close"),
+            ])
+        return rows
 
-    song_rows.append([
-        InlineKeyboardButton("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=_sc_url()),
-        InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
-    ])
+    _pm = enums.ParseMode.HTML
+    _body = _reply(header)
+    sent = None
 
+    # Attempt 1: styled buttons
     try:
         sent = await message.reply_text(
-            _reply(header),
-            reply_markup=InlineKeyboardMarkup(song_rows),
-            parse_mode=enums.ParseMode.HTML,
+            _body,
+            reply_markup=InlineKeyboardMarkup(_make_rows(styled=True)),
+            parse_mode=_pm,
         )
-    except Exception as e:
-        await message.reply_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
-            f"<blockquote>{_EM['fire']} <b>˹ ꜱᴏɴɢ ꜱᴜɢɢᴇꜱᴛɪᴏɴꜱ ˼</b>\n\n"
-            f"{lines}</blockquote>",
-            parse_mode=enums.ParseMode.HTML,
-        )
+    except Exception as e1:
+        LOGGER.warning(f"[Reco] styled buttons failed: {e1!r}")
+
+    # Attempt 2: plain buttons (guaranteed to work)
+    if sent is None:
+        try:
+            sent = await message.reply_text(
+                _body,
+                reply_markup=InlineKeyboardMarkup(_make_rows(styled=False)),
+                parse_mode=_pm,
+            )
+        except Exception as e2:
+            LOGGER.warning(f"[Reco] plain buttons also failed: {e2!r}")
+            await message.reply_text(
+                f"<blockquote>{_BRAND}</blockquote>\n\n"
+                f"<blockquote>{_EM['fire']} <b>˹ ꜱᴏɴɢ ꜱᴜɢɢᴇꜱᴛɪᴏɴꜱ ˼</b>\n\n"
+                f"{lines}</blockquote>",
+                parse_mode=_pm,
+            )
+            return
+
+    if sent is None:
         return
 
     # Auto-delete after 120 seconds

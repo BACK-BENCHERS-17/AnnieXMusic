@@ -1408,12 +1408,11 @@ class Call:
                             callback_data=_cb,
                             style="primary",
                         )])
-                    # Bottom: add-me and close each on own row
+                    # Bottom: add-me (URL — no style) and close
                     _rows.append([
-                        StyledBtn(
+                        InlineKeyboardButton(
                             text="ᴀᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ",
                             url=f"https://t.me/{app.username}?startgroup=true",
-                            style="success",
                         ),
                     ])
                     _rows.append([
@@ -1451,17 +1450,29 @@ class Call:
                         f"└──────────────────●"
                         f"</blockquote>"
                     )
+                    # Build plain-button fallback rows (no styles, guaranteed to work)
+                    _plain_rows = []
+                    for _vid2, _name2 in _sugg:
+                        _lbl2 = (_name2[:35] + "…") if len(_name2) > 35 else _name2
+                        _cb2 = f"rp:{_vid2}:{_name2[:30]}" if _vid2 else f"rp:{_name2[:40]}"
+                        _plain_rows.append([InlineKeyboardButton(text=_lbl2, callback_data=_cb2)])
+                    _plain_rows.append([InlineKeyboardButton(text="ᴀᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ", url=f"https://t.me/{app.username}?startgroup=true")])
+                    _plain_rows.append([InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close")])
+
                     LOGGER(__name__).info(f"[Suggestion] Sending to chat={_sugg_chat_id}")
+                    _sent_sugg = None
                     try:
-                        await app.send_message(
+                        _sent_sugg = await app.send_message(
                             _sugg_chat_id,
                             text=_end_text,
                             reply_markup=InlineKeyboardMarkup(_rows),
                             parse_mode=ParseMode.HTML,
                         )
                     except Exception as _html_err:
-                        LOGGER(__name__).warning(f"[Suggestion] HTML failed ({_html_err}), trying plain")
-                        _plain = (
+                        LOGGER(__name__).warning(f"[Suggestion] styled failed ({_html_err!r}), trying plain")
+
+                    if _sent_sugg is None:
+                        _plain_text = (
                             "🎵 Queue Ended!\n"
                             + (f"Last: {_last_short}\n\n" if _last_short else "\n")
                             + "⚡️ You might also like:"
@@ -1469,11 +1480,11 @@ class Call:
                         try:
                             await app.send_message(
                                 _sugg_chat_id,
-                                text=_plain,
-                                reply_markup=InlineKeyboardMarkup(_rows),
+                                text=_plain_text,
+                                reply_markup=InlineKeyboardMarkup(_plain_rows),
                             )
                         except Exception as _plain_err:
-                            LOGGER(__name__).warning(f"[Suggestion] Plain also failed: {_plain_err}")
+                            LOGGER(__name__).warning(f"[Suggestion] plain also failed: {_plain_err!r}")
                 except Exception as _sugg_err:
                     LOGGER(__name__).warning(f"[Suggestion] Failed completely: {_sugg_err}")
                 return
