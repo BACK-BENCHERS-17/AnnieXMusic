@@ -1,4 +1,5 @@
 import logging
+import re
 from random import randint
 
 from pyrogram import raw
@@ -10,8 +11,15 @@ _log = logging.getLogger(__name__)
 
 def _strip_invisible_link(text: str) -> str:
     """Remove the zero-width space link prefix used for invert_media trick."""
-    import re
     return re.sub(r'^<a href="[^"]*">&#8203;</a>', "", text, count=1)
+
+
+def _strip_all_anchors(text: str) -> str:
+    """Remove ALL <a href> tags from HTML text, keeping the visible link text.
+    This prevents Telegram from rejecting CDN/stream URLs as DOCUMENT_INVALID."""
+    text = re.sub(r'<a\b[^>]*>', "", text)
+    text = re.sub(r'</a>', "", text)
+    return text
 
 
 async def send_msg_invert_preview(
@@ -96,8 +104,10 @@ async def send_msg_invert_preview(
         _log.warning("[raw_send] Layer 2 (send_message w/ preview) failed for chat=%s: %s", chat_id, e)
 
     # ── Layer 3: Plain send_message without link preview ────────────────────
+    # Strip ALL anchor tags so Telegram never receives a URL entity pointing
+    # to a CDN/stream URL, which triggers DOCUMENT_INVALID on messages.SendMessage.
     try:
-        clean_text = _strip_invisible_link(text)
+        clean_text = _strip_all_anchors(_strip_invisible_link(text))
         return await client.send_message(
             chat_id,
             text=clean_text,
