@@ -4,7 +4,7 @@ import asyncio
 import html
 import random
 
-from pyrogram import filters
+from pyrogram import enums, filters
 from pyrogram.types import InlineKeyboardMarkup, Message
 
 from KHUSHI.utils.inline import InlineKeyboardButton
@@ -299,7 +299,7 @@ async def reco_cmd(client, message: Message):
         )])
 
     song_rows.append([
-        InlineKeyboardButton("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=_sc_url(), style="success"),
+        InlineKeyboardButton("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=_sc_url()),
         InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
     ])
 
@@ -307,12 +307,14 @@ async def reco_cmd(client, message: Message):
         sent = await message.reply_text(
             _reply(header),
             reply_markup=InlineKeyboardMarkup(song_rows),
+            parse_mode=enums.ParseMode.HTML,
         )
     except Exception as e:
         await message.reply_text(
             f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>{_EM['fire']} <b>˹ ꜱᴏɴɢ ꜱᴜɢɢᴇꜱᴛɪᴏɴꜱ ˼</b>\n\n"
-            f"{lines}</blockquote>"
+            f"{lines}</blockquote>",
+            parse_mode=enums.ParseMode.HTML,
         )
         return
 
@@ -335,6 +337,8 @@ async def rconfig_cmd(client, message: Message, lang, chat_id):
     args = message.command[1:]
     cfg = await _get_rconfig(chat_id)
 
+    _pm = enums.ParseMode.HTML
+
     if not args:
         genre = cfg.get("genre", "bollywood")
         count = cfg.get("count", 5)
@@ -351,6 +355,7 @@ async def rconfig_cmd(client, message: Message, lang, chat_id):
             reply_markup=InlineKeyboardMarkup([[
                 InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
             ]]),
+            parse_mode=_pm,
         )
 
     sub = args[0].lower()
@@ -366,6 +371,7 @@ async def rconfig_cmd(client, message: Message, lang, chat_id):
                 reply_markup=InlineKeyboardMarkup([[
                     InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
                 ]]),
+                parse_mode=_pm,
             )
         cfg["genre"] = new_genre
         await _save_rconfig(chat_id, cfg)
@@ -377,6 +383,7 @@ async def rconfig_cmd(client, message: Message, lang, chat_id):
             reply_markup=InlineKeyboardMarkup([[
                 InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
             ]]),
+            parse_mode=_pm,
         )
 
     if sub == "count" and len(args) >= 2:
@@ -388,6 +395,7 @@ async def rconfig_cmd(client, message: Message, lang, chat_id):
                 reply_markup=InlineKeyboardMarkup([[
                     InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
                 ]]),
+                parse_mode=_pm,
             )
         cfg["count"] = new_count
         await _save_rconfig(chat_id, cfg)
@@ -399,6 +407,7 @@ async def rconfig_cmd(client, message: Message, lang, chat_id):
             reply_markup=InlineKeyboardMarkup([[
                 InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
             ]]),
+            parse_mode=_pm,
         )
 
     await message.reply_text(
@@ -408,6 +417,7 @@ async def rconfig_cmd(client, message: Message, lang, chat_id):
             f"{_EM['dot']} <code>/rconfig count [1-6]</code>"
         ),
         reply_markup=InlineKeyboardMarkup([[
-            InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close"),
+            InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
         ]]),
+        parse_mode=_pm,
     )
