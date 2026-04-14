@@ -38,6 +38,11 @@ from KHUSHI.utils.inline import stream_markup, stream_markup_timer, add_to_chann
 from KHUSHI.utils.stream.autoclear import auto_clean
 from KHUSHI.utils.thumbnails import get_thumb
 from KHUSHI.utils.errors import capture_internal_err, send_large_error
+from KHUSHI.utils.raw_send import send_msg_invert_preview
+
+# Static video used as the invisible-link href so Telegram renders a preview
+# above the caption text (invert_media trick) when thumbnails are disabled.
+THUMB_OFF_VIDEO_URL = "https://files.catbox.moe/4vr2jc.mp4"
 
 
 async def _notify_now_playing(
@@ -46,8 +51,12 @@ async def _notify_now_playing(
     markup,
     photo=None,
 ) -> object:
-    """Send a 'Now Playing' notification using send_photo when a thumbnail is available,
-    falling back to a plain text message. Replaces the catbox.moe invert_media trick."""
+    """Send a 'Now Playing' notification.
+
+    • photo provided  → send_photo with has_spoiler (thumbnail above caption)
+    • photo is None   → send_msg_invert_preview with static invisible-link URL
+                        so the video preview still appears above the text.
+    """
     if photo:
         try:
             return await app.send_photo(
@@ -56,9 +65,19 @@ async def _notify_now_playing(
                 caption=caption,
                 reply_markup=markup,
                 parse_mode=ParseMode.HTML,
+                has_spoiler=True,
             )
         except Exception:
             pass
+
+    # Invisible-link trick: prepend a zero-width non-joiner anchor pointing to
+    # a static catbox.moe video so Telegram shows the preview ABOVE the text.
+    invert_text = f'<a href="{THUMB_OFF_VIDEO_URL}">\u200c</a>{caption}'
+    result = await send_msg_invert_preview(app, chat_id, invert_text, markup)
+    if result:
+        return result
+
+    # Final fallback: plain message
     try:
         return await app.send_message(
             chat_id,

@@ -10,8 +10,15 @@ _log = logging.getLogger(__name__)
 
 
 def _strip_invisible_link(text: str) -> str:
-    """Remove the zero-width space link prefix used for invert_media trick."""
-    return re.sub(r'^<a href="[^"]*">&#8203;</a>', "", text, count=1)
+    """Remove the invisible-link anchor prefix used for the invert_media trick.
+    Handles both \u200C (zero-width non-joiner) and \u200B (zero-width space)
+    as the anchor body, and their HTML-entity equivalents."""
+    return re.sub(
+        r'^<a href="[^"]*">(?:\u200c|\u200b|&#8203;|&#8204;)</a>',
+        "",
+        text,
+        count=1,
+    )
 
 
 def _strip_all_anchors(text: str) -> str:
