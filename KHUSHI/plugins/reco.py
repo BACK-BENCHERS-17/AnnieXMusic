@@ -26,11 +26,11 @@ _BRAND = (
 )
 
 _EM = {
-    "music":  "<emoji id='5994566609002303309'>🎵</emoji>",
-    "star":   "<emoji id='5042225965518816316'>❤️‍🔥</emoji>",
+    "music":  "<emoji id='5373043798411215697'>🎵</emoji>",
+    "star":   "<emoji id='5356706551848769325'>🌟</emoji>",
     "dot":    "<emoji id='5972072533833289156'>🔹</emoji>",
     "zap":    "<emoji id='5042334757040423886'>⚡️</emoji>",
-    "mic":    "<emoji id='6030722571412967168'>🎤</emoji>",
+    "mic":    "<emoji id='5357418988672927257'>🎙</emoji>",
     "fire":   "<emoji id='5039644681583985437'>🔥</emoji>",
 }
 
@@ -295,11 +295,12 @@ async def reco_cmd(client, message: Message):
         song_rows.append([InlineKeyboardButton(
             label,
             callback_data=f"rp:{s[:40]}",
+            style="primary",
         )])
 
     song_rows.append([
-        InlineKeyboardButton("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=_sc_url()),
-        InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close"),
+        InlineKeyboardButton("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=_sc_url(), style="success"),
+        InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
     ])
 
     try:

@@ -161,21 +161,18 @@ async def _handle_play(message: Message, video: bool = False):
             _sc = SUPPORT_CHAT if SUPPORT_CHAT.startswith("http") else f"https://t.me/{SUPPORT_CHAT.lstrip('@')}"
             _play_kb = InlineKeyboardMarkup([
                 [
-                    InlineKeyboardButton("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=_sc),
-                    InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close"),
+                    InlineKeyboardButton("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=_sc, style="success"),
+                    InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
                 ]
             ])
-            _play_caption = (
-                f"<blockquote>{_BRAND}</blockquote>\n\n"
-                "<blockquote>"
-                "🎵 <code>/play</code>  [ꜱᴏɴɢ ɴᴀᴍᴇ / ʏᴛ ᴜʀʟ]\n"
-                "🎬 <code>/vplay</code> [ᴠɪᴅᴇᴏ ɴᴀᴍᴇ / ʏᴛ ᴜʀʟ]\n"
-                "◈  ʀᴇᴘʟʏ ᴛᴏ ᴀ ꜰɪʟᴇ ᴛᴏ ᴘʟᴀʏ ɪᴛ ᴅɪʀᴇᴄᴛʟʏ"
-                "</blockquote>"
-            )
             await app.send_message(
                 msg_chat_id,
-                _play_caption,
+                _panel("ʜᴏᴡ ᴛᴏ ᴘʟᴀʏ", [
+                    f"{_EM['music']} <code>/play</code> [ꜱᴏɴɢ ɴᴀᴍᴇ / ʏᴛ ᴜʀʟ]",
+                    f"{_EM['video']} <code>/vplay</code> [ᴠɪᴅᴇᴏ ɴᴀᴍᴇ / ʏᴛ ᴜʀʟ]",
+                    f"{_EM['dot']} <code>/play</code> [ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴛᴇʟᴇɢʀᴀᴍ ꜰɪʟᴇ]",
+                    f"{_EM['zap']} <code>/song</code> [ꜱᴏɴɢ] — ᴅᴏᴡɴʟᴏᴀᴅ ᴛᴏ ᴅᴍ",
+                ]),
                 reply_markup=_play_kb,
                 parse_mode=enums.ParseMode.HTML,
                 disable_web_page_preview=True,

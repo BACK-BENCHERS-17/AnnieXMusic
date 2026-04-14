@@ -26,7 +26,7 @@ def first_page(_):
         [
             InlineKeyboardButton(
                 text=_["BACK_BUTTON"],
-                callback_data="back_to_main",
+                callback_data="khushi_back",
                 style="success",
             ),
             InlineKeyboardButton(
