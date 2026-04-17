@@ -7,63 +7,56 @@ reusable blockquote message helpers.  Import from here everywhere.
 
 # ── ANNIE brand row ─────────────────────────────────────────────────────────
 # Animated-letter stickers that spell out "ANNIE" with the bear mascot.
-BRAND = (
-    "<emoji id='5042192219960771668'>🧸</emoji>"   # bear  / A
-    "<emoji id='5210820276748566172'>🔤</emoji>"   # N
-    "<emoji id='5213301251722203632'>🔤</emoji>"   # N
-    "<emoji id='5213301251722203632'>🔤</emoji>"   # I
-    "<emoji id='5211032856154885824'>🔤</emoji>"   # E
-    "<emoji id='5213337333742454261'>🔤</emoji>"   # trailing glow
-)
+BRAND = "🧸 ᴀɴɴɪᴇ"
 
 # ── Premium emoji set (verified working IDs) ────────────────────────────────
 E = {
     # Status
-    "check":    "<emoji id='6041597085009056322'>✅</emoji>",
-    "cross":    "<emoji id='5447644880824181073'>❌</emoji>",
-    "warn":     "<emoji id='5420323339723881652'>⚠️</emoji>",
-    "shield":   "<emoji id='5895483165182529286'>🛡</emoji>",
-    "ban":      "<emoji id='5361313453196476596'>🚫</emoji>",
-    "lock":     "<emoji id='5381645965313085884'>🔒</emoji>",
+    "check":    "✅",
+    "cross":    "❌",
+    "warn":     "⚠️",
+    "shield":   "🛡",
+    "ban":      "🚫",
+    "lock":     "🔒",
 
     # Music / media
-    "music":    "<emoji id='5373043798411215697'>🎵</emoji>",
-    "notes":    "<emoji id='5373123168026207226'>🎶</emoji>",
-    "mic":      "<emoji id='5357418988672927257'>🎙</emoji>",
-    "headset":  "<emoji id='5373074324779186371'>🎧</emoji>",
-    "radio":    "<emoji id='5373180492080903524'>📻</emoji>",
-    "video":    "<emoji id='5375464961822695044'>🎬</emoji>",
-    "live":     "<emoji id='5346027782059532469'>▶️</emoji>",
+    "music":    "🎵",
+    "notes":    "🎶",
+    "mic":      "🎙",
+    "headset":  "🎧",
+    "radio":    "📻",
+    "video":    "🎬",
+    "live":     "▶️",
 
     # Actions / states
-    "zap":      "<emoji id='5337120015363304150'>⚡</emoji>",
-    "fire":     "<emoji id='5347895529033462557'>🔥</emoji>",
-    "star":     "<emoji id='5356706551848769325'>🌟</emoji>",
-    "sparkle":  "<emoji id='5432693215988770596'>✨</emoji>",
-    "diamond":  "<emoji id='5368319008979943541'>💎</emoji>",
-    "bell":     "<emoji id='5386367538735104399'>🔔</emoji>",
-    "clock":    "<emoji id='5434890496440903643'>⏰</emoji>",
-    "hourglass":"<emoji id='4979027931234830344'>⏳</emoji>",
-    "search":   "<emoji id='5395444784611480792'>🔍</emoji>",
-    "link":     "<emoji id='5373024494633049785'>🔗</emoji>",
-    "crown":    "<emoji id='5394892612508411389'>👑</emoji>",
-    "gift":     "<emoji id='5360542106742268290'>🎁</emoji>",
-    "pin":      "<emoji id='5472282911506501403'>📌</emoji>",
+    "zap":      "⚡",
+    "fire":     "🔥",
+    "star":     "🌟",
+    "sparkle":  "✨",
+    "diamond":  "💎",
+    "bell":     "🔔",
+    "clock":    "⏰",
+    "hourglass":"⏳",
+    "search":   "🔍",
+    "link":     "🔗",
+    "crown":    "👑",
+    "gift":     "🎁",
+    "pin":      "📌",
 
     # Indicators
-    "dot":      "<emoji id='5972072533833289156'>🔹</emoji>",
-    "arrow":    "<emoji id='5197521876529545705'>➤</emoji>",
-    "play_btn": "<emoji id='5346099622383056961'>▶</emoji>",
-    "repeat":   "<emoji id='5373150762449421436'>🔁</emoji>",
-    "shuffle":  "<emoji id='5370894089711388826'>🔀</emoji>",
-    "skip":     "<emoji id='5373018274545775531'>⏭</emoji>",
-    "prev":     "<emoji id='5373040281539151958'>⏮</emoji>",
-    "stop":     "<emoji id='5371843862470941498'>⏹</emoji>",
-    "pause":    "<emoji id='5373103055199560996'>⏸</emoji>",
-    "queue":    "<emoji id='5350982073854661706'>🔊</emoji>",
-    "speed":    "<emoji id='5373042927648818686'>🚀</emoji>",
-    "seek_fwd": "<emoji id='5349880790124955266'>⏩</emoji>",
-    "seek_bk":  "<emoji id='5373054327609502403'>⏪</emoji>",
+    "dot":      "🔹",
+    "arrow":    "➤",
+    "play_btn": "▶",
+    "repeat":   "🔁",
+    "shuffle":  "🔀",
+    "skip":     "⏭",
+    "prev":     "⏮",
+    "stop":     "⏹",
+    "pause":    "⏸",
+    "queue":    "🔊",
+    "speed":    "🚀",
+    "seek_fwd": "⏩",
+    "seek_bk":  "⏪",
 }
 
 

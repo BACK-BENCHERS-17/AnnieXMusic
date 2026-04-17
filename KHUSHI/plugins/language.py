@@ -13,14 +13,7 @@ from KHUSHI.utils.inline import InlineKeyboardButton
 from config import BANNED_USERS
 from strings import languages_present
 
-_BRAND = (
-    "<emoji id='5042192219960771668'>🧸</emoji>"
-    "<emoji id='5210820276748566172'>🔤</emoji>"
-    "<emoji id='5213301251722203632'>🔤</emoji>"
-    "<emoji id='5213301251722203632'>🔤</emoji>"
-    "<emoji id='5211032856154885824'>🔤</emoji>"
-    "<emoji id='5213337333742454261'>🔤</emoji>"
-)
+_BRAND = "🧸 ᴀɴɴɪᴇ"
 
 _LANG_FLAGS = {
     "en": "🇺🇸",
@@ -57,7 +50,7 @@ def _lang_text(_) -> str:
         f"<blockquote>{_BRAND}</blockquote>\n\n"
         f"<blockquote>"
         f"┌────── ˹ ʟᴀɴɢᴜᴀɢᴇ ˼─── ⏤‌‌●\n"
-        f"┆<emoji id='5972072533833289156'>🔹</emoji> {_['lang_1']}\n"
+        f"┆🔹 {_['lang_1']}\n"
         f"└──────────────────────●"
         f"</blockquote>"
     )

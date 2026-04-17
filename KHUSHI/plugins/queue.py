@@ -9,16 +9,9 @@ from KHUSHI.utils import seconds_to_min
 from KHUSHI.utils.database import get_cmode, is_active_chat
 from config import BANNED_USERS
 
-_BRAND = (
-    "<emoji id='5042192219960771668'>🧸</emoji>"
-    "<emoji id='5210820276748566172'>🔤</emoji>"
-    "<emoji id='5213301251722203632'>🔤</emoji>"
-    "<emoji id='5213301251722203632'>🔤</emoji>"
-    "<emoji id='5211032856154885824'>🔤</emoji>"
-    "<emoji id='5213337333742454261'>🔤</emoji>"
-)
-_dot = "<emoji id='5972072533833289156'>🔹</emoji>"
-_fire = "<emoji id='5039598514980520994'>❤️‍🔥</emoji>"
+_BRAND = "🧸 ᴀɴɴɪᴇ"
+_dot = "🔹"
+_fire = "❤️‍🔥"
 
 
 @app.on_message(

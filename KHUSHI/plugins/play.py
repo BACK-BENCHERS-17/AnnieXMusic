@@ -697,8 +697,8 @@ async def related_play_cb(client, query):
                 duration=duration_sec or 0,
                 caption=(
                     f"<b>{title_t}</b>\n"
-                    f"<emoji id='5972072533833289156'>🔹</emoji> ᴅᴜʀᴀᴛɪᴏɴ: <code>{duration_min}</code>\n"
-                    f"<emoji id='5042334757040423886'>⚡️</emoji> ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴋʜᴜsʜɪ"
+                    f"🔹 ᴅᴜʀᴀᴛɪᴏɴ: <code>{duration_min}</code>\n"
+                    f"⚡️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴋʜᴜsʜɪ"
                 ),
             )
         except Exception:
