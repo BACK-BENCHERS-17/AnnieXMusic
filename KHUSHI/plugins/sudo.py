@@ -29,7 +29,16 @@ from KHUSHI.utils.database import (
 from KHUSHI.utils.extraction import extract_user
 from config import BANNED_USERS, OWNER_ID
 
-_BRAND = "<blockquote>🧸 ᴀɴɴɪᴇ</blockquote>"
+_BRAND = (
+    "<blockquote>"
+    "<emoji id='5042192219960771668'>🧸</emoji>"
+    "<emoji id='5210820276748566172'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5211032856154885824'>🔤</emoji>"
+    "<emoji id='5213337333742454261'>🔤</emoji>"
+    "</blockquote>"
+)
 
 _dot = "🔹"
 _zap = "⚡️"

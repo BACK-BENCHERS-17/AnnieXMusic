@@ -15,16 +15,23 @@ from KHUSHI.core.call import JARVIS
 from KHUSHI.utils import bot_sys_stats
 from config import BANNED_USERS, PING_IMG_URL, START_IMGS, SUPPORT_CHAT
 
-_BRAND = "🧸 ᴀɴɴɪᴇ"
+_BRAND = (
+    "<emoji id='5042192219960771668'>🧸</emoji>"
+    "<emoji id='5210820276748566172'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5211032856154885824'>🔤</emoji>"
+    "<emoji id='5213337333742454261'>🔤</emoji>"
+)
 
 _E = {
-    "ping":   "🏓",
-    "vc":     "📞",
-    "up":     "🕔",
-    "cpu":    "🖥",
-    "ram":    "🔵",
-    "disk":   "💬",
-    "zap":    "⚡️",
+    "ping":   "<emoji id='5269563867305879894'>🏓</emoji>",
+    "vc":     "<emoji id='5226772700113935347'>📞</emoji>",
+    "up":     "<emoji id='6337029193603225180'>🕔</emoji>",
+    "cpu":    "<emoji id='5215186239853964761'>🖥</emoji>",
+    "ram":    "<emoji id='5834767463081840315'>🔵</emoji>",
+    "disk":   "<emoji id='5116468787377341336'>💬</emoji>",
+    "zap":    "<emoji id='5042334757040423886'>⚡️</emoji>",
 }
 
 

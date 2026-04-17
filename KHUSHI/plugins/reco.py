@@ -2,12 +2,9 @@
 
 import asyncio
 import html
-import logging
 import random
-import re
 
-from pyrogram import enums, filters
-from pyrogram.types import InlineKeyboardButton as _PlainBtn
+from pyrogram import filters
 from pyrogram.types import InlineKeyboardMarkup, Message
 
 from KHUSHI.utils.inline import InlineKeyboardButton
@@ -17,19 +14,24 @@ from KHUSHI.core.mongo import mongodb
 from KHUSHI.utils.decorators import KhushiGroupAdmin as AdminRightsCheck
 from config import BANNED_USERS, SUPPORT_CHAT
 
-LOGGER = logging.getLogger(__name__)
-
 _recodb = mongodb.reco_settings
 
-_BRAND = "🧸 ᴀɴɴɪᴇ"
+_BRAND = (
+    "<emoji id='5042192219960771668'>🧸</emoji>"
+    "<emoji id='5210820276748566172'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5211032856154885824'>🔤</emoji>"
+    "<emoji id='5213337333742454261'>🔤</emoji>"
+)
 
 _EM = {
-    "music":  "🎵",
-    "star":   "🌟",
-    "dot":    "🔹",
-    "zap":    "⚡️",
-    "mic":    "🎙",
-    "fire":   "🔥",
+    "music":  "<emoji id='5373043798411215697'>🎵</emoji>",
+    "star":   "<emoji id='5356706551848769325'>🌟</emoji>",
+    "dot":    "<emoji id='5972072533833289156'>🔹</emoji>",
+    "zap":    "<emoji id='5042334757040423886'>⚡️</emoji>",
+    "mic":    "<emoji id='5357418988672927257'>🎙</emoji>",
+    "fire":   "<emoji id='5039644681583985437'>🔥</emoji>",
 }
 
 # ── Massive Hindi/Punjabi-first song database ──────────────────────────────────
@@ -286,61 +288,32 @@ async def reco_cmd(client, message: Message):
         f"{_EM['star']} ᴛᴀᴘ ᴀɴʏ ʙᴜᴛᴛᴏɴ ʙᴇʟᴏᴡ ᴛᴏ ᴘʟᴀʏ ɪɴsᴛᴀɴᴛʟʏ!"
     )
 
-    # ── Build song buttons (styled first, plain fallback) ─────────────────────
-    def _make_rows(styled: bool) -> list:
-        rows = []
-        for s in picks:
-            label = s[:35] + "…" if len(s) > 35 else s
-            cb = f"rp:{s[:40]}"
-            if styled:
-                rows.append([InlineKeyboardButton(label, callback_data=cb, style="primary")])
-            else:
-                rows.append([_PlainBtn(label, callback_data=cb)])
-        if styled:
-            rows.append([
-                InlineKeyboardButton("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=_sc_url()),
-                InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
-            ])
-        else:
-            rows.append([
-                _PlainBtn("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=_sc_url()),
-                _PlainBtn("˹ᴄʟᴏꜱᴇ˼", callback_data="close"),
-            ])
-        return rows
+    # One button per song, one per row + support/close at bottom
+    song_rows = []
+    for s in picks:
+        label = s[:35] + "…" if len(s) > 35 else s
+        song_rows.append([InlineKeyboardButton(
+            label,
+            callback_data=f"rp:{s[:40]}",
+            style="primary",
+        )])
 
-    _pm = enums.ParseMode.HTML
-    _body = _reply(header)
-    sent = None
+    song_rows.append([
+        InlineKeyboardButton("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=_sc_url(), style="success"),
+        InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
+    ])
 
-    # Attempt 1: styled buttons
     try:
         sent = await message.reply_text(
-            _body,
-            reply_markup=InlineKeyboardMarkup(_make_rows(styled=True)),
-            parse_mode=_pm,
+            _reply(header),
+            reply_markup=InlineKeyboardMarkup(song_rows),
         )
-    except Exception as e1:
-        LOGGER.warning(f"[Reco] styled buttons failed: {e1!r}")
-
-    # Attempt 2: plain buttons (guaranteed to work)
-    if sent is None:
-        try:
-            sent = await message.reply_text(
-                _body,
-                reply_markup=InlineKeyboardMarkup(_make_rows(styled=False)),
-                parse_mode=_pm,
-            )
-        except Exception as e2:
-            LOGGER.warning(f"[Reco] plain buttons also failed: {e2!r}")
-            await message.reply_text(
-                f"<blockquote>{_BRAND}</blockquote>\n\n"
-                f"<blockquote>{_EM['fire']} <b>˹ ꜱᴏɴɢ ꜱᴜɢɢᴇꜱᴛɪᴏɴꜱ ˼</b>\n\n"
-                f"{lines}</blockquote>",
-                parse_mode=_pm,
-            )
-            return
-
-    if sent is None:
+    except Exception as e:
+        await message.reply_text(
+            f"<blockquote>{_BRAND}</blockquote>\n\n"
+            f"<blockquote>{_EM['fire']} <b>˹ ꜱᴏɴɢ ꜱᴜɢɢᴇꜱᴛɪᴏɴꜱ ˼</b>\n\n"
+            f"{lines}</blockquote>"
+        )
         return
 
     # Auto-delete after 120 seconds
@@ -362,8 +335,6 @@ async def rconfig_cmd(client, message: Message, lang, chat_id):
     args = message.command[1:]
     cfg = await _get_rconfig(chat_id)
 
-    _pm = enums.ParseMode.HTML
-
     if not args:
         genre = cfg.get("genre", "bollywood")
         count = cfg.get("count", 5)
@@ -380,7 +351,6 @@ async def rconfig_cmd(client, message: Message, lang, chat_id):
             reply_markup=InlineKeyboardMarkup([[
                 InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
             ]]),
-            parse_mode=_pm,
         )
 
     sub = args[0].lower()
@@ -396,7 +366,6 @@ async def rconfig_cmd(client, message: Message, lang, chat_id):
                 reply_markup=InlineKeyboardMarkup([[
                     InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
                 ]]),
-                parse_mode=_pm,
             )
         cfg["genre"] = new_genre
         await _save_rconfig(chat_id, cfg)
@@ -408,7 +377,6 @@ async def rconfig_cmd(client, message: Message, lang, chat_id):
             reply_markup=InlineKeyboardMarkup([[
                 InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
             ]]),
-            parse_mode=_pm,
         )
 
     if sub == "count" and len(args) >= 2:
@@ -420,7 +388,6 @@ async def rconfig_cmd(client, message: Message, lang, chat_id):
                 reply_markup=InlineKeyboardMarkup([[
                     InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
                 ]]),
-                parse_mode=_pm,
             )
         cfg["count"] = new_count
         await _save_rconfig(chat_id, cfg)
@@ -432,7 +399,6 @@ async def rconfig_cmd(client, message: Message, lang, chat_id):
             reply_markup=InlineKeyboardMarkup([[
                 InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
             ]]),
-            parse_mode=_pm,
         )
 
     await message.reply_text(
@@ -442,7 +408,6 @@ async def rconfig_cmd(client, message: Message, lang, chat_id):
             f"{_EM['dot']} <code>/rconfig count [1-6]</code>"
         ),
         reply_markup=InlineKeyboardMarkup([[
-            InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
+            InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close"),
         ]]),
-        parse_mode=_pm,
     )
