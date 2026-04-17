@@ -532,7 +532,6 @@ async def khushi_help_cb(client, query):
 
     if not edited:
         _LOGGER.warning("[HELP_CB] All edits failed — falling back to delete+send")
-        safe_caption = _safe_text(caption)
         try:
             await msg.delete()
         except Exception:
@@ -541,7 +540,7 @@ async def khushi_help_cb(client, query):
             await client.send_photo(
                 msg.chat.id,
                 photo=HELP_IMG_URL,
-                caption=safe_caption,
+                caption=caption,
                 reply_markup=keyboard,
                 parse_mode=enums.ParseMode.HTML,
             )
@@ -578,7 +577,6 @@ async def help_section_cb(client, query):
         return await query.answer("ɪɴᴠᴀʟɪᴅ ʜᴇʟᴘ ᴛᴏᴘɪᴄ.", show_alert=True)
 
     back_kb = help_back_markup(_, number)
-    safe_help_text = _safe_text(help_text)
 
     edited = False
     try:
@@ -609,7 +607,7 @@ async def help_section_cb(client, query):
         try:
             await client.send_message(
                 query.message.chat.id,
-                safe_help_text,
+                help_text,
                 reply_markup=back_kb,
                 parse_mode=enums.ParseMode.HTML,
                 disable_web_page_preview=True,
@@ -637,7 +635,6 @@ async def help_nav_cb(client, query):
         return await query.answer("ɪɴᴠᴀʟɪᴅ sᴇᴄᴛɪᴏɴ.", show_alert=True)
 
     nav_kb = help_back_markup(_, section)
-    safe_help_text = _safe_text(help_text)
 
     edited = False
     try:
@@ -670,7 +667,7 @@ async def help_nav_cb(client, query):
         try:
             await client.send_message(
                 query.message.chat.id,
-                safe_help_text,
+                help_text,
                 reply_markup=nav_kb,
                 parse_mode=enums.ParseMode.HTML,
                 disable_web_page_preview=True,
@@ -721,7 +718,7 @@ async def help_back_cb(client, query):
             try:
                 await client.send_message(
                     query.message.chat.id,
-                    _safe_text(caption),
+                    caption,
                     reply_markup=keyboard,
                     parse_mode=enums.ParseMode.HTML,
                     disable_web_page_preview=True,

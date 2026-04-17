@@ -4,7 +4,8 @@ import asyncio
 import html
 import random
 
-from pyrogram import filters
+from pyrogram import enums, filters
+from pyrogram.types import InlineKeyboardButton as _PlainBtn
 from pyrogram.types import InlineKeyboardMarkup, Message
 
 from KHUSHI.utils.inline import InlineKeyboardButton
@@ -303,18 +304,33 @@ async def reco_cmd(client, message: Message):
         InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
     ])
 
+    # Build plain-button fallback rows (no style= param)
+    _plain_rows = [
+        [_PlainBtn(s[:35] + "…" if len(s) > 35 else s, callback_data=f"rp:{s[:40]}")]
+        for s in picks
+    ]
+    _plain_rows.append([
+        _PlainBtn("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=_sc_url()),
+        _PlainBtn("˹ᴄʟᴏꜱᴇ˼", callback_data="close"),
+    ])
+
     try:
         sent = await message.reply_text(
             _reply(header),
             reply_markup=InlineKeyboardMarkup(song_rows),
+            parse_mode=enums.ParseMode.HTML,
         )
-    except Exception as e:
-        await message.reply_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
-            f"<blockquote>{_EM['fire']} <b>˹ ꜱᴏɴɢ ꜱᴜɢɢᴇꜱᴛɪᴏɴꜱ ˼</b>\n\n"
-            f"{lines}</blockquote>"
-        )
-        return
+    except Exception:
+        try:
+            sent = await message.reply_text(
+                f"<blockquote>🧸 ᴀɴɴɪᴇ</blockquote>\n\n"
+                f"<blockquote>🔥 <b>˹ ꜱᴏɴɢ ꜱᴜɢɢᴇꜱᴛɪᴏɴꜱ ˼</b>\n\n"
+                f"{lines}</blockquote>",
+                reply_markup=InlineKeyboardMarkup(_plain_rows),
+                parse_mode=enums.ParseMode.HTML,
+            )
+        except Exception:
+            return
 
     # Auto-delete after 120 seconds
     async def _auto_del():

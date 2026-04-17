@@ -1,5 +1,14 @@
 
-_ANNIE = '<blockquote>🧸 ᴀɴɴɪᴇ</blockquote>\n\n'
+_ANNIE = (
+    "<blockquote>"
+    "<emoji id='5042192219960771668'>🧸</emoji>"
+    "<emoji id='5210820276748566172'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5213301251722203632'>🔤</emoji>"
+    "<emoji id='5211032856154885824'>🔤</emoji>"
+    "<emoji id='5213337333742454261'>🔤</emoji>"
+    "</blockquote>\n\n"
+)
 
 HELP_1 = _ANNIE + """
 <blockquote><b>🎵 ᴘʟᴀʏ ᴄᴏᴍᴍᴀɴᴅs</b></blockquote>
