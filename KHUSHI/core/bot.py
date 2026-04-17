@@ -4,6 +4,7 @@ from pyrogram import Client, enums, errors
 
 import config
 from KHUSHI.logger_setup import LOGGER
+from KHUSHI.utils.ui import BRAND as _BRAND, E as _E
 
 BOT_PFP_PATH = "KHUSHI/assets/bot_pfp.png"
 
@@ -47,11 +48,12 @@ class KhushiBot(Client):
             await self.send_message(
                 config.LOGGER_ID,
                 (
-                    f"<blockquote><b>✅ {self.mention} ꜱᴛᴀʀᴛᴇᴅ</b>\n\n"
+                    f"<blockquote>{_BRAND}</blockquote>\n"
+                    f"<blockquote><b>{_E['check']} {self.mention} ꜱᴛᴀʀᴛᴇᴅ</b>\n\n"
                     f"ɪᴅ : <code>{self.id}</code>\n"
                     f"ɴᴀᴍᴇ : {self.name}\n"
                     f"ᴜꜱᴇʀɴᴀᴍᴇ : @{self.username}\n"
-                    f"ᴍᴏᴅᴇ : <b>ANNIE</b></blockquote>"
+                    f"ᴍᴏᴅᴇ : <b>{_E['zap']} ᴀɴɴɪᴇ</b></blockquote>"
                 ),
             )
         except Exception as e:

@@ -1,4 +1,16 @@
 
+_MUSIC   = "<emoji id='5373043798411215697'>🎵</emoji>"
+_SHUFFLE = "<emoji id='5370894089711388826'>🔀</emoji>"
+_ZAP     = "<emoji id='5337120015363304150'>⚡</emoji>"
+_DOT     = "<emoji id='5972072533833289156'>🔹</emoji>"
+_STAR    = "<emoji id='5356706551848769325'>🌟</emoji>"
+_SPARKLE = "<emoji id='5432693215988770596'>✨</emoji>"
+_VIDEO   = "<emoji id='5375464961822695044'>🎬</emoji>"
+_SHIELD  = "<emoji id='5895483165182529286'>🛡</emoji>"
+_CROWN   = "<emoji id='5394892612508411389'>👑</emoji>"
+_SEARCH  = "<emoji id='5395444784611480792'>🔍</emoji>"
+_GIFT    = "<emoji id='5360542106742268290'>🎁</emoji>"
+
 _ANNIE = (
     "<blockquote>"
     "<emoji id='5042192219960771668'>🧸</emoji>"
@@ -10,8 +22,8 @@ _ANNIE = (
     "</blockquote>\n\n"
 )
 
-HELP_1 = _ANNIE + """
-<blockquote><b>🎵 ᴘʟᴀʏ ᴄᴏᴍᴍᴀɴᴅs</b></blockquote>
+HELP_1 = _ANNIE + f"""
+<blockquote><b>{_MUSIC} ᴘʟᴀʏ ᴄᴏᴍᴍᴀɴᴅs</b></blockquote>
 
 <blockquote>
 <b>• /play</b> <code>[song name / link]</code>
@@ -30,11 +42,11 @@ HELP_1 = _ANNIE + """
   ↳ sᴛʀᴇᴀᴍ ʟɪᴠᴇ / ᴍ3ᴜ8 / ʀᴀᴅɪᴏ
 </blockquote>
 
-<blockquote>🔹 sᴜᴘᴘᴏʀᴛs: ʏᴏᴜᴛᴜʙᴇ · sᴘᴏᴛɪꜰʏ · sᴏᴜɴᴅᴄʟᴏᴜᴅ · ᴀᴘᴘʟᴇ ᴍᴜsɪᴄ · ᴅɪʀᴇᴄᴛ ʟɪɴᴋs · ᴛᴇʟᴇɢʀᴀᴍ ꜰɪʟᴇs · ʟɪᴠᴇ sᴛʀᴇᴀᴍs</blockquote>
+<blockquote>{_DOT} sᴜᴘᴘᴏʀᴛs: ʏᴏᴜᴛᴜʙᴇ · sᴘᴏᴛɪꜰʏ · sᴏᴜɴᴅᴄʟᴏᴜᴅ · ᴀᴘᴘʟᴇ ᴍᴜsɪᴄ · ᴅɪʀᴇᴄᴛ ʟɪɴᴋs · ᴛᴇʟᴇɢʀᴀᴍ ꜰɪʟᴇs · ʟɪᴠᴇ sᴛʀᴇᴀᴍs</blockquote>
 """
 
-HELP_2 = _ANNIE + """
-<blockquote><b>🎵 ᴘʟᴀʏʙᴀᴄᴋ ᴄᴏɴᴛʀᴏʟs</b></blockquote>
+HELP_2 = _ANNIE + f"""
+<blockquote><b>{_MUSIC} ᴘʟᴀʏʙᴀᴄᴋ ᴄᴏɴᴛʀᴏʟs</b></blockquote>
 
 <blockquote>
 <b>• /pause</b>                ↳ ᴘᴀᴜsᴇ ᴛʜᴇ sᴛʀᴇᴀᴍ
@@ -50,11 +62,11 @@ HELP_2 = _ANNIE + """
 <b>• /player</b>               ↳ ɪɴᴛᴇʀᴀᴄᴛɪᴠᴇ ᴘʟᴀʏᴇʀ ᴘᴀɴᴇʟ
 </blockquote>
 
-<blockquote>❄️ ᴀᴅᴅ <b>c</b> ᴘʀᴇꜰɪx ꜰᴏʀ ᴄʜᴀɴɴᴇʟ ᴘʟᴀʏʙᴀᴄᴋ <code>(e.g. /cpause)</code></blockquote>
+<blockquote>{_SPARKLE} ᴀᴅᴅ <b>c</b> ᴘʀᴇꜰɪx ꜰᴏʀ ᴄʜᴀɴɴᴇʟ ᴘʟᴀʏʙᴀᴄᴋ <code>(e.g. /cpause)</code></blockquote>
 """
 
-HELP_3 = _ANNIE + """
-<blockquote><b>🔀 ǫᴜᴇᴜᴇ ᴍᴀɴᴀɢᴇᴍᴇɴᴛ</b></blockquote>
+HELP_3 = _ANNIE + f"""
+<blockquote><b>{_SHUFFLE} ǫᴜᴇᴜᴇ ᴍᴀɴᴀɢᴇᴍᴇɴᴛ</b></blockquote>
 
 <blockquote>
 <b>• /queue</b>    ↳ ᴠɪᴇᴡ ᴄᴜʀʀᴇɴᴛ ǫᴜᴇᴜᴇ ʟɪsᴛ
@@ -62,11 +74,11 @@ HELP_3 = _ANNIE + """
 <b>• /skip</b> <code>[N]</code>  ↳ sᴋɪᴘ ᴛᴏ ᴛʀᴀᴄᴋ ɴ ɪɴ ǫᴜᴇᴜᴇ
 </blockquote>
 
-<blockquote>🔹 ǫᴜᴇᴜᴇ ᴄᴀᴘᴀᴄɪᴛʏ ɪs ᴜɴʟɪᴍɪᴛᴇᴅ — sᴛᴀᴄᴋ ᴀs ᴍᴀɴʏ ᴛʀᴀᴄᴋs ᴀs ʏᴏᴜ ᴡᴀɴᴛ!</blockquote>
+<blockquote>{_DOT} ǫᴜᴇᴜᴇ ᴄᴀᴘᴀᴄɪᴛʏ ɪs ᴜɴʟɪᴍɪᴛᴇᴅ — sᴛᴀᴄᴋ ᴀs ᴍᴀɴʏ ᴛʀᴀᴄᴋs ᴀs ʏᴏᴜ ᴡᴀɴᴛ!</blockquote>
 """
 
-HELP_4 = _ANNIE + """
-<blockquote><b>❄️ ᴀᴜᴛʜᴏʀɪᴢᴇᴅ ᴜsᴇʀs</b></blockquote>
+HELP_4 = _ANNIE + f"""
+<blockquote><b>{_SHIELD} ᴀᴜᴛʜᴏʀɪᴢᴇᴅ ᴜsᴇʀs</b></blockquote>
 
 <blockquote>
 <b>• /auth</b> <code>[user]</code>     ↳ ɢɪᴠᴇ ᴜsᴇʀ ᴀᴅᴍɪɴ-ʟɪᴋᴇ ᴍᴜsɪᴄ ʀɪɢʜᴛs
@@ -74,11 +86,11 @@ HELP_4 = _ANNIE + """
 <b>• /authusers</b>           ↳ ʟɪsᴛ ᴀʟʟ ᴀᴜᴛʜ ᴜsᴇʀs
 </blockquote>
 
-<blockquote>🔹 ᴀᴜᴛʜ ᴜsᴇʀs ᴄᴀɴ ᴄᴏɴᴛʀᴏʟ ᴍᴜsɪᴄ ᴡɪᴛʜᴏᴜᴛ ʙᴇɪɴɢ ɢʀᴏᴜᴘ ᴀᴅᴍɪɴ</blockquote>
+<blockquote>{_DOT} ᴀᴜᴛʜ ᴜsᴇʀs ᴄᴀɴ ᴄᴏɴᴛʀᴏʟ ᴍᴜsɪᴄ ᴡɪᴛʜᴏᴜᴛ ʙᴇɪɴɢ ɢʀᴏᴜᴘ ᴀᴅᴍɪɴ</blockquote>
 """
 
-HELP_5 = _ANNIE + """
-<blockquote><b>📥 ᴅᴏᴡɴʟᴏᴀᴅ</b></blockquote>
+HELP_5 = _ANNIE + f"""
+<blockquote><b>{_ZAP} ᴅᴏᴡɴʟᴏᴀᴅ</b></blockquote>
 
 <blockquote>
 <b>• /song</b> <code>[song name or YouTube URL]</code>
@@ -88,15 +100,15 @@ HELP_5 = _ANNIE + """
    ↳ sᴀᴍᴇ ᴀs /sᴏɴɢ (sʜᴏʀᴛ ᴀʟɪᴀs)
 </blockquote>
 
-<blockquote>🔹 <b>ǫᴜᴀʟɪᴛɪᴇs:</b>
-• 🎵 ᴀᴜᴅɪᴏ 128ᴋ / ʙᴇsᴛ
-• 📷 ᴠɪᴅᴇᴏ 360ᴘ / 720ᴘ</blockquote>
+<blockquote>{_DOT} <b>ǫᴜᴀʟɪᴛɪᴇs:</b>
+• {_MUSIC} ᴀᴜᴅɪᴏ 128ᴋ / ʙᴇsᴛ
+• {_VIDEO} ᴠɪᴅᴇᴏ 360ᴘ / 720ᴘ</blockquote>
 
-<blockquote>⚡️ ᴡᴏʀᴋs ɪɴ ᴘʀɪᴠᴀᴛᴇ ᴄʜᴀᴛ ᴏɴʟʏ · 48 ᴍʙ ʟɪᴍɪᴛ · ʏᴏᴜᴛᴜʙᴇ sᴜᴘᴘᴏʀᴛ</blockquote>
+<blockquote>{_ZAP} ᴡᴏʀᴋs ɪɴ ᴘʀɪᴠᴀᴛᴇ ᴄʜᴀᴛ ᴏɴʟʏ · 48 ᴍʙ ʟɪᴍɪᴛ · ʏᴏᴜᴛᴜʙᴇ sᴜᴘᴘᴏʀᴛ</blockquote>
 """
 
-HELP_6 = _ANNIE + """
-<blockquote><b>⚙️ sᴇᴛᴛɪɴɢs & ᴍᴏᴅᴇs</b></blockquote>
+HELP_6 = _ANNIE + f"""
+<blockquote><b>{_SPARKLE} sᴇᴛᴛɪɴɢs & ᴍᴏᴅᴇs</b></blockquote>
 
 <blockquote>
 <b>• /settings</b>        ↳ ɪɴᴛᴇʀᴀᴄᴛɪᴠᴇ sᴇᴛᴛɪɴɢs ᴘᴀɴᴇʟ
@@ -109,11 +121,11 @@ HELP_6 = _ANNIE + """
 <b>• /nsfw on|off</b>     ↳ ɴsꜰᴡ ᴄᴏɴᴛᴇɴᴛ ꜰɪʟᴛᴇʀ
 </blockquote>
 
-<blockquote>❄️ ᴀʟʟ sᴇᴛᴛɪɴɢs ᴀʀᴇ ᴘᴇʀ-ɢʀᴏᴜᴘ ᴀɴᴅ sᴀᴠᴇᴅ ɪɴ ᴅᴀᴛᴀʙᴀsᴇ</blockquote>
+<blockquote>{_SPARKLE} ᴀʟʟ sᴇᴛᴛɪɴɢs ᴀʀᴇ ᴘᴇʀ-ɢʀᴏᴜᴘ ᴀɴᴅ sᴀᴠᴇᴅ ɪɴ ᴅᴀᴛᴀʙᴀsᴇ</blockquote>
 """
 
-HELP_7 = _ANNIE + """
-<blockquote><b>🎵 ˹ sᴏɴɢ ʀᴇᴄᴏ ˼</b></blockquote>
+HELP_7 = _ANNIE + f"""
+<blockquote><b>{_MUSIC} ˹ sᴏɴɢ ʀᴇᴄᴏ ˼</b></blockquote>
 
 <blockquote>
 <b>• /reco</b>
@@ -132,11 +144,11 @@ HELP_7 = _ANNIE + """
   ↳ ꜱᴇᴛ ɴᴜᴍʙᴇʀ ᴏꜰ sᴜɢɢᴇsᴛɪᴏɴs
 </blockquote>
 
-<blockquote>🔹 ɢᴇɴʀᴇs: pop · hiphop · lofi · rock · indie · rnb · edm · classic · bollywood</blockquote>
+<blockquote>{_DOT} ɢᴇɴʀᴇs: pop · hiphop · lofi · rock · indie · rnb · edm · classic · bollywood</blockquote>
 """
 
-HELP_8 = _ANNIE + """
-<blockquote><b>🔹 ʙᴏᴛ sᴛᴀᴛs & ɪɴꜰᴏ</b></blockquote>
+HELP_8 = _ANNIE + f"""
+<blockquote><b>{_DOT} ʙᴏᴛ sᴛᴀᴛs & ɪɴꜰᴏ</b></blockquote>
 
 <blockquote>
 <b>• /ping</b>       ↳ ᴄʜᴇᴄᴋ ʙᴏᴛ ʀᴇsᴘᴏɴsᴇ ᴛɪᴍᴇ
@@ -145,5 +157,5 @@ HELP_8 = _ANNIE + """
 <b>• /active</b>     ↳ sʜᴏᴡ ᴀᴄᴛɪᴠᴇ sᴛʀᴇᴀᴍɪɴɢ ᴄʜᴀᴛs
 </blockquote>
 
-<blockquote>🌟 ᴀʟʟ sᴛᴀᴛs ᴀʀᴇ ʀᴇᴀʟ-ᴛɪᴍᴇ ᴀɴᴅ ᴜᴘᴅᴀᴛᴇᴅ ʟɪᴠᴇ</blockquote>
+<blockquote>{_STAR} ᴀʟʟ sᴛᴀᴛs ᴀʀᴇ ʀᴇᴀʟ-ᴛɪᴍᴇ ᴀɴᴅ ᴜᴘᴅᴀᴛᴇᴅ ʟɪᴠᴇ</blockquote>
 """

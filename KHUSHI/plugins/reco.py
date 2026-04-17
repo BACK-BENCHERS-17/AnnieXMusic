@@ -323,7 +323,7 @@ async def reco_cmd(client, message: Message):
     except Exception:
         try:
             sent = await message.reply_text(
-                f"<blockquote>🧸 ᴀɴɴɪᴇ</blockquote>\n\n"
+                f"<blockquote>{_BRAND}</blockquote>\n\n"
                 f"<blockquote>🔥 <b>˹ ꜱᴏɴɢ ꜱᴜɢɢᴇꜱᴛɪᴏɴꜱ ˼</b>\n\n"
                 f"{lines}</blockquote>",
                 reply_markup=InlineKeyboardMarkup(_plain_rows),

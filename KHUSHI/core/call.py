@@ -1313,7 +1313,7 @@ class Call:
                                 language = await get_lang(chat_id)
                                 _lang = get_string(language)
                                 try:
-                                    from KHUSHI.utils.ui import E as _UE, panel as _upanel
+                                    from KHUSHI.utils.ui import E as _UE, panel as _upanel, BRAND as _AP_BRAND
                                     btn = stream_markup_timer(
                                         _lang, chat_id,
                                         "0:00", ap_dur,
@@ -1326,7 +1326,7 @@ class Call:
                                             f"<a href='https://www.youtube.com/watch?v={ap_vidid}'>"
                                             f"{ap_title_short}</a>",
                                             f"{_UE['clock']} <b>ᴅᴜʀᴀᴛɪᴏɴ:</b>  {ap_dur}",
-                                            f"{_UE['repeat']} <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ:</b>  ᴀɴɴɪᴇ ᴀᴜᴛᴏᴘʟᴀʏ",
+                                            f"{_UE['repeat']} <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ:</b>  {_AP_BRAND} ᴀᴜᴛᴏᴘʟᴀʏ",
                                         ],
                                     )
                                     _ap_markup = InlineKeyboardMarkup(btn)
@@ -1409,18 +1409,10 @@ class Call:
                         ),
                     ])
 
-                    # ── Known-working emoji IDs only (verified from original code) ──
-                    _E_STAR  = "<emoji id='5039827436737397847'>✨</emoji>"
-                    _E_DOT   = "<emoji id='5972072533833289156'>🔹</emoji>"
-                    _E_ZAP   = "<emoji id='5042334757040423886'>⚡️</emoji>"
-                    _SUGG_BRAND = (
-                        "<emoji id='5042192219960771668'>🧸</emoji>"
-                        "<emoji id='5210820276748566172'>🔤</emoji>"
-                        "<emoji id='5213301251722203632'>🔤</emoji>"
-                        "<emoji id='5213301251722203632'>🔤</emoji>"
-                        "<emoji id='5211032856154885824'>🔤</emoji>"
-                        "<emoji id='5213337333742454261'>🔤</emoji>"
-                    )
+                    from KHUSHI.utils.ui import E as _E_UI2, BRAND as _SUGG_BRAND
+                    _E_STAR  = _E_UI2["sparkle"]
+                    _E_DOT   = _E_UI2["dot"]
+                    _E_ZAP   = _E_UI2["zap"]
                     _last_short = (last_title[:32] + "…") if len(last_title) > 32 else last_title
                     _last_line = (
                         f"{_E_DOT} ʟᴀsᴛ ᴘʟᴀʏᴇᴅ: <b>{_last_short}</b>\n"
