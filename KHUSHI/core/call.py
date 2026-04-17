@@ -1313,7 +1313,7 @@ class Call:
                                 language = await get_lang(chat_id)
                                 _lang = get_string(language)
                                 try:
-                                    from KHUSHI.utils.ui import E as _UE, panel as _upanel, BRAND as _AP_BRAND
+                                    from KHUSHI.utils.ui import E as _UE, panel as _upanel
                                     btn = stream_markup_timer(
                                         _lang, chat_id,
                                         "0:00", ap_dur,
@@ -1326,7 +1326,7 @@ class Call:
                                             f"<a href='https://www.youtube.com/watch?v={ap_vidid}'>"
                                             f"{ap_title_short}</a>",
                                             f"{_UE['clock']} <b>ᴅᴜʀᴀᴛɪᴏɴ:</b>  {ap_dur}",
-                                            f"{_UE['repeat']} <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ:</b>  {_AP_BRAND} ᴀᴜᴛᴏᴘʟᴀʏ",
+                                            f"{_UE['repeat']} <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ:</b>  ᴀɴɴɪᴇ ᴀᴜᴛᴏᴘʟᴀʏ",
                                         ],
                                     )
                                     _ap_markup = InlineKeyboardMarkup(btn)
