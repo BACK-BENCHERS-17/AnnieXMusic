@@ -531,30 +531,8 @@ async def khushi_help_cb(client, query):
             _LOGGER.warning("[HELP_CB] edit_text failed: %s", e)
 
     if not edited:
-        _LOGGER.warning("[HELP_CB] All edits failed — falling back to delete+send")
-        try:
-            await msg.delete()
-        except Exception:
-            pass
-        try:
-            await client.send_photo(
-                msg.chat.id,
-                photo=HELP_IMG_URL,
-                caption=caption,
-                reply_markup=keyboard,
-                parse_mode=enums.ParseMode.HTML,
-            )
-        except Exception:
-            try:
-                await client.send_message(
-                    msg.chat.id,
-                    safe_caption,
-                    reply_markup=keyboard,
-                    parse_mode=enums.ParseMode.HTML,
-                    disable_web_page_preview=True,
-                )
-            except Exception as e:
-                _LOGGER.error("[HELP_CB] send_message also failed: %s", e)
+        _LOGGER.warning("[HELP_CB] All edits failed — falling back to send")
+        await _try_send_photo(client, msg.chat.id, HELP_IMG_URL, caption, keyboard)
 
 
 # ── Category button callbacks — show specific help section ────────────────────
@@ -578,18 +556,21 @@ async def help_section_cb(client, query):
 
     back_kb = help_back_markup(_, number)
 
-    edited = False
-    try:
-        await query.message.edit_caption(
-            help_text, reply_markup=back_kb, parse_mode=enums.ParseMode.HTML
-        )
-        edited = True
-    except Exception as e:
-        _LOGGER.warning("[HELP_SEC] edit_caption hb%d failed: %s", number, e)
+    msg = query.message
+    edited = await _raw_edit(client, msg.chat.id, msg.id, help_text, back_kb)
 
     if not edited:
         try:
-            await query.message.edit_text(
+            await msg.edit_caption(
+                help_text, reply_markup=back_kb, parse_mode=enums.ParseMode.HTML
+            )
+            edited = True
+        except Exception as e:
+            _LOGGER.warning("[HELP_SEC] edit_caption hb%d failed: %s", number, e)
+
+    if not edited:
+        try:
+            await msg.edit_text(
                 help_text, reply_markup=back_kb,
                 parse_mode=enums.ParseMode.HTML,
                 disable_web_page_preview=True,
@@ -599,19 +580,9 @@ async def help_section_cb(client, query):
             _LOGGER.warning("[HELP_SEC] edit_text hb%d failed: %s", number, e2)
 
     if not edited:
-        _LOGGER.warning("[HELP_SEC] hb%d — falling back to delete+send", number)
+        _LOGGER.warning("[HELP_SEC] hb%d — all edits failed, sending new", number)
         try:
-            await query.message.delete()
-        except Exception:
-            pass
-        try:
-            await client.send_message(
-                query.message.chat.id,
-                help_text,
-                reply_markup=back_kb,
-                parse_mode=enums.ParseMode.HTML,
-                disable_web_page_preview=True,
-            )
+            await _try_send_photo(client, msg.chat.id, HELP_IMG_URL, help_text, back_kb)
         except Exception as e3:
             _LOGGER.error("[HELP_SEC] send_message hb%d also failed: %s", number, e3)
 
@@ -635,19 +606,22 @@ async def help_nav_cb(client, query):
         return await query.answer("ɪɴᴠᴀʟɪᴅ sᴇᴄᴛɪᴏɴ.", show_alert=True)
 
     nav_kb = help_back_markup(_, section)
+    nav_msg = query.message
 
-    edited = False
-    try:
-        await query.message.edit_caption(
-            help_text, reply_markup=nav_kb, parse_mode=enums.ParseMode.HTML
-        )
-        edited = True
-    except Exception:
-        pass
+    edited = await _raw_edit(client, nav_msg.chat.id, nav_msg.id, help_text, nav_kb)
 
     if not edited:
         try:
-            await query.message.edit_text(
+            await nav_msg.edit_caption(
+                help_text, reply_markup=nav_kb, parse_mode=enums.ParseMode.HTML
+            )
+            edited = True
+        except Exception:
+            pass
+
+    if not edited:
+        try:
+            await nav_msg.edit_text(
                 help_text, reply_markup=nav_kb,
                 parse_mode=enums.ParseMode.HTML,
                 disable_web_page_preview=True,
@@ -657,21 +631,8 @@ async def help_nav_cb(client, query):
             pass
 
     if not edited:
-        edited = await _raw_edit(client, query.message.chat.id, query.message.id, help_text, nav_kb)
-
-    if not edited:
         try:
-            await query.message.delete()
-        except Exception:
-            pass
-        try:
-            await client.send_message(
-                query.message.chat.id,
-                help_text,
-                reply_markup=nav_kb,
-                parse_mode=enums.ParseMode.HTML,
-                disable_web_page_preview=True,
-            )
+            await _try_send_photo(client, nav_msg.chat.id, HELP_IMG_URL, help_text, nav_kb)
         except Exception as e:
             _LOGGER.error("[HELP_NAV] send_message failed: %s", e)
 
@@ -688,18 +649,21 @@ async def help_back_cb(client, query):
     keyboard = second_page(_) if page == 2 else first_page(_)
     caption = _["help_1"].format(SUPPORT_CHAT)
 
-    edited = False
-    try:
-        await query.message.edit_caption(
-            caption, reply_markup=keyboard, parse_mode=enums.ParseMode.HTML
-        )
-        edited = True
-    except Exception:
-        pass
+    bk_msg = query.message
+    edited = await _raw_edit(client, bk_msg.chat.id, bk_msg.id, caption, keyboard)
 
     if not edited:
         try:
-            await query.message.edit_text(
+            await bk_msg.edit_caption(
+                caption, reply_markup=keyboard, parse_mode=enums.ParseMode.HTML
+            )
+            edited = True
+        except Exception:
+            pass
+
+    if not edited:
+        try:
+            await bk_msg.edit_text(
                 caption, reply_markup=keyboard,
                 parse_mode=enums.ParseMode.HTML,
                 disable_web_page_preview=True,
@@ -709,22 +673,7 @@ async def help_back_cb(client, query):
             pass
 
     if not edited:
-        try:
-            await query.message.delete()
-        except Exception:
-            pass
-        sent = await _try_send_photo(client, query.message.chat.id, HELP_IMG_URL, caption, keyboard)
-        if not sent:
-            try:
-                await client.send_message(
-                    query.message.chat.id,
-                    caption,
-                    reply_markup=keyboard,
-                    parse_mode=enums.ParseMode.HTML,
-                    disable_web_page_preview=True,
-                )
-            except Exception as e:
-                _LOGGER.error("[HELP_BACK] send_message also failed: %s", e)
+        await _try_send_photo(client, bk_msg.chat.id, HELP_IMG_URL, caption, keyboard)
 
 
 # ── Back to main start panel ──────────────────────────────────────────────────
@@ -812,12 +761,3 @@ async def khushi_back_cb(client, query):
         except Exception:
             pass
 
-
-# ── Close button ──────────────────────────────────────────────────────────────
-
-@app.on_callback_query(filters.regex("^close$") & ~BANNED_USERS)
-async def close_message(client, query):
-    try:
-        await query.message.delete()
-    except Exception:
-        await query.answer()
