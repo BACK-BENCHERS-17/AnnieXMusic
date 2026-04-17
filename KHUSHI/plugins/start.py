@@ -28,25 +28,25 @@ from KHUSHI.utils.database import (
 from KHUSHI.utils.inline import InlineKeyboardButton
 from KHUSHI.utils.reactions import react_to_command
 from KHUSHI.utils.inline.help import first_page, second_page, help_back_markup, private_help_panel
+from KHUSHI.utils.ui import BRAND as _BRAND, E as _E
 from config import BANNED_USERS, HELP_IMG_URL, LOGGER_ID, START_IMGS, SUPPORT_CHAT, SUPPORT_CHANNEL
 from strings import get_string, helpers
 
-_BRAND = (
-    "<emoji id='5042192219960771668'>🧸</emoji>"
-    "<emoji id='5210820276748566172'>🔤</emoji>"
-    "<emoji id='5213301251722203632'>🔤</emoji>"
-    "<emoji id='5213301251722203632'>🔤</emoji>"
-    "<emoji id='5211032856154885824'>🔤</emoji>"
-    "<emoji id='5213337333742454261'>🔤</emoji>"
-)
+_DOT = _E["dot"]
+_ZAP = _E["zap"]
+_FIRE = _E["fire"]
+_SPARKLE = _E["sparkle"]
+_MUSIC = _E["music"]
+_GIFT = _E["gift"]
+_CROSS = _E["cross"]
 
 START_TEXT = (
     "<blockquote><b>{mention}</b>, ɪ'ᴍ <b>{bot}</b> — ᴀ ꜱᴜᴘᴇʀ ꜰᴀꜱᴛ ᴍᴜꜱɪᴄ ʙᴏᴛ ᴡɪᴛʜ\n"
     "ʜɪɢʜ ǫᴜᴀʟɪᴛʏ ᴀᴜᴅɪᴏ & ᴠɪᴅᴇᴏ ꜱᴛʀᴇᴀᴍɪɴɢ.\n\n"
-    "🔹 ᴘʟᴀʏ ꜱᴏɴɢꜱ ꜰʀᴏᴍ ʏᴏᴜᴛᴜʙᴇ, ꜱᴘᴏᴛɪꜰʏ, ꜱᴏᴜɴᴅᴄʟᴏᴜᴅ\n"
-    "🔹 ǫᴜᴇᴜᴇ ᴍᴀɴᴀɢᴇᴍᴇɴᴛ, ʟᴏᴏᴘ, ꜱʜᴜꜰꜰʟᴇ, ꜱᴇᴇᴋ\n"
-    "🔹 24/7 ᴍᴏᴅᴇ, ᴠᴏʟᴜᴍᴇ, ꜱᴘᴇᴇᴅ ᴄᴏɴᴛʀᴏʟ\n"
-    "🔹 ɴꜱꜰᴡ ꜰɪʟᴛᴇʀ, ᴄᴏɴᴛᴇɴᴛ ɢᴜᴀʀᴅ</blockquote>"
+    f"{_DOT} ᴘʟᴀʏ ꜱᴏɴɢꜱ ꜰʀᴏᴍ ʏᴏᴜᴛᴜʙᴇ, ꜱᴘᴏᴛɪꜰʏ, ꜱᴏᴜɴᴅᴄʟᴏᴜᴅ\n"
+    f"{_DOT} ǫᴜᴇᴜᴇ ᴍᴀɴᴀɢᴇᴍᴇɴᴛ, ʟᴏᴏᴘ, ꜱʜᴜꜰꜰʟᴇ, ꜱᴇᴇᴋ\n"
+    f"{_DOT} 24/7 ᴍᴏᴅᴇ, ᴠᴏʟᴜᴍᴇ, ꜱᴘᴇᴇᴅ ᴄᴏɴᴛʀᴏʟ\n"
+    f"{_DOT} ɴꜱꜰᴡ ꜰɪʟᴛᴇʀ, ᴄᴏɴᴛᴇɴᴛ ɢᴜᴀʀᴅ</blockquote>"
 )
 
 
@@ -154,9 +154,9 @@ async def khushi_start_private(client, message: Message):
             info_caption = (
                 f"<blockquote>{_BRAND}</blockquote>\n\n"
                 f"<blockquote>"
-                f"🎵 <b>{title}</b>\n\n"
-                f"🔹 <b>Duration:</b> <code>{duration_min}</code>\n"
-                f"🔹 <b>YouTube ID:</b> <code>{vidid}</code>"
+                f"{_MUSIC} <b>{title}</b>\n\n"
+                f"{_DOT} <b>Duration:</b> <code>{duration_min}</code>\n"
+                f"{_DOT} <b>YouTube ID:</b> <code>{vidid}</code>"
                 f"</blockquote>"
             )
             info_markup = InlineKeyboardMarkup([
@@ -181,7 +181,7 @@ async def khushi_start_private(client, message: Message):
         else:
             await message.reply_text(
                 f"<blockquote>{_BRAND}</blockquote>\n\n"
-                f"<blockquote>❌ ꜱᴏɴɢ ɪɴꜰᴏ ɴᴏᴛ ꜰᴏᴜɴᴅ.</blockquote>",
+                f"<blockquote>{_CROSS} ꜱᴏɴɢ ɪɴꜰᴏ ɴᴏᴛ ꜰᴏᴜɴᴅ.</blockquote>",
                 disable_web_page_preview=True,
             )
         return
@@ -220,19 +220,19 @@ async def khushi_start_group(client, message: Message):
     caption = (
         f"<blockquote>{_BRAND}</blockquote>\n\n"
         "<blockquote>"
-        "❤️‍🔥"
+        f"{_FIRE}"
         f" ɴᴀᴍᴀsᴛᴇ {mention}!\n\n"
-        "🔹"
+        f"{_DOT}"
         f" <b>{grp}</b> ᴍᴇɪɴ ᴡᴇʟᴄᴏᴍᴇ ʜᴀɪ!\n"
-        "🔹"
+        f"{_DOT}"
         " ᴍᴇɪɴ ᴀᴀᴘᴋᴇ ɢʀᴏᴜᴘ ᴋᴀ ᴍᴜꜱɪᴄ ʙᴏᴛ ʜᴏᴏɴ.\n\n"
-        "⚡️"
+        f"{_ZAP}"
         " <b>ǫᴜɪᴄᴋ ᴄᴏᴍᴍᴀɴᴅꜱ</b>\n"
-        "🔹"
+        f"{_DOT}"
         " <code>/play [ɢᴀᴀɴᴀ]</code> — VC ᴍᴇɪɴ ʙᴀᴊᴀᴏ\n"
-        "🔹"
+        f"{_DOT}"
         " <code>/reco</code> — ʜɪɴᴅɪ / ᴘᴜɴᴊᴀʙɪ ꜱᴜɢɢᴇꜱᴛɪᴏɴꜱ\n"
-        "🔹"
+        f"{_DOT}"
         " <code>/help</code> — ᴘᴜʀᴀ ʜᴇʟᴘ ᴅᴇᴋʜᴏ"
         "</blockquote>"
     )
@@ -284,25 +284,25 @@ async def _send_join_log(chat, adder):
         log_text = (
             f"<blockquote>{_BRAND}</blockquote>\n\n"
             "<blockquote>"
-            "✨ "
+            f"{_SPARKLE} "
             "<b>ɴᴇᴡ ɢʀᴏᴜᴩ ᴊᴏɪɴᴇᴅ</b>\n\n"
-            "🔹 "
+            f"{_DOT} "
             f"<b>ɢʀᴏᴜᴩ :</b> {chat.title}\n"
-            "🔹 "
+            f"{_DOT} "
             f"<b>ɪᴅ :</b> <code>{chat.id}</code>\n"
-            "🔹 "
+            f"{_DOT} "
             f"<b>ᴜsᴇʀɴᴀᴍᴇ :</b> {uname}\n"
-            "🔹 "
+            f"{_DOT} "
             f"<b>ᴍᴇᴍʙᴇʀs :</b> <code>{member_count}</code>\n"
-            "🔹 "
+            f"{_DOT} "
             f"<b>ɪɴᴠɪᴛᴇ :</b> {invite_link}\n\n"
-            "⚡️ "
+            f"{_ZAP} "
             f"<b>ᴀᴅᴅᴇᴅ ʙʏ :</b> {adder_text}\n"
-            "⚡️ "
+            f"{_ZAP} "
             f"<b>ᴜsᴇʀ ɪᴅ :</b> <code>{adder_id}</code>\n"
-            "⚡️ "
+            f"{_ZAP} "
             f"<b>ᴜsᴇʀɴᴀᴍᴇ :</b> {adder_uname}\n\n"
-            "🎁 "
+            f"{_GIFT} "
             f"<b>ᴛᴏᴛᴀʟ ɢʀᴏᴜᴩs :</b> <code>{total}</code>"
             "</blockquote>"
         )
@@ -330,21 +330,21 @@ async def _send_leave_log(chat_id: int, chat_title: str, chat_username: str, rem
         log_text = (
             f"<blockquote>{_BRAND}</blockquote>\n\n"
             "<blockquote>"
-            "❤️‍🔥 "
+            f"{_FIRE} "
             "<b>ʟᴇꜰᴛ / ʀᴇᴍᴏᴠᴇᴅ ꜰʀᴏᴍ ɢʀᴏᴜᴩ</b>\n\n"
-            "🔹 "
+            f"{_DOT} "
             f"<b>ɢʀᴏᴜᴩ :</b> {chat_title}\n"
-            "🔹 "
+            f"{_DOT} "
             f"<b>ɪᴅ :</b> <code>{chat_id}</code>\n"
-            "🔹 "
+            f"{_DOT} "
             f"<b>ᴜsᴇʀɴᴀᴍᴇ :</b> {uname}\n\n"
-            "⚡️ "
+            f"{_ZAP} "
             f"<b>ʀᴇᴍᴏᴠᴇᴅ ʙʏ :</b> {remover_text}\n"
-            "⚡️ "
+            f"{_ZAP} "
             f"<b>ᴜsᴇʀ ɪᴅ :</b> <code>{remover_id}</code>\n"
-            "⚡️ "
+            f"{_ZAP} "
             f"<b>ᴜsᴇʀɴᴀᴍᴇ :</b> {remover_uname}\n\n"
-            "🎁 "
+            f"{_GIFT} "
             f"<b>ʀᴇᴍᴀɪɴɪɴɢ ɢʀᴏᴜᴩs :</b> <code>{total}</code>"
             "</blockquote>"
         )
@@ -386,17 +386,17 @@ async def bot_added_to_group(client, message: Message):
     caption = (
         f"<blockquote>{_BRAND}</blockquote>\n\n"
         "<blockquote>"
-        "❤️‍🔥"
+        f"{_FIRE}"
         f" <b>ʜᴇʟʟᴏ {grp}!</b>\n\n"
-        "🔹"
+        f"{_DOT}"
         f" ᴛʜᴀɴᴋ ʏᴏᴜ {adder_mention} ꜰᴏʀ ᴀᴅᴅɪɴɢ ᴍᴇ!\n\n"
-        "⚡️"
+        f"{_ZAP}"
         " <b>ᴍᴇʀɪ ᴩᴏᴡᴇʀ</b>\n"
-        "🔹 🎵 ʜɪɴᴅɪ · ᴩᴜɴᴊᴀʙɪ · ʙᴏʟʟʏᴡᴏᴏᴅ · ɪɴᴛᴇʀɴᴀᴛɪᴏɴᴀʟ\n"
-        "🔹 ᴜʟᴛʀᴀ ᴩᴏꜱᴛ VC ꜱᴛʀᴇᴀᴍɪɴɢ\n"
-        "🔹 ʏᴏᴜᴛᴜʙᴇ · ꜱᴩᴏᴛɪꜰʏ · ꜱᴏᴜɴᴅᴄʟᴏᴜᴅ\n"
-        "🔹 ɢʀᴏᴜᴩ ꜱᴇᴄᴜʀɪᴛʏ + ʜᴜ ᴍᴏᴅᴇʀᴀᴛɪᴏɴ\n\n"
-        "✨"
+        f"{_DOT} {_MUSIC} ʜɪɴᴅɪ · ᴩᴜɴᴊᴀʙɪ · ʙᴏʟʟʏᴡᴏᴏᴅ · ɪɴᴛᴇʀɴᴀᴛɪᴏɴᴀʟ\n"
+        f"{_DOT} ᴜʟᴛʀᴀ ᴩᴏꜱᴛ VC ꜱᴛʀᴇᴀᴍɪɴɢ\n"
+        f"{_DOT} ʏᴏᴜᴛᴜʙᴇ · ꜱᴩᴏᴛɪꜰʏ · ꜱᴏᴜɴᴅᴄʟᴏᴜᴅ\n"
+        f"{_DOT} ɢʀᴏᴜᴩ ꜱᴇᴄᴜʀɪᴛʏ + ʜᴜ ᴍᴏᴅᴇʀᴀᴛɪᴏɴ\n\n"
+        f"{_SPARKLE}"
         " <code>/play [ɢᴀᴀɴᴀ ᴋᴀ ɴᴀᴀᴍ]</code> ꜱᴇ ʙᴀᴊᴀᴏ!\n"
         "<b>ᴍᴜᴊʜᴇ ᴀᴅᴍɪɴ ʙᴀɴᴀᴏ ᴛᴀᴋɪ ᴍᴀɪɴ VC ᵴᴜɴᴀ ꜱᴀᴋᴏᴏɴ.</b>"
         "</blockquote>"

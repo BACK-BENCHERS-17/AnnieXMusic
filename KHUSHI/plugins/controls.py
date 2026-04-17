@@ -34,20 +34,21 @@ from KHUSHI.utils.stream.autoclear import auto_clean
 from strings import get_string
 from config import BANNED_USERS
 
+from KHUSHI.utils.ui import BRAND as _BRAND, E as _E_UI
+
 _EM = {
-    "fire":   "<emoji id='5039598514980520994'>❤️‍🔥</emoji>",
-    "dot":    "<emoji id='5972072533833289156'>🔹</emoji>",
-    "zap":    "<emoji id='5042334757040423886'>⚡️</emoji>",
-    "star":   "<emoji id='5041975203853239332'>🎁</emoji>",
+    "fire":   _E_UI["fire"],
+    "dot":    _E_UI["dot"],
+    "zap":    _E_UI["zap"],
+    "star":   _E_UI["gift"],
+    "warn":   _E_UI["warn"],
+    "cross":  _E_UI["cross"],
+    "shuffle": _E_UI["shuffle"],
+    "queue":  _E_UI["queue"],
+    "pause":  _E_UI["pause"],
+    "play":   _E_UI["live"],
+    "stop":   _E_UI["stop"],
 }
-_BRAND = (
-    "<emoji id='5042192219960771668'>🧸</emoji>"
-    "<emoji id='5210820276748566172'>🔤</emoji>"
-    "<emoji id='5213301251722203632'>🔤</emoji>"
-    "<emoji id='5213301251722203632'>🔤</emoji>"
-    "<emoji id='5211032856154885824'>🔤</emoji>"
-    "<emoji id='5213337333742454261'>🔤</emoji>"
-)
 
 def _close():
     return InlineKeyboardMarkup([[
@@ -65,7 +66,7 @@ def _reply(text):
 @AdminRightsCheck
 async def kpause(_, message: Message, lang, chat_id):
     if not await is_music_playing(chat_id):
-        return await message.reply_text(_reply("▶️ ɴᴏᴛʜɪɴɢ ɪꜱ ᴘʟᴀʏɪɴɢ ʀɪɢʜᴛ ɴᴏᴡ."))
+        return await message.reply_text(_reply(f"{_EM['play']} ɴᴏᴛʜɪɴɢ ɪꜱ ᴘʟᴀʏɪɴɢ ʀɪɢʜᴛ ɴᴏᴡ."))
     await music_off(chat_id)
     await JARVIS.pause_stream(chat_id)
     await message.reply_text(
@@ -81,7 +82,7 @@ async def kpause(_, message: Message, lang, chat_id):
 @AdminRightsCheck
 async def kresume(_, message: Message, lang, chat_id):
     if await is_music_playing(chat_id):
-        return await message.reply_text(_reply("▶️ ᴀʟʀᴇᴀᴅʏ ᴘʟᴀʏɪɴɢ."))
+        return await message.reply_text(_reply(f"{_EM['play']} ᴀʟʀᴇᴀᴅʏ ᴘʟᴀʏɪɴɢ."))
     await music_on(chat_id)
     await JARVIS.resume_stream(chat_id)
     await message.reply_text(
@@ -105,7 +106,7 @@ async def kreload(client, message: Message):
         _ = get_string("en")
 
     if message.sender_chat:
-        return await message.reply_text(_reply("❌ ᴀɴᴏɴʏᴍᴏᴜs ᴀᴅᴍɪɴs ᴄᴀɴɴᴏᴛ ᴜꜱᴇ ᴛʜɪs."))
+        return await message.reply_text(_reply(f"{_EM['cross']} ᴀɴᴏɴʏᴍᴏᴜs ᴀᴅᴍɪɴs ᴄᴀɴɴᴏᴛ ᴜꜱᴇ ᴛʜɪs."))
 
     from KHUSHI.misc import SUDOERS
     from config import adminlist
@@ -130,7 +131,7 @@ async def kreload(client, message: Message):
         )
     except Exception as e:
         await message.reply_text(
-            _reply(f"❌ ʀᴇʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ: <code>{type(e).__name__}</code>"),
+            _reply(f"{_EM['cross']} ʀᴇʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ: <code>{type(e).__name__}</code>"),
             reply_markup=_close(),
         )
 
@@ -157,7 +158,7 @@ async def kstop(_, message: Message, lang, chat_id):
 async def kskip(_, message: Message, lang, chat_id):
     check = db.get(chat_id)
     if not check:
-        return await message.reply_text(_reply("⚠️ ɴᴏᴛʜɪɴɢ ɪɴ ǫᴜᴇᴜᴇ."))
+        return await message.reply_text(_reply(f"{_EM['warn']} ɴᴏᴛʜɪɴɢ ɪɴ ǫᴜᴇᴜᴇ."))
 
     popped = None
     try:
@@ -171,7 +172,7 @@ async def kskip(_, message: Message, lang, chat_id):
             )
             return await JARVIS.stop_or_autoplay(chat_id, popped)
     except Exception:
-        return await message.reply_text(_reply("❌ ᴄᴀɴɴᴏᴛ ꜱᴋɪᴘ."))
+        return await message.reply_text(_reply(f"{_EM['cross']} ᴄᴀɴɴᴏᴛ ꜱᴋɪᴘ."))
 
     title = check[0].get("title", "Unknown").title()
     await message.reply_text(
@@ -224,15 +225,15 @@ async def kloop(_, message: Message, lang, chat_id):
 async def kshuffle(_, message: Message, lang, chat_id):
     check = db.get(chat_id)
     if not check:
-        return await message.reply_text(_reply("⚠️ ǫᴜᴇᴜᴇ ɪꜱ ᴇᴍᴘᴛʏ."))
+        return await message.reply_text(_reply(f"{_EM['warn']} ǫᴜᴇᴜᴇ ɪꜱ ᴇᴍᴘᴛʏ."))
     try:
         first = check.pop(0)
         random.shuffle(check)
         check.insert(0, first)
     except Exception:
-        return await message.reply_text(_reply("❌ ᴄᴀɴɴᴏᴛ ꜱʜᴜꜰꜰʟᴇ."))
+        return await message.reply_text(_reply(f"{_EM['cross']} ᴄᴀɴɴᴏᴛ ꜱʜᴜꜰꜰʟᴇ."))
     await message.reply_text(
-        _reply(f"{_EM['fire']} <b>ǫᴜᴇᴜᴇ ꜱʜᴜꜰꜰʟᴇᴅ</b> 🔀\n{_EM['dot']} ʙʏ : {message.from_user.mention}"),
+        _reply(f"{_EM['fire']} <b>ǫᴜᴇᴜᴇ ꜱʜᴜꜰꜰʟᴇᴅ</b> {_EM['shuffle']}\n{_EM['dot']} ʙʏ : {message.from_user.mention}"),
         reply_markup=_close(),
     )
 
@@ -244,14 +245,14 @@ async def kshuffle(_, message: Message, lang, chat_id):
 @AdminRightsCheck
 async def kvolume(_, message: Message, lang, chat_id):
     if not await is_active_chat(chat_id):
-        return await message.reply_text(_reply("⚠️ ʙᴏᴛ ɪꜱ ɴᴏᴛ ᴀᴄᴛɪᴠᴇ ɪɴ ᴠᴏɪᴄᴇ ᴄʜᴀᴛ."))
+        return await message.reply_text(_reply(f"{_EM['warn']} ʙᴏᴛ ɪꜱ ɴᴏᴛ ᴀᴄᴛɪᴠᴇ ɪɴ ᴠᴏɪᴄᴇ ᴄʜᴀᴛ."))
 
     if len(message.command) < 2:
         cur = await get_volume(chat_id)
         bar = "█" * (cur // 20) + "░" * (10 - cur // 20)
         return await message.reply_text(
             _reply(
-                f"🔊 <b>ᴄᴜʀʀᴇɴᴛ ᴠᴏʟᴜᴍᴇ</b>\n"
+                f"{_EM['queue']} <b>ᴄᴜʀʀᴇɴᴛ ᴠᴏʟᴜᴍᴇ</b>\n"
                 f"[{bar}] <code>{cur}%</code>\n\n"
                 f"{_EM['dot']} ᴜꜱᴀɢᴇ: /volume [0-200]"
             ),
@@ -261,23 +262,23 @@ async def kvolume(_, message: Message, lang, chat_id):
     try:
         vol = int(message.command[1])
     except ValueError:
-        return await message.reply_text(_reply("❌ ᴘʀᴏᴠɪᴅᴇ ᴀ ɴᴜᴍʙᴇʀ 0-200."))
+        return await message.reply_text(_reply(f"{_EM['cross']} ᴘʀᴏᴠɪᴅᴇ ᴀ ɴᴜᴍʙᴇʀ 0-200."))
 
     if not 0 <= vol <= 200:
-        return await message.reply_text(_reply("❌ ᴠᴏʟᴜᴍᴇ ᴍᴜꜱᴛ ʙᴇ 0-200."))
+        return await message.reply_text(_reply(f"{_EM['cross']} ᴠᴏʟᴜᴍᴇ ᴍᴜꜱᴛ ʙᴇ 0-200."))
 
     try:
         assistant = await JARVIS.group_assistant(chat_id)
         client = JARVIS.pytgcalls[assistant]
         await client.change_volume_call(chat_id, vol)
     except Exception:
-        return await message.reply_text(_reply("❌ ᴄᴀɴɴᴏᴛ ᴄʜᴀɴɢᴇ ᴠᴏʟᴜᴍᴇ. ꜱᴛʀᴇᴀᴍ ᴀᴄᴛɪᴠᴇ?"))
+        return await message.reply_text(_reply(f"{_EM['cross']} ᴄᴀɴɴᴏᴛ ᴄʜᴀɴɢᴇ ᴠᴏʟᴜᴍᴇ. ꜱᴛʀᴇᴀᴍ ᴀᴄᴛɪᴠᴇ?"))
 
     await set_volume(chat_id, vol)
     bar = "█" * (vol // 20) + "░" * (10 - vol // 20)
     await message.reply_text(
         _reply(
-            f"🔊 <b>ᴠᴏʟᴜᴍᴇ ꜱᴇᴛ</b>\n"
+            f"{_EM['queue']} <b>ᴠᴏʟᴜᴍᴇ ꜱᴇᴛ</b>\n"
             f"[{bar}] <code>{vol}%</code>\n\n"
             f"{_EM['dot']} ʙʏ : {message.from_user.mention}"
         ),

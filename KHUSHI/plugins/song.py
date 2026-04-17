@@ -26,18 +26,20 @@ os.makedirs(_SONG_DL_DIR, exist_ok=True)
 
 _pending: dict = {}
 
+from KHUSHI.utils.ui import BRAND as _BRAND_LOGO, E as _E_UI
+
 _BRAND = (
-    "🧸"
+    "<emoji id='5042192219960771668'>🧸</emoji>"
     " <b>ᴋʜᴜsʜɪ ᴅᴏᴡɴʟᴏᴀᴅᴇʀ</b>"
 )
 
 _EM = {
-    "audio": "🎵",
-    "video": "📷",
-    "wait":  "⌛️",
-    "ok":    "✅",
-    "err":   "❌",
-    "dot":   "🔹",
+    "audio": _E_UI["music"],
+    "video": _E_UI["video"],
+    "wait":  _E_UI["hourglass"],
+    "ok":    _E_UI["check"],
+    "err":   _E_UI["cross"],
+    "dot":   _E_UI["dot"],
 }
 
 _QUALITY_LABELS = {

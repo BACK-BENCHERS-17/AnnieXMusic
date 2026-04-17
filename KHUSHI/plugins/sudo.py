@@ -29,19 +29,19 @@ from KHUSHI.utils.database import (
 from KHUSHI.utils.extraction import extract_user
 from config import BANNED_USERS, OWNER_ID
 
-_BRAND = (
-    "<blockquote>"
-    "<emoji id='5042192219960771668'>🧸</emoji>"
-    "<emoji id='5210820276748566172'>🔤</emoji>"
-    "<emoji id='5213301251722203632'>🔤</emoji>"
-    "<emoji id='5213301251722203632'>🔤</emoji>"
-    "<emoji id='5211032856154885824'>🔤</emoji>"
-    "<emoji id='5213337333742454261'>🔤</emoji>"
-    "</blockquote>"
-)
+from KHUSHI.utils.ui import BRAND as _BRAND_RAW, E as _E_UI
 
-_dot = "🔹"
-_zap = "⚡️"
+_BRAND = f"<blockquote>{_BRAND_RAW}</blockquote>"
+_dot = _E_UI["dot"]
+_zap = _E_UI["zap"]
+_cross = _E_UI["cross"]
+_check = _E_UI["check"]
+_warn = _E_UI["warn"]
+_ban = _E_UI["ban"]
+_gift = _E_UI["gift"]
+_hourglass = _E_UI["hourglass"]
+_shield = _E_UI["shield"]
+_crown = _E_UI["crown"]
 
 
 def _r(t):
@@ -55,12 +55,12 @@ async def gban_user(_, message: Message):
         return await message.reply_text(_r("ᴜꜱᴀɢᴇ: /gban [user | reply]"))
     user = await extract_user(message)
     if user.id in SUDOERS:
-        return await message.reply_text(_r("❌ ᴄᴀɴɴᴏᴛ ɢʙᴀɴ ᴀ ꜱᴜᴅᴏᴇʀ."))
+        return await message.reply_text(_r(f"{_cross} ᴄᴀɴɴᴏᴛ ɢʙᴀɴ ᴀ ꜱᴜᴅᴏᴇʀ."))
     if await is_banned_user(user.id):
         return await message.reply_text(_r(f"{user.mention} ɪꜱ ᴀʟʀᴇᴀᴅʏ ɢʙᴀɴɴᴇᴅ."))
     BANNED_USERS.add(user.id)
     chats = [int(c["chat_id"]) for c in await get_served_chats()]
-    msg = await message.reply_text(_r(f"⏳ ɢʙᴀɴɴɪɴɢ {user.mention} ɪɴ {len(chats)} ɢʀᴏᴜᴘꜱ..."))
+    msg = await message.reply_text(_r(f"{_hourglass} ɢʙᴀɴɴɪɴɢ {user.mention} ɪɴ {len(chats)} ɢʀᴏᴜᴘꜱ..."))
     banned = 0
     for cid in chats:
         try:
@@ -72,7 +72,7 @@ async def gban_user(_, message: Message):
             continue
     await add_banned_user(user.id)
     await msg.edit(_r(
-        f"🔨 <b>ɢʙᴀɴɴᴇᴅ</b> : {user.mention}\n"
+        f"{_shield} <b>ɢʙᴀɴɴᴇᴅ</b> : {user.mention}\n"
         f"{_dot} ʙᴀɴɴᴇᴅ ɪɴ <code>{banned}</code> ɢʀᴏᴜᴘꜱ"
     ))
 
@@ -86,7 +86,7 @@ async def ungban_user(_, message: Message):
         return await message.reply_text(_r(f"{user.mention} ɪꜱ ɴᴏᴛ ɢʙᴀɴɴᴇᴅ."))
     BANNED_USERS.discard(user.id)
     await remove_banned_user(user.id)
-    await message.reply_text(_r(f"✅ <b>ᴜɴɢʙᴀɴɴᴇᴅ</b> : {user.mention}"))
+    await message.reply_text(_r(f"{_check} <b>ᴜɴɢʙᴀɴɴᴇᴅ</b> : {user.mention}"))
 
 
 # ── BLOCK/UNBLOCK ─────────────────────────────────────────────────────────────
@@ -99,7 +99,7 @@ async def block_user(_, message: Message):
         return await message.reply_text(_r(f"{user.mention} ᴀʟʀᴇᴀᴅʏ ʙʟᴏᴄᴋᴇᴅ."))
     await add_gban_user(user.id)
     BANNED_USERS.add(user.id)
-    await message.reply_text(_r(f"🚫 <b>ʙʟᴏᴄᴋᴇᴅ</b> : {user.mention}"))
+    await message.reply_text(_r(f"{_ban} <b>ʙʟᴏᴄᴋᴇᴅ</b> : {user.mention}"))
 
 
 @app.on_message(filters.command(["unblock"]) & SUDOERS)
@@ -111,7 +111,7 @@ async def unblock_user(_, message: Message):
         return await message.reply_text(_r(f"{user.mention} ɪꜱ ɴᴏᴛ ʙʟᴏᴄᴋᴇᴅ."))
     await remove_gban_user(user.id)
     BANNED_USERS.discard(user.id)
-    await message.reply_text(_r(f"✅ <b>ᴜɴʙʟᴏᴄᴋᴇᴅ</b> : {user.mention}"))
+    await message.reply_text(_r(f"{_check} <b>ᴜɴʙʟᴏᴄᴋᴇᴅ</b> : {user.mention}"))
 
 
 # ── MAINTENANCE ───────────────────────────────────────────────────────────────
@@ -122,14 +122,14 @@ async def maint(_, message: Message):
     state = message.command[1].lower()
     if state == "enable":
         if await is_maintenance():
-            return await message.reply_text(_r("⚠️ ᴀʟʀᴇᴀᴅʏ ɪɴ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ ᴍᴏᴅᴇ."))
+            return await message.reply_text(_r(f"{_warn} ᴀʟʀᴇᴀᴅʏ ɪɴ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ ᴍᴏᴅᴇ."))
         await maintenance_on()
         await message.reply_text(_r(f"{_zap} <b>ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ ᴍᴏᴅᴇ ᴏɴ</b>\nᴏɴʟʏ ꜱᴜᴅᴏᴇʀꜱ ᴄᴀɴ ᴜꜱᴇ ᴛʜᴇ ʙᴏᴛ."))
     elif state == "disable":
         if not await is_maintenance():
-            return await message.reply_text(_r("⚠️ ɴᴏᴛ ɪɴ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ ᴍᴏᴅᴇ."))
+            return await message.reply_text(_r(f"{_warn} ɴᴏᴛ ɪɴ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ ᴍᴏᴅᴇ."))
         await maintenance_off()
-        await message.reply_text(_r(f"✅ <b>ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ ᴍᴏᴅᴇ ᴏꜰꜰ</b>\nʙᴏᴛ ɪꜱ ᴘᴜʙʟɪᴄ ᴀɢᴀɪɴ."))
+        await message.reply_text(_r(f"{_check} <b>ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ ᴍᴏᴅᴇ ᴏꜰꜰ</b>\nʙᴏᴛ ɪꜱ ᴘᴜʙʟɪᴄ ᴀɢᴀɪɴ."))
     else:
         await message.reply_text(_r("ᴜꜱᴀɢᴇ: /maintenance [enable | disable]"))
 
@@ -147,7 +147,7 @@ async def add_sudo(_, message: Message):
         return await message.reply_text(_r(f"{user.mention} ɪꜱ ᴀʟʀᴇᴀᴅʏ ᴀ ꜱᴜᴅᴏᴇʀ."))
     await _add(user.id)
     SUDOERS.add(user.id)
-    await message.reply_text(_r(f"✅ <b>ꜱᴜᴅᴏ ɢʀᴀɴᴛᴇᴅ</b> : {user.mention}"))
+    await message.reply_text(_r(f"{_check} <b>ꜱᴜᴅᴏ ɢʀᴀɴᴛᴇᴅ</b> : {user.mention}"))
 
 
 @app.on_message(
@@ -162,7 +162,7 @@ async def del_sudo(_, message: Message):
         return await message.reply_text(_r(f"{user.mention} ɪꜱ ɴᴏᴛ ᴀ ꜱᴜᴅᴏᴇʀ."))
     await _rm(user.id)
     SUDOERS.discard(user.id)
-    await message.reply_text(_r(f"✅ <b>ꜱᴜᴅᴏ ʀᴇᴠᴏᴋᴇᴅ</b> : {user.mention}"))
+    await message.reply_text(_r(f"{_check} <b>ꜱᴜᴅᴏ ʀᴇᴠᴏᴋᴇᴅ</b> : {user.mention}"))
 
 
 # ── SUDOLIST ───────────────────────────────────────────────────────────────────
@@ -171,8 +171,8 @@ _SUDOLIST_PHOTO = "https://files.catbox.moe/11mmhp.jpg"
 
 _SUDOLIST_CAPTION = (
     "<blockquote>"
-    "<b>🎁 ᴄʜᴇᴄᴋ ᴛʜᴇ ꜱᴜᴅᴏ ʟɪꜱᴛ ᴠɪᴀ ᴛʜᴇ ʙᴜᴛᴛᴏɴ ʙᴇʟᴏᴡ.</b>\n\n"
-    "<b>🔹 ɴᴏᴛᴇ:</b>  ᴏɴʟʏ ꜱᴜᴅᴏᴇʀꜱ ᴄᴀɴ ᴠɪᴇᴡ."
+    f"<b>{_gift} ᴄʜᴇᴄᴋ ᴛʜᴇ ꜱᴜᴅᴏ ʟɪꜱᴛ ᴠɪᴀ ᴛʜᴇ ʙᴜᴛᴛᴏɴ ʙᴇʟᴏᴡ.</b>\n\n"
+    f"<b>{_dot} ɴᴏᴛᴇ:</b>  ᴏɴʟʏ ꜱᴜᴅᴏᴇʀꜱ ᴄᴀɴ ᴠɪᴇᴡ."
     "</blockquote>"
 )
 
@@ -204,7 +204,7 @@ async def view_sudo_list_cb(client, query: CallbackQuery):
     caption = (
         "<blockquote>"
         "<b>˹ ʟɪꜱᴛ ᴏꜰ ʙᴏᴛ ᴍᴏᴅᴇʀᴀᴛᴏʀꜱ ˼</b>\n\n"
-        f"<b>🌹 Oᴡɴᴇʀ</b> ➥ {owner_mention}\n\n"
+        f"<b>{_crown} Oᴡɴᴇʀ</b> ➥ {owner_mention}\n\n"
     )
     keyboard = [[
         InlineKeyboardButton("๏ ᴠɪᴇᴡ Oᴡɴᴇʀ ๏", url=f"tg://openmessage?user_id={OWNER_ID}", style="success")
@@ -222,7 +222,7 @@ async def view_sudo_list_cb(client, query: CallbackQuery):
         try:
             user = await app.get_users(uid)
             count += 1
-            caption += f"<b>🎁 ꜱᴜᴅᴏ {count} »</b> {user.mention}\n"
+            caption += f"<b>{_gift} ꜱᴜᴅᴏ {count} »</b> {user.mention}\n"
             keyboard.append([
                 InlineKeyboardButton(
                     f"๏ ᴠɪᴇᴡ ꜱᴜᴅᴏ {count} ๏",
