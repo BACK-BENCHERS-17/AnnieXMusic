@@ -97,7 +97,8 @@ async def _raw_edit(client, chat_id, msg_id, caption, markup) -> bool:
 
 
 async def _try_send_photo(client, chat_id, photo_url, caption, markup) -> bool:
-    """Try to send a photo with spoiler via raw API, then fallback."""
+    """Try to send a photo with spoiler via raw API, then fallback to plain message."""
+    # Layer 1: raw MTProto SendMedia — supports custom emoji entities
     try:
         peer = await client.resolve_peer(chat_id)
         parser = Parser(client)
@@ -119,12 +120,26 @@ async def _try_send_photo(client, chat_id, photo_url, caption, markup) -> bool:
         return True
     except Exception:
         pass
+    # Layer 2: high-level send_photo
     try:
         await client.send_photo(
             chat_id=chat_id,
             photo=photo_url,
             caption=caption,
             reply_markup=markup,
+            parse_mode=enums.ParseMode.HTML,
+        )
+        return True
+    except Exception:
+        pass
+    # Layer 3: plain text message (no photo)
+    try:
+        await client.send_message(
+            chat_id=chat_id,
+            text=caption,
+            reply_markup=markup,
+            parse_mode=enums.ParseMode.HTML,
+            disable_web_page_preview=True,
         )
         return True
     except Exception:
@@ -531,7 +546,11 @@ async def khushi_help_cb(client, query):
             _LOGGER.warning("[HELP_CB] edit_text failed: %s", e)
 
     if not edited:
-        _LOGGER.warning("[HELP_CB] All edits failed — falling back to send")
+        _LOGGER.warning("[HELP_CB] All edits failed — deleting and sending fresh")
+        try:
+            await msg.delete()
+        except Exception:
+            pass
         await _try_send_photo(client, msg.chat.id, HELP_IMG_URL, caption, keyboard)
 
 
@@ -580,11 +599,12 @@ async def help_section_cb(client, query):
             _LOGGER.warning("[HELP_SEC] edit_text hb%d failed: %s", number, e2)
 
     if not edited:
-        _LOGGER.warning("[HELP_SEC] hb%d — all edits failed, sending new", number)
+        _LOGGER.warning("[HELP_SEC] hb%d — all edits failed, deleting and sending fresh", number)
         try:
-            await _try_send_photo(client, msg.chat.id, HELP_IMG_URL, help_text, back_kb)
-        except Exception as e3:
-            _LOGGER.error("[HELP_SEC] send_message hb%d also failed: %s", number, e3)
+            await msg.delete()
+        except Exception:
+            pass
+        await _try_send_photo(client, msg.chat.id, HELP_IMG_URL, help_text, back_kb)
 
 
 # ── Next / Prev section navigation (loop) ────────────────────────────────────
@@ -632,9 +652,10 @@ async def help_nav_cb(client, query):
 
     if not edited:
         try:
-            await _try_send_photo(client, nav_msg.chat.id, HELP_IMG_URL, help_text, nav_kb)
-        except Exception as e:
-            _LOGGER.error("[HELP_NAV] send_message failed: %s", e)
+            await nav_msg.delete()
+        except Exception:
+            pass
+        await _try_send_photo(client, nav_msg.chat.id, HELP_IMG_URL, help_text, nav_kb)
 
 
 # ── Back to category list (page 1 or 2) ──────────────────────────────────────
@@ -673,6 +694,10 @@ async def help_back_cb(client, query):
             pass
 
     if not edited:
+        try:
+            await bk_msg.delete()
+        except Exception:
+            pass
         await _try_send_photo(client, bk_msg.chat.id, HELP_IMG_URL, caption, keyboard)
 
 
@@ -747,17 +772,29 @@ async def khushi_back_cb(client, query):
         + START_TEXT.format(mention=query.from_user.mention, bot=app.mention)
     )
     markup = _start_kb()
+    img = random.choice(START_IMGS)
+    edited = False
     try:
         await query.message.edit_caption(
             caption, reply_markup=markup, parse_mode=enums.ParseMode.HTML
         )
+        edited = True
     except Exception:
+        pass
+    if not edited:
         try:
             await query.message.edit_text(
                 caption, reply_markup=markup,
                 parse_mode=enums.ParseMode.HTML,
                 disable_web_page_preview=True,
             )
+            edited = True
         except Exception:
             pass
+    if not edited:
+        try:
+            await query.message.delete()
+        except Exception:
+            pass
+        await _try_send_photo(client, query.message.chat.id, img, caption, markup)
 
