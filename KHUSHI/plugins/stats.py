@@ -22,12 +22,12 @@ from config import BANNED_USERS, OWNER_ID
 from KHUSHI.utils.ui import BRAND as _BRAND, E as _E_UI
 
 _E = {
-    "globe":  "<emoji id='5372981976804366741'>🌐</emoji>",
-    "user":   "<emoji id='5391233076587903881'>👤</emoji>",
+    "globe":  "🌐",
+    "user":   "👤",
     "music":  _E_UI["music"],
     "video":  _E_UI["video"],
     "time":   _E_UI["clock"],
-    "cpu":    "<emoji id='5373230054116079491'>🖥</emoji>",
+    "cpu":    "🖥",
     "ram":    _E_UI["dot"],
     "disk":   _E_UI["link"],
     "crown":  _E_UI["crown"],

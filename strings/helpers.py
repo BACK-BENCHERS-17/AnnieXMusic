@@ -1,26 +1,17 @@
 
-_MUSIC   = "<emoji id='5373043798411215697'>🎵</emoji>"
-_SHUFFLE = "<emoji id='5370894089711388826'>🔀</emoji>"
-_ZAP     = "<emoji id='5337120015363304150'>⚡</emoji>"
-_DOT     = "<emoji id='5972072533833289156'>🔹</emoji>"
-_STAR    = "<emoji id='5356706551848769325'>🌟</emoji>"
-_SPARKLE = "<emoji id='5432693215988770596'>✨</emoji>"
-_VIDEO   = "<emoji id='5375464961822695044'>🎬</emoji>"
-_SHIELD  = "<emoji id='5895483165182529286'>🛡</emoji>"
-_CROWN   = "<emoji id='5394892612508411389'>👑</emoji>"
-_SEARCH  = "<emoji id='5395444784611480792'>🔍</emoji>"
-_GIFT    = "<emoji id='5360542106742268290'>🎁</emoji>"
+_MUSIC   = "🎵"
+_SHUFFLE = "🔀"
+_ZAP     = "⚡"
+_DOT     = "🔹"
+_STAR    = "🌟"
+_SPARKLE = "✨"
+_VIDEO   = "🎬"
+_SHIELD  = "🛡"
+_CROWN   = "👑"
+_SEARCH  = "🔍"
+_GIFT    = "🎁"
 
-_ANNIE = (
-    "<blockquote>"
-    "<emoji id='5042192219960771668'>🧸</emoji>"
-    "<emoji id='5210820276748566172'>🔤</emoji>"
-    "<emoji id='5213301251722203632'>🔤</emoji>"
-    "<emoji id='5213301251722203632'>🔤</emoji>"
-    "<emoji id='5211032856154885824'>🔤</emoji>"
-    "<emoji id='5213337333742454261'>🔤</emoji>"
-    "</blockquote>\n\n"
-)
+_ANNIE = "<blockquote>🧸 ᴀɴɴɪᴇ</blockquote>\n\n"
 
 HELP_1 = _ANNIE + f"""
 <blockquote><b>{_MUSIC} ᴘʟᴀʏ ᴄᴏᴍᴍᴀɴᴅs</b></blockquote>

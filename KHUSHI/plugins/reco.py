@@ -17,22 +17,15 @@ from config import BANNED_USERS, SUPPORT_CHAT
 
 _recodb = mongodb.reco_settings
 
-_BRAND = (
-    "<emoji id='5042192219960771668'>🧸</emoji>"
-    "<emoji id='5210820276748566172'>🔤</emoji>"
-    "<emoji id='5213301251722203632'>🔤</emoji>"
-    "<emoji id='5213301251722203632'>🔤</emoji>"
-    "<emoji id='5211032856154885824'>🔤</emoji>"
-    "<emoji id='5213337333742454261'>🔤</emoji>"
-)
+_BRAND = "🧸 ᴀɴɴɪᴇ"
 
 _EM = {
-    "music":  "<emoji id='5373043798411215697'>🎵</emoji>",
-    "star":   "<emoji id='5356706551848769325'>🌟</emoji>",
-    "dot":    "<emoji id='5972072533833289156'>🔹</emoji>",
-    "zap":    "<emoji id='5042334757040423886'>⚡️</emoji>",
-    "mic":    "<emoji id='5357418988672927257'>🎙</emoji>",
-    "fire":   "<emoji id='5039644681583985437'>🔥</emoji>",
+    "music":  "🎵",
+    "star":   "🌟",
+    "dot":    "🔹",
+    "zap":    "⚡",
+    "mic":    "🎙",
+    "fire":   "🔥",
 }
 
 # ── Massive Hindi/Punjabi-first song database ──────────────────────────────────

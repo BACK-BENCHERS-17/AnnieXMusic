@@ -29,7 +29,7 @@ _pending: dict = {}
 from KHUSHI.utils.ui import BRAND as _BRAND_LOGO, E as _E_UI
 
 _BRAND = (
-    "<emoji id='5042192219960771668'>🧸</emoji>"
+    "🧸"
     " <b>ᴋʜᴜsʜɪ ᴅᴏᴡɴʟᴏᴀᴅᴇʀ</b>"
 )
 

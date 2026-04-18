@@ -488,15 +488,7 @@ async def khushi_help_pm(client, message: Message):
         await message.delete()
     except Exception:
         pass
-    sent = await _try_send_photo(client, message.chat.id, HELP_IMG_URL, caption, keyboard)
-    if not sent:
-        await client.send_message(
-            message.chat.id,
-            caption,
-            reply_markup=keyboard,
-            parse_mode=enums.ParseMode.HTML,
-            disable_web_page_preview=True,
-        )
+    await _try_send_photo(client, message.chat.id, HELP_IMG_URL, caption, keyboard)
 
 
 @app.on_message(filters.command(["help"]) & filters.group & ~BANNED_USERS)
