@@ -120,6 +120,110 @@ def _emoji(eid: str | None, fallback: str) -> str:
 E = {key: _emoji(eid, fb) for key, (eid, fb) in _P.items()}
 
 
+# ── Unicode → premium-emoji-ID reverse map ──────────────────────────────────
+# Used by `install_emoji_autowrap()` to upgrade plain unicode glyphs in any
+# outgoing message into Telegram premium custom emojis automatically.
+import re as _re
+
+_UNICODE_TO_ID: dict[str, str] = {}
+for _key, (_eid, _fb) in _P.items():
+    if not (_eid and _fb):
+        continue
+    # Register the glyph as-is and also its with/without Variation-Selector-16
+    # (U+FE0F) form, since users (and YAML strings) sometimes omit VS16 while
+    # premium emoji IDs were registered against the VS16 form (or vice-versa).
+    _variants = {_fb}
+    if "\ufe0f" in _fb:
+        _variants.add(_fb.replace("\ufe0f", ""))
+    else:
+        _variants.add(_fb + "\ufe0f")
+    for _v in _variants:
+        _UNICODE_TO_ID.setdefault(_v, _eid)
+
+# Longest-glyph-first so multi-codepoint emojis (e.g. ❤️‍🔥, ⚡️ with VS16)
+# match before their single-codepoint variants.
+_SORTED_GLYPHS = sorted(_UNICODE_TO_ID.keys(), key=len, reverse=True)
+_GLYPH_RE = (
+    _re.compile("(?:" + "|".join(_re.escape(g) for g in _SORTED_GLYPHS) + ")")
+    if _SORTED_GLYPHS else None
+)
+
+
+def _augment_with_custom_emoji(message: str, entities):
+    """Add MessageEntityCustomEmoji entries for every known unicode glyph in
+    `message`, while leaving any pre-existing entities untouched.
+
+    Telegram entity offsets and lengths are measured in **UTF-16 code units**,
+    not Python characters, so we encode the prefix and the glyph in
+    ``utf-16-le`` and divide by 2.
+    """
+    if not _GLYPH_RE or not message:
+        return entities or []
+    try:
+        from pyrogram.raw.types import MessageEntityCustomEmoji
+    except Exception:
+        return entities or []
+
+    new_entities = list(entities or [])
+    # Skip glyph occurrences that already have a CustomEmoji entity covering
+    # them (e.g. when the source already used a <tg-emoji> tag).
+    occupied = {
+        (getattr(e, "offset", -1), getattr(e, "length", 0))
+        for e in new_entities
+        if e.__class__.__name__ == "MessageEntityCustomEmoji"
+    }
+
+    for m in _GLYPH_RE.finditer(message):
+        glyph = m.group(0)
+        eid = _UNICODE_TO_ID.get(glyph)
+        if not eid:
+            continue
+        offset = len(message[:m.start()].encode("utf-16-le")) // 2
+        length = len(glyph.encode("utf-16-le")) // 2
+        if (offset, length) in occupied:
+            continue
+        new_entities.append(
+            MessageEntityCustomEmoji(
+                offset=offset, length=length, document_id=int(eid)
+            )
+        )
+    return new_entities
+
+
+_AUTOWRAP_INSTALLED = False
+
+
+def install_emoji_autowrap() -> None:
+    """Monkeypatch Pyrogram's parser so every outgoing message — regardless of
+    parse mode (HTML / Markdown / Default) — gets premium custom-emoji
+    entities for any known unicode glyph it contains.
+
+    Idempotent: safe to call multiple times.
+    """
+    global _AUTOWRAP_INSTALLED
+    if _AUTOWRAP_INSTALLED:
+        return
+    try:
+        from pyrogram.parser.parser import Parser
+    except Exception:
+        return
+
+    _orig_parse = Parser.parse
+
+    async def _patched_parse(self, text, mode=None):
+        result = await _orig_parse(self, text, mode)
+        try:
+            result["entities"] = _augment_with_custom_emoji(
+                result.get("message", ""), result.get("entities")
+            )
+        except Exception:
+            pass
+        return result
+
+    Parser.parse = _patched_parse
+    _AUTOWRAP_INSTALLED = True
+
+
 # ── Message builder helpers ──────────────────────────────────────────────────
 
 def _box(content: str, expandable: bool = False) -> str:
