@@ -7,11 +7,12 @@ from KHUSHI import app
 from KHUSHI.misc import db
 from KHUSHI.utils import seconds_to_min
 from KHUSHI.utils.database import get_cmode, is_active_chat
+from KHUSHI.utils.ui import E as _E_UI
 from config import BANNED_USERS
 
 _BRAND = ""
-_dot = "🔹"
-_fire = "❤️‍🔥"
+_dot = _E_UI["dot"]
+_fire = _E_UI["heart"]
 
 
 @app.on_message(

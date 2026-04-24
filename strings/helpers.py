@@ -1,15 +1,17 @@
 
-_MUSIC   = "🎵"
-_SHUFFLE = "🔀"
-_ZAP     = "⚡"
-_DOT     = "🔹"
-_STAR    = "🌟"
-_SPARKLE = "✨"
-_VIDEO   = "🎬"
-_SHIELD  = "🛡"
-_CROWN   = "👑"
-_SEARCH  = "🔍"
-_GIFT    = "🎁"
+from KHUSHI.utils.ui import E as _E
+
+_MUSIC   = _E["music"]
+_SHUFFLE = _E["shuffle"]
+_ZAP     = _E["zap"]
+_DOT     = _E["dot"]
+_STAR    = _E["star"]
+_SPARKLE = _E["sparkle"]
+_VIDEO   = _E["video"]
+_SHIELD  = _E["shield"]
+_CROWN   = _E["crown"]
+_SEARCH  = _E["search"]
+_GIFT    = _E["gift"]
 
 _ANNIE = ""
 

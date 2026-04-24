@@ -753,16 +753,75 @@ class Call:
         else:
             stream = dynamic_media_stream(path=link, video=bool(video))
 
-        # ── Pre-warm: resolve peer on the assistant's raw Pyrogram client ──
-        # After bot restart, PyTgCalls hasn't cached this chat's peer.
-        # get_chat() on the raw client forces it into the SQLite peer cache.
+        # ── Pre-warm: resolve peer on BOTH bot AND assistant clients ──────
+        # Critical for new chats where assistant has never seen the channel.
+        # Strategy:
+        #   1. Bot does get_chat(chat_id) → bot has access_hash + invite link
+        #   2. Try assistant.get_chat(chat_id) — works if already in dialogs
+        #   3. If that fails, bot adds assistant via add_chat_members OR
+        #      assistant joins via the chat's invite link (whichever works)
+        #   4. Force assistant.get_dialogs(limit=5) to populate peer storage
         try:
             from KHUSHI.utils.database import get_assistant_number, get_client as _get_client_pw
             _pw_num = await get_assistant_number(chat_id)
             _pw_raw = await _get_client_pw(_pw_num) if _pw_num else None
+
+            # Step 1: Pre-warm bot's own peer cache (cheap, almost always works)
+            _bot_chat_obj = None
+            try:
+                _bot_chat_obj = await app.get_chat(chat_id)
+            except Exception as _bot_pw_err:
+                LOGGER(__name__).debug(f"[PLAY] Bot peer pre-warm failed: {_bot_pw_err}")
+
             if _pw_raw:
-                await _pw_raw.get_chat(chat_id)
-                LOGGER(__name__).info(f"[PLAY] Peer pre-warmed for chat={chat_id}")
+                # Step 2: Try direct get_chat on assistant
+                _asst_warmed = False
+                try:
+                    await _pw_raw.get_chat(chat_id)
+                    _asst_warmed = True
+                    LOGGER(__name__).info(f"[PLAY] Assistant peer pre-warmed for chat={chat_id}")
+                except Exception as _asst_pw_err:
+                    LOGGER(__name__).info(
+                        f"[PLAY] Assistant get_chat failed (will try invite-join): {_asst_pw_err}"
+                    )
+
+                # Step 3: If assistant doesn't know the chat, try invite-link join
+                if not _asst_warmed and _bot_chat_obj is not None:
+                    try:
+                        _inv_link = getattr(_bot_chat_obj, "invite_link", None)
+                        if not _inv_link:
+                            try:
+                                _new_inv = await app.create_chat_invite_link(chat_id)
+                                _inv_link = getattr(_new_inv, "invite_link", None)
+                            except Exception as _inv_err:
+                                LOGGER(__name__).debug(f"[PLAY] create_chat_invite_link failed: {_inv_err}")
+
+                        if _inv_link:
+                            try:
+                                await _pw_raw.join_chat(_inv_link)
+                                LOGGER(__name__).info(
+                                    f"[PLAY] Assistant joined via invite link for chat={chat_id}"
+                                )
+                                await asyncio.sleep(1)
+                            except Exception as _join_err:
+                                # USER_ALREADY_PARTICIPANT means assistant is already in
+                                # — that's fine, just refresh dialogs below.
+                                _join_msg = str(_join_err).upper()
+                                if "ALREADY" not in _join_msg:
+                                    LOGGER(__name__).debug(f"[PLAY] join_chat failed: {_join_err}")
+                    except Exception as _step3_err:
+                        LOGGER(__name__).debug(f"[PLAY] Step3 invite-join skipped: {_step3_err}")
+
+                    # Step 4: Force a small dialog sync to populate peer storage
+                    try:
+                        async for _d in _pw_raw.get_dialogs(limit=5):
+                            if _d.chat and _d.chat.id == chat_id:
+                                LOGGER(__name__).info(
+                                    f"[PLAY] Assistant peer populated via dialog refresh"
+                                )
+                                break
+                    except Exception as _d_err:
+                        LOGGER(__name__).debug(f"[PLAY] Dialog refresh skipped: {_d_err}")
         except Exception as _pw_err:
             LOGGER(__name__).debug(f"[PLAY] Peer pre-warm skipped: {_pw_err}")
 
