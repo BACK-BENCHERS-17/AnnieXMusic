@@ -46,5 +46,9 @@ STRING_SESSION = "BQIB6EEATpGZnHyOcmWlo6aAFMo82HaeUq0eNSggIR6F2ySYQeN_bR4O_1tx1N
 localPort = 5000
 externalPort = 80
 
+[[ports]]
+localPort = 8080
+externalPort = 8080
+
 [deployment]
 deploymentTarget = "cloudrun"
