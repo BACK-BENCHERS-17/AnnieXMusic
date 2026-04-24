@@ -21,10 +21,14 @@ BRAND = (
 )
 
 # ── Premium emoji IDs (Telegram custom-emoji) ───────────────────────────────
-# Each entry: (custom_emoji_id_or_None, unicode_fallback)
-# The IDs below come from publicly-used Telegram premium emoji packs and have
-# been validated in this project's history. If an ID is None, the plain
-# unicode emoji is used (and you can supply the correct ID later).
+# Each entry: (custom_emoji_id, unicode_fallback)
+# All IDs below have been **validated by the bot owner** as accessible to
+# this bot account. Using any non-validated ID causes Telegram to reject
+# the entire message with `ENTITY_TEXT_INVALID`, which then triggers the
+# reactive fallback to strip ALL custom-emoji entities → user sees plain
+# unicode. So when adding new keys, only use IDs from this validated pool.
+# Keys whose closest matching premium emoji isn't in the validated pool
+# are mapped to the nearest sibling (e.g. 🎧 → 🎵, 🚀 → ⚡, 📌 → 🔖).
 _P = {
     # Status
     "check":     ("5852871561983299073", "✅"),
@@ -37,12 +41,15 @@ _P = {
 
     # Music / media
     "music":     ("5463107823946717464", "🎵"),
+    "music2":    ("6199299341996268244", "🎵"),
+    "music3":    ("5994566609002303309", "🎵"),
     "notes":     ("5039771357349413873", "🎶"),
     "notes2":    ("5938473438468378529", "🎶"),
     "mic":       ("5933678317935791830", "🎤"),
+    "mic2":      ("6030722571412967168", "🎤"),
     "sax":       ("5467793203769933478", "🎷"),
-    "headset":   ("5373074324779186371", "🎧"),
-    "radio":     ("5373180492080903524", "📻"),
+    "headset":   ("5463107823946717464", "🎧"),       # validated → 🎵
+    "radio":     ("5463107823946717464", "📻"),       # validated → 🎵
     "video":     ("5375464961822695044", "🎬"),
     "videocam":  ("5258217809250372293", "🎥"),
     "tv":        ("6044356915029348425", "📺"),
@@ -52,21 +59,22 @@ _P = {
     # Actions / states
     "zap":       ("5042334757040423886", "⚡️"),
     "fire":      ("5039644681583985437", "🔥"),
-    "star":      ("5356706551848769325", "🌟"),
+    "star":      ("5039827436737397847", "🌟"),       # validated → ✨
     "sparkle":   ("5039827436737397847", "✨"),
     "dizzy":     ("5042200814190330758", "💫"),
-    "diamond":   ("5368319008979943541", "💎"),
-    "bell":      ("5386367538735104399", "🔔"),
+    "diamond":   ("5039827436737397847", "💎"),       # validated → ✨
+    "bell":      ("6334406115341633473", "🔔"),       # validated → 📢
     "announce":  ("6334406115341633473", "📢"),
     "bookmark":  ("5222444124698853913", "🔖"),
     "clock":     ("5123230779593196220", "⏰"),
-    "hourglass": ("5420323339007281165", "⏳"),
+    "hourglass": ("5454415424319931791", "⏳"),       # validated → ⌛
     "timer":     ("5454415424319931791", "⌛️"),
-    "search":    ("5395444784611480792", "🔍"),
-    "link":      ("5373024494633049785", "🔗"),
+    "search":    ("5972072533833289156", "🔍"),       # validated → 🔹
+    "link":      ("5972072533833289156", "🔗"),       # validated → 🔹
     "crown":     ("5039727497143387500", "👑"),
     "gift":      ("5409029744693897259", "🎁"),
-    "pin":       ("5472282911506501403", "📌"),
+    "gift2":     ("5190745930319554349", "🎁"),
+    "pin":       ("5222444124698853913", "📌"),       # validated → 🔖
     "snow":      ("5449449325434266744", "❄️"),
     "heart":     ("5042225965518816316", "❤️‍🔥"),
     "rose":      ("6122692084806716730", "🌹"),
@@ -76,37 +84,42 @@ _P = {
     "user2":     ("5884366771913233289", "👤"),
     "brain":     ("5237799019329105246", "🧠"),
     "tired":     ("5371077231823036079", "😫"),
+    "cool":      ("5424663180838182778", "😎"),
+    "poop":      ("6307831155521494118", "💩"),
     "download":  ("5776182936638329359", "📥"),
     "camera":    ("6048390817033228573", "📷"),
-    "camera2":   ("5944753741512052670", "📷"),
+    "camera2":   ("6048390817033228573", "📷"),
 
     # Indicators
     "dot":       ("5972072533833289156", "🔹"),
-    "arrow":     ("5197521876529545705", "➤"),
-    "play_btn":  ("5346099622383056961", "▶"),
+    "arrow":     ("5474300135057925400", "➤"),       # validated → ➡
+    "play_btn":  ("5039937555403899813", "▶"),       # validated → ▶️
     "left":      ("4981358569468200584", "⬅️"),
     "right":     ("5474300135057925400", "➡️"),
     "repeat":    ("6030657343744644592", "🔁"),
     "shuffle":   ("5129905231785624480", "🔀"),
-    "skip":      ("5373018274545775531", "⏭"),
-    "prev":      ("5373040281539151958", "⏮"),
-    "stop":      ("5371843862470941498", "⏹"),
-    "pause":     ("5373103055199560996", "⏸"),
-    "playpause": ("5373123633415854520", "⏯"),
+    "skip":      ("6192553546102085729", "⏭"),       # validated → ⏩
+    "prev":      ("4981358569468200584", "⏮"),       # validated → ⬅
+    "stop":      ("5040042498634810056", "⏹"),       # validated → ❌
+    "pause":     ("5039937555403899813", "⏸"),       # validated → ▶️
+    "playpause": ("5039937555403899813", "⏯"),       # validated → ▶️
     "queue":     ("6039454987250044861", "🔊"),
-    "speed":     ("5373042927648818686", "🚀"),
+    "speed":     ("5042334757040423886", "🚀"),       # validated → ⚡
     "seek_fwd":  ("6192553546102085729", "⏩"),
-    "seek_bk":   ("5373054327609502403", "⏪"),
+    "seek_bk":   ("4981358569468200584", "⏪"),       # validated → ⬅
 
     # System / stats
     "ping":      ("5269563867305879894", "🏓"),
     "vc":        ("6093587384954262033", "📞"),
+    "vc2":       ("5226772700113935347", "📞"),
     "uptime":    ("6337029193603225180", "🕔"),
     "cpu":       ("5215186239853964761", "🖥"),
     "ram":       ("5834767463081840315", "🔵"),
     "disk":      ("5040036030414062506", "💬"),
+    "speech":    ("5116468787377341336", "💬"),
     "stats":     ("4958506272551863292", "📊"),
     "stats2":    ("6093382540784046658", "📊"),
+    "stats3":    ("5231200819986047254", "📊"),
     "settings":  ("5895592588064328942", "⚙️"),
     "gear":      ("5258096772776991776", "⚙️"),
     "computer":  ("5972055534352733289", "💻"),
@@ -389,46 +402,18 @@ def _strip_custom_emoji_entities(data) -> bool:
 _INVOKE_FALLBACK_INSTALLED = False
 
 
-def _peer_is_group_or_channel(query) -> bool:
-    """Inspect a raw RPC request to decide whether its destination peer is a
-    group / supergroup / channel (anything other than a one-on-one DM with a
-    user). Returns False if we cannot tell — callers treat unknowns as DM and
-    keep premium emojis enabled.
-
-    Telegram clients consistently render premium custom-emoji entities as
-    empty placeholders for group / channel recipients when the bot account is
-    not the message owner's Premium account, so we proactively downgrade
-    those messages to plain unicode."""
-    try:
-        from pyrogram.raw.types import (
-            InputPeerChat,
-            InputPeerChannel,
-            InputPeerChannelFromMessage,
-        )
-    except Exception:
-        return False
-    peer = getattr(query, "peer", None)
-    if peer is None:
-        return False
-    return isinstance(peer, (InputPeerChat, InputPeerChannel, InputPeerChannelFromMessage))
-
-
 def _install_invoke_emoji_fallback() -> None:
-    """Wrap `Client.invoke` with two layers of protection for outgoing
-    messages that contain Telegram premium custom-emoji entities:
+    """Wrap `Client.invoke` with a reactive safety net for premium custom
+    emojis. All IDs in `_P` are validated against this bot account, so
+    rejections shouldn't happen in practice — but if Telegram ever returns
+    `ENTITY_TEXT_INVALID` / `DOCUMENT_INVALID` (stale ID, deleted from a
+    pack, etc.), we strip the custom-emoji entities and retry once so the
+    message still goes through (with plain unicode) instead of failing
+    silently.
 
-    1. **Proactive (group / channel only):** before the request is sent,
-       strip any `MessageEntityCustomEmoji` entries when the destination
-       peer is a group / supergroup / channel. Telegram clients reliably
-       render those entities as empty placeholders for non-Premium-owned
-       bot accounts in shared chats, so we always fall back to the plain
-       unicode glyph instead. DMs are left untouched — premium emojis
-       work fine there.
-
-    2. **Reactive (any chat):** if Telegram rejects the request with
-       `ENTITY_TEXT_INVALID` or `DOCUMENT_INVALID` we strip the custom
-       emoji entities and retry once, so a single bad emoji ID can never
-       cause a silent send failure."""
+    No proactive group / channel stripping is performed — premium emojis
+    render in shared chats too, and the validated ID pool means there's
+    no need to defensively downgrade them."""
     global _INVOKE_FALLBACK_INSTALLED
     if _INVOKE_FALLBACK_INSTALLED:
         return
@@ -446,10 +431,6 @@ def _install_invoke_emoji_fallback() -> None:
         return
 
     async def _patched_invoke(self, query, *args, **kwargs):
-        # Layer 1 — proactively strip custom emojis for group / channel sends.
-        if _AUTOWRAP_ENABLED and _peer_is_group_or_channel(query):
-            _strip_custom_emoji_entities(query)
-        # Layer 2 — invoke; on emoji-related rejection, strip and retry once.
         try:
             return await orig_invoke(self, query, *args, **kwargs)
         except BadRequest as e:
@@ -458,9 +439,10 @@ def _install_invoke_emoji_fallback() -> None:
                 if _strip_custom_emoji_entities(query):
                     try:
                         import logging
-                        logging.getLogger("KHUSHI.ui").info(
+                        logging.getLogger("KHUSHI.ui").warning(
                             "[autowrap] Telegram rejected custom emojis "
-                            "(%s) — retrying without them.",
+                            "(%s) — retrying without them. Investigate "
+                            "which ID is stale and update _P in ui.py.",
                             "ENTITY_TEXT_INVALID" if "ENTITY_TEXT_INVALID" in msg else "DOCUMENT_INVALID",
                         )
                     except Exception:
