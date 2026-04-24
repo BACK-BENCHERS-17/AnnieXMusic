@@ -936,32 +936,36 @@ class Call:
                 except Exception as _pw2_err:
                     LOGGER(__name__).warning(f"[PLAY] Bot peer pre-warm failed: {_pw2_err}")
 
-                # ── M1: Inject peer directly into assistant's local SQLite ────────
-                # Grab channel_id + access_hash from bot's resolved peer and write
-                # them straight into the assistant's storage — no API round-trip
-                # needed, so ChannelInvalid cannot happen on the next play() call.
+                # ── M1: Force assistant to refresh its OWN peer cache ─────────────
+                # access_hash is per-account in Telegram, so we cannot reuse the
+                # bot's hash. Iterate the assistant's own dialogs in batches —
+                # this populates the assistant's SQLite storage with proper
+                # per-account access_hashes for every chat it's in. After this,
+                # `assistant.play()` can resolve the peer locally with no API call.
                 if _ci_raw and not _ci_fixed:
                     try:
-                        from pyrogram.raw import functions as _rf, types as _rt
-                        _main_peer = await app.resolve_peer(chat_id)
-                        _raw_id   = getattr(_main_peer, "channel_id", None)
-                        _acc_hash = getattr(_main_peer, "access_hash", None)
-                        if _raw_id is not None and _acc_hash is not None:
-                            _chat_obj = await app.get_chat(chat_id)
-                            _uname_ci = getattr(_chat_obj, "username", None)
-                            # Direct storage write — bypasses API call entirely
-                            await _ci_raw.storage.update_peers([
-                                (_raw_id, _acc_hash, "channel", _uname_ci, None)
-                            ])
+                        _found = False
+                        async for _dlg in _ci_raw.get_dialogs(limit=200):
+                            try:
+                                if _dlg.chat and _dlg.chat.id == chat_id:
+                                    _found = True
+                                    break
+                            except Exception:
+                                continue
+                        if _found:
                             LOGGER(__name__).info(
-                                f"[PLAY] M1: peer injected into assistant SQLite for chat={chat_id}"
+                                f"[PLAY] M1: assistant peer refreshed via get_dialogs for chat={chat_id}"
                             )
                             await asyncio.sleep(0.3)
                             await assistant.play(chat_id, stream)
                             _ci_fixed = True
                             break
+                        else:
+                            LOGGER(__name__).info(
+                                f"[PLAY] M1: chat={chat_id} not in assistant's first 200 dialogs"
+                            )
                     except Exception as _m1_err:
-                        LOGGER(__name__).warning(f"[PLAY] M1 (peer inject) failed: {_m1_err}")
+                        LOGGER(__name__).warning(f"[PLAY] M1 (dialog refresh) failed: {_m1_err}")
 
                 # ── M2: Public group — resolve by username on assistant ───────────
                 if _ci_raw and not _ci_fixed:
@@ -993,28 +997,31 @@ class Call:
                         pass  # treat as not member when uncertain
 
                     if _is_member:
-                        # Assistant IS in the group — peer storage inject above should
-                        # have fixed it; try one more raw GetChannels pass.
+                        # Assistant IS in the group but its peer cache is stale.
+                        # Force a full updates.GetState + dialogs sweep so Telegram
+                        # sends the assistant the proper per-account access_hash.
                         try:
-                            from pyrogram.raw import functions as _rf3, types as _rt3
-                            _mp3  = await app.resolve_peer(chat_id)
-                            _rid3 = getattr(_mp3, "channel_id", None)
-                            _ah3  = getattr(_mp3, "access_hash", None)
-                            if _rid3 and _ah3:
-                                await _ci_raw.invoke(
-                                    _rf3.channels.GetChannels(
-                                        id=[_rt3.InputChannel(
-                                            channel_id=_rid3, access_hash=_ah3
-                                        )]
-                                    )
-                                )
+                            from pyrogram.raw import functions as _rfu
+                            try:
+                                await _ci_raw.invoke(_rfu.updates.GetState())
+                            except Exception:
+                                pass
+                            _found3 = False
+                            async for _dlg3 in _ci_raw.get_dialogs(limit=400):
+                                try:
+                                    if _dlg3.chat and _dlg3.chat.id == chat_id:
+                                        _found3 = True
+                                        break
+                                except Exception:
+                                    continue
+                            if _found3:
                                 await asyncio.sleep(0.5)
                                 await assistant.play(chat_id, stream)
                                 _ci_fixed = True
                                 break
                         except Exception as _m3a_err:
                             LOGGER(__name__).warning(
-                                f"[PLAY] M3a (GetChannels retry) failed: {_m3a_err}"
+                                f"[PLAY] M3a (dialog refresh) failed: {_m3a_err}"
                             )
                     else:
                         # Assistant is NOT in the group — add via bot first
