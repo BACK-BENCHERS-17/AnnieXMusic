@@ -140,6 +140,77 @@ for _key, (_eid, _fb) in _P.items():
     for _v in _variants:
         _UNICODE_TO_ID.setdefault(_v, _eid)
 
+# ── Extra aliases ───────────────────────────────────────────────────────────
+# Many plugins use related but slightly-different glyphs (e.g. 🎙 studio mic
+# vs 🎤 microphone, 📍 round pin vs 📌 pushpin) that aren't in `_P`. Map them
+# to the closest existing premium emoji ID so EVERY unicode glyph in any
+# outgoing message gets upgraded to a premium custom emoji.
+_EXTRA_ALIASES: dict[str, str] = {
+    # Music / mics
+    "🎙":  _P["mic"][0],            # studio mic → mic
+    "🎙️": _P["mic"][0],
+    "🔇":  _P["queue"][0],          # muted speaker → speaker
+    "🔈":  _P["queue"][0],
+    "🔉":  _P["queue"][0],
+    "🔊":  _P["queue"][0],
+    "📹":  _P["videocam"][0],       # video camera
+    "🎞":  _P["video"][0],          # film frames
+    "🎞️": _P["video"][0],
+    # Hearts / love
+    "❤":  _P["heart"][0],           # red heart (no VS16) → heart_on_fire
+    "❤️": _P["heart"][0],           # red heart (VS16)
+    "💖": _P["heart"][0],
+    "💗": _P["heart"][0],
+    "💘": _P["heart"][0],
+    "💝": _P["heart"][0],
+    "🩷": _P["heart"][0],
+    # Pins / bookmarks / mail
+    "📍": _P["pin"][0],             # round pushpin → pushpin
+    "📋": _P["stats"][0],           # clipboard → stats
+    "📭": _P["bookmark"][0],        # mailbox → bookmark
+    "📬": _P["bookmark"][0],
+    "📨": _P["announce"][0],
+    # Alerts
+    "🚨": _P["warn"][0],            # rotating light → warn
+    "🆘": _P["warn"][0],
+    "‼":  _P["warn"][0],
+    "‼️": _P["warn"][0],
+    # Arrows
+    "⬇":  _P["download"][0],
+    "⬇️": _P["download"][0],
+    "⬆":  _P["arrow"][0],
+    "⬆️": _P["arrow"][0],
+    "↑":  _P["arrow"][0],
+    "↓":  _P["download"][0],
+    "→":  _P["right"][0],
+    "←":  _P["left"][0],
+    "➥":  _P["right"][0],
+    "➻":  _P["right"][0],
+    "↬":  _P["right"][0],
+    "➡":  _P["right"][0],
+    "⬅":  _P["left"][0],
+    "↻":  _P["repeat"][0],
+    "🔄": _P["repeat"][0],
+    # Misc
+    "✓":  _P["check"][0],
+    "✔":  _P["check"][0],
+    "✔️": _P["check"][0],
+    "✗":  _P["cross"][0],
+    "✖":  _P["cross"][0],
+    "✖️": _P["cross"][0],
+    "⏤":  _P["dot"][0],
+    "•":  _P["dot"][0],
+    "▪":  _P["dot"][0],
+    "▫":  _P["dot"][0],
+    "🌹": _P["rose"][0] if "rose" in _P else _P["heart"][0],
+}
+for _g, _eid in _EXTRA_ALIASES.items():
+    _UNICODE_TO_ID.setdefault(_g, _eid)
+    if "\ufe0f" in _g:
+        _UNICODE_TO_ID.setdefault(_g.replace("\ufe0f", ""), _eid)
+    else:
+        _UNICODE_TO_ID.setdefault(_g + "\ufe0f", _eid)
+
 # Longest-glyph-first so multi-codepoint emojis (e.g. ❤️‍🔥, ⚡️ with VS16)
 # match before their single-codepoint variants.
 _SORTED_GLYPHS = sorted(_UNICODE_TO_ID.keys(), key=len, reverse=True)
