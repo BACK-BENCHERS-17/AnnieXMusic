@@ -8,8 +8,22 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def _safe_text(text: str) -> str:
-    """Strip  custom-emoji wrappers, keep fallback unicode char."""
-    return re.sub(r'<emoji id=["\'][^"\']*["\']>(.*?)', r'\1', text, flags=re.DOTALL)
+    """Strip Telegram custom-emoji wrappers, keep fallback unicode char.
+
+    Used for contexts (e.g. media captions, button labels) where Telegram
+    does not parse `<tg-emoji>` so the raw tag would otherwise leak through.
+    Handles both the legacy `<emoji id="...">x</emoji>` and the correct
+    `<tg-emoji emoji-id="...">x</tg-emoji>` forms.
+    """
+    text = re.sub(
+        r'<tg-emoji\s+emoji-id=["\'][^"\']*["\']>(.*?)</tg-emoji>',
+        r'\1', text, flags=re.DOTALL,
+    )
+    text = re.sub(
+        r'<emoji\s+id=["\'][^"\']*["\']>(.*?)</emoji>',
+        r'\1', text, flags=re.DOTALL,
+    )
+    return text
 
 
 from pyrogram import enums, filters

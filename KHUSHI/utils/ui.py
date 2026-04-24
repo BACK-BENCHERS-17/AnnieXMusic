@@ -102,9 +102,17 @@ _P = {
 
 
 def _emoji(eid: str | None, fallback: str) -> str:
-    """Wrap a unicode glyph as a Telegram premium emoji entity if an ID is set."""
+    """Wrap a unicode glyph as a Telegram premium custom-emoji entity.
+
+    Telegram / Pyrogram's HTML parser only recognises the `<tg-emoji>` tag with
+    an `emoji-id` attribute — anything else (e.g. `<emoji id="...">`) is
+    silently stripped, leaving just the unicode fallback. Using the correct
+    tag here makes every premium emoji actually render as a premium custom
+    emoji for users on Telegram Premium clients (and as the unicode fallback
+    elsewhere).
+    """
     if eid:
-        return f'<emoji id="{eid}">{fallback}</emoji>'
+        return f'<tg-emoji emoji-id="{eid}">{fallback}</tg-emoji>'
     return fallback
 
 
