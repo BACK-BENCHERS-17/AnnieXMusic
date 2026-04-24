@@ -1,11 +1,11 @@
-modules = ["python-3.12", "web", "bash"]
+modules = ["web", "bash", "python-3.11"]
 [agent]
 expertMode = true
-stack = "BEST_EFFORT_FALLBACK"
+stack = "FLASK_VANILLA_JS"
 
 [nix]
 channel = "stable-25_05"
-packages = ["ffmpeg", "ffmpeg-full", "freetype", "git", "gmp", "lcms2", "libGL", "libGLU", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "libyaml", "mesa", "openjpeg", "tcl", "tk", "xorg.libX11", "xorg.libXext", "xorg.libxcb", "zlib"]
+packages = ["ffmpeg", "ffmpeg-full", "freetype", "git", "gmp", "lcms2", "libGL", "libGLU", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "libyaml", "mesa", "openjpeg", "openssl", "postgresql", "tcl", "tk", "xorg.libX11", "xorg.libXext", "xorg.libxcb", "zlib"]
 
 [workflows]
 runButton = "Project"
@@ -24,12 +24,11 @@ name = "KHUSHI Bot"
 author = "agent"
 
 [workflows.workflow.metadata]
-outputType = "webview"
+outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "uv run python -m KHUSHI"
-waitForPort = 5000
+args = ".pythonlibs/bin/python3.11 -m KHUSHI"
 
 [userenv]
 
@@ -46,9 +45,6 @@ STRING_SESSION = "BQIB6EEATpGZnHyOcmWlo6aAFMo82HaeUq0eNSggIR6F2ySYQeN_bR4O_1tx1N
 localPort = 5000
 externalPort = 80
 
-[[ports]]
-localPort = 8080
-externalPort = 8080
-
 [deployment]
-deploymentTarget = "cloudrun"
+deploymentTarget = "autoscale"
+run = ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
