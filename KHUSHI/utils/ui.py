@@ -360,7 +360,81 @@ def install_emoji_autowrap() -> None:
     except Exception:
         pass
 
+    _install_invoke_emoji_fallback()
+
     _AUTOWRAP_INSTALLED = True
+
+
+def _strip_custom_emoji_entities(data) -> bool:
+    """Remove all `MessageEntityCustomEmoji` entries from a raw RPC request
+    object's `entities` list (used by messages.SendMessage / SendMedia /
+    EditMessage). Returns True if any were stripped, False otherwise."""
+    try:
+        from pyrogram.raw.types import MessageEntityCustomEmoji
+    except Exception:
+        return False
+    ents = getattr(data, "entities", None)
+    if not ents:
+        return False
+    new_ents = [e for e in ents if not isinstance(e, MessageEntityCustomEmoji)]
+    if len(new_ents) == len(ents):
+        return False
+    try:
+        data.entities = new_ents
+    except Exception:
+        return False
+    return True
+
+
+_INVOKE_FALLBACK_INSTALLED = False
+
+
+def _install_invoke_emoji_fallback() -> None:
+    """Wrap `Client.invoke` so that whenever Telegram rejects an outgoing
+    `messages.SendMessage` / `SendMedia` / `EditMessage` with
+    `ENTITY_TEXT_INVALID` or `DOCUMENT_INVALID`, we strip the custom-emoji
+    entities from the request and retry **once**. This way premium emojis
+    render whenever Telegram accepts them, and gracefully fall back to plain
+    Unicode whenever a particular message / chat / entity ID is rejected —
+    no plugin ever sees a silent failure."""
+    global _INVOKE_FALLBACK_INSTALLED
+    if _INVOKE_FALLBACK_INSTALLED:
+        return
+    try:
+        from pyrogram import Client
+        from pyrogram.errors import BadRequest
+    except Exception:
+        return
+
+    try:
+        orig_invoke = Client.invoke
+    except AttributeError:
+        return
+    if getattr(orig_invoke, "_emoji_fallback_installed", False):
+        return
+
+    async def _patched_invoke(self, query, *args, **kwargs):
+        try:
+            return await orig_invoke(self, query, *args, **kwargs)
+        except BadRequest as e:
+            msg = str(e)
+            if ("ENTITY_TEXT_INVALID" in msg) or ("DOCUMENT_INVALID" in msg):
+                if _strip_custom_emoji_entities(query):
+                    try:
+                        import logging
+                        logging.getLogger("KHUSHI.ui").info(
+                            "[autowrap] Telegram rejected custom emojis "
+                            "(%s) — retrying without them.",
+                            "ENTITY_TEXT_INVALID" if "ENTITY_TEXT_INVALID" in msg else "DOCUMENT_INVALID",
+                        )
+                    except Exception:
+                        pass
+                    return await orig_invoke(self, query, *args, **kwargs)
+            raise
+
+    _patched_invoke._emoji_fallback_installed = True
+    Client.invoke = _patched_invoke
+    _INVOKE_FALLBACK_INSTALLED = True
 
 
 # ── Message builder helpers ──────────────────────────────────────────────────
