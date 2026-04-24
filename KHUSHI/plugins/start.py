@@ -638,8 +638,8 @@ async def help_nav_cb(client, query):
                 help_text, reply_markup=nav_kb, parse_mode=enums.ParseMode.HTML
             )
             edited = True
-        except Exception:
-            pass
+        except Exception as e:
+            _LOGGER.warning("[HELP_NAV] edit_caption section=%d failed: %s", section, e)
 
     if not edited:
         try:
@@ -649,10 +649,11 @@ async def help_nav_cb(client, query):
                 disable_web_page_preview=True,
             )
             edited = True
-        except Exception:
-            pass
+        except Exception as e:
+            _LOGGER.warning("[HELP_NAV] edit_text section=%d failed: %s", section, e)
 
     if not edited:
+        _LOGGER.warning("[HELP_NAV] section=%d — all in-place edits failed, deleting and sending fresh", section)
         try:
             await nav_msg.delete()
         except Exception:

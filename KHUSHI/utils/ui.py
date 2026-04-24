@@ -389,14 +389,46 @@ def _strip_custom_emoji_entities(data) -> bool:
 _INVOKE_FALLBACK_INSTALLED = False
 
 
+def _peer_is_group_or_channel(query) -> bool:
+    """Inspect a raw RPC request to decide whether its destination peer is a
+    group / supergroup / channel (anything other than a one-on-one DM with a
+    user). Returns False if we cannot tell — callers treat unknowns as DM and
+    keep premium emojis enabled.
+
+    Telegram clients consistently render premium custom-emoji entities as
+    empty placeholders for group / channel recipients when the bot account is
+    not the message owner's Premium account, so we proactively downgrade
+    those messages to plain unicode."""
+    try:
+        from pyrogram.raw.types import (
+            InputPeerChat,
+            InputPeerChannel,
+            InputPeerChannelFromMessage,
+        )
+    except Exception:
+        return False
+    peer = getattr(query, "peer", None)
+    if peer is None:
+        return False
+    return isinstance(peer, (InputPeerChat, InputPeerChannel, InputPeerChannelFromMessage))
+
+
 def _install_invoke_emoji_fallback() -> None:
-    """Wrap `Client.invoke` so that whenever Telegram rejects an outgoing
-    `messages.SendMessage` / `SendMedia` / `EditMessage` with
-    `ENTITY_TEXT_INVALID` or `DOCUMENT_INVALID`, we strip the custom-emoji
-    entities from the request and retry **once**. This way premium emojis
-    render whenever Telegram accepts them, and gracefully fall back to plain
-    Unicode whenever a particular message / chat / entity ID is rejected —
-    no plugin ever sees a silent failure."""
+    """Wrap `Client.invoke` with two layers of protection for outgoing
+    messages that contain Telegram premium custom-emoji entities:
+
+    1. **Proactive (group / channel only):** before the request is sent,
+       strip any `MessageEntityCustomEmoji` entries when the destination
+       peer is a group / supergroup / channel. Telegram clients reliably
+       render those entities as empty placeholders for non-Premium-owned
+       bot accounts in shared chats, so we always fall back to the plain
+       unicode glyph instead. DMs are left untouched — premium emojis
+       work fine there.
+
+    2. **Reactive (any chat):** if Telegram rejects the request with
+       `ENTITY_TEXT_INVALID` or `DOCUMENT_INVALID` we strip the custom
+       emoji entities and retry once, so a single bad emoji ID can never
+       cause a silent send failure."""
     global _INVOKE_FALLBACK_INSTALLED
     if _INVOKE_FALLBACK_INSTALLED:
         return
@@ -414,6 +446,10 @@ def _install_invoke_emoji_fallback() -> None:
         return
 
     async def _patched_invoke(self, query, *args, **kwargs):
+        # Layer 1 — proactively strip custom emojis for group / channel sends.
+        if _AUTOWRAP_ENABLED and _peer_is_group_or_channel(query):
+            _strip_custom_emoji_entities(query)
+        # Layer 2 — invoke; on emoji-related rejection, strip and retry once.
         try:
             return await orig_invoke(self, query, *args, **kwargs)
         except BadRequest as e:
