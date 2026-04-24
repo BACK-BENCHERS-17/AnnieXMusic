@@ -43,6 +43,19 @@ class KhushiBot(Client):
         self.name = f"{me.first_name} {me.last_name or ''}".strip()
         self.mention = me.mention
 
+        if not getattr(me, "is_premium", False):
+            try:
+                from KHUSHI.utils.ui import disable_emoji_autowrap
+                disable_emoji_autowrap()
+                LOGGER(__name__).warning(
+                    "KHUSHI: Bot is NOT Telegram Premium — premium custom-emoji "
+                    "autowrap disabled (Telegram rejects MessageEntityCustomEmoji "
+                    "from non-premium bots with ENTITY_TEXT_INVALID). Messages "
+                    "will send as plain Unicode emojis."
+                )
+            except Exception as _e:
+                LOGGER(__name__).warning(f"Could not disable autowrap: {_e}")
+
         try:
             await self.get_chat(config.LOGGER_ID)
             await self.send_message(

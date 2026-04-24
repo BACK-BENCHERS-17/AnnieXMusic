@@ -5,8 +5,20 @@ Single source of truth for all emojis, brand row, and
 reusable blockquote message helpers.  Import from here everywhere.
 """
 
-# ── Brand row (disabled — premium emojis are used inline instead) ───────────
-BRAND = "<blockquote>🎵 <b>ᴀɴɴɪᴇ</b></blockquote>\n"
+# ── Brand row — 🧸 ANNIE in Telegram premium custom-emoji letters ──────────
+# Rendered as styled premium glyphs on Telegram Premium clients, falls back to
+# the wrapped fallback character (here: the actual letter A/N/N/I/E) on
+# non-premium clients so it still reads cleanly as "🧸 ANNIE".
+BRAND = (
+    "<blockquote>"
+    '<tg-emoji emoji-id="5042192219960771668">🧸</tg-emoji> '
+    '<tg-emoji emoji-id="5210820276748566172">A</tg-emoji>'
+    '<tg-emoji emoji-id="5213301251722203632">N</tg-emoji>'
+    '<tg-emoji emoji-id="5213301251722203632">N</tg-emoji>'
+    '<tg-emoji emoji-id="5211032856154885824">I</tg-emoji>'
+    '<tg-emoji emoji-id="5213337333742454261">E</tg-emoji>'
+    "</blockquote>\n"
+)
 
 # ── Premium emoji IDs (Telegram custom-emoji) ───────────────────────────────
 # Each entry: (custom_emoji_id_or_None, unicode_fallback)
@@ -39,7 +51,7 @@ _P = {
 
     # Actions / states
     "zap":       ("5042334757040423886", "⚡️"),
-    "fire":      ("5347895529033462557", "🔥"),
+    "fire":      ("5039644681583985437", "🔥"),
     "star":      ("5356706551848769325", "🌟"),
     "sparkle":   ("5039827436737397847", "✨"),
     "dizzy":     ("5042200814190330758", "💫"),
@@ -262,6 +274,19 @@ def _augment_with_custom_emoji(message: str, entities):
 
 
 _AUTOWRAP_INSTALLED = False
+_AUTOWRAP_ENABLED = True
+
+
+def disable_emoji_autowrap() -> None:
+    """Globally disable the autowrap layer at runtime. Patched parsers stay
+    installed but become no-ops, so outgoing messages send as plain text.
+
+    Use this when the bot account is not Telegram Premium — non-premium bots
+    cannot send `MessageEntityCustomEmoji`, and Telegram rejects every such
+    message with `ENTITY_TEXT_INVALID` / `DOCUMENT_INVALID` (causing /help,
+    /song, /reco etc. to silently fail to send anything)."""
+    global _AUTOWRAP_ENABLED
+    _AUTOWRAP_ENABLED = False
 
 
 def install_emoji_autowrap() -> None:
@@ -305,6 +330,8 @@ def install_emoji_autowrap() -> None:
 
         async def _patched(self, *args, **kwargs):
             result = await orig(self, *args, **kwargs)
+            if not _AUTOWRAP_ENABLED:
+                return result
             try:
                 if isinstance(result, dict):
                     result["entities"] = _augment_with_custom_emoji(
