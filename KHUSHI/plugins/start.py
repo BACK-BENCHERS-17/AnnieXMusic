@@ -167,7 +167,6 @@ async def khushi_start_private(client, message: Message):
 
         if title:
             info_caption = (
-                f"<blockquote>{_BRAND}</blockquote>\n\n"
                 f"<blockquote>"
                 f"{_MUSIC} <b>{title}</b>\n\n"
                 f"{_DOT} <b>Duration:</b> <code>{duration_min}</code>\n"
@@ -195,7 +194,6 @@ async def khushi_start_private(client, message: Message):
                 await message.reply_text(info_caption, reply_markup=info_markup, disable_web_page_preview=True)
         else:
             await message.reply_text(
-                f"<blockquote>{_BRAND}</blockquote>\n\n"
                 f"<blockquote>{_CROSS} ꜱᴏɴɢ ɪɴꜰᴏ ɴᴏᴛ ꜰᴏᴜɴᴅ.</blockquote>",
                 disable_web_page_preview=True,
             )
@@ -218,7 +216,6 @@ async def khushi_start_private(client, message: Message):
 
     # ── Normal /start ─────────────────────────────────────────────────────────
     caption = (
-        f"<blockquote>{_BRAND}</blockquote>\n\n"
         + START_TEXT.format(mention=message.from_user.mention, bot=app.mention)
     )
     markup = _start_kb()
@@ -233,7 +230,6 @@ async def khushi_start_group(client, message: Message):
     grp = message.chat.title or "ᴛʜɪꜱ ɢʀᴏᴜᴩ"
     mention = message.from_user.mention if message.from_user else "ʏᴏᴜ"
     caption = (
-        f"<blockquote>{_BRAND}</blockquote>\n\n"
         "<blockquote>"
         f"{_FIRE}"
         f" ɴᴀᴍᴀsᴛᴇ {mention}!\n\n"
@@ -297,7 +293,6 @@ async def _send_join_log(chat, adder):
             pass
 
         log_text = (
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
             "<blockquote>"
             f"{_SPARKLE} "
             "<b>ɴᴇᴡ ɢʀᴏᴜᴩ ᴊᴏɪɴᴇᴅ</b>\n\n"
@@ -343,7 +338,6 @@ async def _send_leave_log(chat_id: int, chat_title: str, chat_username: str, rem
             f"@{remover.username}" if remover and getattr(remover, "username", None) else "ɴᴏɴᴇ"
         )
         log_text = (
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
             "<blockquote>"
             f"{_FIRE} "
             "<b>ʟᴇꜰᴛ / ʀᴇᴍᴏᴠᴇᴅ ꜰʀᴏᴍ ɢʀᴏᴜᴩ</b>\n\n"
@@ -399,7 +393,6 @@ async def bot_added_to_group(client, message: Message):
     # ── Welcome message in the group ──────────────────────────────────────────
     adder_mention = adder.mention if adder else "ᴀᴅᴍɪɴ"
     caption = (
-        f"<blockquote>{_BRAND}</blockquote>\n\n"
         "<blockquote>"
         f"{_FIRE}"
         f" <b>ʜᴇʟʟᴏ {grp}!</b>\n\n"
@@ -699,7 +692,6 @@ async def help_back_cb(client, query):
 async def back_to_main_cb(client, query):
     await query.answer()
     caption = (
-        f"<blockquote>{_BRAND}</blockquote>\n\n"
         + START_TEXT.format(mention=query.from_user.mention, bot=app.mention)
     )
     markup = _start_kb()
@@ -760,7 +752,6 @@ async def back_to_main_cb(client, query):
 async def khushi_back_cb(client, query):
     await query.answer()
     caption = (
-        f"<blockquote>{_BRAND}</blockquote>\n\n"
         + START_TEXT.format(mention=query.from_user.mention, bot=app.mention)
     )
     markup = _start_kb()

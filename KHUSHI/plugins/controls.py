@@ -56,7 +56,7 @@ def _close():
     ]])
 
 def _reply(text):
-    return f"<blockquote>{_BRAND}</blockquote>\n\n<blockquote>{text}</blockquote>"
+    return f"<blockquote>{text}</blockquote>"
 
 
 # ── PAUSE ─────────────────────────────────────────────────────────────────────

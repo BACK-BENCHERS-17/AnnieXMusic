@@ -78,9 +78,8 @@ async def _main_text() -> str:
         active_video = 0
     UP, CPU, RAM, DISK = await bot_sys_stats()
     return (
-        f"<blockquote>{_BRAND}</blockquote>\n\n"
         "<blockquote>"
-        "┌────── ˹ ᴀɴɴɪᴇ sᴛᴀᴛs ˼─── ⏤‌‌●\n"
+        "┌────── ˹ ᴋʜᴜsʜɪ sᴛᴀᴛs ˼─── ⏤‌‌●\n"
         f"┆{_E['globe']} <b>sᴇʀᴠᴇᴅ ɢʀᴏᴜᴘs :</b> <code>{served_chats}</code>\n"
         f"┆{_E['user']} <b>sᴇʀᴠᴇᴅ ᴜsᴇʀs :</b> <code>{served_users}</code>\n"
         f"┆{_E['music']} <b>ᴀᴄᴛɪᴠᴇ ᴀᴜᴅɪᴏ :</b> <code>{active_audio}</code>\n"
@@ -125,7 +124,6 @@ async def _overview_text() -> str:
     except Exception:
         banned = 0
     return (
-        f"<blockquote>{_BRAND}</blockquote>\n\n"
         "<blockquote>"
         "┌────── ˹ ᴏᴠᴇʀᴀʟʟ sᴛᴀᴛs ˼─── ⏤‌‌●\n"
         f"┆{_E['globe']} <b>sᴇʀᴠᴇᴅ ɢʀᴏᴜᴘs :</b> <code>{served_chats}</code>\n"
@@ -143,7 +141,6 @@ async def _overview_text() -> str:
 async def _system_text() -> str:
     UP, CPU, RAM, DISK = await bot_sys_stats()
     return (
-        f"<blockquote>{_BRAND}</blockquote>\n\n"
         "<blockquote>"
         "┌────── ˹ sʏsᴛᴇᴍ sᴛᴀᴛs ˼─── ⏤‌‌●\n"
         f"┆{_E['time']} <b>ᴜᴘᴛɪᴍᴇ :</b> <code>{UP}</code>\n"

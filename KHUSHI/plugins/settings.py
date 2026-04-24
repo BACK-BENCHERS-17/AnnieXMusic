@@ -41,7 +41,6 @@ _E_USER  = "👤"
 
 def _settings_text(chat_id: int, chat_title: str) -> str:
     return (
-        f"<blockquote>{_BRAND}</blockquote>\n\n"
         "<blockquote>"
         f"┌────── ˹ {_E_GEAR} ꜱᴇᴛᴛɪɴɢs ˼─── ⏤‌‌●\n"
         f"┆{_E_GLOBE} <b>ɢʀᴏᴜᴘ :</b> {chat_title}\n"

@@ -9,14 +9,7 @@ from KHUSHI.utils import seconds_to_min
 from KHUSHI.utils.database import get_cmode, is_active_chat
 from config import BANNED_USERS
 
-_BRAND = (
-    "🧸"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
-)
+_BRAND = ""
 _dot = "🔹"
 _fire = "❤️‍🔥"
 
@@ -40,14 +33,12 @@ async def kqueue(_, message: Message):
 
     if not await is_active_chat(chat_id):
         return await message.reply_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
             "<blockquote>⚠️ ʙᴏᴛ ɪꜱ ɴᴏᴛ ᴀᴄᴛɪᴠᴇ ɪɴ ᴠᴏɪᴄᴇ ᴄʜᴀᴛ.</blockquote>"
         )
 
     q = db.get(chat_id)
     if not q:
         return await message.reply_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
             "<blockquote>📭 ǫᴜᴇᴜᴇ ɪꜱ ᴇᴍᴘᴛʏ.</blockquote>"
         )
 
@@ -69,7 +60,6 @@ async def kqueue(_, message: Message):
 
     # Build now-playing card
     text = (
-        f"<blockquote>{_BRAND}</blockquote>\n\n"
         f"<blockquote>"
         f"┌────── ˹ ɴᴏᴡ ᴘʟᴀʏɪɴɢ ˼\n"
         f"│\n"

@@ -134,6 +134,17 @@ Standalone fast stream engine for KHUSHI bot, mirrors ANNIEMUSIC's `fast_get_str
 - Background caching: auto-downloads to local after first stream URL extraction
 - Uses ANNIEMUSIC's SmartYTDL engine (android_vr, ios, web_safari multi-client bypass)
 
+## UI Cleanup (April 2026 — Session 5)
+- **Brand row removed**: The `🧸 ᴀɴɴɪᴇ` blockquote header that prefixed every bot reply has been stripped everywhere.
+  - `KHUSHI/utils/ui.py` — `BRAND = ""`, `brand_block()` returns `""`, `msg()` and `panel()` no longer prepend it.
+  - All `<blockquote>{_BRAND}</blockquote>\n\n` fragments removed across `KHUSHI/plugins/*.py` and `KHUSHI/core/*.py`.
+  - Local multi-line `_BRAND = ( ... )` definitions in `ping.py / song.py / queue.py / nsfw.py / language.py / security.py / broadcast.py` set to `""`.
+  - `sudo.py._r()` now returns a single clean blockquote.
+  - `strings/helpers.py` — `_ANNIE = ""`.
+  - `strings/langs/en.yml` — 54 brand prefixes removed.
+  - `KHUSHI/__main__.py` and `KHUSHI/core/bot.py / call.py` — visible "ᴀɴɴɪᴇ" labels replaced with "ᴋʜᴜsʜɪ".
+- **Result**: every message now has a single clean blockquote with its premium emojis — no redundant brand row.
+
 ## Customizations (March 2026)
 - **KHUSHI Branding in Logs**: All `LOGGER("ANNIEMUSIC")` calls changed to `LOGGER("KHUSHI")` in `__main__.py`
 - **New Attractive UI**: All command buttons updated with premium emojis (🎵 ⏯ 🔀 🔁 ⏩ ⚡️ ❄️ 📻 📊 ⚙️ etc.)

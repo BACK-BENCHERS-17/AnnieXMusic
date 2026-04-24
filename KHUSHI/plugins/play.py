@@ -79,7 +79,6 @@ async def _check_maintenance(message: Message) -> bool:
             if message.from_user.id not in SUDOERS:
                 _sc = SUPPORT_CHAT if SUPPORT_CHAT.startswith("http") else f"https://t.me/{SUPPORT_CHAT.lstrip('@')}"
                 await message.reply_text(
-                    f"<blockquote>{_BRAND}</blockquote>\n\n"
                     f"<blockquote>{_EM['zap']} <b>ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ ᴍᴏᴅᴇ</b>\n"
                     f"{_EM['dot']} ᴠɪꜱɪᴛ "
                     f"<a href='{_sc}'>ꜱᴜᴘᴘᴏʀᴛ</a>.</blockquote>",
@@ -99,7 +98,6 @@ async def _check_playtype(message: Message, chat_id: int) -> bool:
                 admins = adminlist.get(chat_id)
                 if not admins or message.from_user.id not in admins:
                     await message.reply_text(
-                        f"<blockquote>{_BRAND}</blockquote>\n\n"
                         f"<blockquote>❌ ꜱᴇᴛ ᴛᴏ <b>Aᴅᴍɪɴꜱ Oɴʟʏ</b> — ᴏɴʟʏ ᴀᴅᴍɪɴꜱ ᴄᴀɴ ᴜꜱᴇ /ᴘʟᴀʏ.</blockquote>"
                     )
                     return True
@@ -236,7 +234,6 @@ async def _handle_play(message: Message, video: bool = False):
             except Exception as je:
                 db.pop(vc_chat_id, None)
                 return await message.reply_text(
-                    f"<blockquote>{_BRAND}</blockquote>\n\n"
                     f"<blockquote>❌ ᴠᴄ ᴊᴏɪɴ ꜰᴀɪʟᴇᴅ.\n{_EM['dot']} {type(je).__name__}</blockquote>"
                 )
             await put_queue(
@@ -331,7 +328,6 @@ async def _handle_play(message: Message, video: bool = False):
                     n, link = await YouTube.video(query)
                     if n == 0 or not link:
                         return await message.reply_text(
-                            f"<blockquote>{_BRAND}</blockquote>\n\n"
                             f"<blockquote>❌ ᴄᴀɴɴᴏᴛ ꜰᴇᴛᴄʜ ʟɪᴠᴇ ꜱᴛʀᴇᴀᴍ.</blockquote>"
                         )
                     try:
@@ -342,7 +338,6 @@ async def _handle_play(message: Message, video: bool = False):
                     except Exception as je:
                         db.pop(vc_chat_id, None)
                         return await message.reply_text(
-                            f"<blockquote>{_BRAND}</blockquote>\n\n"
                             f"<blockquote>❌ ᴠᴄ ᴊᴏɪɴ ꜰᴀɪʟᴇᴅ.\n{_EM['dot']} {type(je).__name__}</blockquote>"
                         )
                     await put_queue(
@@ -375,19 +370,16 @@ async def _handle_play(message: Message, video: bool = False):
         )
     except Exception as e:
         return await mystic.edit_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>❌ ɴᴏᴛʜɪɴɢ ꜰᴏᴜɴᴅ.\n{_EM['dot']} {type(e).__name__}</blockquote>"
         )
 
     if str(duration_min) == "None" or not vidid:
         return await mystic.edit_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>❌ ᴄᴏᴜʟᴅ ɴᴏᴛ ꜰᴇᴛᴄʜ ᴛʀᴀᴄᴋ ᴅᴇᴛᴀɪʟꜱ.</blockquote>"
         )
 
     if duration_sec and duration_sec > DURATION_LIMIT:
         return await mystic.edit_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>❌ ᴛʀᴀᴄᴋ ɪꜱ ᴛᴏᴏ ʟᴏɴɢ.\n"
             f"{_EM['dot']} ᴍᴀx: <code>{DURATION_LIMIT // 60} ᴍɪɴᴜᴛᴇꜱ</code></blockquote>"
         )
@@ -408,13 +400,11 @@ async def _handle_play(message: Message, video: bool = False):
         )
     except Exception as e:
         return await mystic.edit_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>❌ ᴅᴏᴡɴʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ.\n{_EM['dot']} {type(e).__name__}</blockquote>"
         )
 
     if not file_path:
         return await mystic.edit_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>❌ ᴅᴏᴡɴʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ — ᴛʀʏ ᴀɢᴀɪɴ.</blockquote>"
         )
 
@@ -452,7 +442,6 @@ async def _handle_play(message: Message, video: bool = False):
         except Exception as je:
             db.pop(vc_chat_id, None)
             return await mystic.edit_text(
-                f"<blockquote>{_BRAND}</blockquote>\n\n"
                 f"<blockquote>❌ ᴠᴄ ᴊᴏɪɴ ꜰᴀɪʟᴇᴅ.\n{_EM['dot']} {type(je).__name__}: {je}</blockquote>"
             )
         await put_queue(
@@ -748,7 +737,6 @@ async def related_play_cb(client, query):
             db.pop(chat_id, None)
             return await client.send_message(
                 chat_id,
-                f"<blockquote>{_BRAND}</blockquote>\n\n"
                 f"<blockquote>❌ ᴠᴄ ᴊᴏɪɴ ꜰᴀɪʟᴇᴅ.\n{_EM['dot']} {type(je).__name__}</blockquote>",
             )
         await put_queue(

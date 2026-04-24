@@ -15,19 +15,8 @@ from pyrogram.enums import ChatMembersFilter
 from KHUSHI.utils.database import get_active_chats, get_authuser_names
 from KHUSHI.utils.formatters import alpha_to_int
 
-_BRAND = (
-    "<blockquote>"
-    "🧸"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
-    "</blockquote>"
-)
-
+_BRAND = ""
 _USAGE = (
-    f"{_BRAND}\n\n"
     "<blockquote>"
     "⚡️ <b>ʙʀᴏᴀᴅᴄᴀꜱᴛ ᴜꜱᴀɢᴇ</b>\n\n"
     "Reply to a message <b>OR</b> write text:\n"
@@ -81,7 +70,6 @@ async def _do_broadcast(message: Message):
 
     nf_badge = " <code>[ɴᴏ-ꜰᴡᴅ]</code>" if no_fwd else ""
     await message.reply_text(
-        f"{_BRAND}\n\n"
         f"<blockquote>🎁 "
         f"<b>ʙʀᴏᴀᴅᴄᴀꜱᴛɪɴɢ...{nf_badge}</b></blockquote>"
     )
@@ -118,7 +106,6 @@ async def _do_broadcast(message: Message):
     ]])
 
     await message.reply_text(
-        f"{_BRAND}\n\n"
         f"<blockquote>"
         f"🎁 <b>ᴅᴏɴᴇ</b>\n\n"
         f"🔹 "
@@ -143,7 +130,6 @@ async def _do_broadcast(message: Message):
                 continue
 
         await message.reply_text(
-            f"{_BRAND}\n\n"
             f"<blockquote>"
             f"🎁 <b>ᴜꜱᴇʀ ʙʀᴏᴀᴅᴄᴀꜱᴛ ᴅᴏɴᴇ</b>\n\n"
             f"🔹 "

@@ -15,15 +15,7 @@ from KHUSHI.core.call import JARVIS
 from KHUSHI.utils import bot_sys_stats
 from config import BANNED_USERS, PING_IMG_URL, START_IMGS, SUPPORT_CHAT
 
-_BRAND = (
-    "🧸"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
-)
-
+_BRAND = ""
 _E = {
     "ping":   "🏓",
     "vc":     "📞",
@@ -83,7 +75,6 @@ async def khushi_ping(client, message: Message):
     ms = round((datetime.now() - start).microseconds / 1000, 2)
 
     caption = (
-        f"<blockquote>{_BRAND}</blockquote>\n\n"
         f"<blockquote>"
         f"┌────── ˹ ᴘɪɴɢ ˼─── ⏤‌‌●\n"
         f"┆{_E['ping']} <b>ᴘɪɴɢ :</b> <code>{ms} ᴍs</code>\n"

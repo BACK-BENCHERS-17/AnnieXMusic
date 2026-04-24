@@ -28,11 +28,7 @@ _pending: dict = {}
 
 from KHUSHI.utils.ui import BRAND as _BRAND_LOGO, E as _E_UI
 
-_BRAND = (
-    "🧸"
-    " <b>ᴋʜᴜsʜɪ ᴅᴏᴡɴʟᴏᴀᴅᴇʀ</b>"
-)
-
+_BRAND = ""
 _EM = {
     "audio": _E_UI["music"],
     "video": _E_UI["video"],
@@ -148,14 +144,12 @@ async def song_cmd(client, message: Message):
     query = " ".join(message.command[1:]).strip() if len(message.command) > 1 else ""
     if not query:
         return await message.reply_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>{_EM['dot']} ᴜsᴀɢᴇ: <code>/song &lt;song name or YouTube URL&gt;</code>\n"
             f"{_EM['dot']} ᴇxᴀᴍᴘʟᴇ: <code>/song arijit singh tum hi ho</code></blockquote>",
             disable_web_page_preview=True,
         )
 
     searching = await message.reply_text(
-        f"<blockquote>{_BRAND}</blockquote>\n\n"
         f"<blockquote>{_EM['wait']} sᴇᴀʀᴄʜɪɴɢ...</blockquote>"
     )
 
@@ -192,7 +186,6 @@ async def song_cmd(client, message: Message):
 
     if not info or not info.get("vid_id"):
         return await searching.edit_text(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>{_EM['err']} ɴᴏ ʀᴇsᴜʟᴛs ꜰᴏᴜɴᴅ ꜰᴏʀ: <b>{query}</b></blockquote>"
         )
 
@@ -200,7 +193,6 @@ async def song_cmd(client, message: Message):
     _pending[key] = info
 
     caption = (
-        f"<blockquote>{_BRAND}</blockquote>\n\n"
         f"<blockquote>"
         f"{_EM['audio']} <b>{info['title']}</b>\n"
         f"{_EM['dot']} ᴄʜᴀɴɴᴇʟ: {info['channel']}\n"
@@ -255,14 +247,12 @@ async def song_dl_cb(client, cb: CallbackQuery):
 
     try:
         await cb.message.edit_caption(
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>{_EM['wait']} ᴅᴏᴡɴʟᴏᴀᴅɪɴɢ {_QUALITY_LABELS.get(quality,'')}\n"
             f"{_EM['dot']} <b>{title}</b>\nᴘʟᴇᴀsᴇ ᴡᴀɪᴛ...</blockquote>"
         )
     except Exception:
         try:
             await cb.message.edit_text(
-                f"<blockquote>{_BRAND}</blockquote>\n\n"
                 f"<blockquote>{_EM['wait']} ᴅᴏᴡɴʟᴏᴀᴅɪɴɢ...</blockquote>"
             )
         except Exception:
@@ -280,7 +270,6 @@ async def song_dl_cb(client, cb: CallbackQuery):
     if not file_path or not os.path.exists(file_path):
         try:
             await cb.message.edit_text(
-                f"<blockquote>{_BRAND}</blockquote>\n\n"
                 f"<blockquote>{_EM['err']} ᴅᴏᴡɴʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ. ᴛʀʏ ᴀɴᴏᴛʜᴇʀ ǫᴜᴀʟɪᴛʏ ᴏʀ <code>/song</code> ᴀɢᴀɪɴ.</blockquote>"
             )
         except Exception:
@@ -291,7 +280,6 @@ async def song_dl_cb(client, cb: CallbackQuery):
     if file_size_mb > 48:
         try:
             await cb.message.edit_text(
-                f"<blockquote>{_BRAND}</blockquote>\n\n"
                 f"<blockquote>{_EM['err']} ꜰɪʟᴇ ᴛᴏᴏ ʟᴀʀɢᴇ ({file_size_mb:.1f} ᴍʙ). ᴛʀʏ ᴀ ʟᴏᴡᴇʀ ǫᴜᴀʟɪᴛʏ.</blockquote>"
             )
         except Exception:
@@ -300,7 +288,6 @@ async def song_dl_cb(client, cb: CallbackQuery):
         return
 
     caption_send = (
-        f"<blockquote>{_BRAND}</blockquote>\n\n"
         f"<blockquote>"
         f"{_EM['ok']} <b>{title}</b>\n"
         f"{_EM['dot']} ǫᴜᴀʟɪᴛʏ: {_QUALITY_LABELS.get(quality,'')}\n"
@@ -331,7 +318,6 @@ async def song_dl_cb(client, cb: CallbackQuery):
     except Exception as e:
         try:
             await cb.message.edit_text(
-                f"<blockquote>{_BRAND}</blockquote>\n\n"
                 f"<blockquote>{_EM['err']} sᴇɴᴅ ꜰᴀɪʟᴇᴅ: {type(e).__name__}</blockquote>"
             )
         except Exception:

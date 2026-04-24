@@ -31,7 +31,7 @@ from config import BANNED_USERS, OWNER_ID
 
 from KHUSHI.utils.ui import BRAND as _BRAND_RAW, E as _E_UI
 
-_BRAND = f"<blockquote>{_BRAND_RAW}</blockquote>"
+_BRAND = ""
 _dot = _E_UI["dot"]
 _zap = _E_UI["zap"]
 _cross = _E_UI["cross"]
@@ -45,7 +45,7 @@ _crown = _E_UI["crown"]
 
 
 def _r(t):
-    return f"{_BRAND}\n\n<blockquote>{t}</blockquote>"
+    return f"<blockquote>{t}</blockquote>"
 
 
 # ── GBAN ──────────────────────────────────────────────────────────────────────

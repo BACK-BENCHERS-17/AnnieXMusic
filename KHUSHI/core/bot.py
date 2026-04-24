@@ -48,12 +48,11 @@ class KhushiBot(Client):
             await self.send_message(
                 config.LOGGER_ID,
                 (
-                    f"<blockquote>{_BRAND}</blockquote>\n"
                     f"<blockquote><b>{_E['check']} {self.mention} ꜱᴛᴀʀᴛᴇᴅ</b>\n\n"
                     f"ɪᴅ : <code>{self.id}</code>\n"
                     f"ɴᴀᴍᴇ : {self.name}\n"
                     f"ᴜꜱᴇʀɴᴀᴍᴇ : @{self.username}\n"
-                    f"ᴍᴏᴅᴇ : <b>{_E['zap']} ᴀɴɴɪᴇ</b></blockquote>"
+                    f"ᴍᴏᴅᴇ : <b>{_E['zap']} ᴋʜᴜsʜɪ</b></blockquote>"
                 ),
             )
         except Exception as e:

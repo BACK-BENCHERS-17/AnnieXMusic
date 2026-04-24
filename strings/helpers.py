@@ -11,7 +11,7 @@ _CROWN   = "👑"
 _SEARCH  = "🔍"
 _GIFT    = "🎁"
 
-_ANNIE = "<blockquote>🧸 ᴀɴɴɪᴇ</blockquote>\n\n"
+_ANNIE = ""
 
 HELP_1 = _ANNIE + f"""
 <blockquote><b>{_MUSIC} ᴘʟᴀʏ ᴄᴏᴍᴍᴀɴᴅs</b></blockquote>

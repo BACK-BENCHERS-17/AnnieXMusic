@@ -17,7 +17,7 @@ from config import BANNED_USERS, SUPPORT_CHAT
 
 _recodb = mongodb.reco_settings
 
-_BRAND = "🧸 ᴀɴɴɪᴇ"
+_BRAND = ""
 
 _EM = {
     "music":  "🎵",
@@ -157,7 +157,7 @@ _reco_cache: dict[int, dict] = {}
 
 
 def _reply(text: str) -> str:
-    return f"<blockquote>{_BRAND}</blockquote>\n\n<blockquote>{text}</blockquote>"
+    return f"<blockquote>{text}</blockquote>"
 
 
 def _sc_url() -> str:
@@ -234,7 +234,6 @@ async def reco_cmd(client, message: Message):
         # Try YouTube-based related song search first
         loading = await app.send_message(
             chat_id,
-            f"<blockquote>{_BRAND}</blockquote>\n\n"
             f"<blockquote>{_EM['zap']} ꜱᴇᴀʀᴄʜɪɴɢ ʀᴇʟᴀᴛᴇᴅ ꜱᴏɴɢꜱ…</blockquote>",
         )
         picks = await _yt_related(query, count)
@@ -316,7 +315,6 @@ async def reco_cmd(client, message: Message):
     except Exception:
         try:
             sent = await message.reply_text(
-                f"<blockquote>{_BRAND}</blockquote>\n\n"
                 f"<blockquote>🔥 <b>˹ ꜱᴏɴɢ ꜱᴜɢɢᴇꜱᴛɪᴏɴꜱ ˼</b>\n\n"
                 f"{lines}</blockquote>",
                 reply_markup=InlineKeyboardMarkup(_plain_rows),

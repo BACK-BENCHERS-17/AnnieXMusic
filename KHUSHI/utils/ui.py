@@ -5,8 +5,8 @@ Single source of truth for all emojis, brand row, and
 reusable blockquote message helpers.  Import from here everywhere.
 """
 
-# ── ANNIE brand row ─────────────────────────────────────────────────────────
-BRAND = "🧸 ᴀɴɴɪᴇ"
+# ── Brand row (disabled — premium emojis are used inline instead) ───────────
+BRAND = ""
 
 # ── Emoji set ────────────────────────────────────────────────────────────────
 E = {
@@ -68,8 +68,8 @@ def _box(content: str, expandable: bool = False) -> str:
 
 
 def brand_block() -> str:
-    """Compact brand header blockquote."""
-    return _box(BRAND)
+    """Brand header — disabled. Returns empty string for backward compatibility."""
+    return ""
 
 
 def msg(
@@ -80,9 +80,8 @@ def msg(
     expandable: bool = False,
 ) -> str:
     """
-    Build a two-blockquote Annie message:
+    Build a clean single-blockquote message:
 
-        ╔ brand row ╗
         ╔ emoji  header ╗
           body lines
 
@@ -94,7 +93,7 @@ def msg(
     inner = f"{em} <b>{header}</b>"
     if body:
         inner += f"\n{body}"
-    return f"{brand_block()}\n{_box(inner, expandable=expandable)}"
+    return _box(inner, expandable=expandable)
 
 
 def err(text: str) -> str:
@@ -126,4 +125,4 @@ def panel(title: str, rows: list[str], *, expandable: bool = False) -> str:
     bar_open  = f"┌────── ˹ {title} ˼ ─── ⏤‌●"
     bar_close = "└──────────────────●"
     body = bar_open + "\n" + "\n".join(f"┆{r}" for r in rows) + "\n" + bar_close
-    return f"{brand_block()}\n{_box(body, expandable=expandable)}"
+    return _box(body, expandable=expandable)

@@ -15,15 +15,7 @@ from config import BANNED_USERS
 
 _secdb = mongodb.security_settings
 
-_BRAND = (
-    "🧸"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
-)
-
+_BRAND = ""
 _EM = {
     "shield": "🛡",
     "zap":    "⚡️",
@@ -45,7 +37,7 @@ import re as _re
 
 
 def _reply(text: str) -> str:
-    return f"<blockquote>{_BRAND}</blockquote>\n\n<blockquote>{text}</blockquote>"
+    return f"<blockquote>{text}</blockquote>"
 
 
 def _close():

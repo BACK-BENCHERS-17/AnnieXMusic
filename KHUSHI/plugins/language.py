@@ -13,15 +13,7 @@ from KHUSHI.utils.inline import InlineKeyboardButton
 from config import BANNED_USERS
 from strings import languages_present
 
-_BRAND = (
-    "🧸"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
-)
-
+_BRAND = ""
 _LANG_FLAGS = {
     "en": "🇺🇸",
     "hi": "🇮🇳",
@@ -54,7 +46,6 @@ def _lang_markup(_, current_lang: str) -> InlineKeyboardMarkup:
 
 def _lang_text(_) -> str:
     return (
-        f"<blockquote>{_BRAND}</blockquote>\n\n"
         f"<blockquote>"
         f"┌────── ˹ ʟᴀɴɢᴜᴀɢᴇ ˼─── ⏤‌‌●\n"
         f"┆🔹 {_['lang_1']}\n"

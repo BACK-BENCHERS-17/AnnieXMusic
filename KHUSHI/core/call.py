@@ -1326,7 +1326,7 @@ class Call:
                                             f"<a href='https://www.youtube.com/watch?v={ap_vidid}'>"
                                             f"{ap_title_short}</a>",
                                             f"{_UE['clock']} <b>ᴅᴜʀᴀᴛɪᴏɴ:</b>  {ap_dur}",
-                                            f"{_UE['repeat']} <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ:</b>  ᴀɴɴɪᴇ ᴀᴜᴛᴏᴘʟᴀʏ",
+                                            f"{_UE['repeat']} <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ:</b>  ᴋʜᴜsʜɪ ᴀᴜᴛᴏᴘʟᴀʏ",
                                         ],
                                     )
                                     _ap_markup = InlineKeyboardMarkup(btn)
@@ -1419,7 +1419,6 @@ class Call:
                         if _last_short else ""
                     )
                     _end_text = (
-                        f"<blockquote>{_SUGG_BRAND}</blockquote>\n\n"
                         f"<blockquote>"
                         f"┌────── ˹ ǫᴜᴇᴜᴇ ᴇɴᴅᴇᴅ ˼ ─── ⏤●\n"
                         f"┆{_E_STAR} ᴛʜᴇ ᴘʟᴀʏʟɪsᴛ ʜᴀs ᴇɴᴅᴇᴅ.\n"

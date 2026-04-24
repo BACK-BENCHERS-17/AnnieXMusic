@@ -12,15 +12,7 @@ from config import BANNED_USERS
 
 _nsfwdb = mongodb.nsfw_settings
 
-_BRAND = (
-    "🧸"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
-    "🔤"
-)
-
+_BRAND = ""
 _EM = {
     "nsfw":  "⚠️",
     "dot":   "🔹",
@@ -40,7 +32,7 @@ _nsfw_cache: dict[int, bool] = {}
 
 
 def _reply(text: str) -> str:
-    return f"<blockquote>{_BRAND}</blockquote>\n\n<blockquote>{text}</blockquote>"
+    return f"<blockquote>{text}</blockquote>"
 
 
 def _close():
