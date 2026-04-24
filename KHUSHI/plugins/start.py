@@ -216,7 +216,7 @@ async def khushi_start_private(client, message: Message):
 
     # ── Normal /start ─────────────────────────────────────────────────────────
     caption = (
-        + START_TEXT.format(mention=message.from_user.mention, bot=app.mention)
+        START_TEXT.format(mention=message.from_user.mention, bot=app.mention)
     )
     markup = _start_kb()
     img = random.choice(START_IMGS)
@@ -692,7 +692,7 @@ async def help_back_cb(client, query):
 async def back_to_main_cb(client, query):
     await query.answer()
     caption = (
-        + START_TEXT.format(mention=query.from_user.mention, bot=app.mention)
+        START_TEXT.format(mention=query.from_user.mention, bot=app.mention)
     )
     markup = _start_kb()
     img = random.choice(START_IMGS)
@@ -752,7 +752,7 @@ async def back_to_main_cb(client, query):
 async def khushi_back_cb(client, query):
     await query.answer()
     caption = (
-        + START_TEXT.format(mention=query.from_user.mention, bot=app.mention)
+        START_TEXT.format(mention=query.from_user.mention, bot=app.mention)
     )
     markup = _start_kb()
     img = random.choice(START_IMGS)

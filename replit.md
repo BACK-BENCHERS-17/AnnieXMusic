@@ -144,6 +144,9 @@ Standalone fast stream engine for KHUSHI bot, mirrors ANNIEMUSIC's `fast_get_str
   - `strings/langs/en.yml` — 54 brand prefixes removed.
   - `KHUSHI/__main__.py` and `KHUSHI/core/bot.py / call.py` — visible "ᴀɴɴɪᴇ" labels replaced with "ᴋʜᴜsʜɪ".
 - **Result**: every message now has a single clean blockquote with its premium emojis — no redundant brand row.
+- **Premium emojis (Session 6)**: `KHUSHI/utils/ui.py` rebuilt with a `_P` map of `(custom_emoji_id, fallback)` tuples covering 50+ keys (status / music / actions / indicators / system). The `_emoji()` helper renders each as a `<emoji id="...">unicode</emoji>` HTML entity that Telegram parses as a real premium custom emoji while gracefully falling back to plain unicode on non-premium clients. New keys added: videocam, disc, timer, snow, heart, rose, globe, user, brain, download, playpause, ping, vc, uptime, cpu, ram, disk, stats, settings, computer.
+- **/start fix**: removed stray unary-`+` before `START_TEXT.format(...)` at three sites in `KHUSHI/plugins/start.py` (left over from a prior bulk edit) that caused a TypeError and made `/start` reply nothing.
+- **/play preview at top**: `_send_stream_msg` in `KHUSHI/plugins/play.py` now uses the same invisible-link / `invert_media` trick as `core/call.py._notify_now_playing`, anchoring a static catbox.moe video so the now-playing preview renders ABOVE the caption — no separate thumbnail photo.
 
 ## Customizations (March 2026)
 - **KHUSHI Branding in Logs**: All `LOGGER("ANNIEMUSIC")` calls changed to `LOGGER("KHUSHI")` in `__main__.py`

@@ -42,23 +42,23 @@ async def _send_stream_msg(
     thumbnail: str = None,
 ) -> object:
     """
-    Send stream notification with photo thumbnail when available.
+    Send a 'Now Playing' notification with a video preview shown ABOVE the text.
 
-    If `thumbnail` is provided (YouTube thumbnail URL), sends a photo message
-    with the caption — looks great and is reliable.
-    Falls back to a plain text message when no thumbnail is available.
+    Uses the invisible-link / invert_media trick (same helper as core/call.py)
+    so the preview appears at the top instead of a separate thumbnail photo.
+    The `thumbnail` argument is accepted for backward compatibility but ignored —
+    a static video anchor is always used so the preview animates on tap.
     """
-    if thumbnail:
-        try:
-            return await app.send_photo(
-                chat_id,
-                photo=thumbnail,
-                caption=caption,
-                reply_markup=reply_markup,
-                parse_mode=ParseMode.HTML,
-            )
-        except Exception as e:
-            _log.warning(f"[notify] send_photo failed for chat={chat_id}: {e}")
+    from KHUSHI.utils.raw_send import send_msg_invert_preview
+    from KHUSHI.core.call import THUMB_OFF_VIDEO_URL
+
+    invert_text = f'<a href="{THUMB_OFF_VIDEO_URL}">\u200c</a>{caption}'
+    try:
+        result = await send_msg_invert_preview(app, chat_id, invert_text, reply_markup)
+        if result:
+            return result
+    except Exception as e:
+        _log.warning(f"[notify] invert preview failed for chat={chat_id}: {e}")
 
     try:
         return await app.send_message(
