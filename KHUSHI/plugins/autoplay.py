@@ -18,7 +18,7 @@ _E_CROSS = _E["cross"]
 def _autoplay_text(enabled: bool) -> str:
     status_em  = _E_CHECK if enabled else _E_CROSS
     status_txt = "ᴇɴᴀʙʟᴇᴅ" if enabled else "ᴅɪsᴀʙʟᴇᴅ"
-    return _panel(
+    return _BRAND + _panel(
         "ᴀᴜᴛᴏᴘʟᴀʏ",
         [
             f"{_E['repeat']} <b>ꜱᴛᴀᴛᴜs:</b>  {status_em} <b>{status_txt}</b>",
@@ -79,13 +79,13 @@ async def autoplay_command(cli, message: Message, _, chat_id):
         if arg == "on":
             if enabled:
                 return await message.reply_text(
-                    _panel("ᴀᴜᴛᴏᴘʟᴀʏ", [
+                    _BRAND + _panel("ᴀᴜᴛᴏᴘʟᴀʏ", [
                         f"{_E_CHECK} ᴀᴜᴛᴏᴘʟᴀʏ ɪs ᴀʟʀᴇᴀᴅʏ <b>ᴇɴᴀʙʟᴇᴅ</b>.",
                     ])
                 )
             await autoplay_on(chat_id)
             return await message.reply_text(
-                _panel("ᴀᴜᴛᴏᴘʟᴀʏ", [
+                _BRAND + _panel("ᴀᴜᴛᴏᴘʟᴀʏ", [
                     f"{_E_CHECK} <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴇɴᴀʙʟᴇᴅ!</b>",
                     f"{_E['notes']} ᴡɪʟʟ ᴀᴜᴛᴏ-ᴘʟᴀʏ ʀᴇʟᴀᴛᴇᴅ sᴏɴɢs ᴡʜᴇɴ ǫᴜᴇᴜᴇ ᴇɴᴅs.",
                 ]),
@@ -94,13 +94,13 @@ async def autoplay_command(cli, message: Message, _, chat_id):
         elif arg == "off":
             if not enabled:
                 return await message.reply_text(
-                    _panel("ᴀᴜᴛᴏᴘʟᴀʏ", [
+                    _BRAND + _panel("ᴀᴜᴛᴏᴘʟᴀʏ", [
                         f"{_E_CROSS} ᴀᴜᴛᴏᴘʟᴀʏ ɪs ᴀʟʀᴇᴀᴅʏ <b>ᴅɪsᴀʙʟᴇᴅ</b>.",
                     ])
                 )
             await autoplay_off(chat_id)
             return await message.reply_text(
-                _panel("ᴀᴜᴛᴏᴘʟᴀʏ", [
+                _BRAND + _panel("ᴀᴜᴛᴏᴘʟᴀʏ", [
                     f"{_E_CROSS} <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴅɪsᴀʙʟᴇᴅ.</b>",
                     f"{_E['hourglass']} ᴍᴜsɪᴄ ᴡɪʟʟ sᴛᴏᴘ ᴀꜰᴛᴇʀ ᴄᴜʀʀᴇɴᴛ ǫᴜᴇᴜᴇ ᴇɴᴅs.",
                 ]),
@@ -108,7 +108,7 @@ async def autoplay_command(cli, message: Message, _, chat_id):
             )
         else:
             return await message.reply_text(
-                _panel("ᴀᴜᴛᴏᴘʟᴀʏ", [
+                _BRAND + _panel("ᴀᴜᴛᴏᴘʟᴀʏ", [
                     f"{_E['dot']} <code>/autoplay on</code>   — ᴇɴᴀʙʟᴇ ᴀᴜᴛᴏᴘʟᴀʏ",
                     f"{_E['dot']} <code>/autoplay off</code>  — ᴅɪsᴀʙʟᴇ ᴀᴜᴛᴏᴘʟᴀʏ",
                 ])

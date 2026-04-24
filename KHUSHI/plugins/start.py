@@ -111,7 +111,10 @@ async def _raw_edit(client, chat_id, msg_id, caption, markup) -> bool:
 
 
 async def _try_send_photo(client, chat_id, photo_url, caption, markup) -> bool:
-    """Try to send a photo with spoiler via raw API, then fallback to plain message."""
+    """Try to send a photo with spoiler via raw API, then fallback to plain message.
+
+    Logs every layer's failure so we can diagnose why a message never appeared.
+    """
     # Layer 1: raw MTProto SendMedia — supports custom emoji entities
     try:
         peer = await client.resolve_peer(chat_id)
@@ -132,8 +135,8 @@ async def _try_send_photo(client, chat_id, photo_url, caption, markup) -> bool:
             )
         )
         return True
-    except Exception:
-        pass
+    except Exception as e:
+        _LOGGER.warning("[SEND_PHOTO] Layer 1 (raw SendMedia) failed for chat=%s: %s", chat_id, e)
     # Layer 2: high-level send_photo
     try:
         await client.send_photo(
@@ -144,8 +147,8 @@ async def _try_send_photo(client, chat_id, photo_url, caption, markup) -> bool:
             parse_mode=enums.ParseMode.HTML,
         )
         return True
-    except Exception:
-        pass
+    except Exception as e:
+        _LOGGER.warning("[SEND_PHOTO] Layer 2 (send_photo) failed for chat=%s: %s", chat_id, e)
     # Layer 3: plain text message (no photo)
     try:
         await client.send_message(
@@ -156,8 +159,8 @@ async def _try_send_photo(client, chat_id, photo_url, caption, markup) -> bool:
             disable_web_page_preview=True,
         )
         return True
-    except Exception:
-        pass
+    except Exception as e:
+        _LOGGER.error("[SEND_PHOTO] Layer 3 (send_message) also failed for chat=%s: %s", chat_id, e)
     return False
 
 

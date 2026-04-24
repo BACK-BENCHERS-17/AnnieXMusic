@@ -52,7 +52,9 @@ async def _send_stream_msg(
     from KHUSHI.utils.raw_send import send_msg_invert_preview
     from KHUSHI.core.call import THUMB_OFF_VIDEO_URL
 
-    invert_text = f'<a href="{THUMB_OFF_VIDEO_URL}">\u200c</a>{caption}'
+    # Prepend ANNIE brand row (premium-emoji rendered) above the caption.
+    branded_caption = f"{_BRAND}{caption}" if _BRAND else caption
+    invert_text = f'<a href="{THUMB_OFF_VIDEO_URL}">\u200c</a>{branded_caption}'
     try:
         result = await send_msg_invert_preview(app, chat_id, invert_text, reply_markup)
         if result:
@@ -63,7 +65,7 @@ async def _send_stream_msg(
     try:
         return await app.send_message(
             chat_id,
-            text=caption,
+            text=branded_caption,
             reply_markup=reply_markup,
             parse_mode=ParseMode.HTML,
             disable_web_page_preview=True,

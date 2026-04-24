@@ -6,7 +6,7 @@ reusable blockquote message helpers.  Import from here everywhere.
 """
 
 # ── Brand row (disabled — premium emojis are used inline instead) ───────────
-BRAND = ""
+BRAND = "<blockquote>🎵 <b>ᴀɴɴɪᴇ</b></blockquote>\n"
 
 # ── Premium emoji IDs (Telegram custom-emoji) ───────────────────────────────
 # Each entry: (custom_emoji_id_or_None, unicode_fallback)
@@ -269,29 +269,70 @@ def install_emoji_autowrap() -> None:
     parse mode (HTML / Markdown / Default) — gets premium custom-emoji
     entities for any known unicode glyph it contains.
 
+    We patch THREE entry points so every code path is covered:
+
+    * `Parser.parse`        — the high-level dispatcher used by every
+                              high-level Pyrogram method (send_message,
+                              send_photo caption, edit_text, etc).
+    * `HTML.parse`          — used directly by `KHUSHI/utils/raw_send.py`
+                              (the invert-media trick for /play, /song,
+                              now-playing notifications) and any other
+                              caller that constructs an `HTML(client)`
+                              instance and calls `.parse()` themselves.
+    * `Markdown.parse`      — same idea for any direct Markdown caller.
+
+    Dedup in `_augment_with_custom_emoji` (offset/length tracking) prevents
+    double-wrapping when both HTML.parse and Parser.parse run on the same
+    message.
+
     Idempotent: safe to call multiple times.
     """
     global _AUTOWRAP_INSTALLED
     if _AUTOWRAP_INSTALLED:
         return
+
+    def _wrap_parse_method(cls, method_name: str = "parse"):
+        """Monkey-patch ``cls.<method_name>`` so its return value has its
+        entities augmented with premium custom-emoji entries. Works for any
+        async method whose return value is a ``{"message": ..., "entities":
+        ...}`` dict."""
+        try:
+            orig = getattr(cls, method_name)
+        except AttributeError:
+            return
+        if getattr(orig, "_emoji_autowrap_installed", False):
+            return
+
+        async def _patched(self, *args, **kwargs):
+            result = await orig(self, *args, **kwargs)
+            try:
+                if isinstance(result, dict):
+                    result["entities"] = _augment_with_custom_emoji(
+                        result.get("message", ""), result.get("entities")
+                    )
+            except Exception:
+                pass
+            return result
+
+        _patched._emoji_autowrap_installed = True
+        setattr(cls, method_name, _patched)
+
     try:
         from pyrogram.parser.parser import Parser
+        _wrap_parse_method(Parser)
     except Exception:
-        return
+        pass
+    try:
+        from pyrogram.parser.html import HTML
+        _wrap_parse_method(HTML)
+    except Exception:
+        pass
+    try:
+        from pyrogram.parser.markdown import Markdown
+        _wrap_parse_method(Markdown)
+    except Exception:
+        pass
 
-    _orig_parse = Parser.parse
-
-    async def _patched_parse(self, text, mode=None):
-        result = await _orig_parse(self, text, mode)
-        try:
-            result["entities"] = _augment_with_custom_emoji(
-                result.get("message", ""), result.get("entities")
-            )
-        except Exception:
-            pass
-        return result
-
-    Parser.parse = _patched_parse
     _AUTOWRAP_INSTALLED = True
 
 
@@ -304,8 +345,13 @@ def _box(content: str, expandable: bool = False) -> str:
 
 
 def brand_block() -> str:
-    """Brand header — disabled. Returns empty string for backward compatibility."""
-    return ""
+    """Return the standard ANNIE brand header (premium-emoji enabled).
+
+    The 🎵 glyph maps to a premium custom-emoji ID via ``_UNICODE_TO_ID``
+    so the autowrap parser will render it as a Telegram premium emoji on
+    every outgoing message that contains this block.
+    """
+    return BRAND
 
 
 def msg(
