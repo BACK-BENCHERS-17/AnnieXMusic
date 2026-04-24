@@ -123,6 +123,9 @@ _P = {
     "settings":  ("5895592588064328942", "⚙️"),
     "gear":      ("5258096772776991776", "⚙️"),
     "computer":  ("5972055534352733289", "💻"),
+
+    # Brand
+    "teddy":     ("5042192219960771668", "🧸"),
 }
 
 
@@ -228,6 +231,103 @@ _EXTRA_ALIASES: dict[str, str] = {
     "▪":  _P["dot"][0],
     "▫":  _P["dot"][0],
     "🌹": _P["rose"][0] if "rose" in _P else _P["heart"][0],
+    # Brand teddy
+    "🧸": _P["teddy"][0],
+    # Heavier crosses & bans
+    "⛔":  _P["ban"][0],
+    "⛔️": _P["ban"][0],
+    "✘":  _P["cross"][0],
+    "🚷": _P["ban"][0],
+    "🛑": _P["ban"][0],
+    # Plus / add
+    "✚":  _P["check"][0],
+    "➕": _P["check"][0],
+    "➖": _P["cross"][0],
+    # House / home
+    "🏠": _P["dot"][0],
+    "🏡": _P["dot"][0],
+    # Coloured circles → fire / dot
+    "🔴": _P["fire"][0],
+    "🟢": _P["check"][0],
+    "🟡": _P["warn"][0],
+    "🟠": _P["fire"][0],
+    "🟣": _P["dizzy"][0],
+    "🟤": _P["dot"][0],
+    "⚫": _P["dot"][0],
+    "⚪": _P["dot"][0],
+    "🔵": _P["ram"][0],
+    "🟥": _P["fire"][0],
+    "🟦": _P["ram"][0],
+    "🟧": _P["fire"][0],
+    "🟨": _P["warn"][0],
+    "🟩": _P["check"][0],
+    "🟪": _P["dizzy"][0],
+    "🟫": _P["dot"][0],
+    "⬛": _P["dot"][0],
+    "⬜": _P["dot"][0],
+    # Clock faces → clock
+    "🕐": _P["clock"][0], "🕑": _P["clock"][0], "🕒": _P["clock"][0],
+    "🕓": _P["clock"][0], "🕔": _P["clock"][0], "🕕": _P["clock"][0],
+    "🕖": _P["clock"][0], "🕗": _P["clock"][0], "🕘": _P["clock"][0],
+    "🕙": _P["clock"][0], "🕚": _P["clock"][0], "🕛": _P["clock"][0],
+    "🕜": _P["clock"][0], "🕝": _P["clock"][0], "🕞": _P["clock"][0],
+    "🕟": _P["clock"][0], "🕠": _P["clock"][0], "🕡": _P["clock"][0],
+    "🕢": _P["clock"][0], "🕣": _P["clock"][0], "🕤": _P["clock"][0],
+    "🕥": _P["clock"][0], "🕦": _P["clock"][0], "🕧": _P["clock"][0],
+    "⏱":  _P["clock"][0], "⏱️": _P["clock"][0],
+    "⏲":  _P["timer"][0], "⏲️": _P["timer"][0],
+    # Music card-suit & note
+    "♥":  _P["heart"][0], "♥️": _P["heart"][0],
+    "♦":  _P["diamond"][0], "♦️": _P["diamond"][0],
+    "♣":  _P["dot"][0],
+    "♠":  _P["dot"][0],
+    "♪":  _P["notes"][0],
+    "♫":  _P["notes"][0],
+    "♬":  _P["notes"][0],
+    "♩":  _P["notes"][0],
+    # Misc symbols frequently used decoratively
+    "🗳":  _P["stats"][0], "🗳️": _P["stats"][0],
+    "🍓": _P["heart"][0],
+    "🎯": _P["fire"][0],
+    "💯": _P["fire"][0],
+    "🎉": _P["sparkle"][0],
+    "🎊": _P["sparkle"][0],
+    "🎈": _P["sparkle"][0],
+    # Stop / play / pause unicode singletons
+    "⏹":  _P["stop"][0], "⏹️": _P["stop"][0],
+    "⏸":  _P["pause"][0], "⏸️": _P["pause"][0],
+    "⏯":  _P["playpause"][0], "⏯️": _P["playpause"][0],
+    "⏭":  _P["skip"][0], "⏭️": _P["skip"][0],
+    "⏮":  _P["prev"][0], "⏮️": _P["prev"][0],
+    # Stars
+    "⭐": _P["star"][0], "⭐️": _P["star"][0],
+    "🌟": _P["star"][0],
+    # Question / exclamation marks
+    "❓": _P["warn"][0],
+    "❔": _P["warn"][0],
+    "❕": _P["warn"][0],
+    "❗": _P["warn"][0],
+    # Tools / wrench (settings family)
+    "🔧": _P["settings"][0],
+    "🔨": _P["settings"][0],
+    "🛠":  _P["settings"][0], "🛠️": _P["settings"][0],
+    # Pages / docs / clipboards
+    "📄": _P["stats"][0],
+    "📃": _P["stats"][0],
+    "📑": _P["bookmark"][0],
+    "📒": _P["bookmark"][0],
+    "📓": _P["bookmark"][0],
+    "📔": _P["bookmark"][0],
+    "📕": _P["bookmark"][0],
+    "📖": _P["bookmark"][0],
+    "📗": _P["bookmark"][0],
+    "📘": _P["bookmark"][0],
+    "📙": _P["bookmark"][0],
+    "📚": _P["bookmark"][0],
+    # Folder / file
+    "📁": _P["bookmark"][0],
+    "📂": _P["bookmark"][0],
+    "🗂":  _P["bookmark"][0], "🗂️": _P["bookmark"][0],
 }
 for _g, _eid in _EXTRA_ALIASES.items():
     _UNICODE_TO_ID.setdefault(_g, _eid)
