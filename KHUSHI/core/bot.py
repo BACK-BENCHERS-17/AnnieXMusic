@@ -4,7 +4,7 @@ from pyrogram import Client, enums, errors
 
 import config
 from KHUSHI.logger_setup import LOGGER
-from KHUSHI.utils.ui import BRAND as _BRAND, E as _E
+from KHUSHI.utils.ui import BRAND as _BRAND, E as _E, disable_emoji_autowrap as _disable_emoji_autowrap
 
 BOT_PFP_PATH = "KHUSHI/assets/bot_pfp.png"
 
@@ -42,6 +42,22 @@ class KhushiBot(Client):
         self.id = me.id
         self.name = f"{me.first_name} {me.last_name or ''}".strip()
         self.mention = me.mention
+
+        # Premium custom-emoji entities only render reliably when the SENDER
+        # account has Telegram Premium. For non-Premium bot accounts Telegram
+        # accepts the message but clients (especially in groups) render them
+        # as empty placeholders. Disable the global autowrap in that case so
+        # every message falls back to plain unicode glyphs that always render.
+        if not getattr(me, "is_premium", False):
+            _disable_emoji_autowrap()
+            LOGGER(__name__).info(
+                "KHUSHI: Bot account is not Premium — premium emoji autowrap "
+                "disabled (messages will use plain unicode fallbacks)."
+            )
+        else:
+            LOGGER(__name__).info(
+                "KHUSHI: Bot account is Premium — premium emoji autowrap active."
+            )
 
         try:
             await self.get_chat(config.LOGGER_ID)
