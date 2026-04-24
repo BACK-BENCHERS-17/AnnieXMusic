@@ -13,6 +13,7 @@ from KHUSHI.utils.inline import InlineKeyboardButton
 from KHUSHI import app
 from KHUSHI.core.mongo import mongodb
 from KHUSHI.utils.decorators import KhushiGroupAdmin as AdminRightsCheck
+from KHUSHI.utils.ui import E as _E_UI
 from config import BANNED_USERS, SUPPORT_CHAT
 
 _recodb = mongodb.reco_settings
@@ -20,12 +21,12 @@ _recodb = mongodb.reco_settings
 _BRAND = ""
 
 _EM = {
-    "music":  "🎵",
-    "star":   "🌟",
-    "dot":    "🔹",
-    "zap":    "⚡",
-    "mic":    "🎙",
-    "fire":   "🔥",
+    "music":  _E_UI["music"],
+    "star":   _E_UI["star"],
+    "dot":    _E_UI["dot"],
+    "zap":    _E_UI["zap"],
+    "mic":    _E_UI["mic"],
+    "fire":   _E_UI["fire"],
 }
 
 # ── Massive Hindi/Punjabi-first song database ──────────────────────────────────

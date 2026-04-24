@@ -22,14 +22,14 @@ from config import BANNED_USERS, OWNER_ID
 from KHUSHI.utils.ui import BRAND as _BRAND, E as _E_UI
 
 _E = {
-    "globe":  "🌐",
-    "user":   "👤",
+    "globe":  _E_UI["globe"],
+    "user":   _E_UI["user"],
     "music":  _E_UI["music"],
     "video":  _E_UI["video"],
     "time":   _E_UI["clock"],
-    "cpu":    "🖥",
-    "ram":    _E_UI["dot"],
-    "disk":   _E_UI["link"],
+    "cpu":    _E_UI["cpu"],
+    "ram":    _E_UI["ram"],
+    "disk":   _E_UI["disk"],
     "crown":  _E_UI["crown"],
     "fire":   _E_UI["fire"],
     "banned": _E_UI["ban"],

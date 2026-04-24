@@ -13,17 +13,18 @@ from KHUSHI.utils.inline import InlineKeyboardButton
 from KHUSHI import app
 from KHUSHI.core.call import JARVIS
 from KHUSHI.utils import bot_sys_stats
+from KHUSHI.utils.ui import E as _E_UI
 from config import BANNED_USERS, PING_IMG_URL, START_IMGS, SUPPORT_CHAT
 
 _BRAND = ""
 _E = {
-    "ping":   "🏓",
-    "vc":     "📞",
-    "up":     "🕔",
-    "cpu":    "🖥",
-    "ram":    "🔵",
-    "disk":   "💬",
-    "zap":    "⚡️",
+    "ping":   _E_UI["ping"],
+    "vc":     _E_UI["vc"],
+    "up":     _E_UI["uptime"],
+    "cpu":    _E_UI["cpu"],
+    "ram":    _E_UI["ram"],
+    "disk":   _E_UI["disk"],
+    "zap":    _E_UI["zap"],
 }
 
 

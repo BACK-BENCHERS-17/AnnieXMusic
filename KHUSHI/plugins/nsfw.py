@@ -8,17 +8,18 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 from KHUSHI import app
 from KHUSHI.core.mongo import mongodb
 from KHUSHI.utils.decorators import KhushiGroupAdmin as AdminRightsCheck
+from KHUSHI.utils.ui import E as _E_UI
 from config import BANNED_USERS
 
 _nsfwdb = mongodb.nsfw_settings
 
 _BRAND = ""
 _EM = {
-    "nsfw":  "⚠️",
-    "dot":   "🔹",
-    "zap":   "⚡️",
-    "on":    "✅",
-    "off":   "❌",
+    "nsfw":  _E_UI["warn"],
+    "dot":   _E_UI["dot"],
+    "zap":   _E_UI["zap"],
+    "on":    _E_UI["check"],
+    "off":   _E_UI["cross"],
 }
 
 _NSFW_WORDS = {
