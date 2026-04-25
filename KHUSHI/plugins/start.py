@@ -49,7 +49,7 @@ _DOT = '<emoji id="5972072533833289156">🔹</emoji>'
 _ZAP = '<emoji id="5042334757040423886">⚡️</emoji>'
 _FIRE = '<emoji id="5039644681583985437">🔥</emoji>'
 _SPARKLE = '<emoji id="5039827436737397847">✨</emoji>'
-_MUSIC = '<emoji id="5463107823946717464">🎵</emoji>'
+_MUSIC = '<emoji id="5994566609002303309">🎵</emoji>'
 _GIFT = '<emoji id="5409029744693897259">🎁</emoji>'
 _CROSS = '<emoji id="5040042498634810056">❌</emoji>'
 

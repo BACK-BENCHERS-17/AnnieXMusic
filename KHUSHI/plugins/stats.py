@@ -22,8 +22,8 @@ from config import BANNED_USERS, OWNER_ID
 
 _E = {
     "globe":  '<emoji id="5316832074047441823">🌐</emoji>',
-    "user":   '<emoji id="5316992572680320646">👤</emoji>',
-    "music":  '<emoji id="5463107823946717464">🎵</emoji>',
+    "user":   '<emoji id="5884366771913233289">👤</emoji>',
+    "music":  '<emoji id="5994566609002303309">🎵</emoji>',
     "video":  '<emoji id="5375464961822695044">🎬</emoji>',
     "time":   '<emoji id="5123230779593196220">⏰</emoji>',
     "cpu":    '<emoji id="5215186239853964761">🖥</emoji>',

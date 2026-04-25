@@ -1472,7 +1472,7 @@ class Call:
                                     _ap_caption = _ui_panel(
                                         "ᴀᴜᴛᴏᴘʟᴀʏ",
                                         [
-                                            f"" '<emoji id="5463107823946717464">🎵</emoji>' f" <b>ɴᴏᴡ ᴘʟᴀʏɪɴɢ:</b> "
+                                            f"" '<emoji id="5994566609002303309">🎵</emoji>' f" <b>ɴᴏᴡ ᴘʟᴀʏɪɴɢ:</b> "
                                             f"<a href='https://www.youtube.com/watch?v={ap_vidid}'>"
                                             f"{ap_title_short}</a>",
                                             f"" '<emoji id="5123230779593196220">⏰</emoji>' f" <b>ᴅᴜʀᴀᴛɪᴏɴ:</b>  {ap_dur}",
@@ -1599,15 +1599,16 @@ class Call:
 
                     if _sent_sugg is None:
                         _plain_text = (
-                            "🎵 Queue Ended!\n"
+                            '<emoji id="5994566609002303309">🎵</emoji>' " Queue Ended!\n"
                             + (f"Last: {_last_short}\n\n" if _last_short else "\n")
-                            + "⚡️ You might also like:"
+                            + '<emoji id="5042334757040423886">⚡️</emoji>' " You might also like:"
                         )
                         try:
                             await app.send_message(
                                 _sugg_chat_id,
                                 text=_plain_text,
                                 reply_markup=InlineKeyboardMarkup(_plain_rows),
+                                parse_mode=ParseMode.HTML,
                             )
                         except Exception as _plain_err:
                             LOGGER(__name__).warning(f"[Suggestion] plain also failed: {_plain_err!r}")

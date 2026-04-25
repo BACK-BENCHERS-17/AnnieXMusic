@@ -6,12 +6,6 @@ KHUSHI's own platform classes — fully self-contained.
 
 from KHUSHI.logger_setup import LOGGER
 
-# Install the global premium-emoji autowrap as early as possible so EVERY
-# message Pyrogram parses (regardless of plugin or parse_mode) gets premium
-# custom-emoji entities for known unicode glyphs.
-from KHUSHI.utils.emoji_autowrap import install_emoji_autowrap as _install_emoji_autowrap
-_install_emoji_autowrap()
-
 from KHUSHI.core.bot import KhushiBot
 from KHUSHI.core.userbot import Userbot
 from KHUSHI.misc import dbb

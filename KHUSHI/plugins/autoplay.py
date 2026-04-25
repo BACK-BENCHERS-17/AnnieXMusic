@@ -11,10 +11,10 @@ from config import BANNED_USERS
 
 
 _BRAND = ""
-_E_CHECK     = '<emoji id="5852871561983299073">✅</emoji>'
+_E_CHECK     = '<emoji id="6041597085009056322">✅</emoji>'
 _E_CROSS     = '<emoji id="5040042498634810056">❌</emoji>'
 _E_REPEAT    = '<emoji id="6030657343744644592">🔁</emoji>'
-_E_NOTES     = '<emoji id="5039771357349413873">🎶</emoji>'
+_E_NOTES     = '<emoji id="5938473438468378529">🎶</emoji>'
 _E_ZAP       = '<emoji id="5042334757040423886">⚡️</emoji>'
 _E_HOURGLASS = '<emoji id="5454415424319931791">⏳</emoji>'
 _E_DOT       = '<emoji id="5972072533833289156">🔹</emoji>'

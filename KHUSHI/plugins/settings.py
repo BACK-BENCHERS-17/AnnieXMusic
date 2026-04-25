@@ -33,9 +33,9 @@ from KHUSHI.utils.inline.settings import (
 )
 from config import BANNED_USERS
 
-_E_GEAR  = "⚙️"
+_E_GEAR  = '<emoji id="5895592588064328942">⚙️</emoji>'
 _E_GLOBE = '<emoji id="5316832074047441823">🌐</emoji>'
-_E_USER  = '<emoji id="5316992572680320646">👤</emoji>'
+_E_USER  = '<emoji id="5884366771913233289">👤</emoji>'
 
 
 def _settings_text(chat_id: int, chat_title: str) -> str:
