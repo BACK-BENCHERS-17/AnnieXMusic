@@ -199,6 +199,9 @@ def _build_reco_markup(picks: list[str], can_load_more: bool) -> InlineKeyboardM
         bottom.append(InlineKeyboardButton(
             "⚡️ ʟᴏᴀᴅ ᴍᴏʀᴇ", callback_data="rml:0", style="success",
         ))
+    bottom.append(InlineKeyboardButton(
+        "🔁 ʀᴇsʜᴜғғʟᴇ", callback_data="rsh:0", style="primary",
+    ))
     bottom.append(InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"))
     rows.append(bottom)
     rows.append([InlineKeyboardButton("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=_sc_url(), style="success")])
@@ -378,6 +381,55 @@ async def reco_cmd(client, message: Message):
         _reco_session.pop(sent.id, None)
 
     asyncio.create_task(_auto_del())
+
+
+# ── Reshuffle callback ────────────────────────────────────────────────────────
+@app.on_callback_query(filters.regex(r"^rsh:") & ~BANNED_USERS)
+async def reco_reshuffle_cb(client, query):
+    msg = query.message
+    sess = _reco_session.get(msg.id)
+    if not sess:
+        return await query.answer(
+            "Session expired — send /reco again", show_alert=True
+        )
+
+    await query.answer("Reshuffling…")
+
+    chat_id = sess.get("chat_id", msg.chat.id)
+    cfg = await _get_rconfig(chat_id)
+    count = min(cfg.get("count", 5), 6)
+    user_query = sess.get("query")
+    genre = sess.get("genre", "bollywood")
+
+    # Exclude the current set so reshuffle actually returns different songs
+    exclude = set(sess.get("all_picks", []))
+    new_picks = await _generate_more_picks(user_query, genre, exclude, count)
+
+    # Fallback: if exclusion left nothing, allow repeats from the pool
+    if not new_picks:
+        new_picks = await _generate_more_picks(user_query, genre, set(), count)
+
+    if not new_picks:
+        return await query.answer("Couldn't fetch fresh picks.", show_alert=True)
+
+    sess["all_picks"] = list(new_picks)
+    sess["shown"] = set(new_picks)
+
+    can_more = len(new_picks) < _RECO_MAX_PICKS
+    new_text = _build_reco_text(new_picks, user_query, genre)
+    new_markup = _build_reco_markup(new_picks, can_load_more=can_more)
+    try:
+        await msg.edit_text(
+            new_text, reply_markup=new_markup, parse_mode=enums.ParseMode.HTML,
+        )
+    except Exception:
+        try:
+            await msg.edit_text(
+                new_text, reply_markup=_build_plain_markup(new_picks),
+                parse_mode=enums.ParseMode.HTML,
+            )
+        except Exception:
+            pass
 
 
 # ── Load-More callback ────────────────────────────────────────────────────────
