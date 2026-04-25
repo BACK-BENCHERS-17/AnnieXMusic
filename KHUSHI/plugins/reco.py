@@ -156,9 +156,90 @@ _DEFAULT_POOL = (
 
 _reco_cache: dict[int, dict] = {}
 
+# ── Per-message session for the "Load More" button ─────────────────────────────
+# Keyed by sent-message-id. Each entry tracks the chat, the original query (if
+# any), the genre fallback, every song already shown, and the running list of
+# all picks so we can rebuild the message after each Load More click.
+_reco_session: dict[int, dict] = {}
+_RECO_MAX_PICKS = 12  # Stop expanding after this many songs in one message
+
 
 def _reply(text: str) -> str:
     return f"<blockquote>{text}</blockquote>"
+
+
+def _build_reco_text(picks: list[str], query: str | None, genre: str) -> str:
+    safe_picks = [html.escape(s) for s in picks]
+    lines = "\n".join(
+        f"{_EM['dot']} <b>{i+1}.</b> <code>{s}</code>"
+        for i, s in enumerate(safe_picks)
+    )
+    header = (
+        f"{_EM['fire']} <b>˹ ꜱᴏɴɢ ꜱᴜɢɢᴇꜱᴛɪᴏɴꜱ ˼</b>\n"
+        + (
+            f"{_EM['mic']} ꜰᴏʀ: <b>{html.escape(query)}</b>\n"
+            if query
+            else f"{_EM['zap']} ɢᴇɴʀᴇ: <code>{genre}</code>\n"
+        )
+        + "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n\n"
+        f"{lines}\n\n"
+        f"{_EM['star']} ᴛᴀᴘ ᴀɴʏ ʙᴜᴛᴛᴏɴ ʙᴇʟᴏᴡ ᴛᴏ ᴘʟᴀʏ ɪɴsᴛᴀɴᴛʟʏ!"
+    )
+    return _reply(header)
+
+
+def _build_reco_markup(picks: list[str], can_load_more: bool) -> InlineKeyboardMarkup:
+    rows = []
+    for s in picks:
+        label = s[:35] + "…" if len(s) > 35 else s
+        rows.append([InlineKeyboardButton(
+            label, callback_data=f"rp:{s[:40]}", style="primary",
+        )])
+    bottom = []
+    if can_load_more:
+        bottom.append(InlineKeyboardButton(
+            f"{_EM['zap']} ʟᴏᴀᴅ ᴍᴏʀᴇ", callback_data="rml:0", style="success",
+        ))
+    bottom.append(InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"))
+    rows.append(bottom)
+    rows.append([InlineKeyboardButton("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=_sc_url(), style="success")])
+    return InlineKeyboardMarkup(rows)
+
+
+def _build_plain_markup(picks: list[str]) -> InlineKeyboardMarkup:
+    rows = [
+        [_PlainBtn(s[:35] + "…" if len(s) > 35 else s, callback_data=f"rp:{s[:40]}")]
+        for s in picks
+    ]
+    rows.append([
+        _PlainBtn("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=_sc_url()),
+        _PlainBtn("˹ᴄʟᴏꜱᴇ˼", callback_data="close"),
+    ])
+    return InlineKeyboardMarkup(rows)
+
+
+async def _generate_more_picks(query: str | None, genre: str, exclude: set[str], n: int) -> list[str]:
+    """Return up to n new song suggestions excluding any in `exclude`."""
+    new_picks: list[str] = []
+    if query:
+        try:
+            yt_picks = await _yt_related(query, n + 4)
+            for p in yt_picks:
+                if p not in exclude and p not in new_picks:
+                    new_picks.append(p)
+                    if len(new_picks) >= n:
+                        return new_picks
+        except Exception:
+            pass
+    pool = _GENRES.get(genre, _DEFAULT_POOL)
+    avail = [s for s in pool if s not in exclude and s not in new_picks]
+    if avail:
+        random.shuffle(avail)
+        for s in avail:
+            new_picks.append(s)
+            if len(new_picks) >= n:
+                break
+    return new_picks
 
 
 def _sc_url() -> str:
@@ -262,77 +343,157 @@ async def reco_cmd(client, message: Message):
 
         picks = random.sample(songs_pool, min(count, len(songs_pool)))
 
-    # HTML-escape all song titles before embedding in HTML message
-    safe_picks = [html.escape(s) for s in picks]
-
-    lines = "\n".join(
-        f"{_EM['dot']} <b>{i+1}.</b> <code>{s}</code>"
-        for i, s in enumerate(safe_picks)
-    )
-
-    header = (
-        f"{_EM['fire']} <b>˹ ꜱᴏɴɢ ꜱᴜɢɢᴇꜱᴛɪᴏɴꜱ ˼</b>\n"
-        + (
-            f"{_EM['mic']} ꜰᴏʀ: <b>{html.escape(query)}</b>\n"
-            if query
-            else f"{_EM['zap']} ɢᴇɴʀᴇ: <code>{genre}</code>\n"
-        )
-        + "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n\n"
-        f"{lines}\n\n"
-        f"{_EM['star']} ᴛᴀᴘ ᴀɴʏ ʙᴜᴛᴛᴏɴ ʙᴇʟᴏᴡ ᴛᴏ ᴘʟᴀʏ ɪɴsᴛᴀɴᴛʟʏ!"
-    )
-
-    # One button per song, one per row + support/close at bottom
-    song_rows = []
-    for s in picks:
-        label = s[:35] + "…" if len(s) > 35 else s
-        song_rows.append([InlineKeyboardButton(
-            label,
-            callback_data=f"rp:{s[:40]}",
-            style="primary",
-        )])
-
-    song_rows.append([
-        InlineKeyboardButton("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=_sc_url(), style="success"),
-        InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"),
-    ])
-
-    # Build plain-button fallback rows (no style= param)
-    _plain_rows = [
-        [_PlainBtn(s[:35] + "…" if len(s) > 35 else s, callback_data=f"rp:{s[:40]}")]
-        for s in picks
-    ]
-    _plain_rows.append([
-        _PlainBtn("˹ꜱᴜᴘᴘᴏʀᴛ˼", url=_sc_url()),
-        _PlainBtn("˹ᴄʟᴏꜱᴇ˼", callback_data="close"),
-    ])
+    can_more = len(picks) < _RECO_MAX_PICKS
+    text = _build_reco_text(picks, query, genre)
+    markup = _build_reco_markup(picks, can_load_more=can_more)
 
     try:
         sent = await message.reply_text(
-            _reply(header),
-            reply_markup=InlineKeyboardMarkup(song_rows),
-            parse_mode=enums.ParseMode.HTML,
+            text, reply_markup=markup, parse_mode=enums.ParseMode.HTML,
         )
     except Exception:
         try:
             sent = await message.reply_text(
-                f"<blockquote>🔥 <b>˹ ꜱᴏɴɢ ꜱᴜɢɢᴇꜱᴛɪᴏɴꜱ ˼</b>\n\n"
-                f"{lines}</blockquote>",
-                reply_markup=InlineKeyboardMarkup(_plain_rows),
+                text, reply_markup=_build_plain_markup(picks),
                 parse_mode=enums.ParseMode.HTML,
             )
         except Exception:
             return
 
-    # Auto-delete after 120 seconds
+    # Remember this message so the Load More button can grow it later
+    _reco_session[sent.id] = {
+        "chat_id": chat_id,
+        "query": query,
+        "genre": genre,
+        "shown": set(picks),
+        "all_picks": list(picks),
+    }
+
+    # Auto-delete after 120 seconds (also drops the session entry)
     async def _auto_del():
         await asyncio.sleep(120)
         try:
             await sent.delete()
         except Exception:
             pass
+        _reco_session.pop(sent.id, None)
 
     asyncio.create_task(_auto_del())
+
+
+# ── Load-More callback ────────────────────────────────────────────────────────
+@app.on_callback_query(filters.regex(r"^rml:") & ~BANNED_USERS)
+async def reco_more_cb(client, query):
+    msg = query.message
+    sess = _reco_session.get(msg.id)
+    if not sess:
+        return await query.answer(
+            "Session expired — send /reco again", show_alert=True
+        )
+
+    if len(sess["all_picks"]) >= _RECO_MAX_PICKS:
+        return await query.answer("Reached the maximum suggestions!", show_alert=True)
+
+    await query.answer("Fetching more…")
+
+    needed = min(4, _RECO_MAX_PICKS - len(sess["all_picks"]))
+    new_picks = await _generate_more_picks(
+        sess.get("query"), sess.get("genre", "bollywood"),
+        sess["shown"], needed,
+    )
+    if not new_picks:
+        return await query.answer("No more suggestions left.", show_alert=True)
+
+    sess["all_picks"].extend(new_picks)
+    sess["shown"].update(new_picks)
+
+    can_more = len(sess["all_picks"]) < _RECO_MAX_PICKS
+    new_text = _build_reco_text(
+        sess["all_picks"], sess.get("query"), sess.get("genre", "bollywood"),
+    )
+    new_markup = _build_reco_markup(sess["all_picks"], can_load_more=can_more)
+    try:
+        await msg.edit_text(
+            new_text, reply_markup=new_markup, parse_mode=enums.ParseMode.HTML,
+        )
+    except Exception:
+        try:
+            await msg.edit_text(
+                new_text, reply_markup=_build_plain_markup(sess["all_picks"]),
+                parse_mode=enums.ParseMode.HTML,
+            )
+        except Exception:
+            pass
+
+
+# ── Public helper used by core/call.py when the queue ends ────────────────────
+async def auto_reco_on_queue_end(chat_id: int, last_title: str | None) -> None:
+    """Send a /reco-style message in `chat_id` based on the last played song.
+
+    Called by `KHUSHI.core.call.Call.stop_or_autoplay` when autoplay is OFF
+    and the queue has just been exhausted, so the user gets fresh suggestions
+    without having to type /reco manually.
+    """
+    try:
+        cfg = await _get_rconfig(chat_id)
+        genre = cfg.get("genre", "bollywood")
+        count = min(cfg.get("count", 5), 6)
+
+        picks: list[str] = []
+        query_used = (last_title or "").strip() or None
+
+        if query_used:
+            try:
+                picks = await _yt_related(query_used, count)
+            except Exception:
+                picks = []
+
+        if not picks:
+            pool = _GENRES.get(genre, _DEFAULT_POOL)
+            picks = random.sample(pool, min(count, len(pool)))
+
+        if not picks:
+            return
+
+        text_body = _build_reco_text(picks, query_used, genre)
+        # Prepend a small "queue ended" header so users know why this appeared
+        intro = (
+            f"<blockquote>{_EM['fire']} <b>ǫᴜᴇᴜᴇ ᴇɴᴅᴇᴅ — ʜᴇʀᴇ'ꜱ ᴡʜᴀᴛ ᴛᴏ ᴘʟᴀʏ ɴᴇxᴛ</b></blockquote>\n"
+        )
+        full_text = intro + text_body
+        markup = _build_reco_markup(picks, can_load_more=len(picks) < _RECO_MAX_PICKS)
+
+        try:
+            sent = await app.send_message(
+                chat_id, full_text, reply_markup=markup,
+                parse_mode=enums.ParseMode.HTML,
+            )
+        except Exception:
+            sent = await app.send_message(
+                chat_id, full_text, reply_markup=_build_plain_markup(picks),
+                parse_mode=enums.ParseMode.HTML,
+            )
+
+        _reco_session[sent.id] = {
+            "chat_id": chat_id,
+            "query": query_used,
+            "genre": genre,
+            "shown": set(picks),
+            "all_picks": list(picks),
+        }
+
+        async def _auto_del():
+            await asyncio.sleep(180)
+            try:
+                await sent.delete()
+            except Exception:
+                pass
+            _reco_session.pop(sent.id, None)
+
+        asyncio.create_task(_auto_del())
+    except Exception:
+        # Never let auto-reco break stream cleanup
+        pass
 
 
 @app.on_message(

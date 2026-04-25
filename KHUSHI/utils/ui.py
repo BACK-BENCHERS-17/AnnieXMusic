@@ -11,12 +11,12 @@ reusable blockquote message helpers.  Import from here everywhere.
 # non-premium clients so it still reads cleanly as "🧸 ANNIE".
 BRAND = (
     "<blockquote>"
-    '<tg-emoji emoji-id="5042192219960771668">🧸</tg-emoji> '
-    '<tg-emoji emoji-id="5210820276748566172">A</tg-emoji>'
-    '<tg-emoji emoji-id="5213301251722203632">N</tg-emoji>'
-    '<tg-emoji emoji-id="5213301251722203632">N</tg-emoji>'
-    '<tg-emoji emoji-id="5211032856154885824">I</tg-emoji>'
-    '<tg-emoji emoji-id="5213337333742454261">E</tg-emoji>'
+    '<emoji id="5042192219960771668">🧸</emoji> '
+    '<emoji id="5210820276748566172">A</emoji>'
+    '<emoji id="5213301251722203632">N</emoji>'
+    '<emoji id="5213301251722203632">N</emoji>'
+    '<emoji id="5211032856154885824">I</emoji>'
+    '<emoji id="5213337333742454261">E</emoji>'
     "</blockquote>\n"
 )
 
@@ -132,15 +132,17 @@ _P = {
 def _emoji(eid: str | None, fallback: str) -> str:
     """Wrap a unicode glyph as a Telegram premium custom-emoji entity.
 
-    Telegram / Pyrogram's HTML parser only recognises the `<tg-emoji>` tag with
-    an `emoji-id` attribute — anything else (e.g. `<emoji id="...">`) is
-    silently stripped, leaving just the unicode fallback. Using the correct
-    tag here makes every premium emoji actually render as a premium custom
-    emoji for users on Telegram Premium clients (and as the unicode fallback
-    elsewhere).
+    Pyrogram 2.2.x's HTML parser recognises ONLY the `<emoji id="...">` tag
+    natively — `<tg-emoji emoji-id="...">` is silently stripped (the parser
+    leaves just the inner unicode glyph and produces no CustomEmoji entity).
+    Using `<emoji id="...">` here guarantees a `MessageEntityCustomEmoji` is
+    emitted directly by the parser on every code path (high-level Pyrogram
+    sends, raw `Parser(client).parse()` callers, even when the autowrap
+    layer is bypassed) so premium clients always render the glyph as a
+    premium custom emoji.
     """
     if eid:
-        return f'<tg-emoji emoji-id="{eid}">{fallback}</tg-emoji>'
+        return f'<emoji id="{eid}">{fallback}</emoji>'
     return fallback
 
 

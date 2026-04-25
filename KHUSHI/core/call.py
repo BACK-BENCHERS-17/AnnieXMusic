@@ -570,7 +570,7 @@ class Call:
     async def stop_or_autoplay(self, chat_id: int, last_song: dict) -> None:
         """Called after skip when queue is empty.
         If autoplay is ON → trigger autoplay using last played song as context.
-        If autoplay is OFF → stop stream and leave VC normally.
+        If autoplay is OFF → stop stream and post a fresh /reco suggestion.
         """
         from KHUSHI.utils.database import is_autoplay
         if last_song and await is_autoplay(chat_id):
@@ -581,6 +581,15 @@ class Call:
             await self.play(assistant, chat_id)
         else:
             await self.stop_stream(chat_id)
+            # Post a song-recommendation panel so the user has next-song
+            # options without having to type /reco. Wrapped in try/except
+            # so any failure here can never break stream cleanup above.
+            try:
+                last_title = (last_song or {}).get("title") if isinstance(last_song, dict) else None
+                from KHUSHI.plugins.reco import auto_reco_on_queue_end
+                await auto_reco_on_queue_end(chat_id, last_title)
+            except Exception as _ar_err:
+                LOGGER(__name__).debug(f"[QueueEnd] auto_reco skipped: {_ar_err}")
 
     @capture_internal_err
     async def force_stop_stream(self, chat_id: int) -> None:
