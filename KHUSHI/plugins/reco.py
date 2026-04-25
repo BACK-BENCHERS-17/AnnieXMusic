@@ -197,7 +197,7 @@ def _build_reco_markup(picks: list[str], can_load_more: bool) -> InlineKeyboardM
     bottom = []
     if can_load_more:
         bottom.append(InlineKeyboardButton(
-            f"{_EM['zap']} ʟᴏᴀᴅ ᴍᴏʀᴇ", callback_data="rml:0", style="success",
+            "⚡️ ʟᴏᴀᴅ ᴍᴏʀᴇ", callback_data="rml:0", style="success",
         ))
     bottom.append(InlineKeyboardButton("˹ᴄʟᴏꜱᴇ˼", callback_data="close", style="danger"))
     rows.append(bottom)
