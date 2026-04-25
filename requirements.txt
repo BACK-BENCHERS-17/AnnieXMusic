@@ -93,3 +93,8 @@ flask-sqlalchemy
 gunicorn
 psycopg2-binary
 yt-dlp
+email_validator
+flask
+flask-sqlalchemy
+gunicorn
+psycopg2-binary
