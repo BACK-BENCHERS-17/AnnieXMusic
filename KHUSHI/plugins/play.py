@@ -34,16 +34,7 @@ from KHUSHI.utils.exceptions import AssistantErr
 _log = logging.getLogger(__name__)
 
 
-_BRAND = (
-    "<blockquote>"
-    '<emoji id="5042192219960771668">🧸</emoji> '
-    '<emoji id="5210820276748566172">A</emoji>'
-    '<emoji id="5213301251722203632">N</emoji>'
-    '<emoji id="5213301251722203632">N</emoji>'
-    '<emoji id="5211032856154885824">I</emoji>'
-    '<emoji id="5213337333742454261">E</emoji>'
-    "</blockquote>\n"
-)
+_BRAND = ""
 
 _E_HTML = {
     "check":  '<emoji id="5852871561983299073">✅</emoji>',

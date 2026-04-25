@@ -10,16 +10,7 @@ from KHUSHI.utils.inline import close_markup, InlineKeyboardButton
 from config import BANNED_USERS
 
 
-_BRAND = (
-    "<blockquote>"
-    '<emoji id="5042192219960771668">🧸</emoji> '
-    '<emoji id="5210820276748566172">A</emoji>'
-    '<emoji id="5213301251722203632">N</emoji>'
-    '<emoji id="5213301251722203632">N</emoji>'
-    '<emoji id="5211032856154885824">I</emoji>'
-    '<emoji id="5213337333742454261">E</emoji>'
-    "</blockquote>\n"
-)
+_BRAND = ""
 _E_CHECK     = '<emoji id="5852871561983299073">✅</emoji>'
 _E_CROSS     = '<emoji id="5040042498634810056">❌</emoji>'
 _E_REPEAT    = '<emoji id="6030657343744644592">🔁</emoji>'
