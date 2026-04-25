@@ -29,19 +29,18 @@ from KHUSHI.utils.database import (
 from KHUSHI.utils.extraction import extract_user
 from config import BANNED_USERS, OWNER_ID
 
-from KHUSHI.utils.ui import BRAND as _BRAND_RAW, E as _E_UI
 
 _BRAND = ""
-_dot = _E_UI["dot"]
-_zap = _E_UI["zap"]
-_cross = _E_UI["cross"]
-_check = _E_UI["check"]
-_warn = _E_UI["warn"]
-_ban = _E_UI["ban"]
-_gift = _E_UI["gift"]
-_hourglass = _E_UI["hourglass"]
-_shield = _E_UI["shield"]
-_crown = _E_UI["crown"]
+_dot = '<emoji id="5972072533833289156">🔹</emoji>'
+_zap = '<emoji id="5042334757040423886">⚡️</emoji>'
+_cross = '<emoji id="5040042498634810056">❌</emoji>'
+_check = '<emoji id="5852871561983299073">✅</emoji>'
+_warn = '<emoji id="5420323339723881652">⚠️</emoji>'
+_ban = '<emoji id="5039671744172917707">🚫</emoji>'
+_gift = '<emoji id="5409029744693897259">🎁</emoji>'
+_hourglass = '<emoji id="5454415424319931791">⏳</emoji>'
+_shield = '<emoji id="5895483165182529286">🛡</emoji>'
+_crown = '<emoji id="5039727497143387500">👑</emoji>'
 
 
 def _r(t):

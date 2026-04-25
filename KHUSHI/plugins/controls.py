@@ -34,20 +34,19 @@ from KHUSHI.utils.stream.autoclear import auto_clean
 from strings import get_string
 from config import BANNED_USERS
 
-from KHUSHI.utils.ui import BRAND as _BRAND, E as _E_UI
 
 _EM = {
-    "fire":   _E_UI["fire"],
-    "dot":    _E_UI["dot"],
-    "zap":    _E_UI["zap"],
-    "star":   _E_UI["gift"],
-    "warn":   _E_UI["warn"],
-    "cross":  _E_UI["cross"],
-    "shuffle": _E_UI["shuffle"],
-    "queue":  _E_UI["queue"],
-    "pause":  _E_UI["pause"],
-    "play":   _E_UI["live"],
-    "stop":   _E_UI["stop"],
+    "fire":   '<emoji id="5039644681583985437">🔥</emoji>',
+    "dot":    '<emoji id="5972072533833289156">🔹</emoji>',
+    "zap":    '<emoji id="5042334757040423886">⚡️</emoji>',
+    "star":   '<emoji id="5409029744693897259">🎁</emoji>',
+    "warn":   '<emoji id="5420323339723881652">⚠️</emoji>',
+    "cross":  '<emoji id="5040042498634810056">❌</emoji>',
+    "shuffle": '<emoji id="5129905231785624480">🔀</emoji>',
+    "queue":  '<emoji id="6039454987250044861">🔊</emoji>',
+    "pause":  '<emoji id="5039937555403899813">⏸</emoji>',
+    "play":   '<emoji id="5039937555403899813">▶️</emoji>',
+    "stop":   '<emoji id="5040042498634810056">⏹</emoji>',
 }
 
 def _close():

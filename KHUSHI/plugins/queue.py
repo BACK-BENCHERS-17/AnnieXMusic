@@ -7,12 +7,11 @@ from KHUSHI import app
 from KHUSHI.misc import db
 from KHUSHI.utils import seconds_to_min
 from KHUSHI.utils.database import get_cmode, is_active_chat
-from KHUSHI.utils.ui import E as _E_UI
 from config import BANNED_USERS
 
 _BRAND = ""
-_dot = _E_UI["dot"]
-_fire = _E_UI["heart"]
+_dot = '<emoji id="5972072533833289156">🔹</emoji>'
+_fire = '<emoji id="5042225965518816316">❤️\u200d🔥</emoji>'
 
 
 @app.on_message(

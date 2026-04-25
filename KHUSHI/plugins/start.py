@@ -42,17 +42,16 @@ from KHUSHI.utils.database import (
 from KHUSHI.utils.inline import InlineKeyboardButton
 from KHUSHI.utils.reactions import react_to_command
 from KHUSHI.utils.inline.help import first_page, second_page, help_back_markup, private_help_panel
-from KHUSHI.utils.ui import BRAND as _BRAND, E as _E
 from config import BANNED_USERS, HELP_IMG_URL, LOGGER_ID, START_IMGS, SUPPORT_CHAT, SUPPORT_CHANNEL
 from strings import get_string, helpers
 
-_DOT = _E["dot"]
-_ZAP = _E["zap"]
-_FIRE = _E["fire"]
-_SPARKLE = _E["sparkle"]
-_MUSIC = _E["music"]
-_GIFT = _E["gift"]
-_CROSS = _E["cross"]
+_DOT = '<emoji id="5972072533833289156">🔹</emoji>'
+_ZAP = '<emoji id="5042334757040423886">⚡️</emoji>'
+_FIRE = '<emoji id="5039644681583985437">🔥</emoji>'
+_SPARKLE = '<emoji id="5039827436737397847">✨</emoji>'
+_MUSIC = '<emoji id="5463107823946717464">🎵</emoji>'
+_GIFT = '<emoji id="5409029744693897259">🎁</emoji>'
+_CROSS = '<emoji id="5040042498634810056">❌</emoji>'
 
 START_TEXT = (
     "<blockquote><b>{mention}</b>, ɪ'ᴍ <b>{bot}</b> — ᴀ ꜱᴜᴘᴇʀ ꜰᴀꜱᴛ ᴍᴜꜱɪᴄ ʙᴏᴛ ᴡɪᴛʜ\n"

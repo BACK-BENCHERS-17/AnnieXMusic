@@ -1,17 +1,15 @@
 
-from KHUSHI.utils.ui import E as _E
-
-_MUSIC   = _E["music"]
-_SHUFFLE = _E["shuffle"]
-_ZAP     = _E["zap"]
-_DOT     = _E["dot"]
-_STAR    = _E["star"]
-_SPARKLE = _E["sparkle"]
-_VIDEO   = _E["video"]
-_SHIELD  = _E["shield"]
-_CROWN   = _E["crown"]
-_SEARCH  = _E["search"]
-_GIFT    = _E["gift"]
+_MUSIC   = '<emoji id="5463107823946717464">🎵</emoji>'
+_SHUFFLE = '<emoji id="5129905231785624480">🔀</emoji>'
+_ZAP     = '<emoji id="5042334757040423886">⚡️</emoji>'
+_DOT     = '<emoji id="5972072533833289156">🔹</emoji>'
+_STAR    = '<emoji id="5039827436737397847">🌟</emoji>'
+_SPARKLE = '<emoji id="5039827436737397847">✨</emoji>'
+_VIDEO   = '<emoji id="5375464961822695044">🎬</emoji>'
+_SHIELD  = '<emoji id="5895483165182529286">🛡</emoji>'
+_CROWN   = '<emoji id="5039727497143387500">👑</emoji>'
+_SEARCH  = '<emoji id="5972072533833289156">🔍</emoji>'
+_GIFT    = '<emoji id="5409029744693897259">🎁</emoji>'
 
 _ANNIE = ""
 

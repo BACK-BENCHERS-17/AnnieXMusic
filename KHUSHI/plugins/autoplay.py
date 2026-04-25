@@ -9,10 +9,31 @@ from KHUSHI.utils.decorators import GroupAdminCheck as AdminRightsCheck
 from KHUSHI.utils.inline import close_markup, InlineKeyboardButton
 from config import BANNED_USERS
 
-from KHUSHI.utils.ui import BRAND as _BRAND, E as _E, panel as _panel, brand_block as _brand_block
 
-_E_CHECK = _E["check"]
-_E_CROSS = _E["cross"]
+_BRAND = (
+    "<blockquote>"
+    '<emoji id="5042192219960771668">🧸</emoji> '
+    '<emoji id="5210820276748566172">A</emoji>'
+    '<emoji id="5213301251722203632">N</emoji>'
+    '<emoji id="5213301251722203632">N</emoji>'
+    '<emoji id="5211032856154885824">I</emoji>'
+    '<emoji id="5213337333742454261">E</emoji>'
+    "</blockquote>\n"
+)
+_E_CHECK     = '<emoji id="5852871561983299073">✅</emoji>'
+_E_CROSS     = '<emoji id="5040042498634810056">❌</emoji>'
+_E_REPEAT    = '<emoji id="6030657343744644592">🔁</emoji>'
+_E_NOTES     = '<emoji id="5039771357349413873">🎶</emoji>'
+_E_ZAP       = '<emoji id="5042334757040423886">⚡️</emoji>'
+_E_HOURGLASS = '<emoji id="5454415424319931791">⏳</emoji>'
+_E_DOT       = '<emoji id="5972072533833289156">🔹</emoji>'
+
+
+def _panel(title: str, rows: list[str]) -> str:
+    bar_open  = f"┌────── ˹ {title} ˼ ─── ⏤‌●"
+    bar_close = "└──────────────────●"
+    body = bar_open + "\n" + "\n".join(f"┆{r}" for r in rows) + "\n" + bar_close
+    return f"<blockquote>{body}</blockquote>"
 
 
 def _autoplay_text(enabled: bool) -> str:
@@ -21,9 +42,9 @@ def _autoplay_text(enabled: bool) -> str:
     return _BRAND + _panel(
         "ᴀᴜᴛᴏᴘʟᴀʏ",
         [
-            f"{_E['repeat']} <b>ꜱᴛᴀᴛᴜs:</b>  {status_em} <b>{status_txt}</b>",
-            f"{_E['notes']}  ᴀᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ ᴘʟᴀʏs ᴀ ʀᴇʟᴀᴛᴇᴅ sᴏɴɢ ᴡʜᴇɴ ǫᴜᴇᴜᴇ ᴇɴᴅs",
-            f"{_E['zap']}   ᴍᴜsɪᴄ ɴᴇᴠᴇʀ sᴛᴏᴘs ᴇᴠᴇɴ ᴀꜰᴛᴇʀ ᴛʜᴇ ʟᴀsᴛ ᴛʀᴀᴄᴋ!",
+            f"{_E_REPEAT} <b>ꜱᴛᴀᴛᴜs:</b>  {status_em} <b>{status_txt}</b>",
+            f"{_E_NOTES}  ᴀᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ ᴘʟᴀʏs ᴀ ʀᴇʟᴀᴛᴇᴅ sᴏɴɢ ᴡʜᴇɴ ǫᴜᴇᴜᴇ ᴇɴᴅs",
+            f"{_E_ZAP}   ᴍᴜsɪᴄ ɴᴇᴠᴇʀ sᴛᴏᴘs ᴇᴠᴇɴ ᴀꜰᴛᴇʀ ᴛʜᴇ ʟᴀsᴛ ᴛʀᴀᴄᴋ!",
         ],
     )
 
@@ -87,7 +108,7 @@ async def autoplay_command(cli, message: Message, _, chat_id):
             return await message.reply_text(
                 _BRAND + _panel("ᴀᴜᴛᴏᴘʟᴀʏ", [
                     f"{_E_CHECK} <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴇɴᴀʙʟᴇᴅ!</b>",
-                    f"{_E['notes']} ᴡɪʟʟ ᴀᴜᴛᴏ-ᴘʟᴀʏ ʀᴇʟᴀᴛᴇᴅ sᴏɴɢs ᴡʜᴇɴ ǫᴜᴇᴜᴇ ᴇɴᴅs.",
+                    f"{_E_NOTES} ᴡɪʟʟ ᴀᴜᴛᴏ-ᴘʟᴀʏ ʀᴇʟᴀᴛᴇᴅ sᴏɴɢs ᴡʜᴇɴ ǫᴜᴇᴜᴇ ᴇɴᴅs.",
                 ]),
                 reply_markup=close_markup(_),
             )
@@ -102,15 +123,15 @@ async def autoplay_command(cli, message: Message, _, chat_id):
             return await message.reply_text(
                 _BRAND + _panel("ᴀᴜᴛᴏᴘʟᴀʏ", [
                     f"{_E_CROSS} <b>ᴀᴜᴛᴏᴘʟᴀʏ ᴅɪsᴀʙʟᴇᴅ.</b>",
-                    f"{_E['hourglass']} ᴍᴜsɪᴄ ᴡɪʟʟ sᴛᴏᴘ ᴀꜰᴛᴇʀ ᴄᴜʀʀᴇɴᴛ ǫᴜᴇᴜᴇ ᴇɴᴅs.",
+                    f"{_E_HOURGLASS} ᴍᴜsɪᴄ ᴡɪʟʟ sᴛᴏᴘ ᴀꜰᴛᴇʀ ᴄᴜʀʀᴇɴᴛ ǫᴜᴇᴜᴇ ᴇɴᴅs.",
                 ]),
                 reply_markup=close_markup(_),
             )
         else:
             return await message.reply_text(
                 _BRAND + _panel("ᴀᴜᴛᴏᴘʟᴀʏ", [
-                    f"{_E['dot']} <code>/autoplay on</code>   — ᴇɴᴀʙʟᴇ ᴀᴜᴛᴏᴘʟᴀʏ",
-                    f"{_E['dot']} <code>/autoplay off</code>  — ᴅɪsᴀʙʟᴇ ᴀᴜᴛᴏᴘʟᴀʏ",
+                    f"{_E_DOT} <code>/autoplay on</code>   — ᴇɴᴀʙʟᴇ ᴀᴜᴛᴏᴘʟᴀʏ",
+                    f"{_E_DOT} <code>/autoplay off</code>  — ᴅɪsᴀʙʟᴇ ᴀᴜᴛᴏᴘʟᴀʏ",
                 ])
             )
 

@@ -32,11 +32,10 @@ from KHUSHI.utils.inline.settings import (
     vote_mode_markup,
 )
 from config import BANNED_USERS
-from KHUSHI.utils.ui import BRAND as _BRAND, E as _UIE
 
 _E_GEAR  = "⚙️"
-_E_GLOBE = _UIE["globe"]
-_E_USER  = _UIE["user"]
+_E_GLOBE = '<emoji id="5316832074047441823">🌐</emoji>'
+_E_USER  = '<emoji id="5316992572680320646">👤</emoji>'
 
 
 def _settings_text(chat_id: int, chat_title: str) -> str:

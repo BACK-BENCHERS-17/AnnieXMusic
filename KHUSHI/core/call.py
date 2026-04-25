@@ -14,7 +14,6 @@ from pytgcalls.types import AudioQuality, ChatUpdate, MediaStream, StreamEnded, 
 import config
 from strings import get_string
 from KHUSHI import LOGGER, YouTube, app
-from KHUSHI.utils.ui import E as _UIE, brand_block as _ui_brand, panel as _ui_panel
 from KHUSHI.misc import db
 from KHUSHI.utils.cookie_handler import COOKIE_PATH
 from KHUSHI.utils.database import (
@@ -33,6 +32,26 @@ from KHUSHI.utils.database import (
 )
 from KHUSHI.utils.exceptions import AssistantErr
 from KHUSHI.utils.formatters import check_duration, seconds_to_min, speed_converter
+
+
+_BRAND = (
+    "<blockquote>"
+    '<emoji id="5042192219960771668">🧸</emoji> '
+    '<emoji id="5210820276748566172">A</emoji>'
+    '<emoji id="5213301251722203632">N</emoji>'
+    '<emoji id="5213301251722203632">N</emoji>'
+    '<emoji id="5211032856154885824">I</emoji>'
+    '<emoji id="5213337333742454261">E</emoji>'
+    "</blockquote>\n"
+)
+
+
+def _ui_panel(title: str, rows: list, *, expandable: bool = False) -> str:
+    bar_open  = f"┌────── ˹ {title} ˼ ─── ⏤‌●"
+    bar_close = "└──────────────────●"
+    body = bar_open + "\n" + "\n".join(f"┆{r}" for r in rows) + "\n" + bar_close
+    tag = "blockquote expandable" if expandable else "blockquote"
+    return f"<{tag}>{body}</{tag}>"
 from KHUSHI.utils.prefetch import trigger_prefetch, cancel_prefetch
 from KHUSHI.utils.inline import stream_markup, stream_markup_timer, add_to_channel_markup, InlineKeyboardButton as StyledBtn
 from KHUSHI.utils.stream.autoclear import auto_clean
@@ -1029,8 +1048,8 @@ class Call:
                     continue
                 raise AssistantErr(
                     _ui_panel("ꜰʟᴏᴏᴅ ᴡᴀɪᴛ", [
-                        f"{_UIE['clock']} ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ <b>{wait_sec}s</b> ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.",
-                        f"{_UIE['warn']} ᴛᴇʟᴇɢʀᴀᴍ ʀᴀᴛᴇ-ʟɪᴍɪᴛ ᴇxᴄᴇᴇᴅᴇᴅ.",
+                        f"" '<emoji id="5123230779593196220">⏰</emoji>' f" ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ <b>{wait_sec}s</b> ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.",
+                        f"" '<emoji id="5420323339723881652">⚠️</emoji>' f" ᴛᴇʟᴇɢʀᴀᴍ ʀᴀᴛᴇ-ʟɪᴍɪᴛ ᴇxᴄᴇᴇᴅᴇᴅ.",
                     ])
                 )
             except ChannelInvalid:
@@ -1189,9 +1208,9 @@ class Call:
                 if not _ci_fixed:
                     raise AssistantErr(
                         _ui_panel("ᴀssɪsᴛᴀɴᴛ ᴇʀʀᴏʀ", [
-                            f"{_UIE['cross']} <b>ᴀssɪsᴛᴀɴᴛ ᴩᴇᴇʀ ʀᴇsᴏʟᴜᴛɪᴏɴ ꜰᴀɪʟᴇᴅ.</b>",
-                            f"{_UIE['dot']} ᴀssɪsᴛᴀɴᴛ ᴍᴀʏ ʜᴀᴠᴇ ʙᴇᴇɴ <b>ʙᴀɴɴᴇᴅ</b> ꜰʀᴏᴍ ᴛʜɪs ɢʀᴏᴜᴩ.",
-                            f"{_UIE['dot']} ᴜɴʙᴀɴ ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.",
+                            f"" '<emoji id="5040042498634810056">❌</emoji>' f" <b>ᴀssɪsᴛᴀɴᴛ ᴩᴇᴇʀ ʀᴇsᴏʟᴜᴛɪᴏɴ ꜰᴀɪʟᴇᴅ.</b>",
+                            f"" '<emoji id="5972072533833289156">🔹</emoji>' f" ᴀssɪsᴛᴀɴᴛ ᴍᴀʏ ʜᴀᴠᴇ ʙᴇᴇɴ <b>ʙᴀɴɴᴇᴅ</b> ꜰʀᴏᴍ ᴛʜɪs ɢʀᴏᴜᴩ.",
+                            f"" '<emoji id="5972072533833289156">🔹</emoji>' f" ᴜɴʙᴀɴ ᴛʜᴇ ᴀssɪsᴛᴀɴᴛ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.",
                         ])
                     )
             except ChannelPrivate:
@@ -1454,20 +1473,19 @@ class Call:
                                 language = await get_lang(chat_id)
                                 _lang = get_string(language)
                                 try:
-                                    from KHUSHI.utils.ui import E as _UE, panel as _upanel
                                     btn = stream_markup_timer(
                                         _lang, chat_id,
                                         "0:00", ap_dur,
                                         autoplay_on=True,
                                     )
-                                    _ap_caption = _upanel(
+                                    _ap_caption = _ui_panel(
                                         "ᴀᴜᴛᴏᴘʟᴀʏ",
                                         [
-                                            f"{_UE['music']} <b>ɴᴏᴡ ᴘʟᴀʏɪɴɢ:</b> "
+                                            f"" '<emoji id="5463107823946717464">🎵</emoji>' f" <b>ɴᴏᴡ ᴘʟᴀʏɪɴɢ:</b> "
                                             f"<a href='https://www.youtube.com/watch?v={ap_vidid}'>"
                                             f"{ap_title_short}</a>",
-                                            f"{_UE['clock']} <b>ᴅᴜʀᴀᴛɪᴏɴ:</b>  {ap_dur}",
-                                            f"{_UE['repeat']} <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ:</b>  ᴋʜᴜsʜɪ ᴀᴜᴛᴏᴘʟᴀʏ",
+                                            f"" '<emoji id="5123230779593196220">⏰</emoji>' f" <b>ᴅᴜʀᴀᴛɪᴏɴ:</b>  {ap_dur}",
+                                            f"" '<emoji id="6030657343744644592">🔁</emoji>' f" <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ:</b>  ᴋʜᴜsʜɪ ᴀᴜᴛᴏᴘʟᴀʏ",
                                         ],
                                     )
                                     _ap_markup = InlineKeyboardMarkup(btn)
@@ -1550,10 +1568,9 @@ class Call:
                         ),
                     ])
 
-                    from KHUSHI.utils.ui import E as _E_UI2, BRAND as _SUGG_BRAND
-                    _E_STAR  = _E_UI2["sparkle"]
-                    _E_DOT   = _E_UI2["dot"]
-                    _E_ZAP   = _E_UI2["zap"]
+                    _E_STAR  = '<emoji id="5039827436737397847">✨</emoji>'
+                    _E_DOT   = '<emoji id="5972072533833289156">🔹</emoji>'
+                    _E_ZAP   = '<emoji id="5042334757040423886">⚡️</emoji>'
                     _last_short = (last_title[:32] + "…") if len(last_title) > 32 else last_title
                     _last_line = (
                         f"{_E_DOT} ʟᴀsᴛ ᴘʟᴀʏᴇᴅ: <b>{_last_short}</b>\n"

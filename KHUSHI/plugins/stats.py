@@ -19,21 +19,20 @@ from KHUSHI.utils.database import (
 )
 from config import BANNED_USERS, OWNER_ID
 
-from KHUSHI.utils.ui import BRAND as _BRAND, E as _E_UI
 
 _E = {
-    "globe":  _E_UI["globe"],
-    "user":   _E_UI["user"],
-    "music":  _E_UI["music"],
-    "video":  _E_UI["video"],
-    "time":   _E_UI["clock"],
-    "cpu":    _E_UI["cpu"],
-    "ram":    _E_UI["ram"],
-    "disk":   _E_UI["disk"],
-    "crown":  _E_UI["crown"],
-    "fire":   _E_UI["fire"],
-    "banned": _E_UI["ban"],
-    "block":  _E_UI["shield"],
+    "globe":  '<emoji id="5316832074047441823">🌐</emoji>',
+    "user":   '<emoji id="5316992572680320646">👤</emoji>',
+    "music":  '<emoji id="5463107823946717464">🎵</emoji>',
+    "video":  '<emoji id="5375464961822695044">🎬</emoji>',
+    "time":   '<emoji id="5123230779593196220">⏰</emoji>',
+    "cpu":    '<emoji id="5215186239853964761">🖥</emoji>',
+    "ram":    '<emoji id="5834767463081840315">🔵</emoji>',
+    "disk":   '<emoji id="5040036030414062506">💬</emoji>',
+    "crown":  '<emoji id="5039727497143387500">👑</emoji>',
+    "fire":   '<emoji id="5039644681583985437">🔥</emoji>',
+    "banned": '<emoji id="5039671744172917707">🚫</emoji>',
+    "block":  '<emoji id="5895483165182529286">🛡</emoji>',
 }
 
 
@@ -157,7 +156,7 @@ async def stats_command(_, message: Message):
     if message.from_user.id != OWNER_ID:
         return await message.reply_text(
             "<blockquote>"
-            f"{_E_UI['ban']} <b>Access Denied</b>\n\n"
+            f"" '<emoji id="5039671744172917707">🚫</emoji>' f" <b>Access Denied</b>\n\n"
             "You are not authorised to use the <code>/stats</code> command.\n"
             "This command is reserved exclusively for the bot owner."
             "</blockquote>"

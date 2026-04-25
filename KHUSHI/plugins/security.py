@@ -11,19 +11,18 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 from KHUSHI import app
 from KHUSHI.core.mongo import mongodb
 from KHUSHI.utils.decorators import KhushiGroupAdmin as AdminRightsCheck
-from KHUSHI.utils.ui import E as _E_UI
 from config import BANNED_USERS
 
 _secdb = mongodb.security_settings
 
 _BRAND = ""
 _EM = {
-    "shield": _E_UI["shield"],
-    "zap":    _E_UI["zap"],
-    "dot":    _E_UI["dot"],
-    "warn":   _E_UI["warn"],
-    "on":     _E_UI["check"],
-    "off":    _E_UI["cross"],
+    "shield": '<emoji id="5895483165182529286">🛡</emoji>',
+    "zap":    '<emoji id="5042334757040423886">⚡️</emoji>',
+    "dot":    '<emoji id="5972072533833289156">🔹</emoji>',
+    "warn":   '<emoji id="5420323339723881652">⚠️</emoji>',
+    "on":     '<emoji id="5852871561983299073">✅</emoji>',
+    "off":    '<emoji id="5040042498634810056">❌</emoji>',
 }
 
 _flood_cache: dict[int, list[float]] = defaultdict(list)

@@ -29,10 +29,54 @@ from KHUSHI.utils.thumbnails import get_thumb
 from config import AYU, BANNED_USERS, BOT_USERNAME, DURATION_LIMIT, OWNER_ID, PING_IMG_URL, START_IMGS, SUPPORT_CHAT, adminlist
 from KHUSHI.utils.security import check_and_alert
 
-from KHUSHI.utils.ui import BRAND as _BRAND, E as _EM, msg as _msg, err as _err, info as _info, panel as _panel
 from KHUSHI.utils.exceptions import AssistantErr
 
 _log = logging.getLogger(__name__)
+
+
+_BRAND = (
+    "<blockquote>"
+    '<emoji id="5042192219960771668">🧸</emoji> '
+    '<emoji id="5210820276748566172">A</emoji>'
+    '<emoji id="5213301251722203632">N</emoji>'
+    '<emoji id="5213301251722203632">N</emoji>'
+    '<emoji id="5211032856154885824">I</emoji>'
+    '<emoji id="5213337333742454261">E</emoji>'
+    "</blockquote>\n"
+)
+
+_E_HTML = {
+    "check":  '<emoji id="5852871561983299073">✅</emoji>',
+    "cross":  '<emoji id="5040042498634810056">❌</emoji>',
+    "warn":   '<emoji id="5420323339723881652">⚠️</emoji>',
+    "shield": '<emoji id="5895483165182529286">🛡</emoji>',
+    "zap":    '<emoji id="5042334757040423886">⚡️</emoji>',
+    "dot":    '<emoji id="5972072533833289156">🔹</emoji>',
+    "speed":  '<emoji id="5042334757040423886">🚀</emoji>',
+    "seek_fwd": '<emoji id="6192553546102085729">⏩</emoji>',
+    "seek_bk":  '<emoji id="4981358569468200584">⏪</emoji>',
+}
+
+
+def _msg(header: str, body: str, *, emoji_key: str = "dot", expandable: bool = False) -> str:
+    em = _E_HTML.get(emoji_key, _E_HTML["dot"])
+    inner = f"{em} <b>{header}</b>"
+    if body:
+        inner += f"\n{body}"
+    tag = "blockquote expandable" if expandable else "blockquote"
+    return f"<{tag}>{inner}</{tag}>"
+
+
+def _err(text: str) -> str:
+    return _msg("ᴇʀʀᴏʀ", text, emoji_key="cross")
+
+
+def _panel(title: str, rows: list[str], *, expandable: bool = False) -> str:
+    bar_open  = f"┌────── ˹ {title} ˼ ─── ⏤‌●"
+    bar_close = "└──────────────────●"
+    body = bar_open + "\n" + "\n".join(f"┆{r}" for r in rows) + "\n" + bar_close
+    tag = "blockquote expandable" if expandable else "blockquote"
+    return f"<{tag}>{body}</{tag}>"
 
 
 async def _send_stream_msg(
@@ -81,8 +125,8 @@ async def _check_maintenance(message: Message) -> bool:
             if message.from_user.id not in SUDOERS:
                 _sc = SUPPORT_CHAT if SUPPORT_CHAT.startswith("http") else f"https://t.me/{SUPPORT_CHAT.lstrip('@')}"
                 await message.reply_text(
-                    f"<blockquote>{_EM['zap']} <b>ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ ᴍᴏᴅᴇ</b>\n"
-                    f"{_EM['dot']} ᴠɪꜱɪᴛ "
+                    f"<blockquote>" '<emoji id="5042334757040423886">⚡️</emoji>' f" <b>ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ ᴍᴏᴅᴇ</b>\n"
+                    f"" '<emoji id="5972072533833289156">🔹</emoji>' f" ᴠɪꜱɪᴛ "
                     f"<a href='{_sc}'>ꜱᴜᴘᴘᴏʀᴛ</a>.</blockquote>",
                     disable_web_page_preview=True,
                 )
@@ -168,10 +212,10 @@ async def _handle_play(message: Message, video: bool = False):
             await app.send_message(
                 msg_chat_id,
                 _panel("ʜᴏᴡ ᴛᴏ ᴘʟᴀʏ", [
-                    f"{_EM['music']} <code>/play</code> [ꜱᴏɴɢ ɴᴀᴍᴇ / ʏᴛ ᴜʀʟ]",
-                    f"{_EM['video']} <code>/vplay</code> [ᴠɪᴅᴇᴏ ɴᴀᴍᴇ / ʏᴛ ᴜʀʟ]",
-                    f"{_EM['dot']} <code>/play</code> [ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴛᴇʟᴇɢʀᴀᴍ ꜰɪʟᴇ]",
-                    f"{_EM['zap']} <code>/song</code> [ꜱᴏɴɢ] — ᴅᴏᴡɴʟᴏᴀᴅ ᴛᴏ ᴅᴍ",
+                    f"" '<emoji id="5463107823946717464">🎵</emoji>' f" <code>/play</code> [ꜱᴏɴɢ ɴᴀᴍᴇ / ʏᴛ ᴜʀʟ]",
+                    f"" '<emoji id="5375464961822695044">🎬</emoji>' f" <code>/vplay</code> [ᴠɪᴅᴇᴏ ɴᴀᴍᴇ / ʏᴛ ᴜʀʟ]",
+                    f"" '<emoji id="5972072533833289156">🔹</emoji>' f" <code>/play</code> [ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴛᴇʟᴇɢʀᴀᴍ ꜰɪʟᴇ]",
+                    f"" '<emoji id="5042334757040423886">⚡️</emoji>' f" <code>/song</code> [ꜱᴏɴɢ] — ᴅᴏᴡɴʟᴏᴀᴅ ᴛᴏ ᴅᴍ",
                 ]),
                 reply_markup=_play_kb,
                 parse_mode=enums.ParseMode.HTML,
@@ -236,7 +280,7 @@ async def _handle_play(message: Message, video: bool = False):
             except Exception as je:
                 db.pop(vc_chat_id, None)
                 return await message.reply_text(
-                    f"<blockquote>❌ ᴠᴄ ᴊᴏɪɴ ꜰᴀɪʟᴇᴅ.\n{_EM['dot']} {type(je).__name__}</blockquote>"
+                    f"<blockquote>❌ ᴠᴄ ᴊᴏɪɴ ꜰᴀɪʟᴇᴅ.\n" '<emoji id="5972072533833289156">🔹</emoji>' f" {type(je).__name__}</blockquote>"
                 )
             await put_queue(
                 vc_chat_id, msg_chat_id, file_path, title, duration,
@@ -248,10 +292,10 @@ async def _handle_play(message: Message, video: bool = False):
             caption = _panel(
                 "ɴᴏᴡ ᴩʟᴀʏɪɴɢ",
                 [
-                    f"{_EM['music']} <b>ᴛɪᴛʟᴇ:</b>  {_tg_title_short}",
-                    f"{_EM['video'] if is_video_type else _EM['headset']} <b>ᴛʏᴩᴇ:</b>  {_tg_type} ꜰɪʟᴇ",
-                    f"{_EM['clock']} <b>ᴅᴜʀᴀᴛɪᴏɴ:</b>  {duration}",
-                    f"{_EM['mic']} <b>ʀᴇǫᴜᴇꜱᴛᴇᴅ ʙʏ:</b>  {user_name}",
+                    f"" '<emoji id="5463107823946717464">🎵</emoji>' f" <b>ᴛɪᴛʟᴇ:</b>  {_tg_title_short}",
+                    ('<emoji id="5375464961822695044">🎬</emoji>' if is_video_type else '<emoji id="5463107823946717464">🎧</emoji>') + f" <b>ᴛʏᴩᴇ:</b>  {_tg_type} ꜰɪʟᴇ",
+                    f"" '<emoji id="5123230779593196220">⏰</emoji>' f" <b>ᴅᴜʀᴀᴛɪᴏɴ:</b>  {duration}",
+                    f"" '<emoji id="5933678317935791830">🎤</emoji>' f" <b>ʀᴇǫᴜᴇꜱᴛᴇᴅ ʙʏ:</b>  {user_name}",
                 ],
             )
             run = await _send_stream_msg(msg_chat_id, caption, InlineKeyboardMarkup(button))
@@ -340,7 +384,7 @@ async def _handle_play(message: Message, video: bool = False):
                     except Exception as je:
                         db.pop(vc_chat_id, None)
                         return await message.reply_text(
-                            f"<blockquote>❌ ᴠᴄ ᴊᴏɪɴ ꜰᴀɪʟᴇᴅ.\n{_EM['dot']} {type(je).__name__}</blockquote>"
+                            f"<blockquote>❌ ᴠᴄ ᴊᴏɪɴ ꜰᴀɪʟᴇᴅ.\n" '<emoji id="5972072533833289156">🔹</emoji>' f" {type(je).__name__}</blockquote>"
                         )
                     await put_queue(
                         vc_chat_id, msg_chat_id, f"live_{vidid}", title, "Live",
@@ -351,9 +395,9 @@ async def _handle_play(message: Message, video: bool = False):
                     caption = _panel(
                         "ʟɪᴠᴇ ꜱᴛʀᴇᴀᴍ",
                         [
-                            f"{_EM['live']} <b>ꜱᴛʀᴇᴀᴍɪɴɢ:</b>  <a href='https://www.youtube.com/watch?v={vidid}'>{_live_title_short}</a>",
-                            f"{_EM['radio']} <b>ᴛʏᴩᴇ:</b>  ʟɪᴠᴇ",
-                            f"{_EM['mic']} <b>ʀᴇǫᴜᴇꜱᴛᴇᴅ ʙʏ:</b>  {user_name}",
+                            f"" '<emoji id="5039937555403899813">▶️</emoji>' f" <b>ꜱᴛʀᴇᴀᴍɪɴɢ:</b>  <a href='https://www.youtube.com/watch?v={vidid}'>{_live_title_short}</a>",
+                            f"" '<emoji id="5463107823946717464">📻</emoji>' f" <b>ᴛʏᴩᴇ:</b>  ʟɪᴠᴇ",
+                            f"" '<emoji id="5933678317935791830">🎤</emoji>' f" <b>ʀᴇǫᴜᴇꜱᴛᴇᴅ ʙʏ:</b>  {user_name}",
                         ],
                     )
                     run = await _send_stream_msg(msg_chat_id, caption, InlineKeyboardMarkup(button), thumbnail=thumbnail)
@@ -372,7 +416,7 @@ async def _handle_play(message: Message, video: bool = False):
         )
     except Exception as e:
         return await mystic.edit_text(
-            f"<blockquote>❌ ɴᴏᴛʜɪɴɢ ꜰᴏᴜɴᴅ.\n{_EM['dot']} {type(e).__name__}</blockquote>"
+            f"<blockquote>❌ ɴᴏᴛʜɪɴɢ ꜰᴏᴜɴᴅ.\n" '<emoji id="5972072533833289156">🔹</emoji>' f" {type(e).__name__}</blockquote>"
         )
 
     if str(duration_min) == "None" or not vidid:
@@ -383,7 +427,7 @@ async def _handle_play(message: Message, video: bool = False):
     if duration_sec and duration_sec > DURATION_LIMIT:
         return await mystic.edit_text(
             f"<blockquote>❌ ᴛʀᴀᴄᴋ ɪꜱ ᴛᴏᴏ ʟᴏɴɢ.\n"
-            f"{_EM['dot']} ᴍᴀx: <code>{DURATION_LIMIT // 60} ᴍɪɴᴜᴛᴇꜱ</code></blockquote>"
+            f"" '<emoji id="5972072533833289156">🔹</emoji>' f" ᴍᴀx: <code>{DURATION_LIMIT // 60} ᴍɪɴᴜᴛᴇꜱ</code></blockquote>"
         )
 
     # Pre-warm CDN URL cache as soon as we have the vidid.
@@ -402,7 +446,7 @@ async def _handle_play(message: Message, video: bool = False):
         )
     except Exception as e:
         return await mystic.edit_text(
-            f"<blockquote>❌ ᴅᴏᴡɴʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ.\n{_EM['dot']} {type(e).__name__}</blockquote>"
+            f"<blockquote>❌ ᴅᴏᴡɴʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ.\n" '<emoji id="5972072533833289156">🔹</emoji>' f" {type(e).__name__}</blockquote>"
         )
 
     if not file_path:
@@ -444,7 +488,7 @@ async def _handle_play(message: Message, video: bool = False):
         except Exception as je:
             db.pop(vc_chat_id, None)
             return await mystic.edit_text(
-                f"<blockquote>❌ ᴠᴄ ᴊᴏɪɴ ꜰᴀɪʟᴇᴅ.\n{_EM['dot']} {type(je).__name__}: {je}</blockquote>"
+                f"<blockquote>❌ ᴠᴄ ᴊᴏɪɴ ꜰᴀɪʟᴇᴅ.\n" '<emoji id="5972072533833289156">🔹</emoji>' f" {type(je).__name__}: {je}</blockquote>"
             )
         await put_queue(
             vc_chat_id, msg_chat_id, stored_file, title_t, duration_min,
@@ -455,9 +499,9 @@ async def _handle_play(message: Message, video: bool = False):
         caption = _panel(
             "ɴᴏᴡ ᴩʟᴀʏɪɴɢ",
             [
-                f"{_EM['music']} <b>ɴᴏᴡ ᴘʟᴀʏɪɴɢ:</b> <a href='https://www.youtube.com/watch?v={vidid}'>{_title_short}</a>",
-                f"{_EM['clock']} <b>ᴅᴜʀᴀᴛɪᴏɴ:</b>  {duration_min}",
-                f"{_EM['mic']} <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ:</b>  {user_name}",
+                f"" '<emoji id="5463107823946717464">🎵</emoji>' f" <b>ɴᴏᴡ ᴘʟᴀʏɪɴɢ:</b> <a href='https://www.youtube.com/watch?v={vidid}'>{_title_short}</a>",
+                f"" '<emoji id="5123230779593196220">⏰</emoji>' f" <b>ᴅᴜʀᴀᴛɪᴏɴ:</b>  {duration_min}",
+                f"" '<emoji id="5933678317935791830">🎤</emoji>' f" <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ:</b>  {user_name}",
             ],
         )
         run = await _send_stream_msg(msg_chat_id, caption, InlineKeyboardMarkup(button), thumbnail=thumbnail)
@@ -501,7 +545,7 @@ async def kseek(_, message: Message, lang, chat_id):
         usage = "<code>/seekback [sec]</code>" if is_back else "<code>/seek [sec]</code>"
         return await message.reply_text(
             _panel("ꜱᴇᴇᴋ", [
-                f"{_EM['seek_fwd']} {usage} — ᴊᴜᴍᴘ ꜰᴏʀᴡᴀʀᴅ ᴏʀ ʙᴀᴄᴋ ɪɴ ᴛʜᴇ ᴄᴜʀʀᴇɴᴛ ᴛʀᴀᴄᴋ",
+                f"" '<emoji id="6192553546102085729">⏩</emoji>' f" {usage} — ᴊᴜᴍᴘ ꜰᴏʀᴡᴀʀᴅ ᴏʀ ʙᴀᴄᴋ ɪɴ ᴛʜᴇ ᴄᴜʀʀᴇɴᴛ ᴛʀᴀᴄᴋ",
             ])
         )
     check = db.get(chat_id)
@@ -568,8 +612,8 @@ async def kspeed(_, message: Message, lang, chat_id):
     if len(message.command) < 2:
         return await message.reply_text(
             _panel("ꜱᴘᴇᴇᴅ", [
-                f"{_EM['speed']} <code>/speed [0.5 – 4.0]</code>",
-                f"{_EM['dot']} 1.0 = ɴᴏʀᴍᴀʟ  •  2.0 = 2× ꜰᴀꜱᴛ  •  0.5 = ʜᴀʟꜰ",
+                f"" '<emoji id="5042334757040423886">🚀</emoji>' f" <code>/speed [0.5 – 4.0]</code>",
+                f"" '<emoji id="5972072533833289156">🔹</emoji>' f" 1.0 = ɴᴏʀᴍᴀʟ  •  2.0 = 2× ꜰᴀꜱᴛ  •  0.5 = ʜᴀʟꜰ",
             ])
         )
     check = db.get(chat_id)
@@ -739,7 +783,7 @@ async def related_play_cb(client, query):
             db.pop(chat_id, None)
             return await client.send_message(
                 chat_id,
-                f"<blockquote>❌ ᴠᴄ ᴊᴏɪɴ ꜰᴀɪʟᴇᴅ.\n{_EM['dot']} {type(je).__name__}</blockquote>",
+                f"<blockquote>❌ ᴠᴄ ᴊᴏɪɴ ꜰᴀɪʟᴇᴅ.\n" '<emoji id="5972072533833289156">🔹</emoji>' f" {type(je).__name__}</blockquote>",
             )
         await put_queue(
             chat_id, chat_id, stored_file, title_t, duration_min,
@@ -750,9 +794,9 @@ async def related_play_cb(client, query):
         caption = _panel(
             "ɴᴏᴡ ᴩʟᴀʏɪɴɢ",
             [
-                f"{_EM['music']} <b>ɴᴏᴡ ᴘʟᴀʏɪɴɢ:</b>  <a href='https://www.youtube.com/watch?v={vidid}'>{_cb_title_short}</a>",
-                f"{_EM['clock']} <b>ᴅᴜʀᴀᴛɪᴏɴ:</b>  {duration_min}",
-                f"{_EM['mic']} <b>ʀᴇǫᴜᴇꜱᴛᴇᴅ ʙʏ:</b>  {user_name}",
+                f"" '<emoji id="5463107823946717464">🎵</emoji>' f" <b>ɴᴏᴡ ᴘʟᴀʏɪɴɢ:</b>  <a href='https://www.youtube.com/watch?v={vidid}'>{_cb_title_short}</a>",
+                f"" '<emoji id="5123230779593196220">⏰</emoji>' f" <b>ᴅᴜʀᴀᴛɪᴏɴ:</b>  {duration_min}",
+                f"" '<emoji id="5933678317935791830">🎤</emoji>' f" <b>ʀᴇǫᴜᴇꜱᴛᴇᴅ ʙʏ:</b>  {user_name}",
             ],
         )
         run = await _send_stream_msg(chat_id, caption, InlineKeyboardMarkup(button), thumbnail=thumbnail)
