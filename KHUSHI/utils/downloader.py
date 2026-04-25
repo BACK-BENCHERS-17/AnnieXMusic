@@ -579,6 +579,23 @@ async def fast_get_stream(vid: str) -> Optional[str]:
     except Exception as e:
         LOGGER(__name__).debug(f"[FAST] MongoDB URL cache check failed for {vid}: {e}")
 
+    # ── 4b. TeamDev YT-API (~1-3s) — single-shot CDN URL, no polling ──────────
+    # When configured, this is the *primary* fast path: PyTgCalls can stream
+    # directly from the returned CDN URL with no local download.
+    try:
+        from KHUSHI.utils.teamdev_api import fetch_stream_url as _td_fetch, is_configured as _td_on
+        if _td_on():
+            td_res = await _td_fetch(vid, fmt="mp3")
+            if td_res:
+                td_url, td_ext = td_res
+                _cache_cdn_url(vid, td_url, td_ext)
+                from KHUSHI.utils.url_cache import put_url as _td_put
+                asyncio.create_task(_td_put(vid, td_url, td_ext))
+                LOGGER(__name__).info(f"[FAST] TeamDev API hit for {vid}")
+                return td_url
+    except Exception as e:
+        LOGGER(__name__).debug(f"[FAST] TeamDev API failed for {vid}: {e}")
+
     # ── Slow path: deduplicate concurrent calls for the same video ID ────────────
     # When play.py fires fast_get_stream as a background task AND YouTube.download()
     # calls it simultaneously, they share the same in-flight task instead of running
@@ -797,12 +814,30 @@ async def download_audio_concurrent(link: str) -> Optional[str]:
                 LOGGER(__name__).debug(f"[SMART] Direct download failed for {vid}: {e}")
             return None
 
-        # ── Race: CDN and Direct in parallel — whoever finishes first wins ──
+        # ── TeamDev API path (~1-3s URL + fast CDN) ─────────────────────────
+        async def _teamdev_path() -> Optional[str]:
+            try:
+                from KHUSHI.utils.teamdev_api import (
+                    download_to_file as _td_dl,
+                    is_configured as _td_on,
+                )
+                if not _td_on():
+                    return None
+                path = await _td_dl(vid, _DOWNLOAD_DIR, fmt="mp3")
+                if path:
+                    LOGGER(__name__).info(f"[TeamDev] file ready: {path}")
+                    return path
+            except Exception as e:
+                LOGGER(__name__).debug(f"[TeamDev] file path failed for {vid}: {e}")
+            return None
+
+        # ── Race: TeamDev + CDN + Direct — whoever finishes first wins ──
+        td_task     = asyncio.create_task(_teamdev_path())
         cdn_task    = asyncio.create_task(_cdn_path())
         direct_task = asyncio.create_task(_direct_path())
 
         done, pending = await asyncio.wait(
-            {cdn_task, direct_task}, return_when=asyncio.FIRST_COMPLETED
+            {td_task, cdn_task, direct_task}, return_when=asyncio.FIRST_COMPLETED
         )
         for t in done:
             try:
