@@ -764,12 +764,20 @@ class Call:
 
         # ── Pre-warm: resolve peer on BOTH bot AND assistant clients ──────
         # Critical for new chats where assistant has never seen the channel.
-        # Strategy:
-        #   1. Bot does get_chat(chat_id) → bot has access_hash + invite link
-        #   2. Try assistant.get_chat(chat_id) — works if already in dialogs
-        #   3. If that fails, bot adds assistant via add_chat_members OR
-        #      assistant joins via the chat's invite link (whichever works)
-        #   4. Force assistant.get_dialogs(limit=5) to populate peer storage
+        #
+        # Root-cause: PyTgCalls' create_group_call() calls
+        # `assistant.resolve_peer(chat_id)` which hits assistant's SQLite peer
+        # cache. If the assistant has never interacted with that chat, the
+        # cache is empty → Pyrogram falls back to channels.GetChannels with
+        # access_hash=0 → Telegram returns CHANNEL_INVALID and play() blows up
+        # even though the assistant is physically inside the voice chat.
+        #
+        # Strategy (in priority order):
+        #   1. Bot resolves the peer → we get the real access_hash for free
+        #   2. Inject (chat_id, access_hash, type, None) into the assistant's
+        #      SQLite peer storage directly — guaranteed cache hit afterwards
+        #   3. Belt-and-braces: also try assistant.get_chat / invite-join /
+        #      dialog-refresh in case storage injection couldn't run
         try:
             from KHUSHI.utils.database import get_assistant_number, get_client as _get_client_pw
             _pw_num = await get_assistant_number(chat_id)
@@ -777,24 +785,84 @@ class Call:
 
             # Step 1: Pre-warm bot's own peer cache (cheap, almost always works)
             _bot_chat_obj = None
+            _bot_peer = None
             try:
                 _bot_chat_obj = await app.get_chat(chat_id)
             except Exception as _bot_pw_err:
-                LOGGER(__name__).debug(f"[PLAY] Bot peer pre-warm failed: {_bot_pw_err}")
+                LOGGER(__name__).debug(f"[PLAY] Bot get_chat failed: {_bot_pw_err}")
+            try:
+                _bot_peer = await app.resolve_peer(chat_id)
+            except Exception as _bot_rp_err:
+                LOGGER(__name__).debug(f"[PLAY] Bot resolve_peer failed: {_bot_rp_err}")
 
             if _pw_raw:
-                # Step 2: Try direct get_chat on assistant
-                _asst_warmed = False
-                try:
-                    await _pw_raw.get_chat(chat_id)
-                    _asst_warmed = True
-                    LOGGER(__name__).info(f"[PLAY] Assistant peer pre-warmed for chat={chat_id}")
-                except Exception as _asst_pw_err:
-                    LOGGER(__name__).info(
-                        f"[PLAY] Assistant get_chat failed (will try invite-join): {_asst_pw_err}"
-                    )
+                # ── Step 2 (the real fix): inject peer into assistant storage ──
+                # If the bot already knows this chat (which it does — the user
+                # just sent /play in it!) we can hand the (id, access_hash,
+                # type) triple directly to the assistant's storage. After this
+                # the assistant's resolve_peer() is a guaranteed cache hit.
+                _injected = False
+                if _bot_peer is not None:
+                    try:
+                        from pyrogram.raw.types import (
+                            InputPeerChannel as _IPC,
+                            InputPeerChat as _IPGroup,
+                            InputPeerUser as _IPU,
+                        )
+                        _peer_type = None
+                        _peer_access = 0
+                        if isinstance(_bot_peer, _IPC):
+                            _peer_access = int(getattr(_bot_peer, "access_hash", 0) or 0)
+                            # Distinguish broadcast channel vs supergroup using
+                            # the bot's Chat object when available — both share
+                            # the InputPeerChannel wire type.
+                            _ct = getattr(_bot_chat_obj, "type", None) if _bot_chat_obj else None
+                            _ct_name = getattr(_ct, "name", None) or str(_ct or "").upper()
+                            if "CHANNEL" in _ct_name and "SUPER" not in _ct_name:
+                                _peer_type = "channel"
+                            else:
+                                _peer_type = "supergroup"
+                        elif isinstance(_bot_peer, _IPGroup):
+                            _peer_type = "group"
+                        elif isinstance(_bot_peer, _IPU):
+                            _peer_access = int(getattr(_bot_peer, "access_hash", 0) or 0)
+                            _peer_type = "user"
 
-                # Step 3: If assistant doesn't know the chat, try invite-link join
+                        if _peer_type is not None:
+                            try:
+                                await _pw_raw.storage.update_peers(
+                                    [(int(chat_id), _peer_access, _peer_type, None)]
+                                )
+                                _injected = True
+                                LOGGER(__name__).info(
+                                    f"[PLAY] Assistant peer injected directly "
+                                    f"(chat={chat_id}, type={_peer_type})"
+                                )
+                            except Exception as _ins_err:
+                                LOGGER(__name__).debug(
+                                    f"[PLAY] Direct peer injection failed: {_ins_err}"
+                                )
+                    except Exception as _step2_err:
+                        LOGGER(__name__).debug(f"[PLAY] Peer-inject step skipped: {_step2_err}")
+
+                # Step 3 (belt-and-braces): try direct get_chat on assistant.
+                # Even after injection, calling get_chat lets Pyrogram refresh
+                # its in-memory chat info; if injection failed, this is our
+                # next-best chance to populate storage.
+                _asst_warmed = _injected
+                if not _asst_warmed:
+                    try:
+                        await _pw_raw.get_chat(chat_id)
+                        _asst_warmed = True
+                        LOGGER(__name__).info(
+                            f"[PLAY] Assistant peer pre-warmed via get_chat for chat={chat_id}"
+                        )
+                    except Exception as _asst_pw_err:
+                        LOGGER(__name__).info(
+                            f"[PLAY] Assistant get_chat failed (will try invite-join): {_asst_pw_err}"
+                        )
+
+                # Step 4: If still cold, try invite-link join
                 if not _asst_warmed and _bot_chat_obj is not None:
                     try:
                         _inv_link = getattr(_bot_chat_obj, "invite_link", None)
@@ -813,15 +881,13 @@ class Call:
                                 )
                                 await asyncio.sleep(1)
                             except Exception as _join_err:
-                                # USER_ALREADY_PARTICIPANT means assistant is already in
-                                # — that's fine, just refresh dialogs below.
                                 _join_msg = str(_join_err).upper()
                                 if "ALREADY" not in _join_msg:
                                     LOGGER(__name__).debug(f"[PLAY] join_chat failed: {_join_err}")
-                    except Exception as _step3_err:
-                        LOGGER(__name__).debug(f"[PLAY] Step3 invite-join skipped: {_step3_err}")
+                    except Exception as _step4_err:
+                        LOGGER(__name__).debug(f"[PLAY] Invite-join skipped: {_step4_err}")
 
-                    # Step 4: Force a small dialog sync to populate peer storage
+                    # Step 5: Force a small dialog sync to populate peer storage
                     try:
                         async for _d in _pw_raw.get_dialogs(limit=5):
                             if _d.chat and _d.chat.id == chat_id:
