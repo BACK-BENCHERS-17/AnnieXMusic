@@ -54,6 +54,41 @@ def _get_cached_cdn_url(vid: str) -> Optional[Tuple[str, str]]:
     _url_cache.pop(vid, None)
     return None
 
+
+def _cache_age_seconds(vid: str) -> Optional[int]:
+    """Return how long ago this vid was cached in-process (None if not cached)."""
+    cached = _url_cache.get(vid)
+    if not cached:
+        return None
+    _, _, expires_at = cached
+    # YouTube CDN URLs typically have ~6h validity; derive cached_at from expiry
+    cached_at = expires_at - (6 * 3600 - 300)  # subtract our 5-min safety margin
+    return max(0, int(time.time() - cached_at))
+
+
+async def _head_validate_cdn(url: str) -> bool:
+    """
+    Quick liveness check on a CDN URL — uses Range:bytes=0-0 GET (1.5s cap).
+    Returns True if server responds with 200/206 (URL still works), False otherwise.
+    Used to detect YouTube revoking a token before its `expire` timestamp.
+    """
+    try:
+        sess = await _get_session()
+        timeout = aiohttp.ClientTimeout(total=1.5, connect=1.0)
+        headers = get_cdn_headers()
+        headers["Range"] = "bytes=0-0"
+        async with sess.get(url, headers=headers, timeout=timeout, allow_redirects=True) as resp:
+            ok = resp.status in (200, 206)
+            if not ok:
+                LOGGER(__name__).info(f"[VALIDATE] CDN URL returned {resp.status} — invalidating")
+            return ok
+    except asyncio.TimeoutError:
+        # Treat timeout as alive (server slow but reachable) — avoid false invalidation
+        return True
+    except Exception as e:
+        LOGGER(__name__).debug(f"[VALIDATE] HEAD check exception: {e}")
+        return True
+
 # ── Internal webserver API ─────────────────────────────────────────────────
 # webserver.py binds on WEB_PORT (default 5000); health_check.py on 8080.
 # We always talk to the main webserver (port 5000) for URL/download APIs.
@@ -538,9 +573,15 @@ async def fast_get_stream(vid: str) -> Optional[str]:
     (by any user, even after a restart) for the same song is near-instant.
     """
     from KHUSHI.utils.url_cache import (
-        get_url as _mongo_get, put_url as _mongo_put,
+        get_url_with_age as _mongo_get_age, put_url as _mongo_put,
         get_file_path as _mongo_get_file, put_file_path as _mongo_put_file,
+        invalidate_url as _mongo_invalidate,
     )
+
+    # Stale-cache HEAD-validation threshold — URLs cached longer than this get
+    # a quick liveness check before being served. Catches YouTube revoking the
+    # token before its declared `expire=` timestamp (rare but real silent fail).
+    _STALE_AFTER = 1800  # 30 minutes
 
     # ── 1. Local file on disk (fastest path) ──────────────────────────────────
     cached = file_exists(vid)
@@ -563,19 +604,39 @@ async def fast_get_stream(vid: str) -> Optional[str]:
     hit = _get_cached_cdn_url(vid)
     if hit:
         cdn_url, _ext = hit
-        LOGGER(__name__).info(f"[FAST] In-process URL cache hit for {vid}")
-        asyncio.create_task(_trigger_bg_cache(vid))
-        return cdn_url
+        age = _cache_age_seconds(vid) or 0
+        if age > _STALE_AFTER:
+            if await _head_validate_cdn(cdn_url):
+                LOGGER(__name__).info(f"[FAST] In-process URL hit for {vid} (age={age}s, validated)")
+                asyncio.create_task(_trigger_bg_cache(vid))
+                return cdn_url
+            # Stale — drop and fall through to next layer
+            _url_cache.pop(vid, None)
+            LOGGER(__name__).info(f"[FAST] In-process URL stale for {vid} (age={age}s) — refreshing")
+        else:
+            LOGGER(__name__).info(f"[FAST] In-process URL hit for {vid} (age={age}s)")
+            asyncio.create_task(_trigger_bg_cache(vid))
+            return cdn_url
 
     # ── 4. MongoDB URL cache (~30ms — shared across users, 6h TTL) ────────────
     try:
-        mongo_hit = await _mongo_get(vid)
+        mongo_hit = await _mongo_get_age(vid)
         if mongo_hit:
-            cdn_url, ext = mongo_hit
-            _cache_cdn_url(vid, cdn_url, ext)
-            LOGGER(__name__).info(f"[FAST] MongoDB URL cache hit for {vid}")
-            asyncio.create_task(_trigger_bg_cache(vid))
-            return cdn_url
+            cdn_url, ext, age = mongo_hit
+            if age > _STALE_AFTER:
+                if await _head_validate_cdn(cdn_url):
+                    _cache_cdn_url(vid, cdn_url, ext)
+                    LOGGER(__name__).info(f"[FAST] MongoDB URL hit for {vid} (age={age}s, validated)")
+                    asyncio.create_task(_trigger_bg_cache(vid))
+                    return cdn_url
+                # Stale — invalidate so we don't keep returning a dead URL
+                asyncio.create_task(_mongo_invalidate(vid))
+                LOGGER(__name__).info(f"[FAST] MongoDB URL stale for {vid} (age={age}s) — refreshing")
+            else:
+                _cache_cdn_url(vid, cdn_url, ext)
+                LOGGER(__name__).info(f"[FAST] MongoDB URL hit for {vid} (age={age}s)")
+                asyncio.create_task(_trigger_bg_cache(vid))
+                return cdn_url
     except Exception as e:
         LOGGER(__name__).debug(f"[FAST] MongoDB URL cache check failed for {vid}: {e}")
 

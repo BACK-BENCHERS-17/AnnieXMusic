@@ -60,8 +60,15 @@ async def _ensure_index() -> None:
 
 
 async def get_url(vid: str) -> Optional[Tuple[str, str]]:
+    """Backwards-compat wrapper — returns (url, ext) without age."""
+    res = await get_url_with_age(vid)
+    return (res[0], res[1]) if res else None
+
+
+async def get_url_with_age(vid: str) -> Optional[Tuple[str, str, int]]:
     """
-    Return (cdn_url, ext) from MongoDB if still valid, else None.
+    Return (cdn_url, ext, age_seconds) from MongoDB if still valid, else None.
+    `age_seconds` lets the caller decide whether to HEAD-validate before use.
     Typical latency: 5-30 ms.
     """
     col = _get_col()
@@ -77,11 +84,24 @@ async def get_url(vid: str) -> Optional[Tuple[str, str]]:
         url = doc.get("url", "")
         ext = doc.get("ext", "m4a")
         if url:
-            _log.info(f"[URLCache] MongoDB hit for {vid}")
-            return url, ext
+            age = max(0, int(time.time()) - int(doc.get("saved_at", time.time())))
+            _log.info(f"[URLCache] MongoDB hit for {vid} (age={age}s)")
+            return url, ext, age
     except Exception as e:
         _log.debug(f"[URLCache] get_url failed for {vid}: {e}")
     return None
+
+
+async def invalidate_url(vid: str) -> None:
+    """Drop cached URL — call after a 403/410 to force fresh extraction next time."""
+    col = _get_col()
+    if col is None:
+        return
+    try:
+        await col.delete_one({"_id": vid})
+        _log.info(f"[URLCache] Invalidated {vid}")
+    except Exception as e:
+        _log.debug(f"[URLCache] invalidate failed for {vid}: {e}")
 
 
 async def put_url(vid: str, url: str, ext: str = "m4a") -> None:
