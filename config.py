@@ -43,13 +43,6 @@ API_KEY = getenv("API_KEY")        # optional
 DEEP_API = getenv("DEEP_API")      # optional
 YOUTUBE_API_KEY = getenv("YOUTUBE_API_KEY", "")  # YouTube Data API v3 key (optional but recommended for fast search)
 
-# TeamDev YT-API — single-shot resolver that returns a direct CDN URL,
-# enabling near-instant streaming start (~1s). When configured, it is tried
-# first in fast_get_stream / download_audio_concurrent; on any failure the
-# bot transparently falls back to its existing yt-dlp paths.
-TEAMDEV_API_URL = getenv("TEAMDEV_API_URL")  # optional, e.g. https://yt.teamdev.sbs
-TEAMDEV_API_KEY = getenv("TEAMDEV_API_KEY")  # optional API key
-
 # ── Web Player (Mini App) ──────────────────────────────────────────────────────
 # Auto-detected from RAILWAY_PUBLIC_DOMAIN / REPLIT_DEV_DOMAIN.
 # Override manually by setting this env var.
