@@ -587,7 +587,7 @@ def _invidious_download(vid: str, out_dir: str) -> Optional[str]:
 # TURBO: tightest possible single yt-dlp call using android_vr (jsless, no PO
 # token). Verified ~0.6s end-to-end for healthy videos. Used as the very first
 # extraction attempt — if it wins, we skip the entire race & cache lookup.
-_TURBO_FORMAT = "140/251/bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best"
+_TURBO_FORMAT = "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/140/251/best"
 
 
 def turbo_extract(vid: str) -> Optional[Dict]:
@@ -638,70 +638,56 @@ def turbo_extract(vid: str) -> Optional[Dict]:
 def smart_extract_url(vid: str) -> Optional[Dict]:
     """
     Extract YouTube stream URL.
-    Priority: turbo (android_vr tight) → cached best → jsless race → JS race → Invidious
+    Strategy: ALL fast paths fire IN PARALLEL from t=0 — first success wins.
+    If every fast client fails, second wave (JS clients + cookies + Invidious)
+    fires. Designed so a single slow/failing client never gates the result.
     """
-    # ── 0. TURBO PATH — single tightest android_vr call (~0.6-1.5s) ──────────
-    res = turbo_extract(vid)
-    if res:
-        _registry.mark_ok("android_vr")
-        _log.info(f"[SmartYTDL] Turbo hit for {vid}")
-        return res
-
     cookie_file = _find_cookie_file()
 
-    # ── 1. Cached-best fast path — only if it differs from android_vr ────────
-    best = _registry.get_best()
-    if best and best != "android_vr":
-        res = _client_extract(vid, best, None)
-        if res:
-            _registry.mark_ok(best)
-            _log.info(f"[SmartYTDL] Fast-path client='{best}' for {vid}")
-            return res
-        _registry.mark_failed(best)
-
-    # ── 2. JSless-only race (3s cap) — ios, android, mweb in parallel ────────
-    # Skips JS-requiring clients (web/web_safari/web_creator/tv) entirely
-    # because they need Node.js + signature solving = always slower than
-    # parallel jsless clients.
-    jsless_targets = [
-        (lambda c: lambda: _client_extract(vid, c, None))(c)
-        for c in ("ios", "android", "mweb")
+    # ── WAVE 1 (parallel, ≤4s cap) ────────────────────────────────────────────
+    # turbo (tight android_vr) + 3 jsless clients all fire at t=0. Whoever
+    # comes back first wins. android_vr typically wins in ~0.6-1.5s; if it
+    # times out or the video rejects it, ios/android/mweb fill the gap with
+    # no extra latency.
+    wave1 = [
+        lambda: turbo_extract(vid),
+        (lambda c: lambda: _client_extract(vid, c, None))("ios"),
+        (lambda c: lambda: _client_extract(vid, c, None))("android"),
+        (lambda c: lambda: _client_extract(vid, c, None))("mweb"),
     ]
-    _log.info(f"[SmartYTDL] Racing 3 jsless clients for {vid}")
-    winner = _race(jsless_targets, timeout=3.5)
+    _log.info(f"[SmartYTDL] Wave-1 racing 4 fast clients for {vid}")
+    winner = _race(wave1, timeout=4.0)
     if winner:
         winning_client = winner["client"]
         if winning_client in ALL_CLIENTS:
             _registry.mark_ok(winning_client)
-        _log.info(f"[SmartYTDL] jsless client='{winning_client}' won for {vid}")
+        elif winning_client == "turbo":
+            _registry.mark_ok("android_vr")
+        _log.info(f"[SmartYTDL] Wave-1 client='{winning_client}' won for {vid}")
         return winner
 
-    # ── 3. JS-requiring clients + cookied retry (last yt-dlp resort, 4s cap) ─
-    js_targets = [lambda: _direct_extract(vid)]
+    # ── WAVE 2 (parallel, ≤5s cap) — direct + JS clients + cookied retries ──
+    wave2 = [lambda: _direct_extract(vid)]
     if _NODE_PATH:
-        js_targets += [
+        wave2 += [
             (lambda c: lambda: _client_extract(vid, c, cookie_file))(c)
             for c in ("web_safari", "web_creator", "web", "tv")
         ]
     if cookie_file:
-        js_targets += [
+        wave2 += [
             (lambda c: lambda: _client_extract(vid, c, cookie_file))(c)
-            for c in ("android_vr", "ios")
+            for c in ("android_vr", "ios", "android")
         ]
-    _log.info(f"[SmartYTDL] Racing {len(js_targets)} fallback targets for {vid}")
-    winner = _race(js_targets, timeout=4.0)
+    # Always have Invidious in the wave too — sometimes it beats yt-dlp
+    wave2.append(lambda: _invidious_extract(vid))
+    _log.warning(f"[SmartYTDL] Wave-1 failed, Wave-2 racing {len(wave2)} sources for {vid}")
+    winner = _race(wave2, timeout=5.0)
     if winner:
         winning_client = winner["client"]
         if winning_client in ALL_CLIENTS:
             _registry.mark_ok(winning_client)
-        _log.info(f"[SmartYTDL] fallback client='{winning_client}' won for {vid}")
+        _log.info(f"[SmartYTDL] Wave-2 source='{winning_client}' won for {vid}")
         return winner
-
-    # ── 4. Invidious fallback (last resort) ──────────────────────────────────
-    _log.warning(f"[SmartYTDL] All yt-dlp clients failed for {vid} → Invidious")
-    res = _invidious_extract(vid)
-    if res:
-        return res
 
     _log.error(f"[SmartYTDL] ALL extract methods failed for {vid}")
     return None
