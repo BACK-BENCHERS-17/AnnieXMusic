@@ -33,13 +33,6 @@ args = ".pythonlibs/bin/python3.11 -m KHUSHI"
 [userenv]
 
 [userenv.shared]
-API_ID = "33679425"
-COOKIE_URL = "https://batbin.me/ribbonfish"
-LOGGER_ID = "-1003455370306"
-API_HASH = "317cec181636ecdbb76c6d43a2d5935d"
-BOT_TOKEN = "8181377432:AAGCMxdbGAo5zX1nxcG00pQO9Qcep5ywt4c"
-MONGO_DB_URI = "mongodb+srv://bb:bb@cluster0.t1k2ynu.mongodb.net/?appName=Cluster0"
-STRING_SESSION = "BQIB6EEATpGZnHyOcmWlo6aAFMo82HaeUq0eNSggIR6F2ySYQeN_bR4O_1tx1NTntzpmmJB5_fS7BaC36ziAZJE4Qo8dyBuC20wXyTk5OMN1XYnzvNCbPFor90BSI8L4WfckDamLw7GVjzb0L3RF2N2Iw1t404E24deqxL6bneDyCFoBSTi2cjBaKMicYSXxACnTtXeMBrKGCURDdf8YJ2wGCV_AyZgZS5newSUsLSxNSHyPG8AJvpSiHfHkhvpyd0Rpi4p7-_IB8DPiEmLLc9A_ZJTuxyNEuQ7JWBclE4e6eMnbYRfLAEFkF77nG6m8rJvuuFmIn0W62JhaboW1YWouf_KEbAAAAAHkdbuiAA"
 
 [[ports]]
 localPort = 5000
