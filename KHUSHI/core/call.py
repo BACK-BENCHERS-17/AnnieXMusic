@@ -1469,15 +1469,15 @@ class Call:
                                         "0:00", ap_dur,
                                         autoplay_on=True,
                                     )
-                                    _ap_caption = _ui_panel(
-                                        "ᴀᴜᴛᴏᴘʟᴀʏ",
-                                        [
-                                            f"" '<emoji id="5994566609002303309">🎵</emoji>' f" <b>ɴᴏᴡ ᴘʟᴀʏɪɴɢ:</b> "
-                                            f"<a href='https://www.youtube.com/watch?v={ap_vidid}'>"
-                                            f"{ap_title_short}</a>",
-                                            f"" '<emoji id="5123230779593196220">⏰</emoji>' f" <b>ᴅᴜʀᴀᴛɪᴏɴ:</b>  {ap_dur}",
-                                            f"" '<emoji id="6030657343744644592">🔁</emoji>' f" <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ:</b>  ᴋʜᴜsʜɪ ᴀᴜᴛᴏᴘʟᴀʏ",
-                                        ],
+                                    _ap_caption = (
+                                        f"<blockquote>"
+                                        f'┌────── ˹ <emoji id="6030657343744644592">🔁</emoji> ᴀᴜᴛᴏᴘʟᴀʏ ˼ ─── ⏤‌●\n'
+                                        f'┆<emoji id="5039827436737397847">✨</emoji> <b><a href=\'https://www.youtube.com/watch?v={ap_vidid}\'>{ap_title_short}</a></b>\n'
+                                        f'┆\n'
+                                        f'┆<emoji id="5123230779593196220">⏰</emoji> <b>ᴅᴜʀᴀᴛɪᴏɴ :</b>  {ap_dur}\n'
+                                        f'┆<emoji id="5994566609002303309">🎵</emoji> <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ :</b>  ᴋʜᴜꜱʜɪ ᴀᴜᴛᴏᴘʟᴀʏ\n'
+                                        f"└──────────────────●"
+                                        f"</blockquote>"
                                     )
                                     _ap_markup = InlineKeyboardMarkup(btn)
                                     LOGGER(__name__).info(f"[AUTOPLAY] Sending notification to chat={original_chat_id} song={ap_title_short}")

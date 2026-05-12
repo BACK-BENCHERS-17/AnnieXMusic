@@ -280,14 +280,17 @@ async def _handle_play(message: Message, video: bool = False):
             button = stream_markup_timer(_, vc_chat_id, "0:00", duration, autoplay_on=await is_autoplay(vc_chat_id))
             _tg_title_short = title[:35] + "..." if len(title) > 35 else title
             _tg_type = "ᴠɪᴅᴇᴏ" if is_video_type else "ᴀᴜᴅɪᴏ"
-            caption = _panel(
-                "ɴᴏᴡ ᴩʟᴀʏɪɴɢ",
-                [
-                    f"" '<emoji id="5994566609002303309">🎵</emoji>' f" <b>ᴛɪᴛʟᴇ:</b>  {_tg_title_short}",
-                    ('<emoji id="5375464961822695044">🎬</emoji>' if is_video_type else '<emoji id="5994566609002303309">🎧</emoji>') + f" <b>ᴛʏᴩᴇ:</b>  {_tg_type} ꜰɪʟᴇ",
-                    f"" '<emoji id="5123230779593196220">⏰</emoji>' f" <b>ᴅᴜʀᴀᴛɪᴏɴ:</b>  {duration}",
-                    f"" '<emoji id="6030722571412967168">🎤</emoji>' f" <b>ʀᴇǫᴜᴇꜱᴛᴇᴅ ʙʏ:</b>  {user_name}",
-                ],
+            _tg_type_icon = '<emoji id="5375464961822695044">🎬</emoji>' if is_video_type else '<emoji id="5994566609002303309">🎵</emoji>'
+            caption = (
+                f"<blockquote>"
+                f'┌────── ˹ <emoji id="5994566609002303309">🎵</emoji> ɴᴏᴡ ᴩʟᴀʏɪɴɢ ˼ ─── ⏤‌●\n'
+                f'┆<emoji id="5039827436737397847">✨</emoji> <b>{_tg_title_short}</b>\n'
+                f'┆\n'
+                f'┆{_tg_type_icon} <b>ᴛʏᴘᴇ :</b>  {_tg_type} ꜰɪʟᴇ\n'
+                f'┆<emoji id="5123230779593196220">⏰</emoji> <b>ᴅᴜʀᴀᴛɪᴏɴ :</b>  {duration}\n'
+                f'┆<emoji id="6030722571412967168">🎤</emoji> <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ :</b>  {user_name}\n'
+                f"└──────────────────●"
+                f"</blockquote>"
             )
             run = await _send_stream_msg(msg_chat_id, caption, InlineKeyboardMarkup(button))
             if db.get(vc_chat_id):
@@ -383,13 +386,15 @@ async def _handle_play(message: Message, video: bool = False):
                     )
                     button = stream_markup(_, vc_chat_id)
                     _live_title_short = title[:35] + "..." if len(title) > 35 else title
-                    caption = _panel(
-                        "ʟɪᴠᴇ ꜱᴛʀᴇᴀᴍ",
-                        [
-                            f"" '<emoji id="5039937555403899813">▶️</emoji>' f" <b>ꜱᴛʀᴇᴀᴍɪɴɢ:</b>  <a href='https://www.youtube.com/watch?v={vidid}'>{_live_title_short}</a>",
-                            f"" '<emoji id="5994566609002303309">📻</emoji>' f" <b>ᴛʏᴩᴇ:</b>  ʟɪᴠᴇ",
-                            f"" '<emoji id="6030722571412967168">🎤</emoji>' f" <b>ʀᴇǫᴜᴇꜱᴛᴇᴅ ʙʏ:</b>  {user_name}",
-                        ],
+                    caption = (
+                        f"<blockquote>"
+                        f'┌────── ˹ <emoji id="5039937555403899813">▶️</emoji> ʟɪᴠᴇ ꜱᴛʀᴇᴀᴍ ˼ ─── ⏤‌●\n'
+                        f'┆<emoji id="5039827436737397847">✨</emoji> <b><a href=\'https://www.youtube.com/watch?v={vidid}\'>{_live_title_short}</a></b>\n'
+                        f'┆\n'
+                        f'┆<emoji id="5994566609002303309">📻</emoji> <b>ᴛʏᴘᴇ :</b>  ʟɪᴠᴇ\n'
+                        f'┆<emoji id="6030722571412967168">🎤</emoji> <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ :</b>  {user_name}\n'
+                        f"└──────────────────●"
+                        f"</blockquote>"
                     )
                     run = await _send_stream_msg(msg_chat_id, caption, InlineKeyboardMarkup(button), thumbnail=thumbnail)
                     if db.get(vc_chat_id):
@@ -487,13 +492,15 @@ async def _handle_play(message: Message, video: bool = False):
         )
         button = stream_markup_timer(_, vc_chat_id, "0:00", duration_min, autoplay_on=await is_autoplay(vc_chat_id))
         _title_short = title_t[:35] + "..." if len(title_t) > 35 else title_t
-        caption = _panel(
-            "ɴᴏᴡ ᴩʟᴀʏɪɴɢ",
-            [
-                f"" '<emoji id="5994566609002303309">🎵</emoji>' f" <b>ɴᴏᴡ ᴘʟᴀʏɪɴɢ:</b> <a href='https://www.youtube.com/watch?v={vidid}'>{_title_short}</a>",
-                f"" '<emoji id="5123230779593196220">⏰</emoji>' f" <b>ᴅᴜʀᴀᴛɪᴏɴ:</b>  {duration_min}",
-                f"" '<emoji id="6030722571412967168">🎤</emoji>' f" <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ:</b>  {user_name}",
-            ],
+        caption = (
+            f"<blockquote>"
+            f'┌────── ˹ <emoji id="5994566609002303309">🎵</emoji> ɴᴏᴡ ᴩʟᴀʏɪɴɢ ˼ ─── ⏤‌●\n'
+            f'┆<emoji id="5039827436737397847">✨</emoji> <b><a href=\'https://www.youtube.com/watch?v={vidid}\'>{_title_short}</a></b>\n'
+            f'┆\n'
+            f'┆<emoji id="5123230779593196220">⏰</emoji> <b>ᴅᴜʀᴀᴛɪᴏɴ :</b>  {duration_min}\n'
+            f'┆<emoji id="6030722571412967168">🎤</emoji> <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ :</b>  {user_name}\n'
+            f"└──────────────────●"
+            f"</blockquote>"
         )
         run = await _send_stream_msg(msg_chat_id, caption, InlineKeyboardMarkup(button), thumbnail=thumbnail)
         if db.get(vc_chat_id):
@@ -782,13 +789,15 @@ async def related_play_cb(client, query):
         )
         button = stream_markup_timer(_, chat_id, "0:00", duration_min, autoplay_on=await is_autoplay(chat_id))
         _cb_title_short = title_t[:35] + "..." if len(title_t) > 35 else title_t
-        caption = _panel(
-            "ɴᴏᴡ ᴩʟᴀʏɪɴɢ",
-            [
-                f"" '<emoji id="5463107823946717464">🎵</emoji>' f" <b>ɴᴏᴡ ᴘʟᴀʏɪɴɢ:</b>  <a href='https://www.youtube.com/watch?v={vidid}'>{_cb_title_short}</a>",
-                f"" '<emoji id="5123230779593196220">⏰</emoji>' f" <b>ᴅᴜʀᴀᴛɪᴏɴ:</b>  {duration_min}",
-                f"" '<emoji id="5933678317935791830">🎤</emoji>' f" <b>ʀᴇǫᴜᴇꜱᴛᴇᴅ ʙʏ:</b>  {user_name}",
-            ],
+        caption = (
+            f"<blockquote>"
+            f'┌────── ˹ <emoji id="5994566609002303309">🎵</emoji> ɴᴏᴡ ᴩʟᴀʏɪɴɢ ˼ ─── ⏤‌●\n'
+            f'┆<emoji id="5039827436737397847">✨</emoji> <b><a href=\'https://www.youtube.com/watch?v={vidid}\'>{_cb_title_short}</a></b>\n'
+            f'┆\n'
+            f'┆<emoji id="5123230779593196220">⏰</emoji> <b>ᴅᴜʀᴀᴛɪᴏɴ :</b>  {duration_min}\n'
+            f'┆<emoji id="6030722571412967168">🎤</emoji> <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ :</b>  {user_name}\n'
+            f"└──────────────────●"
+            f"</blockquote>"
         )
         run = await _send_stream_msg(chat_id, caption, InlineKeyboardMarkup(button), thumbnail=thumbnail)
         if db.get(chat_id):

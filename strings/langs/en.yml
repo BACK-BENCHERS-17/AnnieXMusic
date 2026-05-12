@@ -174,17 +174,17 @@ str_3 : "ғᴀɪʟᴇᴅ ᴛᴏ sᴛʀᴇᴀᴍ ʏᴏᴜᴛᴜʙᴇ ʟɪᴠᴇ s
 ping_1 : "{0} ɪs ᴘɪɴɢɪɴɢ..."
 ping_2 : "{1}\n\n<blockquote>🏓 ᴘɪɴɢ : <code>{0} ᴍs</code>\n📞 ᴩʏ-ᴛɢᴄᴀʟʟs : <code>{6} ᴍs</code></blockquote>\n\n<blockquote>📊 <b>sʏsᴛᴇᴍ sᴛᴀᴛs</b>\n\n🕔 ᴜᴩᴛɪᴍᴇ : <code>{2}</code>\n🔵 ʀᴀᴍ : <code>{3}</code>\n🖥 ᴄᴘᴜ : <code>{4}</code>\n💬 ᴅɪsᴋ : <code>{5}</code></blockquote>\n\n<blockquote>🎁 ᴘᴏᴡᴇʀᴇᴅ ʙʏ <a href='https://t.me/PGL_B4CHI'>⎯꯭̽ 𝚱 𝚮 𝐔 𝛅 𝚮 𝚰⥱</a> 😎</blockquote>"
 
-queue_1 : "<blockquote>⚡️ ғᴇᴛᴄʜɪɴɢ ǫᴜᴇᴜᴇ...\n❤️‍🔥 ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ...</blockquote>"
-queue_2 : "<blockquote>⚡️ ǫᴜᴇᴜᴇ ᴇᴍᴘᴛʏ.</blockquote>"
-queue_3 : "<blockquote>🎁 ᴄʟɪᴄᴋ ʜᴇʀᴇ ᴛᴏ ᴄʜᴇᴄᴋ ᴛʜᴇ ʟɪsᴛ ᴏғ ᴛʜᴇ ǫᴜᴇᴜᴇᴅ ᴛʀᴀᴄᴋs : <a href=\"{0}\">ʜᴇʀᴇ</a></blockquote>"
-queue_4 : "<blockquote>⚡️ <b>Aᴅᴅᴇᴅ Tᴏ Qᴜᴇᴜᴇ Aᴛ #{0}</b></blockquote>\n<blockquote>❄️ <b>Tɪᴛʟᴇ :</b> {1}\n❤️‍🔥 <b>Dᴜʀᴀᴛɪᴏɴ :</b> {2} ᴍɪɴᴜᴛᴇs\n🔹 <b>Rᴇǫᴜᴇsᴛᴇᴅ ʙʏ :</b> {3}</blockquote>"
-queue_5 : "<blockquote>⚡️ ᴛʜᴇʀᴇ's ᴏɴʟʏ ᴏɴᴇ ǫᴜᴇᴜᴇᴅ ᴛʀᴀᴄᴋ ɪɴ ᴘʟᴀʏʟɪsᴛ.\n❤️‍🔥 ᴀᴅᴅ ᴍᴏʀᴇ ᴛʀᴀᴄᴋs ᴛᴏ ᴄʜᴇᴄᴋ ʟɪsᴛ.</blockquote>"
-queue_6 : "<blockquote>❄️ <b>ᴅᴜʀᴀᴛɪᴏɴ :</b> ᴜɴᴋɴᴏᴡɴ ᴅᴜʀᴀᴛɪᴏɴ sᴛʀᴇᴀᴍ\n❤️‍🔥 ᴄʟɪᴄᴋ ᴏɴ ʙᴜᴛᴛᴏɴ ʙᴇʟᴏᴡ ᴛᴏ ɢᴇᴛ ᴡʜᴏʟᴇ ǫᴜᴇᴜᴇᴅ ʟɪsᴛ.</blockquote>"
-queue_7 : "<blockquote>❤️‍🔥 ᴄʟɪᴄᴋ ᴏɴ ʙᴜᴛᴛᴏɴ ʙᴇʟᴏᴡ ᴛᴏ ɢᴇᴛ ᴡʜᴏʟᴇ ǫᴜᴇᴜᴇᴅ ʟɪsᴛ.</blockquote>"
-queue_8 : "<blockquote>⚡️ <b>{0} ᴘʟᴀʏᴇʀ</b></blockquote>\n<blockquote>❄️ <b>sᴛʀᴇᴀᴍɪɴɢ :</b> {1}\n🔗 <b>sᴛʀᴇᴀᴍ ᴛʏᴘᴇ :</b> {2}\n🔹 <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ :</b> {3}\n{4}</blockquote>"
+queue_1 : "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> ғᴇᴛᴄʜɪɴɢ ǫᴜᴇᴜᴇ...\n<emoji id=\"5042225965518816316\">❤️‍🔥</emoji> ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ...</blockquote>"
+queue_2 : "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> ǫᴜᴇᴜᴇ ɪꜱ ᴇᴍᴘᴛʏ.</blockquote>"
+queue_3 : "<blockquote><emoji id=\"5409029744693897259\">🎁</emoji> ᴄʟɪᴄᴋ ʜᴇʀᴇ ᴛᴏ ᴄʜᴇᴄᴋ ᴛʜᴇ ʟɪsᴛ ᴏꜰ ᴛʜᴇ ǫᴜᴇᴜᴇᴅ ᴛʀᴀᴄᴋs : <a href=\"{0}\">ʜᴇʀᴇ</a></blockquote>"
+queue_4 : "<blockquote>┌────── ˹ <emoji id=\"5129905231785624480\">🔀</emoji> ᴀᴅᴅᴇᴅ ᴛᴏ ǫᴜᴇᴜᴇ ˼ ─── ⏤‌●\n┆<emoji id=\"5042334757040423886\">⚡️</emoji> <b>ᴘᴏꜱɪᴛɪᴏɴ :</b>  <code>#{0}</code>\n┆<emoji id=\"5994566609002303309\">🎵</emoji> <b>ᴛɪᴛʟᴇ :</b>  {1}\n┆<emoji id=\"5123230779593196220\">⏰</emoji> <b>ᴅᴜʀᴀᴛɪᴏɴ :</b>  {2}\n┆<emoji id=\"6030722571412967168\">🎤</emoji> <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ :</b>  {3}\n└──────────────────●</blockquote>"
+queue_5 : "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> ᴛʜᴇʀᴇ's ᴏɴʟʏ ᴏɴᴇ ǫᴜᴇᴜᴇᴅ ᴛʀᴀᴄᴋ ɪɴ ᴘʟᴀʏʟɪsᴛ.\n<emoji id=\"5042225965518816316\">❤️‍🔥</emoji> ᴀᴅᴅ ᴍᴏʀᴇ ᴛʀᴀᴄᴋs ᴛᴏ ᴄʜᴇᴄᴋ ʟɪsᴛ.</blockquote>"
+queue_6 : "<blockquote><emoji id=\"5972072533833289156\">🔹</emoji> <b>ᴅᴜʀᴀᴛɪᴏɴ :</b> ᴜɴᴋɴᴏᴡɴ ᴅᴜʀᴀᴛɪᴏɴ sᴛʀᴇᴀᴍ\n<emoji id=\"5042225965518816316\">❤️‍🔥</emoji> ᴄʟɪᴄᴋ ᴏɴ ʙᴜᴛᴛᴏɴ ʙᴇʟᴏᴡ ᴛᴏ ɢᴇᴛ ᴡʜᴏʟᴇ ǫᴜᴇᴜᴇᴅ ʟɪsᴛ.</blockquote>"
+queue_7 : "<blockquote><emoji id=\"5042225965518816316\">❤️‍🔥</emoji> ᴄʟɪᴄᴋ ᴏɴ ʙᴜᴛᴛᴏɴ ʙᴇʟᴏᴡ ᴛᴏ ɢᴇᴛ ᴡʜᴏʟᴇ ǫᴜᴇᴜᴇᴅ ʟɪsᴛ.</blockquote>"
+queue_8 : "<blockquote><emoji id=\"5042334757040423886\">⚡️</emoji> <b>{0} ᴘʟᴀʏᴇʀ</b>\n<emoji id=\"5994566609002303309\">🎵</emoji> <b>sᴛʀᴇᴀᴍɪɴɢ :</b> {1}\n<emoji id=\"5972072533833289156\">🔹</emoji> <b>sᴛʀᴇᴀᴍ ᴛʏᴘᴇ :</b> {2}\n<emoji id=\"6030722571412967168\">🎤</emoji> <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ :</b> {3}\n{4}</blockquote>"
 
-stream_1 : "<blockquote>🎵 <b>ɴᴏᴡ ᴘʟᴀʏɪɴɢ</b></blockquote>\n<blockquote>⚡️ <b>ᴛɪᴛʟᴇ :</b> <a href=\"{0}\">{1}</a>\n❄️ <b>ᴅᴜʀᴀᴛɪᴏɴ :</b> {2}\n🔹 <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ :</b> {3}</blockquote>"
-stream_2 : "➲ <b>Sᴛᴀʀᴛᴇᴅ Sᴛʀᴇᴀᴍɪɴɢ |</b>\n\n<b>‣ Sᴛʀᴇᴀᴍ ᴛʏᴘᴇ :</b> ʟɪᴠᴇ sᴛʀᴇᴀᴍ [ᴜʀʟ]\n<b>‣ Rᴇǫᴜᴇsᴛᴇᴅ ʙʏ :</b> {0}"
+stream_1 : "<blockquote>┌────── ˹ <emoji id=\"5994566609002303309\">🎵</emoji> ɴᴏᴡ ᴩʟᴀʏɪɴɢ ˼ ─── ⏤‌●\n┆<emoji id=\"5039827436737397847\">✨</emoji> <b><a href=\"{0}\">{1}</a></b>\n┆<emoji id=\"5123230779593196220\">⏰</emoji> <b>ᴅᴜʀᴀᴛɪᴏɴ :</b>  {2}\n┆<emoji id=\"6030722571412967168\">🎤</emoji> <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ :</b>  {3}\n└──────────────────●</blockquote>"
+stream_2 : "<blockquote>┌────── ˹ <emoji id=\"5039937555403899813\">▶️</emoji> ʟɪᴠᴇ sᴛʀᴇᴀᴍ ˼ ─── ⏤‌●\n┆<emoji id=\"5994566609002303309\">📻</emoji> <b>sᴛʀᴇᴀᴍ ᴛʏᴘᴇ :</b>  ʟɪᴠᴇ [ᴜʀʟ]\n┆<emoji id=\"6030722571412967168\">🎤</emoji> <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ :</b>  {0}\n└──────────────────●</blockquote>"
 
 
 S_B_1 : "ᴀᴅᴅ ᴛᴏ ɢʀᴏᴜᴘ"
