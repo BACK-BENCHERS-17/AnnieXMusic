@@ -120,6 +120,15 @@ _DEFAULT_UA = _CLIENT_UA["android_vr"]
 # Clients that work WITHOUT a JS runtime (Node.js not needed)
 _JSLESS_CLIENTS = {"android_vr", "ios", "android", "mweb"}
 
+# ── Piped instances (ultra-fast YouTube proxy, ~200-500ms) ────────────────────
+_PIPED_INSTANCES = [
+    "https://pipedapi.kavin.rocks",
+    "https://piped-api.garudalinux.org",
+    "https://api.piped.projectsegfau.lt",
+    "https://pipedapi.ngni.us",
+    "https://piped.tokhmi.xyz",
+]
+
 # ── Invidious instances (fallback pool) ───────────────────────────────────────
 _INVIDIOUS_INSTANCES = [
     "https://invidious.io.lol",
@@ -155,6 +164,60 @@ def _alive_instances(pool: List[str]) -> List[str]:
 def _fail_instance(inst: str):
     with _inst_lock:
         _inst_failed[inst] = time.time()
+
+
+# ── Piped API — ultra-fast stream URL extraction (no yt-dlp) ─────────────────
+def piped_extract(vid: str) -> Optional[Dict]:
+    """
+    Return a direct audio CDN URL via a public Piped.video API instance.
+    ~200-500ms — bypasses yt-dlp entirely. Used as the first Wave-1 attempt
+    so most plays resolve in under a second. Falls back gracefully to None
+    if all instances are down or the video is unavailable.
+    """
+    import urllib.request
+
+    for inst in _alive_instances(_PIPED_INSTANCES):
+        try:
+            url = f"{inst}/streams/{vid}"
+            req = urllib.request.Request(
+                url,
+                headers={
+                    "User-Agent": "Mozilla/5.0 (compatible; KhushiBot/2.0)",
+                    "Accept":     "application/json",
+                },
+            )
+            with urllib.request.urlopen(req, timeout=3) as r:
+                if r.status != 200:
+                    _fail_instance(inst)
+                    continue
+                raw = r.read()
+                if not raw or raw[:1] not in (b"{", b"["):
+                    _fail_instance(inst)
+                    continue
+                data = json.loads(raw)
+
+            best_url, best_br = None, 0
+            for stream in data.get("audioStreams", []):
+                br = int(stream.get("bitrate", 0))
+                if br > best_br and stream.get("url"):
+                    best_br = br
+                    best_url = stream["url"]
+
+            if best_url:
+                _log.info(f"[Piped] OK {inst} for {vid}")
+                return {
+                    "url":      best_url,
+                    "ext":      "webm",
+                    "title":    data.get("title", "Unknown"),
+                    "channel":  data.get("uploader", ""),
+                    "duration": int(data.get("duration") or 0),
+                    "client":   f"piped:{inst}",
+                }
+            _fail_instance(inst)
+        except Exception as e:
+            _log.debug(f"[Piped] {inst} → {vid}: {e}")
+            _fail_instance(inst)
+    return None
 
 
 # ── Cookie support ────────────────────────────────────────────────────────────
@@ -305,9 +368,8 @@ def _opts(client: str, cookie_file: Optional[str] = None) -> Dict:
         "no_warnings":        True,
         "nocheckcertificate": True,
         "source_address":     "0.0.0.0",
-        # 6s gives YouTube CDN enough headroom on slow days while still failing
-        # fast enough that the parallel race can pick another client quickly.
-        "socket_timeout":     6,
+        # 4s — tight enough for Wave-1 race to fail fast and let another client win.
+        "socket_timeout":     4,
         "retries":            1,
         "extractor_args": {
             "youtube": {
@@ -601,7 +663,7 @@ def turbo_extract(vid: str) -> Optional[Dict]:
         "no_warnings":        True,
         "nocheckcertificate": True,
         "source_address":     "0.0.0.0",
-        "socket_timeout":     5,
+        "socket_timeout":     3,
         "retries":            0,
         "skip_download":      True,
         "format":             _TURBO_FORMAT,
@@ -650,13 +712,14 @@ def smart_extract_url(vid: str) -> Optional[Dict]:
     # times out or the video rejects it, ios/android/mweb fill the gap with
     # no extra latency.
     wave1 = [
-        lambda: turbo_extract(vid),
+        lambda: piped_extract(vid),                                        # ~200-500ms — no yt-dlp at all
+        lambda: turbo_extract(vid),                                        # ~0.6-1.5s  — android_vr tight opts
         (lambda c: lambda: _client_extract(vid, c, None))("ios"),
         (lambda c: lambda: _client_extract(vid, c, None))("android"),
         (lambda c: lambda: _client_extract(vid, c, None))("mweb"),
     ]
-    _log.info(f"[SmartYTDL] Wave-1 racing 4 fast clients for {vid}")
-    winner = _race(wave1, timeout=4.0)
+    _log.info(f"[SmartYTDL] Wave-1 racing 5 sources (Piped+4 yt-dlp) for {vid}")
+    winner = _race(wave1, timeout=3.0)
     if winner:
         winning_client = winner["client"]
         if winning_client in ALL_CLIENTS:
