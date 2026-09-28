@@ -3,10 +3,33 @@ import os
 from datetime import datetime, timedelta
 from typing import Union
 
+import pyrogram.utils as pyrogram_utils
+
+
+# Pyrogram 2.0.106 rejects newer Telegram -100... peer IDs above its old
+# 32-bit channel limit. Treat every Telegram channel-form ID as a channel.
+_original_get_peer_type = pyrogram_utils.get_peer_type
+
+
+def _get_peer_type_compat(peer_id: int) -> str:
+    if str(peer_id).startswith("-100"):
+        return "channel"
+    return _original_get_peer_type(peer_id)
+
+
+pyrogram_utils.get_peer_type = _get_peer_type_compat
+
 from ntgcalls import TelegramServerError, ConnectionError as NTgConnectionError
 from pyrogram.enums import ParseMode
 from pyrogram.errors import FloodWait, ChatAdminRequired, ChannelInvalid, ChannelPrivate
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+
+# py-tgcalls 2.2.11 imports this legacy Pyrogram error name.
+import pyrogram.errors as pyrogram_errors
+
+if not hasattr(pyrogram_errors, "GroupcallForbidden"):
+    pyrogram_errors.GroupcallForbidden = pyrogram_errors.GroupCallInvalid
+
 from pytgcalls import PyTgCalls
 from pytgcalls.exceptions import NoActiveGroupCall, MTProtoClientNotConnected
 from pytgcalls.types import AudioQuality, ChatUpdate, MediaStream, StreamEnded, Update, VideoQuality
@@ -63,11 +86,11 @@ async def _notify_now_playing(
 ) -> object:
     """Send a 'Now Playing' notification.
 
-    Always uses the invisible-link trick (no photo/thumbnail).
+    Always uses the invisible-link video preview (no thumbnail/photo).
     The static catbox.moe anchor makes Telegram show a video preview above text.
     """
-    # Invisible-link trick: prepend a zero-width non-joiner anchor pointing to
-    # a static catbox.moe video so Telegram shows the preview ABOVE the text.
+    # Ignore any thumbnail/photo input: the user explicitly wants a video preview,
+    # not a still image. The raw helper below will send the mp4 anchor path.
     invert_text = f'<a href="{THUMB_OFF_VIDEO_URL}">\u200c</a>{caption}'
     result = await send_msg_invert_preview(app, chat_id, invert_text, markup)
     if result:

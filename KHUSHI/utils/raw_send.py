@@ -41,6 +41,23 @@ async def send_msg_invert_preview(
     (invert_media=True) using Pyrogram's raw API.
     Falls back through multiple layers if the raw call fails.
     """
+    # A real video message reliably renders media above its caption in one
+    # Telegram message when invert_media is unavailable in Pyrogram.
+    try:
+        media_match = re.match(r'^<a href="([^"]+\.mp4)">', text, re.IGNORECASE)
+        if media_match:
+            clean_text = _strip_all_anchors(_strip_invisible_link(text))
+            return await client.send_video(
+                chat_id,
+                video=media_match.group(1),
+                caption=clean_text,
+                reply_markup=reply_markup,
+                parse_mode=ParseMode.HTML,
+                reply_to_message_id=reply_to_message_id,
+            )
+    except Exception as e:
+        _log.warning("[raw_send] Video preview failed for chat=%s: %s", chat_id, e)
+
     # ── Layer 1: Raw API with invert_media ───────────────────────────────────
     try:
         parser = html_mod.HTML(client)

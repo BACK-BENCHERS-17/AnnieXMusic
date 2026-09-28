@@ -15,6 +15,7 @@ from KHUSHI.utils.errors import capture_internal_err
 from KHUSHI.utils.formatters import time_to_seconds
 from KHUSHI.utils.tuning import YTDLP_TIMEOUT, YOUTUBE_META_MAX, YOUTUBE_META_TTL
 from KHUSHI.utils.yt_api import yt_api_search, yt_api_video_details, is_api_available
+from KHUSHI.logger_setup import LOGGER
 
 _cache: Dict[str, Tuple[float, List[Dict]]] = {}
 _cache_lock = asyncio.Lock()
@@ -43,6 +44,9 @@ def _ydl_base_opts() -> Dict:
 
 def _extract_info_sync(link: str, opts: Optional[Dict] = None) -> Optional[Dict]:
     final_opts = _ydl_base_opts()
+    if link.startswith("ytsearch"):
+        final_opts.pop("extractor_args", None)
+        final_opts.pop("http_headers", None)
     if opts:
         final_opts.update(opts)
     with yt_dlp.YoutubeDL(final_opts) as ydl:
@@ -68,6 +72,21 @@ def _pick_stream_url(info: Dict) -> Optional[str]:
     if len(requested_formats) == 1 and requested_formats[0].get("url"):
         return requested_formats[0]["url"]
     return None
+
+
+def _best_token_result(query: str, entries: List[Dict]) -> Optional[Dict]:
+    query_tokens = [re.sub(r"[^a-z0-9]", "", token.lower()) for token in query.split()]
+    query_tokens = [token for token in query_tokens if token]
+    if not entries or not query_tokens:
+        return None
+
+    def score(entry: Dict) -> tuple[int, int, int]:
+        title = re.sub(r"[^a-z0-9]", "", (entry.get("title") or "").lower())
+        matched_indexes = [index for index, token in enumerate(query_tokens) if token in title]
+        return len(matched_indexes), max(matched_indexes, default=-1), -len(title)
+
+    best = max(entries, key=score)
+    return best if score(best)[0] else None
 
 
 @capture_internal_err
@@ -180,9 +199,43 @@ class YouTubeAPI:
     @capture_internal_err
     async def _fetch_video_info(self, query: str, *, use_cache: bool = True) -> Optional[Dict]:
         q = self._prepare_link(query)
+        if q.startswith("http"):
+            info = await _extract_info(q, {"skip_download": True})
+            if not info:
+                video_id = extract_video_id(q)
+                if video_id:
+                    from KHUSHI.utils.ytdl_smart import smart_extract_url
+
+                    info = await asyncio.to_thread(smart_extract_url, video_id)
+            if info:
+                duration = int(info.get("duration") or 0)
+                return {
+                    "id": info.get("id", ""),
+                    "title": info.get("title", ""),
+                    "duration": f"{duration // 60}:{duration % 60:02d}",
+                    "thumbnail": info.get("thumbnail", ""),
+                }
         if use_cache and not q.startswith("http"):
+            info = await _extract_info(f"ytsearch1:{q}", {"skip_download": True})
+            entries = (info or {}).get("entries") or []
+            if entries:
+                return entries[0]
+            token_entries = []
+            for token in q.split():
+                if len(token) < 3:
+                    continue
+                token_info = await _extract_info(f"ytsearch3:{token}", {"skip_download": True})
+                token_entries.extend((token_info or {}).get("entries") or [])
+            token_match = _best_token_result(q, token_entries)
+            if token_match:
+                return token_match
             res = await cached_youtube_search(q)
-            return res[0] if res else None
+            if res:
+                return res[0]
+            api_results = await yt_api_search(q, max_results=1)
+            if api_results:
+                return _normalize_api_results(api_results)[0]
+            return None
         data = await VideosSearch(q, limit=1).next()
         result = data.get("result", [])
         return result[0] if result else None
@@ -224,6 +277,7 @@ class YouTubeAPI:
                 pass
         info = await self._fetch_video_info(prepared)
         if not info:
+            LOGGER(__name__).warning(f"YouTube metadata lookup returned no result for: {prepared[:160]}")
             raise ValueError("Video not found")
         dt = info.get("duration")
         ds = int(time_to_seconds(dt)) if dt else 0

@@ -79,16 +79,15 @@ async def _send_stream_msg(
     """
     Send a 'Now Playing' notification with a video preview shown ABOVE the text.
 
-    Uses the invisible-link / invert_media trick (same helper as core/call.py)
-    so the preview appears at the top instead of a separate thumbnail photo.
-    The `thumbnail` argument is accepted for backward compatibility but ignored —
-    a static video anchor is always used so the preview animates on tap.
+    The thumbnail/photo path is intentionally disabled. Telegram is told to render
+    a static mp4 anchor as the preview so the user gets an animated video preview
+    instead of a still image thumbnail.
     """
+    branded_caption = f"{_BRAND}{caption}" if _BRAND else caption
     from KHUSHI.utils.raw_send import send_msg_invert_preview
     from KHUSHI.core.call import THUMB_OFF_VIDEO_URL
 
     # Prepend ANNIE brand row (premium-emoji rendered) above the caption.
-    branded_caption = f"{_BRAND}{caption}" if _BRAND else caption
     invert_text = f'<a href="{THUMB_OFF_VIDEO_URL}">\u200c</a>{branded_caption}'
     try:
         result = await send_msg_invert_preview(app, chat_id, invert_text, reply_markup)
@@ -464,7 +463,7 @@ async def _handle_play(message: Message, video: bool = False):
     title_t = title.title()
 
     # ── Queue or Play ──────────────────────────────────────────────────────────
-    if await is_active_chat(vc_chat_id):
+    if await is_active_chat(vc_chat_id) and vc_chat_id in JARVIS.active_calls:
         await put_queue(
             vc_chat_id, msg_chat_id, stored_file, title_t, duration_min,
             user_name, vidid, user_id, streamtype,
@@ -762,7 +761,7 @@ async def related_play_cb(client, query):
     title_t = title.title()
 
     # ── Queue or Play ─────────────────────────────────────────────────────────
-    if await is_active_chat(chat_id):
+    if await is_active_chat(chat_id) and chat_id in JARVIS.active_calls:
         await put_queue(
             chat_id, chat_id, stored_file, title_t, duration_min,
             user_name, vidid, user_id, "audio",

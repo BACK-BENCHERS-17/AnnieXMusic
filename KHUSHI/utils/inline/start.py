@@ -1,8 +1,5 @@
-from pyrogram.types import WebAppInfo
-
 from . import InlineKeyboardButton
 import config
-from KHUSHI.utils.weburl import WEB_URL
 
 
 def start_panel(_):
@@ -54,14 +51,5 @@ def private_panel(_):
             ),
         ],
     ]
-
-    if WEB_URL:
-        buttons.append([
-            InlineKeyboardButton(
-                text="˹ᴡᴇʙ ᴘʟᴀʏᴇʀ˼",
-                web_app=WebAppInfo(url=WEB_URL),
-                style="success",
-            )
-        ])
 
     return buttons

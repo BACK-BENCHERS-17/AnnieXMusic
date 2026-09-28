@@ -17,7 +17,6 @@ from KHUSHI import LOGGER, app, userbot
 from KHUSHI.core.call import JARVIS
 from KHUSHI.misc import sudo
 from KHUSHI.utils.database import get_banned_users, get_gbanned
-from KHUSHI.utils.weburl import WEB_URL
 from config import BANNED_USERS
 
 _PLUGIN_DIR = os.path.join(os.path.dirname(__file__), "plugins")
@@ -87,16 +86,7 @@ async def _set_commands():
 async def _set_menu_button():
     try:
         url = f"https://api.telegram.org/bot{config.BOT_TOKEN}/setChatMenuButton"
-        if WEB_URL:
-            payload = {
-                "menu_button": {
-                    "type": "web_app",
-                    "text": "ANNIE",
-                    "web_app": {"url": WEB_URL},
-                }
-            }
-        else:
-            payload = {"menu_button": {"type": "commands"}}
+        payload = {"menu_button": {"type": "commands"}}
         requests.post(url, json=payload, timeout=10)
     except Exception:
         pass
@@ -125,40 +115,6 @@ async def _graceful_shutdown():
 def _sigterm(sig, frame):
     LOGGER("KHUSHI").info("SIGTERM — shutting down...")
     asyncio.get_event_loop().create_task(_graceful_shutdown())
-
-
-async def _start_web():
-    try:
-        from web_config import WEB_ENABLED, WEB_HOST, WEB_PORT, WEB_DOMAIN
-        if not WEB_ENABLED:
-            return
-        from KHUSHI.utils.webserver import start_webserver, BOUND_PORT
-        runner = await start_webserver(WEB_HOST, WEB_PORT)
-        if runner is None:
-            return
-
-        # Re-import after binding to get the actually bound port
-        from KHUSHI.utils import webserver as _ws
-        actual_port = _ws.BOUND_PORT or WEB_PORT
-
-        # If no custom domain is set, patch the runtime URL to reflect the
-        # actual bound port (matters when a fallback port was used on VPS)
-        if not WEB_DOMAIN and actual_port != WEB_PORT:
-            import KHUSHI.utils.weburl as _wu
-            vps_host = os.environ.get("WEB_DOMAIN", "") or "localhost"
-            _wu.WEB_URL = f"http://{vps_host}:{actual_port}"
-            LOGGER("KHUSHI").warning(
-                f"Web URL updated to http://{vps_host}:{actual_port} "
-                f"(fallback — set WEB_DOMAIN=annie.qzz.io in env for your domain)"
-            )
-        elif WEB_DOMAIN:
-            LOGGER("KHUSHI").info(
-                f"Web player public URL: https://{WEB_DOMAIN} (bound internally on :{actual_port})"
-            )
-    except ImportError:
-        pass
-    except Exception as e:
-        LOGGER("KHUSHI").warning(f"Web server failed to start: {e}")
 
 
 async def main():
@@ -208,8 +164,6 @@ async def main():
 
     await _set_commands()
     await _set_menu_button()
-    await _start_web()
-
     LOGGER("KHUSHI").info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     LOGGER("KHUSHI").info("       A N N I E  is  L I V E !   ")
     LOGGER("KHUSHI").info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")

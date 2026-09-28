@@ -39,10 +39,8 @@ async def _send_stream_msg(
     """
     Send a 'Now Playing' notification with a video preview ABOVE the text.
 
-    Uses the same invisible-link / invert_media trick as core/call.py so the
-    preview appears at the top of the message instead of as a separate
-    thumbnail photo. The `photo` argument is accepted for backward
-    compatibility but ignored — a static video anchor is always used.
+    The still-image thumbnail route is intentionally disabled. Telegram receives
+    an mp4 anchor link instead, so the preview plays as video and not as a photo.
     """
     from KHUSHI.utils.raw_send import send_msg_invert_preview
     from KHUSHI.core.call import THUMB_OFF_VIDEO_URL
